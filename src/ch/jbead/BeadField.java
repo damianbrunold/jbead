@@ -58,9 +58,10 @@ public class BeadField {
 		for (int i = 0; i < SIZE; i++) {
 			field[i] = 0;
 		}
-		// TODO only in debug
-		for (int i = SIZE; i < SIZE + SAVEZONE; i++) {
-			field[i] = Byte.MAX_VALUE;
+		if (Debug.ENABLED) {
+			for (int i = SIZE; i < SIZE + SAVEZONE; i++) {
+				field[i] = Byte.MAX_VALUE;
+			}
 		}
 	}
 
@@ -95,9 +96,10 @@ public class BeadField {
 		assert (_y < height);
 		assert (_x + width * _y < SIZE);
 		field[_x + width * _y] = _data;
-		// TODO only in debug
-		for (int i = SIZE; i < SIZE + SAVEZONE; i++) {
-			assert (field[i] == Byte.MAX_VALUE);
+		if (Debug.ENABLED) {
+			for (int i = SIZE; i < SIZE + SAVEZONE; i++) {
+				assert (field[i] == Byte.MAX_VALUE);
+			}
 		}
 	}
 
