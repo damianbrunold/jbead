@@ -28,7 +28,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 
 /**
  * 
@@ -36,12 +38,16 @@ import javax.swing.JTextField;
 public class CopyForm extends JDialog {
 	private static final long serialVersionUID = 1L;
 
+	SpinnerModel horzModel = new SpinnerNumberModel(5, 0, 100, 1);
+	SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
+	SpinnerModel copyModel = new SpinnerNumberModel(1, 0, 100, 1);
+	
 	JLabel lHorz = new JLabel();
-	JTextField horz = new JTextField(4);
+	JSpinner horz = new JSpinner(horzModel);
 	JLabel lVert = new JLabel();
-	JTextField vert = new JTextField(4);
+	JSpinner vert = new JSpinner(vertModel);
 	JLabel lCopies = new JLabel();
-	JTextField Copies = new JTextField(4);
+	JSpinner Copies = new JSpinner(copyModel);
 	JButton bOK = new JButton();
 	JButton bCancel = new JButton();
 	
