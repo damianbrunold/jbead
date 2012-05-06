@@ -22,20 +22,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
  * 
  */
-public class AboutBox extends JFrame {
+public class AboutBox extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel text = new JLabel();
 	private JButton bOK = new JButton("OK");
 
 	public AboutBox() {
+		setModal(true);
 		setLayout(new BorderLayout());
 		add(text, BorderLayout.CENTER);
 		JPanel buttons = new JPanel();
@@ -43,6 +44,7 @@ public class AboutBox extends JFrame {
 		add(buttons, BorderLayout.SOUTH);
 	    reloadLanguage();
 	    setSize(800, 600);
+	    setLocationRelativeTo(null);
 	    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	    bOK.addActionListener(new ActionListener() {
 			@Override
@@ -63,10 +65,10 @@ public class AboutBox extends JFrame {
                 "The creation of such ropes is described in e.g. the book " +
                 "'Gehäkelte Glasperlenketten' written by Lotti Gygax. It is hard work to " +
                 "create such a rope, but the result is very beautiful." +
-                "<br />" +
+                "<p>&nbsp;</p>" +
                 "<p>With <b>jbead</b> you simulate before you start working how your design will " +
                 "look like as a finished rope. You can make changes directly on the screen. " +
-                "<br />" +
+                "<p>&nbsp;</p>" +
                 "<p>After finishing the design, you can print out all relevant data " +
                 "including a 'list of beads', which is very useful for correctly arranging "+
                 "the beads onto the thread. " +
@@ -76,11 +78,11 @@ public class AboutBox extends JFrame {
                 "create derivative works (if you are a programmer). Damian Brunold cannot " +
                 "assume any liability for bugs and damage caused by using the program. " +
                 "You have to decide for yourself whether the program is useful for you or not. " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>More information is available at http://www.brunoldsoftware.ch or by sending " +
                 "e-mail to info@brunoldsoftware.ch. This also is the address to direct bug " +
                 "reports or feature requests to. " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>Have fun using <b>jbead</b> " +
                 "<p>Damian Brunold ";
         text.setText(t);
@@ -92,26 +94,26 @@ public class AboutBox extends JFrame {
                 "Perlenketten helfen soll. Die Erstellung solcher Ketten wird beispielsweise " +
                 "im Buch 'Gehäkelte Glasperlenketten' von Lotti Gygax beschrieben. Die Arbeit ist aufwändig und " +
                 "langwierig. Das Resultat entschädigt aber für die erlittene Mühsal. " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>Mit <b>jbead</b> können Sie schon vor Beginn der Arbeit simulieren, wie Ihr " +
                 "Entwurf als Kette dann aussehen wird. Direkt am Bildschirm können Sie " +
                 "Änderungen vornehmen.\\par " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>Wenn Sie zufrieden mit dem Entwurf sind, können Sie alle notwendigen " +
                 "Daten ausdrucken lassen, inklusive einer 'Fädelliste', die hilfreich " +
                 "für das Auffädeln der Perlen auf das Häkelgarn ist.\\par " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p><b>jbead</b> wurde von Damian Brunold geschrieben. Es steht unter der Lizenz " +
                 "GPL v3, was bedeutet, dass Sie es kostenlos verwenden, kopieren und ändern " +
                 "dürfen. Dafür übernimmt Damian Brunold absolut keine " +
                 "Haftung für Fehler und Schäden durch Benutzung des Programmes. " +
                 "Sie müssen selber entscheiden, ob das Programm für Sie nützlich " +
                 "ist oder nicht.\\par " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>Weitere Informationen erhalten Sie unter http://www.brunoldsoftware.ch " +
                 "oder per E-Mail an info@brunoldsoftware.ch. An diese Adresse können " +
                 "Sie auch Fehler oder Verbesserungsvorschläge melden.\\par " +
-                "<br /> " +
+                "<p>&nbsp;</p> " +
                 "<p>Viel Spass mit dem Programm</p>" +
                 "<p>Damian Brunold</p>";
         text.setText(t);
@@ -129,4 +131,7 @@ public class AboutBox extends JFrame {
 	    Language.C_H(bOK, Language.LANG.GE, "OK", "");
 	}
 	
+	public static void main(String[] args) {
+		new AboutBox().FormShow();
+	}
 }
