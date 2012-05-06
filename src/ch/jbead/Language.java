@@ -18,7 +18,9 @@
 package ch.jbead;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 /**
  * 
@@ -46,10 +48,22 @@ public class Language {
 	    }
 	}
 
+	public static void C_H(JDialog dialog, Language.LANG language, String caption) {
+	    if (Language.active_language == language) {
+	        dialog.setTitle(caption);
+	    }
+	}
+
 	public static void C_H(JButton  button, Language.LANG language, String caption, String hint) {
 	    if (Language.active_language == language) {
 	        button.setText(caption);
 	        button.setToolTipText(hint);
+	    }
+	}
+
+	public static void C_H(JLabel label, Language.LANG language, String caption) {
+	    if (Language.active_language == language) {
+	        label.setText(caption);
 	    }
 	}
 }
