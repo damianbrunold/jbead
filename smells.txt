@@ -1,0 +1,6 @@
+Code Smells
+-----------
+
+Switching Language calls reloadLanguage/setAppTitle on
+BeadForm. This should better use the observer pattern.
+
