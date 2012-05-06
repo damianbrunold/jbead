@@ -4,3 +4,5 @@ Code Smells
 Switching Language calls reloadLanguage/setAppTitle on
 BeadForm. This should better use the observer pattern.
 
+Clean up language stuff, use property bundles and rely
+on locales.
