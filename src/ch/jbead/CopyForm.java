@@ -114,6 +114,18 @@ public class CopyForm extends JDialog {
 			}
 		});
 	}
+	
+	public int getCopies() {
+		return (Integer) Copies.getValue();
+	}
+	
+	public int getVertOffset() {
+		return (Integer) vert.getValue();
+	}
+
+	public int getHorzOffset() {
+		return (Integer) horz.getValue();
+	}
 
 	public void reloadLanguage() {
 		Language.C_H(this, Language.LANG.EN, "Arrangement");

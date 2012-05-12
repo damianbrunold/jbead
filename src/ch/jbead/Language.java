@@ -42,6 +42,14 @@ public class Language {
 	    //BeadForm->setAppTitle();
 	}
 	
+	public static String STR(String en, String ge) {
+		if (Language.active_language == Language.LANG.EN) {
+			return en;
+		} else {
+			return ge;
+		}
+	}
+	
 	public static void C_H(JFrame frame, Language.LANG language, String caption) {
 	    if (Language.active_language == language) {
 	        frame.setTitle(caption);

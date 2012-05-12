@@ -6,3 +6,47 @@ BeadForm. This should better use the observer pattern.
 
 Clean up language stuff, use property bundles and rely
 on locales.
+
+custom define the default colors so that they are exactly
+as in dbbead, use named constants instead of directly
+allocating the colors, do not use predefined, system
+colors.
+
+split beadform into the various components, for example,
+now all code for handling event and drawing the draft,
+corrected and the simulation is in beadform. Much better 
+would be to introduce full-fledged objects for draft,
+corrected and simulation (that all use the same data
+model, that is already abstracted), move all drawing
+code to these objects and maybe the event handling too
+or maybe add a controller class for doing the event
+handling. Then I could also use the observer pattern to 
+update each view when something changes in the model.
+
+Now the code uses separate x/y and i/j coordinates
+throughout. This should be abstracted so that physical
+and logical coordinates are objects and can be handled
+conveniently. Maybe I have to do this at least rudimentarily
+already at the transliterating stage, because the code
+uses lots of out parameters that are just not supported
+in java.
+ 
+Now the color (index) is of type byte, thus there are
+only 127 colors possible. In practice the limit is 9.
+But maybe it would pay to extend this to short or int.
+On the other hand, this would double or quadruple the
+size of BeadField and the file format would also change.
+Not exactly a code smell, but a smelly artificial limit.
+
+The FileMRUClick handler are highly repetitive. Remove
+code duplication.
+
+Instead of calling SetGlyphColors that does reset all
+color icons, better abstract the coltable to an object
+and let the ColorIcon be an observer thereof. Then only
+the icon that needs to be updated will be redrawn.
+
+The various mouse event handler have now state checked
+in if-else-statements. Better to encapsulate this using
+the State pattern.
+ 
