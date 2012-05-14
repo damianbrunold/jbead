@@ -90,7 +90,7 @@ public class BeadForm extends JFrame {
     JComponent draft = new DraftPanel(field, coltable, grid, scroll);
     JComponent normal = new NormalPanel(field, coltable, grid, scroll);
     JComponent simulation = new SimulationPanel(field, coltable, grid, scroll, shift);
-    JComponent report = new JPanel();
+    JComponent report = new ReportPanel(field, coltable, farbrapp, opendialog.getSelectedFile().getPath());
     
     JLabel laDraft = new JLabel("draft");
     JLabel laNormal = new JLabel("normal");
@@ -1255,69 +1255,6 @@ public class BeadForm extends JFrame {
         void InfoAboutClick()
         {
             new AboutBox().FormShow();
-        }
-
-        void reportPaint()
-        {
-            int x1 = 12;
-            int x2 = x1 + 100;
-            int y = 0;
-            int dy = 15;
-
-            // Mustername
-            report.Canvas.Pen.Color = clBlack;
-            report.Canvas.TextOut (x1, y, Language.STR("Pattern:", "Muster:"));
-            report.Canvas.TextOut (x2, y, ExtractFileName(savedialog.FileName));
-            y += dy;
-            // Umfang
-            report.Canvas.TextOut (x1, y, Language.STR("Circumference:", "Umfang:"));
-            report.Canvas.TextOut (x2, y, IntToStr(field.Width()));
-            y += dy;
-            // Farbrapport
-            report.Canvas.TextOut (x1, y, Language.STR("repeat of colors:", "Farbrapport:"));
-            report.Canvas.TextOut (x2, y, IntToStr(farbrapp)+Language.STR(" beads", " Perlen"));
-            y += dy;
-            // Farben
-            // F�delliste...
-            if (farbrapp>0) {
-                report.Canvas.TextOut (x1, y, Language.STR("List of beads", "F�delliste"));
-                y += dy;
-                int ystart = y;
-                char col = field.Get(farbrapp-1);
-                int  count = 1;
-                for (int i=farbrapp-2; i>=0; i--) {
-                    if (field.Get(i)==col) {
-                        count++;
-                    } else {
-                        if (col!=0) {
-                            report.Canvas.Brush.Color = coltable[col];
-                            report.Canvas.Pen.Color = report.Color;
-                        } else {
-                            report.Canvas.Brush.Color = report.Color;
-                            report.Canvas.Pen.Color = clDkGray;
-                        }
-                        report.Canvas.Rectangle (x1, y, x1+dy, y+dy);
-                        report.Canvas.Pen.Color = clBlack;
-                        report.Canvas.Brush.Color = report.Color;
-                        report.Canvas.TextOut (x1+dy+3, y, IntToStr(count));
-                        y += dy;
-                        col = field.Get(i);
-                        count = 1;
-                    }
-                    if (y>=report.ClientHeight-10) {
-                        x1 += dy + 24;
-                        y = ystart;
-                    }
-                }
-                if (y<report.ClientHeight-3) {
-                    report.Canvas.Brush.Color = coltable[col];
-                    report.Canvas.Pen.Color = report.Color;
-                    report.Canvas.Rectangle (x1, y, x1+dy, y+dy);
-                    report.Canvas.Pen.Color = clBlack;
-                    report.Canvas.Brush.Color = report.Color;
-                    report.Canvas.TextOut (x1+dy+3, y, IntToStr(count));
-                }
-            }
         }
 
         void lefttimerTimer()

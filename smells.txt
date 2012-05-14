@@ -49,4 +49,29 @@ the icon that needs to be updated will be redrawn.
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
- 
+
+I have to add observer pattern for various paint panels
+(DraftPanel, NormalPanel, SimulationPanel, ReportPanel),
+because they use state that is changing, e.g. scroll,
+grid, filename, coltable, ...
+
+Right now the filename handling code is a mess, there
+are opendialog and savedialog and they kind of persist
+the filename. But I would rather explicitly store the
+selected file and set it into the appropriate open/save
+dialog whenever needed. Also, why have opendialog and
+savedialog hanging around. Instantiate them whenever
+needed! Of course, we also have to store the current
+working directory, because we want to persist this.
+
+The various components of beadform are now layouted
+using no layout manager (actually it is not done at all,
+but if the code is finally transliterated this will be
+the result). I think it would be way better and much
+easier to handle this with explicit layout managers.
+I think it would not need to be very complex. The
+four main components could use a gridbag layout or
+a box layout. each component would use a border layout
+to lay out the description below the component proper.
+The real contents of the components will - of coure -
+still be custom painted.
