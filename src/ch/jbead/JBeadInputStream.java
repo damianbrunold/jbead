@@ -18,6 +18,7 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,6 +31,12 @@ public class JBeadInputStream {
     
     public JBeadInputStream(InputStream in) {
         this.in = in;
+    }
+    
+    public byte read() throws IOException {
+        int b = in.read();
+        if (b == -1) throw new EOFException();
+        return (byte) b;
     }
     
     public int readInt() throws IOException {
@@ -66,4 +73,9 @@ public class JBeadInputStream {
     public boolean readBool() throws IOException {
         return in.read() == 1;
     }
+
+    public void close() throws IOException {
+        in.close();
+    }
+
 }

@@ -18,11 +18,12 @@
 package ch.jbead;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -218,7 +219,7 @@ public class BeadForm extends JFrame {
             sbColor8.setIcon(new ColorIcon(coltable[8]));
             sbColor9.setIcon(new ColorIcon(coltable[9]));
             
-            Settings settings;
+            Settings settings = new Settings();
             settings.SetCategory ("Environment");
             Language.LANG language;
             int lang = settings.LoadInt ("Language", -1);
@@ -240,6 +241,16 @@ public class BeadForm extends JFrame {
             } else {
                 LanguageGerman.setSelected(true);
             }
+            
+            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    if (FormCloseQuery()) {
+                        System.exit(0);
+                    }
+                }
+            });
         }
 
         void DefaultColors()
@@ -418,11 +429,9 @@ public class BeadForm extends JFrame {
 
             // Datei laden
             try {
-                ObjectInputStream in = new ObjectInputStream(new FileInputStream(_filename));
+                JBeadInputStream in = new JBeadInputStream(new FileInputStream(_filename));
                 try {
-                    byte[] id = new byte[13];
-                    int read = in.read(id);
-                    String strid = new String(id, "UTF-8");
+                    String strid = in.read(13);
                     if (!strid.equals("DB-BEAD/01:\r\n")) {
                         JOptionPane.showMessageDialog(this, Language.STR("The file is not a DB-BEAD pattern file. It cannot be loaded", "Die Datei ist keine DB-BEAD Musterdatei. Sie kann nicht geladen werden."));
                         return;
@@ -433,14 +442,16 @@ public class BeadForm extends JFrame {
                     farbrapp = 0;
                     field.Load (in);
                     // TODO handle colors in a backwards compatible way!
-                    // f.Read (coltable, sizeof(coltable));
-//                    f.Read (&color, sizeof(color));
-//                    f.Read (&zoomidx, sizeof(zoomidx));
-//                    f.Read (&shift, sizeof(shift));
-//                    f.Read (&scroll, sizeof(scroll));
-//                    boolean vis; f.Read (&vis, sizeof(vis)); ViewDraft.Checked = vis;
-//                    f.Read (&vis, sizeof(vis)); ViewNormal.Checked = vis;
-//                    f.Read (&vis, sizeof(vis)); ViewSimulation.Checked = vis;
+                    for (int i = 0; i < coltable.length; i++) {
+                        coltable[i] = in.readColor();
+                    }
+                    color = in.read();
+                    zoomidx = in.readInt();
+                    shift = in.readInt();
+                    scroll = in.readInt();
+                    ViewDraft.setSelected(in.readBool());
+                    ViewNormal.setSelected(in.readBool());
+                    ViewSimulation.setSelected(in.readBool());
                     switch (color) {
                         case 0: sbColor0.setSelected(true); break;
                         case 1: sbColor1.setSelected(true); break;
@@ -1044,16 +1055,15 @@ public class BeadForm extends JFrame {
             if (oldscroll!=scroll) invalidate();
         }
 
-        // TODO handle out parameter
-        void IdleHandler (boolean& Done)
+        void IdleHandler()
         {
-            // Men�- und Toolbar enablen/disablen
-            EditCopy.Enabled = selection;
-            sbCopy.Enabled = selection;
-            EditUndo.Enabled = undo.CanUndo();
-            EditRedo.Enabled = undo.CanRedo();
-            sbUndo.Enabled = undo.CanUndo();
-            sbRedo.Enabled = undo.CanRedo();
+            // Menü- und Toolbar enablen/disablen
+            EditCopy.setEnabled(selection);
+            sbCopy.setEnabled(selection);
+            EditUndo.setEnabled(undo.CanUndo());
+            EditRedo.setEnabled(undo.CanRedo());
+            sbUndo.setEnabled(undo.CanUndo());
+            sbRedo.setEnabled(undo.CanRedo());
 
             // FIXME is this whole rapport stuff needed? all drawing code was commented out and thus removed...
             
@@ -1075,7 +1085,7 @@ public class BeadForm extends JFrame {
                     rapport = 0;
                     farbrapp = 0;
                     rapportdirty = false;
-                    report.Invalidate();
+                    report.invalidate();
                     return;
                 }
                 rapport = last+1;
@@ -1113,7 +1123,7 @@ public class BeadForm extends JFrame {
                     }
                 }
 
-                report.Invalidate();
+                report.invalidate();
                 rapportdirty = false;
             }
 
@@ -1132,7 +1142,7 @@ public class BeadForm extends JFrame {
 
         void FormCreate()
         {
-            Application.OnIdle = IdleHandler; // FIXME remove/replace with a timer?
+            //Application.OnIdle = IdleHandler; // FIXME remove/replace with a timer?
         }
 
         void ToolPointClick()
@@ -1257,16 +1267,14 @@ public class BeadForm extends JFrame {
             }
         }
 
-        // TODO handle out parameter
-        void FormCloseQuery(boolean &CanClose)
+        boolean FormCloseQuery()
         {
             if (modified) {
-                 int r = MessageDlg (Language.STR("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"), mtConfirmation,
-                                    TMsgDlgButtons() << mbYes << mbNo << mbCancel, 0);
-                 if (r==mrCancel) { CanClose = false; return; }
-                 if (r==mrYes) FileSaveClick(Sender);
+                 int r = JOptionPane.showConfirmDialog(this, Language.STR("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"));
+                 if (r==JOptionPane.CANCEL_OPTION) { return false; }
+                 if (r==JOptionPane.OK_OPTION) FileSaveClick();
             }
-            CanClose = true;
+            return true;
         }
 
         void EditCopyClick()
