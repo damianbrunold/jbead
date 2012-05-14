@@ -21,6 +21,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JToggleButton;
 
 /**
  * 
@@ -74,4 +77,24 @@ public class Language {
 	        label.setText(caption);
 	    }
 	}
+
+    public static void C_H(JMenu menu, Language.LANG language, String caption) {
+        if (Language.active_language == language) {
+            menu.setText(caption);
+        }
+    }
+
+    public static void C_H(JMenuItem item, Language.LANG language, String caption, String description) {
+        if (Language.active_language == language) {
+            item.setText(caption);
+            item.setToolTipText(description);
+        }
+    }
+
+    public static void C_H(JToggleButton button, Language.LANG language, String text, String tooltip) {
+        if (Language.active_language == language) {
+            button.setText(text);
+            button.setToolTipText(tooltip);
+        }
+    }
 }
