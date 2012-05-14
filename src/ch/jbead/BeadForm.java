@@ -18,21 +18,34 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Locale;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 /**
  * 
@@ -87,28 +100,85 @@ public class BeadForm extends JFrame {
     
     JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
     
-    JComponent draft = new DraftPanel(field, coltable, grid, scroll);
-    JComponent normal = new NormalPanel(field, coltable, grid, scroll);
-    JComponent simulation = new SimulationPanel(field, coltable, grid, scroll, shift);
-    JComponent report = new ReportPanel(field, coltable, farbrapp, opendialog.getSelectedFile().getPath());
+    DraftPanel draft = new DraftPanel(field, coltable, grid, scroll);
+    NormalPanel normal = new NormalPanel(field, coltable, grid, scroll);
+    SimulationPanel simulation = new SimulationPanel(field, coltable, grid, scroll, shift);
+    ReportPanel report = new ReportPanel(field, coltable, farbrapp, opendialog.getSelectedFile().getPath());
     
     JLabel laDraft = new JLabel("draft");
     JLabel laNormal = new JLabel("normal");
     JLabel laSimulation = new JLabel("simulation");
     JLabel laReport = new JLabel("report");
     
+    JMenu MenuFile = new JMenu("file");
+    JMenuItem FileNew = new JMenuItem("new");
+    JMenuItem FileOpen = new JMenuItem("open");
+    JMenuItem FileSave = new JMenuItem("save");
+    JMenuItem FileSaveas = new JMenuItem("save as");
+    JMenuItem FilePrint = new JMenuItem("print");
+    JMenuItem FilePrintersetup = new JMenuItem("printer setup");
+    JMenuItem FileExit = new JMenuItem("exit");
+      
+    JMenu MenuEdit = new JMenu("edit");
+    JMenuItem EditUndo = new JMenuItem("undo");
+    JMenuItem EditRedo = new JMenuItem("redo");
+    JMenuItem EditCopy = new JMenuItem("arrange");
+    JMenuItem EditLine = new JMenuItem("empty line");
+    JMenuItem EditInsertline = new JMenuItem("insert");
+    JMenuItem EditDeleteline = new JMenuItem("delete");
+      
+    JMenuItem Werkzeug1 = new JMenuItem("tool");
+    JMenuItem ToolPoint = new JMenuItem("pencil");
+    JMenuItem ToolSelect = new JMenuItem("select");
+    JMenuItem ToolFill = new JMenuItem("fill");
+    JMenuItem ToolSniff = new JMenuItem("pipette");
+    
+    JMenu MenuView = new JMenu("view");
+    JMenuItem ViewZoomin = new JMenuItem("zoom in");
+    JMenuItem ViewZoomout = new JMenuItem("zoom out");
+    JMenuItem ViewZoomnormal = new JMenuItem("normal");
+    JMenu ViewLanguage = new JMenu("language");
+    
     JCheckBoxMenuItem ViewDraft = new JCheckBoxMenuItem("draft");
     JCheckBoxMenuItem ViewNormal = new JCheckBoxMenuItem("normal");
     JCheckBoxMenuItem ViewSimulation = new JCheckBoxMenuItem("simulation");
     JCheckBoxMenuItem ViewReport = new JCheckBoxMenuItem("report");
     
+    JMenuItem FileMRU1 = new JMenuItem();
+    JMenuItem FileMRU2 = new JMenuItem();
+    JMenuItem FileMRU3 = new JMenuItem();
+    JMenuItem FileMRU4 = new JMenuItem();
+    JMenuItem FileMRU5 = new JMenuItem();
+    JMenuItem FileMRU6 = new JMenuItem();
+
+    JPopupMenu.Separator FileMRUSeparator = new JPopupMenu.Separator();
+
+    JMenu MenuPattern = new JMenu("pattern");
+    JMenuItem PatternWidth = new JMenuItem("width");
+    
+    JMenu MenuInfo = new JMenu("?");
+    JMenuItem InfoAbout = new JMenuItem("about jbead");
+
+    JButton sbNew = new JButton("new");
+    JButton sbOpen = new JButton("open");
+    JButton sbSave = new JButton("save");
+    JButton sbPrint = new JButton("print");
+    JButton sbUndo = new JButton("undo");
+    JButton sbRedo = new JButton("redo");
+    JButton sbRotateleft = new JButton("left");
+    JButton sbRotateright = new JButton("right");
+    JButton sbCopy = new JButton("arrange");
+    JToggleButton sbToolSelect = new JToggleButton("select"); 
+    JToggleButton sbToolPoint = new JToggleButton("pencil"); 
+    JToggleButton sbToolFill = new JToggleButton("fill"); 
+    JToggleButton sbToolSniff = new JToggleButton("pipette"); 
 
         public BeadForm() {
-        	super("jbead");
-        	// TODO maybe need to set other default for opendialog and savedialog
-        	opendialog.setCurrentDirectory(new File(System.getProperty("user.home")));
-        	savedialog.setCurrentDirectory(new File(System.getProperty("user.home")));
-        	savedialog.setSelectedFile(new File(savedialog.getCurrentDirectory(), Language.STR("unnamed", "unbenannt")));
+            super("jbead");
+            // TODO maybe need to set other default for opendialog and savedialog
+            opendialog.setCurrentDirectory(new File(System.getProperty("user.home")));
+            savedialog.setCurrentDirectory(new File(System.getProperty("user.home")));
+            savedialog.setSelectedFile(new File(savedialog.getCurrentDirectory(), Language.STR("unnamed", "unbenannt")));
             saved = false;
             modified = false;
             rapportdirty = false;
@@ -153,22 +223,22 @@ public class BeadForm extends JFrame {
             Language.LANG language;
             int lang = settings.LoadInt ("Language", -1);
             if (lang==-1) { // Windows-Spracheinstellung abfragen
-            	Locale locale = Locale.getDefault();
-            	if (locale.getLanguage().equals("de")) {
-            		lang = 1;
-            	} else {
-            		lang = 0;
-            	}
+                Locale locale = Locale.getDefault();
+                if (locale.getLanguage().equals("de")) {
+                    lang = 1;
+                } else {
+                    lang = 0;
+                }
             }
             language = lang==0 ? Language.LANG.EN : Language.LANG.GE;
             if (Language.active_language == language) {
-            	Language.active_language = language==Language.LANG.EN ? Language.LANG.GE : Language.LANG.EN; // Update erzwingen
+                Language.active_language = language==Language.LANG.EN ? Language.LANG.GE : Language.LANG.EN; // Update erzwingen
             }
             Language.SwitchLanguage (language);
             if (Language.active_language == Language.LANG.EN) {
-            	LanguageEnglish.setSelected(true);
+                LanguageEnglish.setSelected(true);
             } else {
-            	LanguageGerman.setSelected(true);
+                LanguageGerman.setSelected(true);
             }
         }
 
@@ -188,15 +258,15 @@ public class BeadForm extends JFrame {
         
         void SetGlyphColors()
         {
-        	sbColor1.setIcon(new ColorIcon(coltable[1]));
-        	sbColor2.setIcon(new ColorIcon(coltable[2]));
-        	sbColor3.setIcon(new ColorIcon(coltable[3]));
-        	sbColor4.setIcon(new ColorIcon(coltable[4]));
-        	sbColor5.setIcon(new ColorIcon(coltable[5]));
-        	sbColor6.setIcon(new ColorIcon(coltable[6]));
-        	sbColor7.setIcon(new ColorIcon(coltable[7]));
-        	sbColor8.setIcon(new ColorIcon(coltable[8]));
-        	sbColor9.setIcon(new ColorIcon(coltable[9]));
+            sbColor1.setIcon(new ColorIcon(coltable[1]));
+            sbColor2.setIcon(new ColorIcon(coltable[2]));
+            sbColor3.setIcon(new ColorIcon(coltable[3]));
+            sbColor4.setIcon(new ColorIcon(coltable[4]));
+            sbColor5.setIcon(new ColorIcon(coltable[5]));
+            sbColor6.setIcon(new ColorIcon(coltable[6]));
+            sbColor7.setIcon(new ColorIcon(coltable[7]));
+            sbColor8.setIcon(new ColorIcon(coltable[8]));
+            sbColor9.setIcon(new ColorIcon(coltable[9]));
         }
 
         void FormResize()
@@ -220,7 +290,7 @@ public class BeadForm extends JFrame {
             int m = 6;
 
             if (ViewDraft.isSelected()) {
-            	draft.setBounds(m, top, field.Width()*grid + 35, cheight - 6 - laDraft.getHeight() - 3);
+                draft.setBounds(m, top, field.Width()*grid + 35, cheight - 6 - laDraft.getHeight() - 3);
                 laDraft.setLocation(m + (draft.getWidth()-laDraft.getWidth())/2, draft.getY() + draft.getHeight() + 2);
                 m += draft.getWidth() + 12;
             }
@@ -259,7 +329,7 @@ public class BeadForm extends JFrame {
             scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scroll);
         }
 
-        void CorrectCoordinates (int& _i, int& _j)
+        int CorrectCoordinatesX(int _i, int _j)
         {
             int idx = _i + (_j+scroll)*field.Width();
             int m1 = field.Width();
@@ -273,139 +343,63 @@ public class BeadForm extends JFrame {
             }
             _i = idx;
             _j = k-scroll;
+            return _i;
+        }
+
+        int CorrectCoordinatesY(int _i, int _j)
+        {
+            int idx = _i + (_j+scroll)*field.Width();
+            int m1 = field.Width();
+            int m2 = field.Width()+1;
+            int k = 0;
+            int m = (k%2==0) ? m1 : m2;
+            while (idx>=m) {
+                idx -= m;
+                k++;
+                m = (k%2==0) ? m1 : m2;
+            }
+            _i = idx;
+            _j = k-scroll;
+            return _j;
         }
 
         void UpdateBead (int _i, int _j)
         {
-            char c = field.Get (_i, _j+scroll);
-            assert(c>=0 && c<=9);
-
-            int ii = _i;
-            int jj = _j;
-            CorrectCoordinates (_i, _j);
-
-            // Normal
-            if (normal.Visible) {
-                normal.Canvas.Brush.Color = coltable[c];
-                normal.Canvas.Pen.Color = normal.Canvas.Brush.Color;
-                int left = normalleft;
-                if (scroll%2==0) {
-                    if (_j%2==0) {
-                        normal.Canvas.Rectangle (left+_i*grid+1,
-                                                   normal.ClientHeight-(_j+1)*grid,
-                                                   left+(_i+1)*grid,
-                                                   normal.ClientHeight-1-_j*grid);
-                    } else {
-                        normal.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                   normal.ClientHeight-(_j+1)*grid,
-                                                   left-grid/2+(_i+1)*grid,
-                                                   normal.ClientHeight-1-_j*grid);
-                    }
-                } else {
-                    if (_j%2==1) {
-                        normal.Canvas.Rectangle (left+_i*grid+1,
-                                                   normal.ClientHeight-(_j+1)*grid,
-                                                   left+(_i+1)*grid,
-                                                   normal.ClientHeight-1-_j*grid);
-                    } else {
-                        normal.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                   normal.ClientHeight-(_j+1)*grid,
-                                                   left-grid/2+(_i+1)*grid,
-                                                   normal.ClientHeight-1-_j*grid);
-                    }
-                }
-            }
-
-            // Simulation
-            int idx = ii+field.Width()*jj + shift;
-            _i = idx % field.Width();
-            _j = idx / field.Width();
-            CorrectCoordinates (_i, _j);
-            if (simulation.Visible) {
-                simulation.Canvas.Brush.Color = coltable[c];
-                simulation.Canvas.Pen.Color = simulation.Canvas.Brush.Color;
-                int left = simulationleft;
-                int w = field.Width()/2;
-                if (_i>w && _i!=field.Width()) return;
-                if (scroll%2==0) {
-                    if (_j%2==0) {
-                        if (_i==w) return;
-                        simulation.Canvas.Rectangle (left+_i*grid+1,
-                                                   simulation.ClientHeight-(_j+1)*grid,
-                                                   left+(_i+1)*grid,
-                                                   simulation.ClientHeight-1-_j*grid);
-                    } else {
-                        if (_i!=field.Width() && _i!=w) {
-                            simulation.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                       simulation.ClientHeight-(_j+1)*grid,
-                                                       left-grid/2+(_i+1)*grid,
-                                                       simulation.ClientHeight-1-_j*grid);
-                        } else if (_i==w) {
-                            simulation.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                       simulation.ClientHeight-(_j+1)*grid,
-                                                       left-grid/2+_i*grid+grid/2,
-                                                       simulation.ClientHeight-1-_j*grid);
-                        } else {
-                            simulation.Canvas.Rectangle (left-grid/2+1,
-                                                       simulation.ClientHeight-(_j+2)*grid,
-                                                       left,
-                                                       simulation.ClientHeight-1-(_j+1)*grid);
-                        }
-                    }
-                } else {
-                    if (_j%2==1) {
-                        if (_i==w) return;
-                        simulation.Canvas.Rectangle (left+_i*grid+1,
-                                                   simulation.ClientHeight-(_j+1)*grid,
-                                                   left+(_i+1)*grid,
-                                                   simulation.ClientHeight-1-_j*grid);
-                    } else {
-                        if (_i!=field.Width() && _i!=w) {
-                            simulation.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                       simulation.ClientHeight-(_j+1)*grid,
-                                                       left-grid/2+(_i+1)*grid,
-                                                       simulation.ClientHeight-1-_j*grid);
-                        } else if (_i==w) {
-                            simulation.Canvas.Rectangle (left-grid/2+_i*grid+1,
-                                                       simulation.ClientHeight-(_j+1)*grid,
-                                                       left-grid/2+_i*grid+grid/2,
-                                                       simulation.ClientHeight-1-_j*grid);
-                        } else {
-                            simulation.Canvas.Rectangle (left-grid/2+1,
-                                                       simulation.ClientHeight-(_j+2)*grid,
-                                                       left,
-                                                       simulation.ClientHeight-1-(_j+1)*grid);
-                        }
-                    }
-                }
-            }
+            // use observer pattern to remove this explicit dependency
+            draft.updateBead(_i, _j);
+            normal.updateBead(_i, _j);
+            simulation.updateBead(_i, _j);
         }
 
         void FileNewClick()
         {
-            // Fragen ob speichern
-            if (modified && MessageDlg (Language.STR("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"), mtConfirmation,
-                                    TMsgDlgButtons() << mbYes << mbNo, 0)==mrYes)
-            {
-                FileSaveClick (Sender);
+            // ask whether to save modified document
+            if (modified) {
+                int answer = JOptionPane.showConfirmDialog(this, Language.STR("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+                if (answer == JOptionPane.CANCEL_OPTION) return;
+                if (answer == JOptionPane.YES_OPTION) {
+                    FileSaveClick();
+                }
             }
-            // Alles l�schen
+            
+            // delete all
             undo.Clear();
             field.Clear();
             rapport = 0;
             farbrapp = 0;
-            Invalidate();
+            invalidate();
             color = 1;
-            sbColor1.Down = true;
+            sbColor1.setSelected(true);
             DefaultColors();
             SetGlyphColors();
             scroll = 0;
             UpdateScrollbar();
             selection = false;
-            sbToolPoint.Down = true;
-            ToolPoint.Checked = true;
-            opendialog.FileName = "*.dbb";
-            savedialog.FileName = Language.STR("unnamed", "unbenannt");
+            sbToolPoint.setSelected(true);
+            ToolPoint.setSelected(true);
+            // TODO fix this by using explicit filename
+            opendialog.setSelectedFile(new File("*.dbb"));
+            savedialog.setSelectedFile(new File(Language.STR("unnamed", "unbenannt")));
             saved = false;
             modified = false;
             UpdateTitle();
@@ -413,54 +407,59 @@ public class BeadForm extends JFrame {
 
         void LoadFile(String _filename, boolean _addtomru)
         {
-            // Fragen ob speichern
-            if (modified && MessageDlg (Language.STR("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"), mtConfirmation,
-                                    TMsgDlgButtons() << mbYes << mbNo, 0)==mrYes)
-            {
-                FileSaveClick(this);
+            // ask whether to save modified document
+            if (modified) {
+                int answer = JOptionPane.showConfirmDialog(this, Language.STR("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+                if (answer == JOptionPane.CANCEL_OPTION) return;
+                if (answer == JOptionPane.YES_OPTION) {
+                    FileSaveClick();
+                }
             }
+
             // Datei laden
             try {
-                TFileStream* f = new TFileStream(_filename, fmOpenRead|fmShareDenyWrite);
-                    f.Write ("DB-BEAD/01:\r\n", 13);
-                char id[14];
-                id[13] = '\0';
-                f.Read (id, 13);
-                if (String(id)!="DB-BEAD/01:\r\n") {
-                    ShowMessage (Language.STR("The file is not a DB-BEAD pattern file. It cannot be loaded", "Die Datei ist keine DB-BEAD Musterdatei. Sie kann nicht geladen werden."));
-                    delete f;
-                    return;
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(_filename));
+                try {
+                    byte[] id = new byte[13];
+                    int read = in.read(id);
+                    String strid = new String(id, "UTF-8");
+                    if (!strid.equals("DB-BEAD/01:\r\n")) {
+                        JOptionPane.showMessageDialog(this, Language.STR("The file is not a DB-BEAD pattern file. It cannot be loaded", "Die Datei ist keine DB-BEAD Musterdatei. Sie kann nicht geladen werden."));
+                        return;
+                    }
+                    undo.Clear();
+                    field.Clear();
+                    rapport = 0;
+                    farbrapp = 0;
+                    field.Load (in);
+                    // TODO handle colors in a backwards compatible way!
+                    // f.Read (coltable, sizeof(coltable));
+//                    f.Read (&color, sizeof(color));
+//                    f.Read (&zoomidx, sizeof(zoomidx));
+//                    f.Read (&shift, sizeof(shift));
+//                    f.Read (&scroll, sizeof(scroll));
+//                    boolean vis; f.Read (&vis, sizeof(vis)); ViewDraft.Checked = vis;
+//                    f.Read (&vis, sizeof(vis)); ViewNormal.Checked = vis;
+//                    f.Read (&vis, sizeof(vis)); ViewSimulation.Checked = vis;
+                    switch (color) {
+                        case 0: sbColor0.setSelected(true); break;
+                        case 1: sbColor1.setSelected(true); break;
+                        case 2: sbColor2.setSelected(true); break;
+                        case 3: sbColor3.setSelected(true); break;
+                        case 4: sbColor4.setSelected(true); break;
+                        case 5: sbColor5.setSelected(true); break;
+                        case 6: sbColor6.setSelected(true); break;
+                        case 7: sbColor7.setSelected(true); break;
+                        case 8: sbColor8.setSelected(true); break;
+                        case 9: sbColor9.setSelected(true); break;
+                        default: assert(false); break;
+                    }
+                    SetGlyphColors();
+                    UpdateScrollbar();
+                } finally {
+                    in.close();
                 }
-                undo.Clear();
-                field.Clear();
-                rapport = 0;
-                farbrapp = 0;
-                field.Load (f);
-                f.Read (coltable, sizeof(coltable));
-                f.Read (&color, sizeof(color));
-                f.Read (&zoomidx, sizeof(zoomidx));
-                f.Read (&shift, sizeof(shift));
-                f.Read (&scroll, sizeof(scroll));
-                boolean vis; f.Read (&vis, sizeof(vis)); ViewDraft.Checked = vis;
-                f.Read (&vis, sizeof(vis)); ViewNormal.Checked = vis;
-                f.Read (&vis, sizeof(vis)); ViewSimulation.Checked = vis;
-                switch (color) {
-                    case 0: sbColor0.Down = true; break;
-                    case 1: sbColor1.Down = true; break;
-                    case 2: sbColor2.Down = true; break;
-                    case 3: sbColor3.Down = true; break;
-                    case 4: sbColor4.Down = true; break;
-                    case 5: sbColor5.Down = true; break;
-                    case 6: sbColor6.Down = true; break;
-                    case 7: sbColor7.Down = true; break;
-                    case 8: sbColor8.Down = true; break;
-                    case 9: sbColor9.Down = true; break;
-                    default: assert(false); break;
-                }
-                SetGlyphColors();
-                UpdateScrollbar();
-                delete f;
-            } catch (...) {
+            } catch (IOException e) {
                 //xxx
                 undo.Clear();
                 field.Clear();
@@ -470,10 +469,10 @@ public class BeadForm extends JFrame {
             saved = true;
             modified = false;
             rapportdirty = true;
-            savedialog.FileName = _filename;
+            savedialog.setSelectedFile(new File(_filename));
             UpdateTitle();
-            FormResize(this);
-            Invalidate();
+            FormResize();
+            invalidate();
             if (_addtomru) AddToMRU (_filename);
         }
 
@@ -489,29 +488,30 @@ public class BeadForm extends JFrame {
             if (saved) {
                 // Einfach abspeichern...
                 try {
-                    TFileStream* f = new TFileStream(savedialog.FileName, fmCreate|fmShareExclusive);
-                    f.Write ("DB-BEAD/01:\r\n", 13);
-                    field.Save (f);
-                    f.Write (coltable, sizeof(coltable)); 
-                    assert(sizeof(coltable)==sizeof(TColor)*10);
-                    f.Write (&color, sizeof(color));
-                    f.Write (&zoomidx, sizeof(zoomidx));
-                    f.Write (&shift, sizeof(shift));
-                    f.Write (&scroll, sizeof(scroll));
-                    boolean vis = ViewDraft.Checked; 
-                    f.Write (&vis, sizeof(vis));
-                    vis = ViewNormal.Checked; 
-                    f.Write (&vis, sizeof(vis));
-                    vis = ViewSimulation.Checked; 
-                    f.Write (&vis, sizeof(vis));
-                    delete f;
-                    modified = false;
-                    UpdateTitle();
-                } catch (...) {
+                    JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(savedialog.getSelectedFile()));
+                    try {
+                        out.write ("DB-BEAD/01:\r\n");
+                        field.Save(out);
+                        for (Color color : coltable) {
+                            out.writeColor(color);
+                        }
+                        out.writeInt(color);
+                        out.writeInt(zoomidx);
+                        out.writeInt(shift);
+                        out.writeInt(scroll);
+                        out.writeBool(ViewDraft.isSelected());
+                        out.writeBool(ViewNormal.isSelected());
+                        out.writeBool(ViewSimulation.isSelected());
+                        modified = false;
+                        UpdateTitle();
+                    } finally {
+                        out.close();
+                    }
+                } catch (IOException e) {
                     //xxx
                 }
             } else {
-                FileSaveasClick (Sender);
+                FileSaveasClick();
             }
         }
 
@@ -520,7 +520,7 @@ public class BeadForm extends JFrame {
             if (savedialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 if (savedialog.getSelectedFile().exists()) {
                     String msg = Language.STR("The file ", "Die Datei ") + savedialog.getSelectedFile().getName() +
-                                 Language.STR(" already exists. Do you want to overwrite it?", " existiert bereits. Soll sie �berschrieben werden?");
+                                 Language.STR(" already exists. Do you want to overwrite it?", " existiert bereits. Soll sie überschrieben werden?");
                     if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                         return;
                     }
@@ -534,30 +534,31 @@ public class BeadForm extends JFrame {
         // TODO may possibly be removed
         void OnShowPrintDialog ()
         {
-            SetFocus (printdialog.Handle);
+//            SetFocus (printdialog.Handle);
         }
 
         // TODO may possibly be removed
         void OnShowPrintersetupDialog ()
         {
-            SetFocus (printersetupdialog.Handle);
+//            SetFocus (printersetupdialog.Handle);
         }
 
-        void FilePrintClick()
+        void FilePrintClick(ActionEvent event)
         {
+            Object Sender = event.getSource();
             if (Sender!=sbPrint) {
-                TNotifyEvent old = printdialog.OnShow;
-                printdialog.OnShow = OnShowPrintDialog;
-                if (printdialog.Execute()) {
-                    Cursor = crHourGlass;
-                    PrintItAll();
-                    Cursor = crDefault;
-                }
-                printdialog.OnShow = old;
+//                TNotifyEvent old = printdialog.OnShow;
+//                printdialog.OnShow = OnShowPrintDialog;
+//                if (printdialog.Execute()) {
+//                    Cursor = crHourGlass;
+//                    PrintItAll();
+//                    Cursor = crDefault;
+//                }
+//                printdialog.OnShow = old;
             } else {
-                Cursor = crHourGlass;
+//                Cursor = crHourGlass;
                 PrintItAll();
-                Cursor = crDefault;
+//                Cursor = crDefault;
             }
         }
 
@@ -572,58 +573,67 @@ public class BeadForm extends JFrame {
         void FileExitClick()
         {
             if (modified) {
-                 int r = MessageDlg (Language.STR("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"), mtConfirmation,
-                                    TMsgDlgButtons() << mbYes << mbNo << mbCancel, 0);
-                 if (r==mrCancel) return;
-                 if (r==mrYes) FileSaveClick(Sender);
+                 int r = JOptionPane.showConfirmDialog(this, Language.STR("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+                 if (r==JOptionPane.CANCEL_OPTION) return;
+                 if (r==JOptionPane.OK_OPTION) FileSaveClick();
             }
-            Application.Terminate();
+            // TODO maybe need to save settings?
+            System.exit(0);
         }
 
         void PatternWidthClick()
         {
             int old = field.Width();
-            PatternWidthForm.upWidth.Position = field.Width();
-            if (PatternWidthForm.ShowModal()==mrOk) {
+            PatternWidthForm form = new PatternWidthForm();
+            form.setWidth(field.Width());
+            form.FormShow();
+            if (form.isOK()) {
                 undo.Snapshot (field, modified);
-                field.SetWidth(PatternWidthForm.upWidth.Position);
-                FormResize(Sender);
+                field.SetWidth(form.getWidth());
+                FormResize();
                 invalidate();
-                if (!modified) modified = (old!=field.Width());
+                if (!modified) {
+                    modified = (old!=field.Width());
+                }
                 UpdateTitle();
                 rapportdirty = true;
             }
         }
 
-        // TODO handle out parameters
-        boolean draftMouseToField (int& _i, int& _j)
+        int CalcLineCoordX (int _i1, int _j1, int _i2, int _j2)
         {
-            int i, jj;
-            if (_i<draftleft || _i>draftleft+field.Width()*grid) return false;
-            i = (_i-draftleft)/grid;
-            if (i>=field.Width()) return false;
-            jj = (draft.ClientHeight-_j)/grid;
-            _i = i;
-            _j = jj;
-            return true;
-        }
-
-        // TODO handle out parameters
-        void CalcLineCoord (int _i1, int _j1, int& _i2, int& _j2)
-        {
-            int dx = abs(_i2-_i1);
-            int dy = abs(_j2-_j1);
+            int dx = Math.abs(_i2-_i1);
+            int dy = Math.abs(_j2-_j1);
             if (2*dy<dx) {
                 _j2 = _j1;
             } else if (2*dx<dy) {
                 _i2 = _i1;
             } else {
-                int d = min(dx, dy);
+                int d = Math.min(dx, dy);
                 if (_i2-_i1 > d) _i2 = _i1 + d;
                 else if (_i1-_i2 > d) _i2 = _i1 - d;
                 if (_j2-_j1 > d) _j2 = _j1 + d;
                 else if (_j1-_j2 > d) _j2 = _j1 - d;
             }
+            return _i2;
+        }
+
+        int CalcLineCoordY (int _i1, int _j1, int _i2, int _j2)
+        {
+            int dx = Math.abs(_i2-_i1);
+            int dy = Math.abs(_j2-_j1);
+            if (2*dy<dx) {
+                _j2 = _j1;
+            } else if (2*dx<dy) {
+                _i2 = _i1;
+            } else {
+                int d = Math.min(dx, dy);
+                if (_i2-_i1 > d) _i2 = _i1 + d;
+                else if (_i1-_i2 > d) _i2 = _i1 - d;
+                if (_j2-_j1 > d) _j2 = _j1 + d;
+                else if (_j1-_j2 > d) _j2 = _j1 - d;
+            }
+            return _j2;
         }
 
         void DraftLinePreview()
@@ -633,7 +643,8 @@ public class BeadForm extends JFrame {
 
             int ei = end_i;
             int ej = end_j;
-            CalcLineCoord (begin_i, begin_j, ei, ej);
+            ei = CalcLineCoordX(begin_i, begin_j, ei, ej);
+            ej = CalcLineCoordY(begin_i, begin_j, ei, ej);
 
             TPenMode oldmode = draft.Canvas.Pen.Mode;
             draft.Canvas.Pen.Mode = pmNot;
@@ -644,22 +655,15 @@ public class BeadForm extends JFrame {
 
         void DraftSelectPreview (boolean _draw, boolean _doit)
         {
-            if (!sbToolSelect.Down && !_doit) return;
+            if (!sbToolSelect.isSelected() && !_doit) return;
             if (begin_i==end_i && begin_j==end_j) return;
 
-            int i1 = min(begin_i, end_i);
-            int i2 = max(begin_i, end_i);
-            int j1 = min(begin_j, end_j);
-            int j2 = max(begin_j, end_j);
+            int i1 = Math.min(begin_i, end_i);
+            int i2 = Math.max(begin_i, end_i);
+            int j1 = Math.min(begin_j, end_j);
+            int j2 = Math.max(begin_j, end_j);
 
-            TColor oldcolor = draft.Canvas.Pen.Color;
-            draft.Canvas.Pen.Color = _draw ? clBlack : clDkGray;
-            draft.Canvas.MoveTo (draftleft + i1*grid, draft.ClientHeight - j1*grid - 1);
-            draft.Canvas.LineTo (draftleft + i1*grid, draft.ClientHeight - (j2+1)*grid - 1);
-            draft.Canvas.LineTo (draftleft + (i2+1)*grid, draft.ClientHeight - (j2+1)*grid - 1);
-            draft.Canvas.LineTo (draftleft + (i2+1)*grid, draft.ClientHeight - j1*grid - 1);
-            draft.Canvas.LineTo (draftleft + i1*grid, draft.ClientHeight - j1*grid - 1);
-            draft.Canvas.Pen.Color = oldcolor;
+            draft.selectPreview(_draw, new Point(i1, j1), new Point(i2, j2));
         }
 
         void DraftSelectDraw()
@@ -683,18 +687,19 @@ public class BeadForm extends JFrame {
             selection = false;
         }
 
-        void draftMouseDown(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void draftMouseDown(MouseEvent event, int X, int Y)
         {
             if (dragging) return;
-            if (Button==mbLeft && draftMouseToField(X, Y)) {
+            Point pt = new Point(event.getX(), event.getY());
+            if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
                 DraftSelectClear();
                 dragging = true;
-                begin_i = X;
-                begin_j = Y;
-                end_i = X;
-                end_j = Y;
+                begin_i = pt.getX();
+                begin_j = pt.getY();
+                end_i = pt.getX();
+                end_j = pt.getY();
                 // Prepress
-                if (sbToolPoint.Down) {
+                if (sbToolPoint.isSelected()) {
                     draft.Canvas.Pen.Color = clBlack;
                     draft.Canvas.MoveTo (draftleft+begin_i*grid+1, draft.ClientHeight-begin_j*grid-2);
                     draft.Canvas.LineTo (draftleft+begin_i*grid+1, draft.ClientHeight-(begin_j+1)*grid);
@@ -709,31 +714,34 @@ public class BeadForm extends JFrame {
             }
         }
 
-        void draftMouseMove(TShiftState Shift, int X, int Y)
+        void draftMouseMove(MouseEvent event)
         {
-            if (dragging && draftMouseToField(X, Y)) {
+            Point pt = new Point(event.getX(), event.getY());
+            if (dragging && draft.mouseToField(pt)) {
                 DraftSelectPreview(false);
                 DraftLinePreview();
-                end_i = X;
-                end_j = Y;
+                end_i = pt.getX();
+                end_j = pt.getY();
                 DraftLinePreview();
                 DraftSelectPreview(true);
             }
         }
 
-        void draftMouseUp(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void draftMouseUp(MouseEvent event)
         {
-            if (dragging && draftMouseToField (X, Y)) {
+            Point pt = new Point(event.getX(), event.getY());
+            if (dragging && draft.mouseToField(pt)) {
                 DraftLinePreview();
-                end_i = X;
-                end_j = Y;
+                end_i = pt.getX();
+                end_j = pt.getY();
                 dragging = false;
 
-                if (sbToolPoint.Down) {
+                if (sbToolPoint.isSelected()) {
                     if (begin_i==end_i && begin_j==end_j) {
                         SetPoint (begin_i, begin_j);
                     } else {
-                        CalcLineCoord (begin_i, begin_j, end_i, end_j);
+                        end_i = CalcLineCoordX(begin_i, begin_j, end_i, end_j);
+                        end_j = CalcLineCoordY(begin_i, begin_j, end_i, end_j);
                         if (abs(end_i-begin_i)==abs(end_j-begin_j)) {
                             // 45 grad Linie
                             undo.Snapshot(field, modified);
@@ -750,10 +758,6 @@ public class BeadForm extends JFrame {
                                 if (begin_j<end_j) jj = begin_j + (i-begin_i) ;
                                 else jj = begin_j - (i-begin_i);
                                 field.Set (i, jj+scroll, color);
-                                draft.Canvas.Brush.Color = coltable[color];
-                                draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
-                                draft.Canvas.Rectangle (draftleft+i*grid+1, draft.ClientHeight-(jj+1)*grid,
-                                                    draftleft+(i+1)*grid, draft.ClientHeight-jj*grid-1);
                                 UpdateBead (i, jj);
                             }
                             rapportdirty = true;
@@ -766,10 +770,6 @@ public class BeadForm extends JFrame {
                             int j2 = max(end_j, begin_j);
                             for (int jj=j1; jj<=j2; jj++) {
                                 field.Set (begin_i, jj+scroll, color);
-                                draft.Canvas.Brush.Color = coltable[color];
-                                draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
-                                draft.Canvas.Rectangle (draftleft+begin_i*grid+1, draft.ClientHeight-(jj+1)*grid,
-                                                    draftleft+(begin_i+1)*grid, draft.ClientHeight-jj*grid-1);
                                 UpdateBead (begin_i, jj);
                             }
                             modified = true;
@@ -782,10 +782,6 @@ public class BeadForm extends JFrame {
                             int i2 = max(end_i, begin_i);
                             for (int i=i1; i<=i2; i++) {
                                 field.Set (i, begin_j+scroll, color);
-                                draft.Canvas.Brush.Color = coltable[color];
-                                draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
-                                draft.Canvas.Rectangle (draftleft+i*grid+1, draft.ClientHeight-(begin_j+1)*grid,
-                                                    draftleft+(i+1)*grid, draft.ClientHeight-begin_j*grid-1);
                                 UpdateBead (i, begin_j);
                             }
                             modified = true;
@@ -803,16 +799,16 @@ public class BeadForm extends JFrame {
                     color = field.Get(begin_i, begin_j+scroll);
                     assert(color>=0 && color<10);
                     switch (color) {
-                        case 0: sbColor0.Down = true; break;
-                        case 1: sbColor1.Down = true; break;
-                        case 2: sbColor2.Down = true; break;
-                        case 3: sbColor3.Down = true; break;
-                        case 4: sbColor4.Down = true; break;
-                        case 5: sbColor5.Down = true; break;
-                        case 6: sbColor6.Down = true; break;
-                        case 7: sbColor7.Down = true; break;
-                        case 8: sbColor8.Down = true; break;
-                        case 9: sbColor9.Down = true; break;
+                        case 0: sbColor0.setSelected(true); break;
+                        case 1: sbColor1.setSelected(true); break;
+                        case 2: sbColor2.setSelected(true); break;
+                        case 3: sbColor3.setSelected(true); break;
+                        case 4: sbColor4.setSelected(true); break;
+                        case 5: sbColor5.setSelected(true); break;
+                        case 6: sbColor6.setSelected(true); break;
+                        case 7: sbColor7.setSelected(true); break;
+                        case 8: sbColor8.setSelected(true); break;
+                        case 9: sbColor9.setSelected(true); break;
                         default: assert(false); break;
                     }
                 } else if (sbToolSelect.Down) {
@@ -833,25 +829,19 @@ public class BeadForm extends JFrame {
         {
             // F�llen
             //xxx experimentell nach links und rechts
-            draft.Canvas.Brush.Color = coltable[color];
-            draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
             byte bk = field.Get (_i, _j+scroll);
             int i = _i;
             while (i>=0 && field.Get(i, _j+scroll)==bk) {
                 field.Set (i, _j+scroll, color);
-            	// TODO make draft an observer of field!
-                draft.Canvas.Rectangle (draftleft+i*grid+1, draft.ClientHeight-(_j+1)*grid,
-                                    draftleft+(i+1)*grid, draft.ClientHeight-_j*grid-1);
-                UpdateBead (i, _j+scroll);
+                // TODO make draft an observer of field!
+                UpdateBead (i, _j);
                 i--;
             }
             i = begin_i+1;
             while (i<field.Width() && field.Get(i, _j+scroll)==bk) {
                 field.Set (i, _j+scroll, color);
-            	// TODO make draft an observer of field!
-                draft.Canvas.Rectangle (draftleft+i*grid+1, draft.ClientHeight-(_j+1)*grid,
-                                    draftleft+(i+1)*grid, draft.ClientHeight-_j*grid-1);
-                UpdateBead (i, _j+scroll);
+                // TODO make draft an observer of field!
+                UpdateBead (i, _j);
                 i++;
             }
         }
@@ -862,22 +852,8 @@ public class BeadForm extends JFrame {
             byte s = field.Get(_i, _j+scroll);
             if (s==color) {
                 field.Set (_i, _j+scroll, (byte) 0);
-                if (draft.isVisible()) {
-                	// TODO make draft an observer of field!
-                    draft.Canvas.Brush.Color = clBtnFace;
-                    draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
-                    draft.Canvas.Rectangle (draftleft+_i*grid+1, draft.ClientHeight-(_j+1)*grid,
-                                        draftleft+(_i+1)*grid, draft.ClientHeight-_j*grid-1);
-                }
-            }else {
+            } else {
                 field.Set(_i, _j+scroll, color);
-                if (draft.isVisible()) {
-                	// TODO make draft an observer of field!
-                    draft.Canvas.Brush.Color = coltable[color];
-                    draft.Canvas.Pen.Color = draft.Canvas.Brush.Color;
-                    draft.Canvas.Rectangle (draftleft+_i*grid+1, draft.ClientHeight-(_j+1)*grid,
-                                        draftleft+(_i+1)*grid, draft.ClientHeight-_j*grid-1);
-                }
             }
             UpdateBead (_i, _j);
             modified = true;
@@ -963,34 +939,35 @@ public class BeadForm extends JFrame {
             FormResize();
         }
 
-        void FormKeyUp(WORD Key, TShiftState Shift)
+        void FormKeyUp(KeyEvent event)
         {
-            if (Key==VK_F5) Invalidate();
-            else if (Key=='1' && Shift.Contains(ssCtrl) && !Shift.Contains(ssAlt)) { sbToolPoint.Down = true; ToolPoint.Checked = true; }
-            else if (Key=='2' && Shift.Contains(ssCtrl) && !Shift.Contains(ssAlt)) { sbToolSelect.Down = true; ToolSelect.Checked = true; }
-            else if (Key=='3' && Shift.Contains(ssCtrl) && !Shift.Contains(ssAlt)) { sbToolFill.Down = true; ToolFill.Checked = true; }
-            else if (Key=='4' && Shift.Contains(ssCtrl) && !Shift.Contains(ssAlt)) { sbToolSniff.Down = true; ToolSniff.Checked = true; }
-            else if (Key>='0' && Key<='9') {
-                color = Key-'0';
+            int Key = event.getKeyCode();
+            if (Key==KeyEvent.VK_F5) invalidate();
+            else if (Key==KeyEvent.VK_1 && event.isControlDown() && !event.isAltDown()) { sbToolPoint.setSelected(true); ToolPoint.setSelected(true); }
+            else if (Key==KeyEvent.VK_2 && event.isControlDown() && !event.isAltDown()) { sbToolSelect.setSelected(true); ToolSelect.setSelected(true); }
+            else if (Key==KeyEvent.VK_3 && event.isControlDown() && !event.isAltDown()) { sbToolFill.setSelected(true); ToolFill.setSelected(true); }
+            else if (Key==KeyEvent.VK_4 && event.isControlDown() && !event.isAltDown()) { sbToolSniff.setSelected(true); ToolSniff.setSelected(true); }
+            else if (event.getKeyChar()>='0' && event.getKeyChar()<='9') {
+                color = (byte) (event.getKeyChar()-'0');
                 switch (color) {
-                    case 0: sbColor0.Down = true; break;
-                    case 1: sbColor1.Down = true; break;
-                    case 2: sbColor2.Down = true; break;
-                    case 3: sbColor3.Down = true; break;
-                    case 4: sbColor4.Down = true; break;
-                    case 5: sbColor5.Down = true; break;
-                    case 6: sbColor6.Down = true; break;
-                    case 7: sbColor7.Down = true; break;
-                    case 8: sbColor8.Down = true; break;
-                    case 9: sbColor9.Down = true; break;
+                    case 0: sbColor0.setSelected(true); break;
+                    case 1: sbColor1.setSelected(true); break;
+                    case 2: sbColor2.setSelected(true); break;
+                    case 3: sbColor3.setSelected(true); break;
+                    case 4: sbColor4.setSelected(true); break;
+                    case 5: sbColor5.setSelected(true); break;
+                    case 6: sbColor6.setSelected(true); break;
+                    case 7: sbColor7.setSelected(true); break;
+                    case 8: sbColor8.setSelected(true); break;
+                    case 9: sbColor9.setSelected(true); break;
                     default: assert(false); break;
                 }
-            } else if (Key==VK_SPACE) {
-                sbToolPoint.Down = true;
-                ToolPoint.Checked = true;
-            } else if (Key==VK_ESCAPE) {
-                righttimer.Enabled = false;
-                lefttimer.Enabled = false;
+            } else if (Key==KeyEvent.VK_SPACE) {
+                sbToolPoint.setSelected(true);
+                ToolPoint.setSelected(true);
+            } else if (Key==KeyEvent.VK_ESCAPE) {
+//                righttimer.Enabled = false;
+//                lefttimer.Enabled = false;
             }
         }
 
@@ -1011,8 +988,9 @@ public class BeadForm extends JFrame {
         }
 
         // TODO split this for every color toolbar button
-        void ColorClick()
+        void ColorClick(ActionEvent event)
         {
+            Object Sender = event.getSource();
             if (Sender==sbColor0) color = 0;
             else if (Sender==sbColor1) color = 1;
             else if (Sender==sbColor2) color = 2;
@@ -1026,8 +1004,9 @@ public class BeadForm extends JFrame {
         }
 
         // TODO split this for every color toolbar button
-        void ColorDblClick()
+        void ColorDblClick(ActionEvent event)
         {
+            Object Sender = event.getSource();
             int c;
             if (Sender==sbColor0) c = 0;
             else if (Sender==sbColor1) c = 1;
@@ -1040,14 +1019,15 @@ public class BeadForm extends JFrame {
             else if (Sender==sbColor8) c = 8;
             else if (Sender==sbColor9) c = 9;
             if (c==0) return;
-            colordialog.Color = coltable[c];
-            if (colordialog.Execute()) {
-                undo.Snapshot (field, modified);
-                coltable[c] = colordialog.Color;
-                modified = true; UpdateTitle();
-                Invalidate();
-                SetGlyphColors();
-            }
+            Color color = JColorChooser.showDialog(this, "choose color", coltable[c]);
+            if (color == null) return;
+            undo.Snapshot (field, modified);
+            coltable[c] = color;
+            // TODO propagate change to all dependants (or better use observer pattern)
+            modified = true; 
+            UpdateTitle();
+            invalidate();
+            SetGlyphColors();
         }
 
         void coolbarResize()
@@ -1056,12 +1036,12 @@ public class BeadForm extends JFrame {
         }
 
         // TODO handle out parameter
-        void scrollbarScroll(TScrollCode ScrollCode, int &ScrollPos)
+        void scrollbarScroll(AdjustmentEvent event)
         {
             int oldscroll = scroll;
-            if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos = scrollbar.Max - scrollbar.PageSize;
-            scroll = scrollbar.Max - scrollbar.PageSize - ScrollPos;
-            if (oldscroll!=scroll) Invalidate();
+//            if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos = scrollbar.Max - scrollbar.PageSize;
+            scroll = scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue();
+            if (oldscroll!=scroll) invalidate();
         }
 
         // TODO handle out parameter
@@ -1157,93 +1137,68 @@ public class BeadForm extends JFrame {
 
         void ToolPointClick()
         {
-            ToolPoint.Checked = true;
-            sbToolPoint.Down = true;
+            ToolPoint.setSelected(true);
+            sbToolPoint.setSelected(true);
             DraftSelectClear();
         }
 
         void ToolSelectClick()
         {
-            ToolSelect.Checked = true;
-            sbToolSelect.Down = true;
+            ToolSelect.setSelected(true);
+            sbToolSelect.setSelected(true);
         }
 
         void ToolFillClick()
         {
-            ToolFill.Checked = true;
-            sbToolFill.Down = true;
+            ToolFill.setSelected(true);
+            sbToolFill.setSelected(true);
             DraftSelectClear();
         }
 
         void ToolSniffClick()
         {
-            ToolSniff.Checked = true;
-            sbToolSniff.Down = true;
+            ToolSniff.setSelected(true);
+            sbToolSniff.setSelected(true);
             DraftSelectClear();
         }
 
         void sbToolPointClick()
         {
-            ToolPoint.Checked = true;
+            ToolPoint.setSelected(true);
             DraftSelectClear();
         }
 
         void sbToolFillClick()
         {
-            ToolFill.Checked = true;
+            ToolFill.setSelected(true);
             DraftSelectClear();
         }
 
         void sbToolSniffClick()
         {
-            ToolSniff.Checked = true;
+            ToolSniff.setSelected(true);
             DraftSelectClear();
         }
 
         void sbToolSelectClick()
         {
-            ToolSelect.Checked = true;
+            ToolSelect.setSelected(true);
         }
 
-        // TODO handle out parameter
-        boolean normalMouseToField (int& _i, int& _j)
+        void normalMouseUp(MouseEvent event)
         {
-            int i;
-            int jj = (normal.ClientHeight-_j)/grid;
-            if (scroll%2==0) {
-                if (jj%2==0) {
-                    if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
-                    i = (_i-normalleft) / grid;
-                } else {
-                    if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
-                    i = (_i-normalleft+grid/2) / grid;
-                }
-            } else {
-                if (jj%2==1) {
-                    if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
-                    i = (_i-normalleft) / grid;
-                } else {
-                    if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
-                    i = (_i-normalleft+grid/2) / grid;
-                }
-            }
-            _i = i;
-            _j = jj;
-            return true;
-        }
-
-        void normalMouseUp(TMouseButton Button, TShiftState Shift, int X, int Y)
-        {
-            if (Button==mbLeft && normalMouseToField (X, Y)) {
+            // TODO move this to the NormalPanel
+            Point pt = new Point(event.getX(), event.getY());
+            if (event.getButton() == MouseEvent.BUTTON1 && normal.mouseToField(pt)) {
                 // Lineare Koordinaten berechnen
                 int idx = 0;
                 int m1 = field.Width();
                 int m2 = m1 + 1;
-                for (int j=0; j<Y+scroll; j++) {
+                for (int j=0; j<pt.getY()+scroll; j++) {
                     if (j%2==0) idx += m1;
                     else idx += m2;
                 }
-                idx += X;
+                idx += pt.getX();
 
                 // Feld setzen und Darstellung nachf�hren
                 int j = idx / field.Width();
@@ -1254,49 +1209,52 @@ public class BeadForm extends JFrame {
 
         void InfoAboutClick()
         {
-            new AboutBox().FormShow();
+            new AboutBox().setVisible(true);
         }
 
         void lefttimerTimer()
         {
             RotateLeft();
-            Application.ProcessMessages(); // FIXME maybe just remove it?
+//            Application.ProcessMessages(); // FIXME maybe just remove it?
         }
 
         void righttimerTimer()
         {
             RotateRight();
-            Application.ProcessMessages(); // FIXME maybe just remove it?
+//            Application.ProcessMessages(); // FIXME maybe just remove it?
         }
 
-        void sbRotaterightMouseDown(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void sbRotaterightMouseDown(MouseEvent event)
         {
             RotateRight();
-            Application.ProcessMessages();
-            righttimer.Enabled = true;
+//            Application.ProcessMessages();
+//            righttimer.Enabled = true;
         }
 
-        void sbRotaterightMouseUp(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void sbRotaterightMouseUp(MouseEvent event)
         {
-            righttimer.Enabled = false;
+//            righttimer.Enabled = false;
         }
 
-        void sbRotateleftMouseDown(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void sbRotateleftMouseDown(MouseEvent event)
         {
             RotateLeft();
-            Application.ProcessMessages();
-            lefttimer.Enabled = true;
+//            Application.ProcessMessages();
+//            lefttimer.Enabled = true;
         }
 
-        void sbRotateleftMouseUp(TMouseButton Button, TShiftState Shift, int X, int Y)
+        void sbRotateleftMouseUp(MouseEvent event)
         {
-            lefttimer.Enabled = false;
+//            lefttimer.Enabled = false;
         }
 
-        void FormKeyDown(WORD Key, TShiftState Shift)
+        void FormKeyDown(KeyEvent event)
         {
-            if (Key==VK_RIGHT) RotateRight();
-            else if (Key==VK_LEFT) RotateLeft();
+            if (event.getKeyCode() == KeyEvent.VK_RIGHT) {
+                RotateRight();
+            } else if (event.getKeyCode() == KeyEvent.VK_LEFT) {
+                RotateLeft();
+            }
         }
 
         // TODO handle out parameter
@@ -1313,28 +1271,38 @@ public class BeadForm extends JFrame {
 
         void EditCopyClick()
         {
-            if (CopyForm.ShowModal()==mrOk) {
+            CopyForm copyform = new CopyForm();
+            copyform.setVisible(true);
+            if (copyform.isOK()) {
                 undo.Snapshot (field, modified);
                 // Aktuelle Daten in Buffer kopieren
                 sel_buff.CopyFrom (field);
                 // Daten vervielf�ltigen
-                ArrangeIncreasing (sel_i1, sel_i2);
-                ArrangeIncreasing (sel_j1, sel_j2);
+                if (sel_i1 > sel_i2) {
+                    int temp = sel_i1;
+                    sel_i1 = sel_i2;
+                    sel_i2 = temp;
+                }
+                if (sel_j1 > sel_j2) {
+                    int temp = sel_j1;
+                    sel_j1 = sel_j2;
+                    sel_j2 = temp;
+                }
                 for (int i=sel_i1; i<=sel_i2; i++) {
                     for (int j=sel_j1; j<=sel_j2; j++) {
-                        char c = sel_buff.Get(i, j);
+                        byte c = sel_buff.Get(i, j);
                         if (c==0) continue;
                         int idx = GetIndex(i, j);
                         // Diesen Punkt x-mal vervielf�ltigen
-                        for (int k=0; k<GetNumberOfCopies(CopyForm); k++) {
-                            idx += GetCopyOffset(CopyForm);
+                        for (int k=0; k<copyform.getCopies(); k++) {
+                            idx += GetCopyOffset(copyform);
                             if (field.ValidIndex(idx)) field.Set (idx, c);
                         }
                     }
                 }
                 rapportdirty = true;
                 modified = true; UpdateTitle();
-                Invalidate();
+                invalidate();
             }
         }
 
@@ -1343,24 +1311,9 @@ public class BeadForm extends JFrame {
             return form.getVertOffset() * field.Width() + form.getHorzOffset();
         }
 
-        // TODO use parameter object?
-        void ArrangeIncreasing (int& i1, int& i2)
-        {
-            if (i1>i2) {
-                int temp = i1;
-                i1 = i2;
-                i2 = temp;
-            }
-        }
-
         int GetIndex (int i, int j)
         {
             return j*field.Width() + i;
-        }
-
-        int GetNumberOfCopies (CopyForm form)
-        {
-            return form.getCopies();
         }
 
         void EditInsertlineClick()
@@ -1390,12 +1343,17 @@ public class BeadForm extends JFrame {
 
         void UpdateTitle()
         {
-            String c = APP_TITLE;
+            String c = "jbead"; //APP_TITLE;
             c += " - ";
-            if (saved) c += ExtractFileName(savedialog.FileName);
-            else c += DATEI_UNBENANNT;
-            if (modified) c += "*";
-            Caption = c;
+            if (saved) {
+                c += savedialog.getSelectedFile().getName();
+            } else {
+                c += "unnamed"; //DATEI_UNBENANNT;
+            }
+            if (modified) {
+                c += "*";
+            }
+            setTitle(c);
         }
 
         void LanguageEnglishClick()
@@ -1421,10 +1379,10 @@ public class BeadForm extends JFrame {
 
         void PrintItAll()
         {
-            Printer().BeginDoc();
-            String title = APP_TITLE;
-            title += " - " + ExtractFileName(savedialog.FileName);
-            Printer().Title = title;
+//            Printer().BeginDoc();
+            String title = "jbead"; // APP_TITLE;
+            title += " - " + savedialog.getSelectedFile().getName();
+//            Printer().Title = title;
             TCanvas canvas = Printer().Canvas;
 
             int sx = GetDeviceCaps(Printer().Handle, LOGPIXELSX);
@@ -1437,22 +1395,22 @@ public class BeadForm extends JFrame {
             int reportcols;
 
             int m = MM2PRx(10, sx);
-            if (draft.Visible) {
+            if (draft.isVisible()) {
                 draftleft = m;
                 m += MM2PRx(13, sx) + field.Width()*gx + MM2PRx(7, sx);
             }
 
-            if (normal.Visible) {
+            if (normal.isVisible()) {
                 normalleft = m;
                 m += MM2PRx(7, sx) + (field.Width()+1)*gx;
             }
 
-            if (simulation.Visible) {
+            if (simulation.isVisible()) {
                 simulationleft = m;
                 m += MM2PRx(7, sx) + (field.Width()/2+1)*gx;
             }
 
-            if (report.Visible) {
+            if (report.isVisible()) {
                 reportleft = m;
                 reportcols = (Printer().PageWidth - m - 10) / (MM2PRx(5, sx) + MM2PRx(8, sx));
             }
@@ -1543,7 +1501,8 @@ public class BeadForm extends JFrame {
                     canvas.Pen.Color = canvas.Brush.Color;
                     int ii = i;
                     int j1 = jj;
-                    CorrectCoordinates (ii, j1);
+                    ii = CorrectCoordinatesX(ii, j1);
+                    j1 = CorrectCoordinatesY(ii, j1);
                     if (j1%2==0) {
                         canvas.Rectangle (left+ii*gx+1,
                                                    h-(j1+1)*gy,
@@ -1606,7 +1565,8 @@ public class BeadForm extends JFrame {
                     canvas.Pen.Color = canvas.Brush.Color;
                     int ii = i;
                     int jj = j;
-                    CorrectCoordinates (ii, jj);
+                    ii = CorrectCoordinatesX(ii, jj);
+                    jj = CorrectCoordinatesY(ii, jj);
                     if (ii>w && ii!=field.Width()) continue;
                     if (jj%2==0) {
                         if (ii==w) continue;
@@ -1652,7 +1612,7 @@ public class BeadForm extends JFrame {
             // Mustername
             canvas.Pen.Color = clBlack;
             canvas.TextOut (x1, y, Language.STR("Pattern:", "Muster:"));
-            canvas.TextOut (x2, y, ExtractFileName(savedialog.FileName));
+            canvas.TextOut (x2, y, savedialog.getSelectedFile().getName());
             y += dy;
             // Umfang
             canvas.TextOut (x1, y, Language.STR("Circumference:", "Umfang:"));
@@ -1671,7 +1631,7 @@ public class BeadForm extends JFrame {
                 int ystart = y;
                 char col = field.Get(farbrapp-1);
                 int  count = 1;
-                for (signed int i=farbrapp-2; i>=0; i--) {
+                for (int i=farbrapp-2; i>=0; i--) {
                     if (field.Get(i)==col) {
                         count++;
                     } else {
@@ -1703,7 +1663,7 @@ public class BeadForm extends JFrame {
                             column = 0;
                             page++;
                             canvas.Pen.Color = clBlack;
-                            canvas.TextOut (x1, y, String(Language.STR("Pattern ", "Muster "))+ExtractFileName(savedialog.FileName) + " - " + Language.STR("page ", "Seite ") + IntToStr(page));
+                            canvas.TextOut (x1, y, String(Language.STR("Pattern ", "Muster "))+savedialog.getSelectedFile().getName() + " - " + Language.STR("page ", "Seite ") + IntToStr(page));
                             y += dy;
                             ystart = y;
                         }
@@ -1724,16 +1684,15 @@ public class BeadForm extends JFrame {
                 }
             }
 
-        g_exit:
-            Printer().EndDoc();
+//            Printer().EndDoc();
         }
 
         void reloadLanguage()
         {
             // Men�s
               // Menu Datei
-              Language.C_H(MenuFile, Language.LANG.EN, "&File", "");
-              Language.C_H(MenuFile, Language.LANG.GE, "&Datei", "");
+              Language.C_H(MenuFile, Language.LANG.EN, "&File");
+              Language.C_H(MenuFile, Language.LANG.GE, "&Datei");
               Language.C_H(FileNew, Language.LANG.EN, "&New", "Creates a new pattern");
               Language.C_H(FileNew, Language.LANG.GE, "&Neu", "Erstellt ein neues Muster");
               Language.C_H(FileOpen, Language.LANG.EN, "&Open...", "Opens a pattern");
@@ -1818,7 +1777,6 @@ public class BeadForm extends JFrame {
 
 
             // Toolbar
-
             Language.C_H(sbNew, Language.LANG.EN, "", "New|Creates a new pattern");
             Language.C_H(sbNew, Language.LANG.GE, "", "Neu|Erstellt ein neues Muster");
             Language.C_H(sbOpen, Language.LANG.EN, "", "Open|Opens a pattern");
@@ -1866,16 +1824,16 @@ public class BeadForm extends JFrame {
             Language.C_H(sbToolSniff, Language.LANG.EN, "", "Pipette");
             Language.C_H(sbToolSniff, Language.LANG.GE, "", "Pipette");
 
-            Language.C_H(laDraft, Language.LANG.EN, "Draft", "");
-            Language.C_H(laDraft, Language.LANG.GE, "Entwurf", "");
-            Language.C_H(laNormal, Language.LANG.EN, "Corrected", "");
-            Language.C_H(laNormal, Language.LANG.GE, "Korrigiert", "");
-            Language.C_H(laSimulation, Language.LANG.EN, "Simulation", "");
-            Language.C_H(laSimulation, Language.LANG.GE, "Simulation", "");
-            Language.C_H(laReport, Language.LANG.EN, "Report", "");
-            Language.C_H(laReport, Language.LANG.GE, "Auswertung", "");
+            Language.C_H(laDraft, Language.LANG.EN, "Draft");
+            Language.C_H(laDraft, Language.LANG.GE, "Entwurf");
+            Language.C_H(laNormal, Language.LANG.EN, "Corrected");
+            Language.C_H(laNormal, Language.LANG.GE, "Korrigiert");
+            Language.C_H(laSimulation, Language.LANG.EN, "Simulation");
+            Language.C_H(laSimulation, Language.LANG.GE, "Simulation");
+            Language.C_H(laReport, Language.LANG.EN, "Report");
+            Language.C_H(laReport, Language.LANG.GE, "Auswertung");
 
-            Invalidate();
+            invalidate();
         }
 
         void AddToMRU (String _filename)
@@ -1917,24 +1875,26 @@ public class BeadForm extends JFrame {
             UpdateMRUMenu (4, FileMRU4, mru[3]);
             UpdateMRUMenu (5, FileMRU5, mru[4]);
             UpdateMRUMenu (6, FileMRU6, mru[5]);
-            FileMRUSeparator.Visible = FileMRU1.Visible || FileMRU2.Visible ||
-                                        FileMRU3.Visible || FileMRU4.Visible ||
-                                        FileMRU5.Visible || FileMRU6.Visible;
+            FileMRUSeparator.setVisible(FileMRU1.isVisible() || FileMRU2.isVisible() ||
+                                        FileMRU3.isVisible() || FileMRU4.isVisible() ||
+                                        FileMRU5.isVisible() || FileMRU6.isVisible());
         }
 
-        void UpdateMRUMenu (int _item, TMenuItem _menuitem, String _filename)
+        void UpdateMRUMenu (int _item, JMenuItem _menuitem, String _filename)
         {
-            _menuitem.Visible = _filename!="";
+            _menuitem.setVisible(_filename != "");
 
             //xxxy Eigene Dateien oder so?!
             // Bestimmen ob Datei im Daten-Verzeichnis ist, falls
             // nicht, ganzen Pfad anzeigen!
-            String path = ExtractFilePath(_filename).LowerCase();
-            String datapath = (ExtractFilePath(Application.ExeName)).LowerCase();
-            if (path==datapath)
-                _menuitem.Caption = (String)"&" + IntToStr(_item) + " " + ExtractFileName (_filename);
-            else
-                _menuitem.Caption = (String)"&" + IntToStr(_item) + " " + _filename;
+            String path = _filename;
+            String datapath = System.getProperty("user.dir");
+            if (path==datapath) {
+                _menuitem.setText(new File(_filename).getName());
+            } else {
+                _menuitem.setText(_filename);
+            }
+            _menuitem.setAccelerator(KeyStroke.getKeyStroke(Integer.toString(_item)));
         }
 
         void FileMRU1Click()
@@ -1981,25 +1941,25 @@ public class BeadForm extends JFrame {
 
         void SaveMRU()
         {
-        	Settings settings = new Settings();
-        	settings.SetCategory("mru");
-        	settings.SaveString("mru0", mru[0]);
-        	settings.SaveString("mru1", mru[1]);
-        	settings.SaveString("mru2", mru[2]);
-        	settings.SaveString("mru3", mru[3]);
-        	settings.SaveString("mru4", mru[4]);
-        	settings.SaveString("mru5", mru[5]);
+            Settings settings = new Settings();
+            settings.SetCategory("mru");
+            settings.SaveString("mru0", mru[0]);
+            settings.SaveString("mru1", mru[1]);
+            settings.SaveString("mru2", mru[2]);
+            settings.SaveString("mru3", mru[3]);
+            settings.SaveString("mru4", mru[4]);
+            settings.SaveString("mru5", mru[5]);
         }
 
         void LoadMRU()
         {
-        	Settings settings = new Settings();
-        	settings.SetCategory("mru");
-        	mru[0] = settings.LoadString("mru0");
-        	mru[1] = settings.LoadString("mru1");
-        	mru[2] = settings.LoadString("mru2");
-        	mru[3] = settings.LoadString("mru3");
-        	mru[4] = settings.LoadString("mru4");
-        	mru[5] = settings.LoadString("mru5");
+            Settings settings = new Settings();
+            settings.SetCategory("mru");
+            mru[0] = settings.LoadString("mru0");
+            mru[1] = settings.LoadString("mru1");
+            mru[2] = settings.LoadString("mru2");
+            mru[3] = settings.LoadString("mru3");
+            mru[4] = settings.LoadString("mru4");
+            mru[5] = settings.LoadString("mru5");
         }
 }

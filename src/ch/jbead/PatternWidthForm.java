@@ -45,6 +45,8 @@ public class PatternWidthForm extends JDialog {
 	private JButton bOk = new JButton();
 	private JButton bCancel = new JButton();
 
+	private boolean isOK = false;
+	
 	public PatternWidthForm() {
 		setLayout(new BorderLayout());
 		
@@ -82,14 +84,14 @@ public class PatternWidthForm extends JDialog {
 		bOk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO ok
+				isOK = true;
 				dispose();
 			}
 		});
 		bCancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO cancel
+				isOK = false;
 				dispose();
 			}
 		});
@@ -114,9 +116,21 @@ public class PatternWidthForm extends JDialog {
 		reloadLanguage();
 		setVisible(true);
 	}
+
+	public boolean isOK() {
+	    return isOK;
+	}
+	
+	public void setWidth(int width) {
+	    Width.setValue(width);
+	}
+	
+	public int getWidth() {
+	    return (Integer) Width.getValue();
+	}
 	
 	public static void main(String[] args) {
 		new PatternWidthForm().FormShow();
 	}
-
+	
 }

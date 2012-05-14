@@ -38,6 +38,8 @@ import javax.swing.SpinnerNumberModel;
 public class CopyForm extends JDialog {
 	private static final long serialVersionUID = 1L;
 
+	private boolean isOK = false;
+	
 	SpinnerModel horzModel = new SpinnerNumberModel(5, 0, 100, 1);
 	SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
 	SpinnerModel copyModel = new SpinnerNumberModel(1, 0, 100, 1);
@@ -102,17 +104,21 @@ public class CopyForm extends JDialog {
 		bOK.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO ok
+				isOK = true;
 				dispose();
 			}
 		});
 		bCancel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO cancel
+                isOK = false;
 				dispose();
 			}
 		});
+	}
+	
+	public boolean isOK() {
+	    return isOK;
 	}
 	
 	public int getCopies() {

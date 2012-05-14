@@ -128,14 +128,12 @@ public class BeadField {
 		}
 	}
 
-	public void Save(ObjectOutputStream _f) throws IOException {
-		// FIXME verify endianness issues
+	public void Save(JBeadOutputStream _f) throws IOException {
 		_f.writeInt(width);
 		_f.write(field, 0, SIZE);
 	}
 
-	public void Load(ObjectInputStream _f) throws IOException {
-		// FIXME verify endianness issues
+	public void Load(JBeadInputStream _f) throws IOException {
 		width = _f.readInt();
 		_f.read(field, 0, SIZE);
 		SetWidth(width);

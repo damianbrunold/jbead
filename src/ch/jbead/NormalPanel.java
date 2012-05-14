@@ -157,4 +157,62 @@ public class NormalPanel extends JComponent {
         return _j;
     }
 
+    public void updateBead(int _i, int _j) {
+        if (!isVisible()) return;
+
+        byte c = field.Get (_i, _j+scroll);
+        assert(c>=0 && c<=9);
+
+        _i = CorrectCoordinatesX (_i, _j);
+        _j = CorrectCoordinatesY(_i, _j);
+
+        Graphics g = getGraphics();
+        g.setColor(coltable[c]);
+
+        int left = normalleft;
+        
+        if (scroll%2==0) {
+            if (_j%2==0) {
+                g.fillRect(left+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+            } else {
+                g.fillRect(left-grid/2+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+            }
+        } else {
+            if (_j%2==1) {
+                g.fillRect(left+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+            } else {
+                g.fillRect(left-grid/2+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+            }
+        }
+        g.dispose();
+    }
+
+    boolean mouseToField (Point pt)
+    {
+        int _i = pt.getX();
+        int _j = pt.getY();
+        int i;
+        int jj = (getHeight()-_j)/grid;
+        if (scroll%2==0) {
+            if (jj%2==0) {
+                if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
+                i = (_i-normalleft) / grid;
+            } else {
+                if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
+                i = (_i-normalleft+grid/2) / grid;
+            }
+        } else {
+            if (jj%2==1) {
+                if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
+                i = (_i-normalleft) / grid;
+            } else {
+                if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
+                i = (_i-normalleft+grid/2) / grid;
+            }
+        }
+        pt.setX(i);
+        pt.setY(jj);
+        return true;
+    }
+    
 }
