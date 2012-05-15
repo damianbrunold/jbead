@@ -29,17 +29,11 @@ public class NormalPanel extends JComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private BeadField field;
-    private Color[] colors;
-    private int grid;
-    private int scroll;
+    private Model model;
     private int offsetx;
 
-    public NormalPanel(BeadField field, Color[] colors, int grid, int scroll) {
-        this.field = field;
-        this.colors = colors;
-        this.grid = grid;
-        this.scroll = scroll;
+    public NormalPanel(Model model) {
+        this.model = model;
     }
 
     @Override
@@ -47,12 +41,14 @@ public class NormalPanel extends JComponent {
         super.paintComponent(g);
 
         // Grid
+        int grid = model.getGrid();
+        BeadField field = model.getField();
         g.setColor(Color.DARK_GRAY);
         offsetx = getWidth() - 1 - (field.getWidth() + 1) * grid + grid / 2;
         int left = offsetx;
         if (left < 0) left = grid / 2;
         int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
-        if (scroll % 2 == 0) {
+        if (model.getScroll() % 2 == 0) {
             for (int i = 0; i < field.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
@@ -75,7 +71,7 @@ public class NormalPanel extends JComponent {
                 }
             }
         }
-        if (scroll % 2 == 0) {
+        if (model.getScroll() % 2 == 0) {
             g.drawLine(left, getHeight() - 1, left + field.getWidth() * grid + 1, getHeight() - 1);
             for (int jj = 1; jj < maxj; jj++) {
                 g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.getWidth() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
@@ -89,14 +85,13 @@ public class NormalPanel extends JComponent {
         // Data
         for (int i = 0; i < field.getWidth(); i++) {
             for (int jj = 0; jj < maxj; jj++) {
-                byte c = field.get(i, jj + scroll);
-                assert (c >= 0 && c <= 9);
-                g.setColor(colors[c]);
+                byte c = field.get(i, jj + model.getScroll());
+                g.setColor(model.getColor(c));
                 int ii = i;
                 int j1 = jj;
                 ii = correctCoordinatesX(ii, j1);
                 j1 = correctCoordinatesY(ii, j1);
-                if (scroll % 2 == 0) {
+                if (model.getScroll() % 2 == 0) {
                     if (j1 % 2 == 0) {
                         g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
                     } else {
@@ -114,7 +109,8 @@ public class NormalPanel extends JComponent {
     }
 
     int correctCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.getWidth();
+        BeadField field = model.getField();
+        int idx = _i + (_j + model.getScroll()) * field.getWidth();
         int m1 = field.getWidth();
         int m2 = field.getWidth() + 1;
         int k = 0;
@@ -125,12 +121,13 @@ public class NormalPanel extends JComponent {
             m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k - scroll;
+        _j = k - model.getScroll();
         return _i;
     }
 
     int correctCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.getWidth();
+        BeadField field = model.getField();
+        int idx = _i + (_j + model.getScroll()) * field.getWidth();
         int m1 = field.getWidth();
         int m2 = field.getWidth() + 1;
         int k = 0;
@@ -141,21 +138,23 @@ public class NormalPanel extends JComponent {
             m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k - scroll;
+        _j = k - model.getScroll();
         return _j;
     }
 
     public void updateBead(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = field.get(_i, _j + scroll);
+        int grid = model.getGrid();
+        int scroll = model.getScroll();
+        byte c = model.getField().get(_i, _j + scroll);
         assert (c >= 0 && c <= 9);
 
         _i = correctCoordinatesX(_i, _j);
         _j = correctCoordinatesY(_i, _j);
 
         Graphics g = getGraphics();
-        g.setColor(colors[c]);
+        g.setColor(model.getColor(c));
 
         int left = offsetx;
 
@@ -176,11 +175,13 @@ public class NormalPanel extends JComponent {
     }
 
     boolean mouseToField(Point pt) {
+        int grid = model.getGrid();
+        BeadField field = model.getField();
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
         int jj = (getHeight() - _j) / grid;
-        if (scroll % 2 == 0) {
+        if (model.getScroll() % 2 == 0) {
             if (jj % 2 == 0) {
                 if (_i < offsetx || _i > offsetx + field.getWidth() * grid) return false;
                 i = (_i - offsetx) / grid;

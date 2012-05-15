@@ -13,42 +13,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 package ch.jbead;
 
-import java.awt.Component;
-import java.awt.Graphics;
-
-import javax.swing.Icon;
+import java.awt.Color;
 
 /**
  * 
  */
-public class ColorIcon implements Icon {
+public interface ColorTable {
 
-    private ColorTable table;
-    private int index;
-
-    public ColorIcon(ColorTable colorTable, int colorIndex) {
-        this.table = colorTable;
-        this.index = colorIndex;
-    }
-
-    @Override
-    public void paintIcon(Component c, Graphics g, int x, int y) {
-        g.setColor(table.getColor(index));
-        g.fillRect(x, y, getIconWidth(), getIconHeight());
-    }
-
-    @Override
-    public int getIconWidth() {
-        return 16;
-    }
-
-    @Override
-    public int getIconHeight() {
-        return 16;
-    }
-
+    public Color getColor(int index);
+    public void setColor(int index, Color color);
+    public int getColorCount();
+    
 }

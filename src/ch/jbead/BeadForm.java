@@ -59,10 +59,8 @@ public class BeadForm extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private BeadUndo undo = new BeadUndo();
-    private BeadField field = new BeadField();
-    private Color colors[] = new Color[10];
-    private byte colorIndex;
+    private Model model = new Model();
+    
     private int begin_i;
     private int begin_j;
     private int end_i;
@@ -71,19 +69,9 @@ public class BeadForm extends JFrame {
     private boolean selection;
     private BeadField sel_buff = new BeadField();
     private boolean dragging;
-    private int grid;
-    private int zoomtable[] = new int[5];
-    private int zoomIndex;
-    private int scroll;
-    private int shift;
     private boolean saved;
     private boolean modified;
-    private boolean repeatDirty;
-    private int repeat;
-    private int colorRepeat;
     private String mru[] = new String[6];
-
-    private File file = new File(Texts.text("unnamed", "unbenannt"));
 
     private ButtonGroup languageGroup = new ButtonGroup();
     private JRadioButtonMenuItem languageEnglish = new JRadioButtonMenuItem("English");
@@ -103,10 +91,10 @@ public class BeadForm extends JFrame {
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
-    private DraftPanel draft = new DraftPanel(field, colors, grid, scroll);
-    private NormalPanel normal = new NormalPanel(field, colors, grid, scroll);
-    private SimulationPanel simulation = new SimulationPanel(field, colors, grid, scroll, shift);
-    private ReportPanel report = new ReportPanel(field, colors, colorRepeat, file);
+    private DraftPanel draft = new DraftPanel(model);
+    private NormalPanel normal = new NormalPanel(model);
+    private SimulationPanel simulation = new SimulationPanel(model);
+    private ReportPanel report = new ReportPanel(model);
 
     private JLabel laDraft = new JLabel("draft");
     private JLabel laNormal = new JLabel("normal");
@@ -182,22 +170,9 @@ public class BeadForm extends JFrame {
         super("jbead");
         saved = false;
         modified = false;
-        repeatDirty = false;
         selection = false;
         updateTitle();
-        field.clear();
-        field.setWidth(15);
-        colorIndex = 1;
-        defaultColors();
         setGlyphColors();
-        scroll = 0;
-        zoomIndex = 2;
-        zoomtable[0] = 6;
-        zoomtable[1] = 8;
-        zoomtable[2] = 10;
-        zoomtable[3] = 12;
-        zoomtable[4] = 14;
-        grid = zoomtable[zoomIndex];
         loadMRU();
         updateMRU();
         updateScrollbar();
@@ -206,17 +181,6 @@ public class BeadForm extends JFrame {
         languageGroup.add(languageEnglish);
         languageGroup.add(languageGerman);
 
-        // init color buttons
-        // TODO handle sbColor0 with transparent color and x lines
-        sbColor1.setIcon(new ColorIcon(colors[1]));
-        sbColor2.setIcon(new ColorIcon(colors[2]));
-        sbColor3.setIcon(new ColorIcon(colors[3]));
-        sbColor4.setIcon(new ColorIcon(colors[4]));
-        sbColor5.setIcon(new ColorIcon(colors[5]));
-        sbColor6.setIcon(new ColorIcon(colors[6]));
-        sbColor7.setIcon(new ColorIcon(colors[7]));
-        sbColor8.setIcon(new ColorIcon(colors[8]));
-        sbColor9.setIcon(new ColorIcon(colors[9]));
 
         Settings settings = new Settings();
         settings.SetCategory("Environment");
@@ -253,29 +217,22 @@ public class BeadForm extends JFrame {
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
     }
 
-    void defaultColors() {
-        colors[0] = Color.LIGHT_GRAY; // was clBtnFace
-        colors[1] = new Color(128, 0, 0); // maroon
-        colors[2] = new Color(0, 0, 128); // navy
-        colors[3] = Color.GREEN;
-        colors[4] = Color.YELLOW;
-        colors[5] = Color.RED;
-        colors[6] = Color.BLUE;
-        colors[7] = new Color(128, 0, 128); // purple
-        colors[8] = Color.BLACK;
-        colors[9] = Color.WHITE;
+    private BeadField getField() {
+        return model.getField();
     }
-
+    
     void setGlyphColors() {
-        sbColor1.setIcon(new ColorIcon(colors[1]));
-        sbColor2.setIcon(new ColorIcon(colors[2]));
-        sbColor3.setIcon(new ColorIcon(colors[3]));
-        sbColor4.setIcon(new ColorIcon(colors[4]));
-        sbColor5.setIcon(new ColorIcon(colors[5]));
-        sbColor6.setIcon(new ColorIcon(colors[6]));
-        sbColor7.setIcon(new ColorIcon(colors[7]));
-        sbColor8.setIcon(new ColorIcon(colors[8]));
-        sbColor9.setIcon(new ColorIcon(colors[9]));
+        // init color buttons
+        // TODO handle sbColor0 with transparent color and x lines
+        sbColor1.setIcon(new ColorIcon(model, 1));
+        sbColor2.setIcon(new ColorIcon(model, 2));
+        sbColor3.setIcon(new ColorIcon(model, 3));
+        sbColor4.setIcon(new ColorIcon(model, 4));
+        sbColor5.setIcon(new ColorIcon(model, 5));
+        sbColor6.setIcon(new ColorIcon(model, 6));
+        sbColor7.setIcon(new ColorIcon(model, 7));
+        sbColor8.setIcon(new ColorIcon(model, 8));
+        sbColor9.setIcon(new ColorIcon(model, 9));
     }
 
     void formResize() {
@@ -296,21 +253,22 @@ public class BeadForm extends JFrame {
         }
 
         int m = 6;
+        int grid = model.getGrid();
 
         if (viewDraft.isSelected()) {
-            draft.setBounds(m, top, field.getWidth() * grid + 35, cheight - 6 - laDraft.getHeight() - 3);
+            draft.setBounds(m, top, getField().getWidth() * grid + 35, cheight - 6 - laDraft.getHeight() - 3);
             laDraft.setLocation(m + (draft.getWidth() - laDraft.getWidth()) / 2, draft.getY() + draft.getHeight() + 2);
             m += draft.getWidth() + 12;
         }
 
         if (viewNormal.isSelected()) {
-            normal.setBounds(m, top, (field.getWidth() + 1) * grid + 10, cheight - 6 - laNormal.getHeight() - 3);
+            normal.setBounds(m, top, (getField().getWidth() + 1) * grid + 10, cheight - 6 - laNormal.getHeight() - 3);
             laNormal.setLocation(m + (normal.getWidth() - laNormal.getWidth()) / 2, normal.getY() + normal.getHeight() + 2);
             m += normal.getWidth() + 12;
         }
 
         if (viewSimulation.isSelected()) {
-            simulation.setBounds(m, top, (field.getWidth() + 2) * grid / 2 + 10, cheight - 6 - laSimulation.getHeight() - 3);
+            simulation.setBounds(m, top, (getField().getWidth() + 2) * grid / 2 + 10, cheight - 6 - laSimulation.getHeight() - 3);
             laSimulation.setLocation(m + (simulation.getWidth() - laSimulation.getWidth()) / 2, simulation.getY() + simulation.getHeight() + 2);
             m += simulation.getWidth() + 12;
         }
@@ -326,20 +284,20 @@ public class BeadForm extends JFrame {
     }
 
     void updateScrollbar() {
-        int h = draft.getHeight() / grid;
-        assert (h < field.getHeight());
+        int h = draft.getHeight() / model.getGrid();
+        assert (h < getField().getHeight());
         scrollbar.setMinimum(0);
-        scrollbar.setMaximum(field.getHeight() - h);
+        scrollbar.setMaximum(getField().getHeight() - h);
         if (scrollbar.getMaximum() < 0) scrollbar.setMaximum(0);
         scrollbar.setUnitIncrement(h);
         scrollbar.setBlockIncrement(h);
-        scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scroll);
+        scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - model.getScroll());
     }
 
     int correctCoordinatesX(int i, int j) {
-        int idx = i + (j + scroll) * field.getWidth();
-        int m1 = field.getWidth();
-        int m2 = field.getWidth() + 1;
+        int idx = i + (j + model.getScroll()) * getField().getWidth();
+        int m1 = getField().getWidth();
+        int m2 = getField().getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -348,14 +306,14 @@ public class BeadForm extends JFrame {
             m = (k % 2 == 0) ? m1 : m2;
         }
         i = idx;
-        j = k - scroll;
+        j = k - model.getScroll();
         return i;
     }
 
     int correctCoordinatesY(int i, int j) {
-        int idx = i + (j + scroll) * field.getWidth();
-        int m1 = field.getWidth();
-        int m2 = field.getWidth() + 1;
+        int idx = i + (j + model.getScroll()) * getField().getWidth();
+        int m1 = getField().getWidth();
+        int m2 = getField().getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -364,7 +322,7 @@ public class BeadForm extends JFrame {
             m = (k % 2 == 0) ? m1 : m2;
         }
         i = idx;
-        j = k - scroll;
+        j = k - model.getScroll();
         return j;
     }
 
@@ -387,21 +345,14 @@ public class BeadForm extends JFrame {
         }
 
         // delete all
-        undo.clear();
-        field.clear();
-        repeat = 0;
-        colorRepeat = 0;
+        model.clear();
         invalidate();
-        colorIndex = 1;
         sbColor1.setSelected(true);
-        defaultColors();
         setGlyphColors();
-        scroll = 0;
         updateScrollbar();
         selection = false;
         sbToolPoint.setSelected(true);
         toolPoint.setSelected(true);
-        file = new File(Texts.text("unnamed", "unbenannt"));
         saved = false;
         modified = false;
         updateTitle();
@@ -428,22 +379,12 @@ public class BeadForm extends JFrame {
                             "Die Datei ist keine jbead Musterdatei. Sie kann nicht geladen werden."));
                     return;
                 }
-                undo.clear();
-                field.clear();
-                repeat = 0;
-                colorRepeat = 0;
-                field.load(in);
-                for (int i = 0; i < colors.length; i++) {
-                    colors[i] = in.readColor();
-                }
-                colorIndex = in.read();
-                zoomIndex = in.readInt();
-                shift = in.readInt();
-                scroll = in.readInt();
+                model.clear();
+                model.load(in);
                 viewDraft.setSelected(in.readBool());
                 viewNormal.setSelected(in.readBool());
                 viewSimulation.setSelected(in.readBool());
-                switch (colorIndex) {
+                switch (model.getColorIndex()) {
                 case 0:
                     sbColor0.setSelected(true);
                     break;
@@ -485,15 +426,12 @@ public class BeadForm extends JFrame {
             }
         } catch (IOException e) {
             // xxx
-            undo.clear();
-            field.clear();
-            repeat = 0;
-            colorRepeat = 0;
+            model.clear();
         }
         saved = true;
         modified = false;
-        repeatDirty = true;
-        this.file = file;
+        model.setRepeatDirty();
+        model.setFile(file);
         updateTitle();
         formResize();
         invalidate();
@@ -502,7 +440,7 @@ public class BeadForm extends JFrame {
 
     void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
-        dialog.setCurrentDirectory(file.getParentFile());
+        dialog.setCurrentDirectory(model.getFile().getParentFile());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             loadFile(dialog.getSelectedFile(), true);
         }
@@ -512,17 +450,10 @@ public class BeadForm extends JFrame {
         if (saved) {
             // Einfach abspeichern...
             try {
-                JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(file));
+                JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
                 try {
                     out.write("DB-BEAD/01:\r\n");
-                    field.save(out);
-                    for (Color color : colors) {
-                        out.writeColor(color);
-                    }
-                    out.writeInt(colorIndex);
-                    out.writeInt(zoomIndex);
-                    out.writeInt(shift);
-                    out.writeInt(scroll);
+                    model.save(out);
                     out.writeBool(viewDraft.isSelected());
                     out.writeBool(viewNormal.isSelected());
                     out.writeBool(viewSimulation.isSelected());
@@ -549,10 +480,10 @@ public class BeadForm extends JFrame {
                     return;
                 }
             }
-            file = dialog.getSelectedFile();
+            model.setFile(dialog.getSelectedFile());
             saved = true;
             fileSaveClick();
-            addToMRU(file);
+            addToMRU(model.getFile());
         }
     }
 
@@ -612,20 +543,20 @@ public class BeadForm extends JFrame {
     }
 
     void patternWidthClick() {
-        int old = field.getWidth();
+        int old = getField().getWidth();
         PatternWidthForm form = new PatternWidthForm();
-        form.setWidth(field.getWidth());
+        form.setWidth(getField().getWidth());
         form.formShow();
         if (form.isOK()) {
-            undo.snapshot(field, modified);
-            field.setWidth(form.getWidth());
+            model.snapshot(modified);
+            getField().setWidth(form.getWidth());
             formResize();
             invalidate();
             if (!modified) {
-                modified = (old != field.getWidth());
+                modified = (old != getField().getWidth());
             }
             updateTitle();
-            repeatDirty = true;
+            model.setRepeatDirty();
         }
     }
 
@@ -743,6 +674,8 @@ public class BeadForm extends JFrame {
 
     void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
+        int scroll = model.getScroll();
+        byte colorIndex = model.getColorIndex();
         if (dragging && draft.mouseToField(pt)) {
             draftLinePreview();
             end_i = pt.getX();
@@ -757,7 +690,7 @@ public class BeadForm extends JFrame {
                     end_j = calcLineCoordY(begin_i, begin_j, end_i, end_j);
                     if (Math.abs(end_i - begin_i) == Math.abs(end_j - begin_j)) {
                         // 45 grad Linie
-                        undo.snapshot(field, modified);
+                        model.snapshot(modified);
                         int jj;
                         if (begin_i > end_i) {
                             int tmp = begin_i;
@@ -772,47 +705,47 @@ public class BeadForm extends JFrame {
                                 jj = begin_j + (i - begin_i);
                             else
                                 jj = begin_j - (i - begin_i);
-                            field.set(i, jj + scroll, colorIndex);
+                            getField().set(i, jj + scroll, colorIndex);
                             updateBead(i, jj);
                         }
-                        repeatDirty = true;
+                        model.setRepeatDirty();
                         modified = true;
                         updateTitle();
                     } else if (end_i == begin_i) {
                         // Senkrechte Linie
-                        undo.snapshot(field, modified);
+                        model.snapshot(modified);
                         int j1 = Math.min(end_j, begin_j);
                         int j2 = Math.max(end_j, begin_j);
                         for (int jj = j1; jj <= j2; jj++) {
-                            field.set(begin_i, jj + scroll, colorIndex);
+                            getField().set(begin_i, jj + scroll, colorIndex);
                             updateBead(begin_i, jj);
                         }
                         modified = true;
-                        repeatDirty = true;
+                        model.setRepeatDirty();
                         updateTitle();
                     } else if (end_j == begin_j) {
                         // Waagrechte Linie ziehen
-                        undo.snapshot(field, modified);
+                        model.snapshot(modified);
                         int i1 = Math.min(end_i, begin_i);
                         int i2 = Math.max(end_i, begin_i);
                         for (int i = i1; i <= i2; i++) {
-                            field.set(i, begin_j + scroll, colorIndex);
+                            getField().set(i, begin_j + scroll, colorIndex);
                             updateBead(i, begin_j);
                         }
                         modified = true;
-                        repeatDirty = true;
+                        model.setRepeatDirty();
                         updateTitle();
                     }
                 }
             } else if (sbToolFill.isSelected()) {
-                undo.snapshot(field, modified);
+                model.snapshot(modified);
                 fillLine(end_i, end_j);
                 modified = true;
                 updateTitle();
-                repeatDirty = true;
+                model.setRepeatDirty();
                 report.invalidate();
             } else if (sbToolSniff.isSelected()) {
-                colorIndex = field.get(begin_i, begin_j + scroll);
+                colorIndex = getField().get(begin_i, begin_j + scroll);
                 assert (colorIndex >= 0 && colorIndex < 10);
                 switch (colorIndex) {
                 case 0:
@@ -864,18 +797,20 @@ public class BeadForm extends JFrame {
     }
 
     void fillLine(int _i, int _j) {
+        int scroll = model.getScroll();
+        byte colorIndex = model.getColorIndex();
         // xxx experimentell nach links und rechts
-        byte bk = field.get(_i, _j + scroll);
+        byte bk = getField().get(_i, _j + scroll);
         int i = _i;
-        while (i >= 0 && field.get(i, _j + scroll) == bk) {
-            field.set(i, _j + scroll, colorIndex);
+        while (i >= 0 && getField().get(i, _j + scroll) == bk) {
+            getField().set(i, _j + scroll, colorIndex);
             // TODO make draft an observer of field!
             updateBead(i, _j);
             i--;
         }
         i = begin_i + 1;
-        while (i < field.getWidth() && field.get(i, _j + scroll) == bk) {
-            field.set(i, _j + scroll, colorIndex);
+        while (i < getField().getWidth() && getField().get(i, _j + scroll) == bk) {
+            getField().set(i, _j + scroll, colorIndex);
             // TODO make draft an observer of field!
             updateBead(i, _j);
             i++;
@@ -883,55 +818,52 @@ public class BeadForm extends JFrame {
     }
 
     void setPoint(int _i, int _j) {
-        undo.snapshot(field, modified);
-        byte s = field.get(_i, _j + scroll);
+        int scroll = model.getScroll();
+        byte colorIndex = model.getColorIndex();
+        model.snapshot(modified);
+        byte s = getField().get(_i, _j + scroll);
         if (s == colorIndex) {
-            field.set(_i, _j + scroll, (byte) 0);
+            getField().set(_i, _j + scroll, (byte) 0);
         } else {
-            field.set(_i, _j + scroll, colorIndex);
+            getField().set(_i, _j + scroll, colorIndex);
         }
         updateBead(_i, _j);
         modified = true;
-        repeatDirty = true;
+        model.setRepeatDirty();
         updateTitle();
     }
 
     void editUndoClick() {
-        undo.undo(field);
-        modified = undo.isModified();
+        modified = model.undo();
         updateTitle();
         invalidate();
-        repeatDirty = true;
+        model.setRepeatDirty();
     }
 
     void editRedoClick() {
-        undo.redo(field);
-        modified = undo.isModified();
+        modified = model.redo();
         updateTitle();
         invalidate();
-        repeatDirty = true;
+        model.setRepeatDirty();
     }
 
     void viewZoominClick() {
-        if (zoomIndex < 4) zoomIndex++;
-        grid = zoomtable[zoomIndex];
+        model.zoomIn();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
     void viewZoomnormalClick() {
-        if (zoomIndex == 1) return;
-        zoomIndex = 2;
-        grid = zoomtable[zoomIndex];
+        if (model.isNormalZoom()) return;
+        model.zoomNormal();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
     void viewZoomoutClick() {
-        if (zoomIndex > 0) zoomIndex--;
-        grid = zoomtable[zoomIndex];
+        model.zoomOut();
         formResize();
         invalidate();
         updateScrollbar();
@@ -982,8 +914,8 @@ public class BeadForm extends JFrame {
             sbToolSniff.setSelected(true);
             toolSniff.setSelected(true);
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
-            colorIndex = (byte) (event.getKeyChar() - '0');
-            switch (colorIndex) {
+            model.setColorIndex((byte) (event.getKeyChar() - '0'));
+            switch (model.getColorIndex()) {
             case 0:
                 sbColor0.setSelected(true);
                 break;
@@ -1028,14 +960,16 @@ public class BeadForm extends JFrame {
     }
 
     void rotateLeft() {
-        shift = (shift - 1 + field.getWidth()) % field.getWidth();
+        int shift = model.getShift();
+        shift = (shift - 1 + getField().getWidth()) % getField().getWidth();
         modified = true;
         updateTitle();
         simulation.invalidate();
     }
 
     void rotateRight() {
-        shift = (shift + 1) % field.getWidth();
+        int shift = model.getShift();
+        shift = (shift + 1) % getField().getWidth();
         modified = true;
         updateTitle();
         simulation.invalidate();
@@ -1045,24 +979,24 @@ public class BeadForm extends JFrame {
     void colorClick(ActionEvent event) {
         Object Sender = event.getSource();
         if (Sender == sbColor0)
-            colorIndex = 0;
+            model.setColorIndex((byte) 0);
         else if (Sender == sbColor1)
-            colorIndex = 1;
+            model.setColorIndex((byte) 1);
         else if (Sender == sbColor2)
-            colorIndex = 2;
+            model.setColorIndex((byte) 2);
         else if (Sender == sbColor3)
-            colorIndex = 3;
+            model.setColorIndex((byte) 3);
         else if (Sender == sbColor4)
-            colorIndex = 4;
+            model.setColorIndex((byte) 4);
         else if (Sender == sbColor5)
-            colorIndex = 5;
+            model.setColorIndex((byte) 5);
         else if (Sender == sbColor6)
-            colorIndex = 6;
+            model.setColorIndex((byte) 6);
         else if (Sender == sbColor7)
-            colorIndex = 7;
+            model.setColorIndex((byte) 7);
         else if (Sender == sbColor8)
-            colorIndex = 8;
-        else if (Sender == sbColor9) colorIndex = 9;
+            model.setColorIndex((byte) 8);
+        else if (Sender == sbColor9) model.setColorIndex((byte) 9);
     }
 
     // TODO split this for every color toolbar button
@@ -1089,10 +1023,10 @@ public class BeadForm extends JFrame {
             c = 8;
         else if (Sender == sbColor9) c = 9;
         if (c == 0) return;
-        Color color = JColorChooser.showDialog(this, "choose color", colors[c]);
+        Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
         if (color == null) return;
-        undo.snapshot(field, modified);
-        colors[c] = color;
+        model.snapshot(modified);
+        model.setColor(c, color);
         // TODO propagate change to all dependants (or better use observer
         // pattern)
         modified = true;
@@ -1103,94 +1037,33 @@ public class BeadForm extends JFrame {
 
     // TODO handle out parameter
     void scrollbarScroll(AdjustmentEvent event) {
-        int oldscroll = scroll;
+        int oldscroll = model.getScroll();
         // if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos =
         // scrollbar.Max - scrollbar.PageSize;
-        scroll = scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue();
-        if (oldscroll != scroll) invalidate();
+        model.setScroll(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue());
+        if (oldscroll != model.getScroll()) invalidate();
     }
 
     void idleHandler() {
         // Menü- und Toolbar enablen/disablen
         editCopy.setEnabled(selection);
         sbCopy.setEnabled(selection);
-        editUndo.setEnabled(undo.canUndo());
-        editRedo.setEnabled(undo.canRedo());
-        sbUndo.setEnabled(undo.canUndo());
-        sbRedo.setEnabled(undo.canRedo());
+        editUndo.setEnabled(model.canUndo());
+        editRedo.setEnabled(model.canRedo());
+        sbUndo.setEnabled(model.canUndo());
+        sbRedo.setEnabled(model.canRedo());
 
         // FIXME is this whole rapport stuff needed? all drawing code was
         // commented out and thus removed...
 
         // Rapport berechnen und zeichnen
-        if (repeatDirty) {
-
-            // Musterrapport neu berechnen
-            int last = -1;
-            for (int j = 0; j < field.getHeight(); j++) {
-                for (int i = 0; i < field.getWidth(); i++) {
-                    int c = field.get(i, j);
-                    if (c > 0) {
-                        last = j;
-                        break;
-                    }
-                }
-            }
-            if (last == -1) {
-                repeat = 0;
-                colorRepeat = 0;
-                repeatDirty = false;
-                report.invalidate();
-                return;
-            }
-            repeat = last + 1;
-            for (int j = 1; j <= last; j++) {
-                if (equalRows(0, j)) {
-                    boolean ok = true;
-                    for (int k = j + 1; k <= last; k++) {
-                        if (!equalRows((k - j) % j, k)) {
-                            ok = false;
-                            break;
-                        }
-                    }
-                    if (ok) {
-                        repeat = j;
-                        break;
-                    }
-                }
-            }
-
-            // Farbrapport neu berechnen
-            colorRepeat = repeat * field.getWidth();
-            for (int i = 1; i <= repeat * field.getWidth(); i++) {
-                if (field.get(i) == field.get(0)) {
-                    boolean ok = true;
-                    for (int k = i + 1; k <= repeat * field.getWidth(); k++) {
-                        if (field.get((k - i) % i) != field.get(k)) {
-                            ok = false;
-                            break;
-                        }
-                    }
-                    if (ok) {
-                        colorRepeat = i;
-                        break;
-                    }
-                }
-            }
-
+        if (model.isRepeatDirty()) {
+            model.updateRepeat();
             report.invalidate();
-            repeatDirty = false;
         }
 
         // Vorsorgliches Undo
-        undo.prepareSnapshot(field, modified);
-    }
-
-    boolean equalRows(int j, int k) {
-        for (int i = 0; i < field.getWidth(); i++) {
-            if (field.get(i, j) != field.get(i, k)) return false;
-        }
-        return true;
+        model.prepareSnapshot(modified);
     }
 
     void toolPointClick() {
@@ -1236,12 +1109,13 @@ public class BeadForm extends JFrame {
     }
 
     void normalMouseUp(MouseEvent event) {
+        int scroll = model.getScroll();
         // TODO move this to the NormalPanel
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && normal.mouseToField(pt)) {
             // Lineare Koordinaten berechnen
             int idx = 0;
-            int m1 = field.getWidth();
+            int m1 = getField().getWidth();
             int m2 = m1 + 1;
             for (int j = 0; j < pt.getY() + scroll; j++) {
                 if (j % 2 == 0)
@@ -1252,8 +1126,8 @@ public class BeadForm extends JFrame {
             idx += pt.getX();
 
             // Feld setzen und Darstellung nachf�hren
-            int j = idx / field.getWidth();
-            int i = idx % field.getWidth();
+            int j = idx / getField().getWidth();
+            int i = idx % getField().getWidth();
             setPoint(i, j - scroll);
         }
     }
@@ -1316,9 +1190,9 @@ public class BeadForm extends JFrame {
         CopyForm copyform = new CopyForm();
         copyform.setVisible(true);
         if (copyform.isOK()) {
-            undo.snapshot(field, modified);
+            model.snapshot(modified);
             // Aktuelle Daten in Buffer kopieren
-            sel_buff.copyFrom(field);
+            sel_buff.copyFrom(model.getField());
             // Daten vervielf�ltigen
             if (sel_i1 > sel_i2) {
                 int temp = sel_i1;
@@ -1338,11 +1212,11 @@ public class BeadForm extends JFrame {
                     // Diesen Punkt x-mal vervielf�ltigen
                     for (int k = 0; k < copyform.getCopies(); k++) {
                         idx += getCopyOffset(copyform);
-                        if (field.isValidIndex(idx)) field.set(idx, c);
+                        if (getField().isValidIndex(idx)) getField().set(idx, c);
                     }
                 }
             }
-            repeatDirty = true;
+            model.setRepeatDirty();
             modified = true;
             updateTitle();
             invalidate();
@@ -1350,26 +1224,26 @@ public class BeadForm extends JFrame {
     }
 
     int getCopyOffset(CopyForm form) {
-        return form.getVertOffset() * field.getWidth() + form.getHorzOffset();
+        return form.getVertOffset() * getField().getWidth() + form.getHorzOffset();
     }
 
     int getIndex(int i, int j) {
-        return j * field.getWidth() + i;
+        return j * getField().getWidth() + i;
     }
 
     void editInsertlineClick() {
-        undo.snapshot(field, modified);
-        field.insertLine();
-        repeatDirty = true;
+        model.snapshot(modified);
+        getField().insertLine();
+        model.setRepeatDirty();
         modified = true;
         updateTitle();
         invalidate();
     }
 
     void editDeletelineClick() {
-        undo.snapshot(field, modified);
-        field.deleteLine();
-        repeatDirty = true;
+        model.snapshot(modified);
+        getField().deleteLine();
+        model.setRepeatDirty();
         modified = true;
         updateTitle();
         invalidate();
@@ -1383,7 +1257,7 @@ public class BeadForm extends JFrame {
         String c = "jbead"; // APP_TITLE;
         c += " - ";
         if (saved) {
-            c += file.getName();
+            c += model.getFile().getName();
         } else {
             c += "unnamed"; // DATEI_UNBENANNT;
         }
@@ -1425,6 +1299,7 @@ public class BeadForm extends JFrame {
         int sx = 72; // 72 dpi
         int sy = 72; // 72 dpi
 
+        int zoomIndex = model.getZoomIndex();
         int gx = (15 + zoomIndex * 5) * sx / 254;
         int gy = (15 + zoomIndex * 5) * sy / 254;
 
@@ -1437,17 +1312,17 @@ public class BeadForm extends JFrame {
         int m = mm2px(10, sx);
         if (draft.isVisible()) {
             draftleft = m;
-            m += mm2px(13, sx) + field.getWidth() * gx + mm2px(7, sx);
+            m += mm2px(13, sx) + getField().getWidth() * gx + mm2px(7, sx);
         }
 
         if (normal.isVisible()) {
             normalleft = m;
-            m += mm2px(7, sx) + (field.getWidth() + 1) * gx;
+            m += mm2px(7, sx) + (getField().getWidth() + 1) * gx;
         }
 
         if (simulation.isVisible()) {
             simulationleft = m;
-            m += mm2px(7, sx) + (field.getWidth() / 2 + 1) * gx;
+            m += mm2px(7, sx) + (getField().getWidth() / 2 + 1) * gx;
         }
 
         if (report.isVisible()) {
@@ -1467,21 +1342,21 @@ public class BeadForm extends JFrame {
         g.setColor(Color.BLACK);
         int left = draftleft + mm2px(13, sx);
         if (left < 0) left = 0;
-        int maxj = Math.min(field.getHeight(), (h - mm2py(10, sy)) / gy);
-        for (int i = 0; i < field.getWidth() + 1; i++) {
+        int maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
+        for (int i = 0; i < getField().getWidth() + 1; i++) {
             g.drawLine(left + i * gx, h - (maxj) * gy, left + i * gx, h - 1);
         }
         for (int j = 0; j <= maxj; j++) {
-            g.drawLine(left, h - 1 - j * gy, left + field.getWidth() * gx, h - 1 - j * gy);
+            g.drawLine(left, h - 1 - j * gy, left + getField().getWidth() * gx, h - 1 - j * gy);
         }
 
         // Daten
-        for (int i = 0; i < field.getWidth(); i++) {
+        for (int i = 0; i < getField().getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = field.get(i, j);
+                byte c = getField().get(i, j);
                 assert (c >= 0 && c <= 9);
                 if (c > 0) {
-                    g.setColor(colors[c]);
+                    g.setColor(model.getColor(c));
                     g.fillRect(left + i * gx + 1, h - (j + 1) * gy, gx, gy);
                 }
             }
@@ -1506,29 +1381,29 @@ public class BeadForm extends JFrame {
         g.setColor(Color.BLACK);
         left = normalleft + gx / 2;
         if (left < 0) left = gx / 2;
-        maxj = Math.min(field.getHeight(), (h - mm2py(10, sy)) / gy);
-        for (int i = 0; i < field.getWidth() + 1; i++) {
+        maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
+        for (int i = 0; i < getField().getWidth() + 1; i++) {
             for (int jj = 0; jj < maxj; jj += 2) {
                 g.drawLine(left + i * gx, h - (jj + 1) * gy, left + i * gx, h - jj * gy);
             }
         }
-        for (int i = 0; i <= field.getWidth() + 1; i++) {
+        for (int i = 0; i <= getField().getWidth() + 1; i++) {
             for (int jj = 1; jj < maxj; jj += 2) {
                 g.drawLine(left + i * gx - gx / 2, h - (jj + 1) * gy, left + i * gx - gx / 2, h - jj * gy);
             }
         }
-        g.drawLine(left, h - 1, left + field.getWidth() * gx + 1, h - 1);
+        g.drawLine(left, h - 1, left + getField().getWidth() * gx + 1, h - 1);
         for (int jj = 1; jj <= maxj; jj++) {
-            g.drawLine(left - gx / 2, h - 1 - jj * gy, left + field.getWidth() * gx + gx / 2 + 1, h - 1 - jj * gy);
+            g.drawLine(left - gx / 2, h - 1 - jj * gy, left + getField().getWidth() * gx + gx / 2 + 1, h - 1 - jj * gy);
         }
 
         // Daten
-        for (int i = 0; i < field.getWidth(); i++) {
+        int scroll = model.getScroll();
+        for (int i = 0; i < getField().getWidth(); i++) {
             for (int jj = 0; jj < maxj; jj++) {
-                byte c = field.get(i, jj + scroll);
-                assert (c >= 0 && c <= 9);
+                byte c = getField().get(i, jj + scroll);
                 if (c == 0) continue;
-                g.setColor(colors[c]);
+                g.setColor(model.getColor(c));
                 int ii = i;
                 int j1 = jj;
                 ii = correctCoordinatesX(ii, j1);
@@ -1551,8 +1426,8 @@ public class BeadForm extends JFrame {
         g.setColor(Color.BLACK);
         left = simulationleft + gx / 2;
         if (left < 0) left = gx / 2;
-        maxj = Math.min(field.getHeight(), (h - mm2py(10, sy)) / gy);
-        int w = field.getWidth() / 2;
+        maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
+        int w = getField().getWidth() / 2;
         for (int j = 0; j < maxj; j += 2) {
             for (int i = 0; i < w + 1; i++) {
                 g.drawLine(left + i * gx, h - (j + 1) * gy, left + i * gx, h - j * gy);
@@ -1573,22 +1448,21 @@ public class BeadForm extends JFrame {
         }
 
         // Daten
-        for (int i = 0; i < field.getWidth(); i++) {
+        for (int i = 0; i < getField().getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = field.get(i, j + scroll);
-                assert (c >= 0 && c <= 9);
+                byte c = getField().get(i, j + scroll);
                 if (c == 0) continue;
-                g.setColor(colors[c]);
+                g.setColor(model.getColor(c));
                 int ii = i;
                 int jj = j;
                 ii = correctCoordinatesX(ii, jj);
                 jj = correctCoordinatesY(ii, jj);
-                if (ii > w && ii != field.getWidth()) continue;
+                if (ii > w && ii != getField().getWidth()) continue;
                 if (jj % 2 == 0) {
                     if (ii == w) continue;
                     g.fillRect(left + ii * gx + 1, h - (jj + 1) * gy, gx, gy);
                 } else {
-                    if (ii != field.getWidth() && ii != w) {
+                    if (ii != getField().getWidth() && ii != w) {
                         g.fillRect(left - gx / 2 + ii * gx + 1, h - (jj + 1) * gy, gx, gy);
                     } else if (ii == w) {
                         g.fillRect(left - gx / 2 + ii * gx + 1, h - (jj + 1) * gy, gx / 2, gy);
@@ -1614,16 +1488,17 @@ public class BeadForm extends JFrame {
         // Mustername
         g.setColor(Color.BLACK);
         g.drawString(Texts.text("Pattern:", "Muster:"), x1, y);
-        g.drawString(file.getName(), x2, y);
+        g.drawString(model.getFile().getName(), x2, y);
         y += dy;
         // Umfang
         g.drawString(Texts.text("Circumference:", "Umfang:"), x1, y);
-        g.drawString(Integer.toString(field.getWidth()), x2, y);
+        g.drawString(Integer.toString(getField().getWidth()), x2, y);
         y += dy;
         // Farbrapport
         g.drawString(Texts.text("Repeat of colors:", "Farbrapport:"), x1, y);
-        g.drawString(Integer.toString(colorRepeat) + Texts.text(" beads", " Perlen"), x2, y);
+        g.drawString(Integer.toString(model.getColorRepeat()) + Texts.text(" beads", " Perlen"), x2, y);
         y += dy;
+        int colorRepeat = model.getColorRepeat();
         // Faedelliste...
         if (colorRepeat > 0) {
             int page = 1;
@@ -1631,14 +1506,14 @@ public class BeadForm extends JFrame {
             g.drawString(Texts.text("List of beads", "Fädelliste"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = field.get(colorRepeat - 1);
+            byte col = getField().get(colorRepeat - 1);
             int count = 1;
             for (int i = colorRepeat - 2; i >= 0; i--) {
-                if (field.get(i) == col) {
+                if (getField().get(i) == col) {
                     count++;
                 } else {
                     if (col != 0) {
-                        g.setColor(colors[col]);
+                        g.setColor(model.getColor(col));
                         g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
                         g.setColor(Color.WHITE);
                         g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
@@ -1651,7 +1526,7 @@ public class BeadForm extends JFrame {
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
-                    col = field.get(i);
+                    col = getField().get(i);
                     count = 1;
                 }
                 if (y >= (int) pageFormat.getHeight() - mm2py(10, sy)) {
@@ -1682,7 +1557,7 @@ public class BeadForm extends JFrame {
             }
             if (y < (int) pageFormat.getHeight() - mm2py(10, sy)) {
                 if (col != 0) {
-                    g.setColor(colors[col]);
+                    g.setColor(model.getColor(col));
                     g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
                     g.setColor(Color.WHITE);
                     g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));

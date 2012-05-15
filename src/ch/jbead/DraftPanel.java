@@ -29,18 +29,12 @@ public class DraftPanel extends JComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private BeadField field;
-    private Color[] colors;
-    private int grid;
-    private int scroll;
+    private Model model;
     private int offsetx;
     private int maxj;
 
-    public DraftPanel(BeadField field, Color[] colors, int grid, int scroll) {
-        this.field = field;
-        this.colors = colors;
-        this.grid = grid;
-        this.scroll = scroll;
+    public DraftPanel(Model model) {
+        this.model = model;
     }
 
     @Override
@@ -55,22 +49,23 @@ public class DraftPanel extends JComponent {
     }
 
     private int getOffsetX() {
-        return Math.max(0, getWidth() - field.getWidth() * grid - 1);
+        return Math.max(0, getWidth() - model.getField().getWidth() * model.getGrid() - 1);
     }
 
     private int getMaxJ() {
-        return Math.min(field.getHeight(), getHeight() / grid + 1);
+        return Math.min(model.getField().getHeight(), getHeight() / model.getGrid() + 1);
     }
 
     private int x(int i) {
-        return offsetx + i * grid;
+        return offsetx + i * model.getGrid();
     }
     
     private int y(int j) {
-        return getHeight() - 1 - j * grid;
+        return getHeight() - 1 - j * model.getGrid();
     }
     
     private int paintGrid(Graphics g) {
+        BeadField field = model.getField();
         g.setColor(Color.DARK_GRAY);
         for (int i = 0; i < field.getWidth() + 1; i++) {
             g.drawLine(x(i), 0, x(i), getHeight() - 1);
@@ -82,16 +77,21 @@ public class DraftPanel extends JComponent {
     }
 
     private void paintBeads(Graphics g) {
+        int grid = model.getGrid();
+        int scroll = model.getScroll();
+        BeadField field = model.getField();
         for (int i = 0; i < field.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
                 byte c = field.get(i, j + scroll);
-                g.setColor(colors[c]);
+                g.setColor(model.getColor(c));
                 g.fillRect(x(i) + 1, y(j + 1) + 1, grid, grid);
             }
         }
     }
 
     private void paintMarkers(Graphics g) {
+        int grid = model.getGrid();
+        int scroll = model.getScroll();
         g.setColor(Color.DARK_GRAY);
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
@@ -108,10 +108,10 @@ public class DraftPanel extends JComponent {
 
     public void redraw(int i, int j) {
         if (!isVisible()) return;
-        byte c = field.get(i, j + scroll);
+        byte c = model.getField().get(i, j + model.getScroll());
         Graphics g = getGraphics();
-        g.setColor(colors[c]);
-        g.fillRect(x(i) + 1, y(j) + 1, grid, grid);
+        g.setColor(model.getColor(c));
+        g.fillRect(x(i) + 1, y(j) + 1, model.getGrid(), model.getGrid());
         g.dispose();
     }
 
@@ -123,6 +123,7 @@ public class DraftPanel extends JComponent {
     }
 
     public void linePreview(Point pt1, Point pt2) {
+        int grid = model.getGrid();
         Graphics g = getGraphics();
         g.setColor(Color.DARK_GRAY);
         g.setXORMode(Color.BLACK);
@@ -142,6 +143,8 @@ public class DraftPanel extends JComponent {
     }
 
     boolean mouseToField(Point pt) {
+        BeadField field = model.getField();
+        int grid = model.getGrid();
         int _i = pt.getX();
         int _j = pt.getY();
         int i, jj;

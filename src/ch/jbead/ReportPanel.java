@@ -19,7 +19,6 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.File;
 
 import javax.swing.JComponent;
 
@@ -30,16 +29,10 @@ public class ReportPanel extends JComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private BeadField field;
-    private Color[] colors;
-    private int colorRepeat;
-    private File file;
+    private Model model;
 
-    public ReportPanel(BeadField field, Color[] colors, int colorRepeat, File file) {
-        this.field = field;
-        this.colors = colors;
-        this.colorRepeat = colorRepeat;
-        this.file = file;
+    public ReportPanel(Model model) {
+        this.model = model;
     }
 
     @Override
@@ -55,33 +48,33 @@ public class ReportPanel extends JComponent {
         // Mustername
         g.setColor(Color.BLACK);
         g.drawString(Texts.text("Pattern:", "Muster:"), x1, y);
-        g.drawString(file.getPath(), x2, y);
+        g.drawString(model.getFile().getPath(), x2, y);
         y += dy;
 
         // Umfang
         g.drawString(Texts.text("Circumference:", "Umfang:"), x1, y);
-        g.drawString(Integer.toString(field.getWidth()), x2, y);
+        g.drawString(Integer.toString(model.getField().getWidth()), x2, y);
         y += dy;
 
         // Farbrapport
         g.drawString(Texts.text("repeat of colors:", "Farbrapport:"), x1, y);
-        g.drawString(colorRepeat + Texts.text(" beads", " Perlen"), x2, y);
+        g.drawString(model.getColorRepeat() + Texts.text(" beads", " Perlen"), x2, y);
         y += dy;
 
         // Farben
         // Faedelliste...
-        if (colorRepeat > 0) {
+        if (model.getColorRepeat() > 0) {
             g.drawString(Texts.text("List of beads", "Fädelliste"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = field.get(colorRepeat - 1);
+            byte col = model.getField().get(model.getColorRepeat() - 1);
             int count = 1;
-            for (int i = colorRepeat - 2; i >= 0; i--) {
-                if (field.get(i) == col) {
+            for (int i = model.getColorRepeat() - 2; i >= 0; i--) {
+                if (model.getField().get(i) == col) {
                     count++;
                 } else {
                     if (col != 0) {
-                        g.setColor(colors[col]);
+                        g.setColor(model.getColor(col));
                         g.fillRect(x1, y, dx, dy);
                     } else {
                         g.setColor(Color.DARK_GRAY);
@@ -90,7 +83,7 @@ public class ReportPanel extends JComponent {
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
-                    col = field.get(i);
+                    col = model.getField().get(i);
                     count = 1;
                 }
                 if (y >= getHeight() - 10) {
@@ -99,7 +92,7 @@ public class ReportPanel extends JComponent {
                 }
             }
             if (y < getHeight() - 3) {
-                g.setColor(colors[col]);
+                g.setColor(model.getColor(col));
                 g.fillRect(x1, y, dx, dy);
                 g.setColor(Color.BLACK);
                 g.drawString(Integer.toString(count), x1 + dx + 3, y);
