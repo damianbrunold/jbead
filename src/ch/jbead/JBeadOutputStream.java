@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package ch.jbead;
 
@@ -27,11 +27,11 @@ import java.io.OutputStream;
 public class JBeadOutputStream {
 
     private OutputStream out;
-    
+
     public JBeadOutputStream(OutputStream out) {
         this.out = out;
     }
-    
+
     public void writeInt(int value) throws IOException {
         byte b1 = (byte) (value & 0xff);
         byte b2 = (byte) ((value >> 8) & 0xff);
@@ -42,7 +42,7 @@ public class JBeadOutputStream {
         out.write(b3);
         out.write(b4);
     }
-    
+
     public void write(byte[] bytes, int off, int length) throws IOException {
         out.write(bytes, off, length);
     }
@@ -62,12 +62,12 @@ public class JBeadOutputStream {
         out.write(color.getGreen());
         out.write(color.getBlue());
     }
-    
+
     public void writeBool(boolean value) throws IOException {
         // TODO verify layout of booleans
         out.write(value ? 1 : 0);
     }
-    
+
     public void close() throws IOException {
         out.close();
     }

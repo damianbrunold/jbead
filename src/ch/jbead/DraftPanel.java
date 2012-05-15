@@ -60,8 +60,7 @@ public class DraftPanel extends JComponent {
             g.drawLine(left + i * grid, 0, left + i * grid, getHeight() - 1);
         }
         for (int j = 0; j < maxj; j++) {
-            g.drawLine(left, getHeight() - 1 - j * grid, left + field.Width()
-                    * grid, getHeight() - 1 - j * grid);
+            g.drawLine(left, getHeight() - 1 - j * grid, left + field.Width() * grid, getHeight() - 1 - j * grid);
         }
 
         // Daten
@@ -70,18 +69,15 @@ public class DraftPanel extends JComponent {
                 byte c = field.Get(i, j + scroll);
                 assert (c >= 0 && c <= 9);
                 g.setColor(coltable[c]);
-                g.fillRect(left + i * grid + 1, getHeight() - (j + 1) * grid,
-                        grid, grid);
+                g.fillRect(left + i * grid + 1, getHeight() - (j + 1) * grid, grid, grid);
             }
 
         // Zehnermarkierungen
         g.setColor(Color.DARK_GRAY);
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
-                g.drawLine(0, getHeight() - j * grid - 1, left - 6, getHeight()
-                        - j * grid - 1);
-                g.drawString(Integer.toString(j + scroll), 6, getHeight() - j
-                        * grid + 1);
+                g.drawLine(0, getHeight() - j * grid - 1, left - 6, getHeight() - j * grid - 1);
+                g.drawString(Integer.toString(j + scroll), 6, getHeight() - j * grid + 1);
             }
         }
 
@@ -98,8 +94,7 @@ public class DraftPanel extends JComponent {
 
         Graphics g = getGraphics();
         g.setColor(coltable[c]);
-        g.fillRect(draftleft + _i * grid + 1, getHeight() - (_j + 1) * grid,
-                grid, grid);
+        g.fillRect(draftleft + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
         g.dispose();
     }
 
@@ -107,8 +102,7 @@ public class DraftPanel extends JComponent {
         int _i = pt.getX();
         int _j = pt.getY();
         int i, jj;
-        if (_i < draftleft || _i > draftleft + field.Width() * grid)
-            return false;
+        if (_i < draftleft || _i > draftleft + field.Width() * grid) return false;
         i = (_i - draftleft) / grid;
         if (i >= field.Width()) return false;
         jj = (getHeight() - _j) / grid;
@@ -120,8 +114,8 @@ public class DraftPanel extends JComponent {
     public void selectPreview(boolean _draw, Point p1, Point p2) {
         Graphics g = getGraphics();
         g.setColor(_draw ? Color.BLACK : Color.DARK_GRAY);
-        g.drawRect(draftleft + p1.getX()*grid, getHeight() - p1.getY()*grid - 1,
-                   draftleft + (p2.getX()+1)*grid, getHeight() - (p2.getY()+1)*grid - 1);
+        g.drawRect(draftleft + p1.getX() * grid, getHeight() - p1.getY() * grid - 1, draftleft + (p2.getX() + 1) * grid, getHeight()
+                - (p2.getY() + 1) * grid - 1);
         g.dispose();
     }
 
@@ -129,24 +123,24 @@ public class DraftPanel extends JComponent {
         Graphics g = getGraphics();
         g.setColor(Color.DARK_GRAY);
         g.setXORMode(Color.BLACK);
-        g.drawLine(draftleft + pt1.getX()*grid+grid/2, getHeight() - pt1.getY()*grid - grid/2,
-                   draftleft + pt2.getX()*grid+grid/2, getHeight() - pt2.getY()*grid - grid/2);
+        g.drawLine(draftleft + pt1.getX() * grid + grid / 2, getHeight() - pt1.getY() * grid - grid / 2, draftleft + pt2.getX() * grid + grid / 2,
+                getHeight() - pt2.getY() * grid - grid / 2);
         g.dispose();
     }
-    
+
     public void drawPrepress(Point pt) {
         Graphics g = getGraphics();
         g.setColor(Color.BLACK);
-        g.drawLine(draftleft+pt.getX()*grid+1, getHeight()-pt.getY()*grid-2,
-                   draftleft+pt.getX()*grid+1, getHeight()-(pt.getY()+1)*grid);
-        g.drawLine(draftleft+pt.getX()*grid+1, getHeight()-(pt.getY()+1)*grid,
-                   draftleft+(pt.getX()+1)*grid-1, getHeight()-(pt.getY()+1)*grid);
+        g.drawLine(draftleft + pt.getX() * grid + 1, getHeight() - pt.getY() * grid - 2, draftleft + pt.getX() * grid + 1, getHeight()
+                - (pt.getY() + 1) * grid);
+        g.drawLine(draftleft + pt.getX() * grid + 1, getHeight() - (pt.getY() + 1) * grid, draftleft + (pt.getX() + 1) * grid - 1,
+                getHeight() - (pt.getY() + 1) * grid);
         g.setColor(Color.WHITE);
-        g.drawLine(draftleft+(pt.getX()+1)*grid-1, getHeight()-(pt.getY()+1)*grid+1,
-                   draftleft+(pt.getX()+1)*grid-1, getHeight()-pt.getY()*grid-2);
-        g.drawLine(draftleft+(pt.getX()+1)*grid-1, getHeight()-pt.getY()*grid-2,
-                   draftleft+pt.getX()*grid, getHeight()-pt.getY()*grid-2);
+        g.drawLine(draftleft + (pt.getX() + 1) * grid - 1, getHeight() - (pt.getY() + 1) * grid + 1, draftleft + (pt.getX() + 1) * grid - 1,
+                getHeight() - pt.getY() * grid - 2);
+        g.drawLine(draftleft + (pt.getX() + 1) * grid - 1, getHeight() - pt.getY() * grid - 2, draftleft + pt.getX() * grid, getHeight() - pt.getY()
+                * grid - 2);
         g.dispose();
     }
-    
+
 }

@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package ch.jbead;
 
@@ -28,17 +28,17 @@ import java.io.InputStream;
 public class JBeadInputStream {
 
     private InputStream in;
-    
+
     public JBeadInputStream(InputStream in) {
         this.in = in;
     }
-    
+
     public byte read() throws IOException {
         int b = in.read();
         if (b == -1) throw new EOFException();
         return (byte) b;
     }
-    
+
     public int readInt() throws IOException {
         int b1 = in.read();
         int b2 = in.read();
@@ -46,7 +46,7 @@ public class JBeadInputStream {
         int b4 = in.read();
         return (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
     }
-    
+
     public void read(byte[] bytes, int off, int length) throws IOException {
         in.read(bytes, off, length);
     }
@@ -69,7 +69,7 @@ public class JBeadInputStream {
         int blue = in.read();
         return new Color(red, green, blue, alpha);
     }
-    
+
     public boolean readBool() throws IOException {
         return in.read() == 1;
     }

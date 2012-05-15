@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package ch.jbead;
 
@@ -28,26 +28,26 @@ import javax.swing.Icon;
  */
 public class ColorIcon implements Icon {
 
-	private Color color;
-	
-	public ColorIcon(Color color) {
-		this.color = color;
-	}
-	
-	@Override
-	public void paintIcon(Component c, Graphics g, int x, int y) {
-		g.setColor(color);
-		g.fillRect(x, y, getIconWidth(), getIconHeight());
-	}
+    private Color color;
 
-	@Override
-	public int getIconWidth() {
-		return 16;
-	}
+    public ColorIcon(Color color) {
+        this.color = color;
+    }
 
-	@Override
-	public int getIconHeight() {
-		return 16;
-	}
+    @Override
+    public void paintIcon(Component c, Graphics g, int x, int y) {
+        g.setColor(color);
+        g.fillRect(x, y, getIconWidth(), getIconHeight());
+    }
+
+    @Override
+    public int getIconWidth() {
+        return 16;
+    }
+
+    @Override
+    public int getIconHeight() {
+        return 16;
+    }
 
 }

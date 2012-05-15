@@ -27,192 +27,183 @@ import javax.swing.JComponent;
  */
 public class NormalPanel extends JComponent {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private BeadField field;
-	private Color[] coltable;
-	private int grid;
-	private int scroll;
-	private int normalleft;
+    private BeadField field;
+    private Color[] coltable;
+    private int grid;
+    private int scroll;
+    private int normalleft;
 
-	public NormalPanel(BeadField field, Color[] coltable, int grid, int scroll) {
-		this.field = field;
-		this.coltable = coltable;
-		this.grid = grid;
-		this.scroll = scroll;
-	}
+    public NormalPanel(BeadField field, Color[] coltable, int grid, int scroll) {
+        this.field = field;
+        this.coltable = coltable;
+        this.grid = grid;
+        this.scroll = scroll;
+    }
 
-	public int getNormalleft() {
-		return normalleft;
-	}
+    public int getNormalleft() {
+        return normalleft;
+    }
 
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-		// Grid
-		g.setColor(Color.DARK_GRAY);
-		normalleft = getWidth() - 1 - (field.Width() + 1) * grid + grid / 2;
-		int left = normalleft;
-		if (left < 0) left = grid / 2;
-		int maxj = Math.min(field.Height(), getHeight() / grid + 1);
-		if (scroll % 2 == 0) {
-			for (int i = 0; i < field.Width() + 1; i++) {
-				for (int jj = 0; jj < maxj; jj += 2) {
-					g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid,
-							   left + i * grid, getHeight() - jj * grid);
-				}
-			}
-			for (int i = 0; i <= field.Width() + 1; i++) {
-				for (int jj = 1; jj < maxj; jj += 2) {
-					g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid,
-							   left + i * grid - grid / 2, getHeight() - jj * grid);
-				}
-			}
-		} else {
-			for (int i = 0; i <= field.Width() + 1; i++) {
-				for (int jj = 0; jj < maxj; jj += 2) {
-					g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid,
-							   left + i * grid - grid / 2, getHeight() - jj * grid);
-				}
-			}
-			for (int i = 0; i < field.Width() + 1; i++) {
-				for (int jj = 1; jj < maxj; jj += 2) {
-					g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid,
-							   left + i * grid, getHeight() - jj * grid);
-				}
-			}
-		}
-		if (scroll % 2 == 0) {
-			g.drawLine(left, getHeight() - 1, left + field.Width() * grid + 1, getHeight() - 1);
-			for (int jj = 1; jj < maxj; jj++) {
-				g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid,
-						   left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
-			}
-		} else {
-			for (int jj = 0; jj < maxj; jj++) {
-				g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid,
-						   left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
-			}
-		}
+        // Grid
+        g.setColor(Color.DARK_GRAY);
+        normalleft = getWidth() - 1 - (field.Width() + 1) * grid + grid / 2;
+        int left = normalleft;
+        if (left < 0) left = grid / 2;
+        int maxj = Math.min(field.Height(), getHeight() / grid + 1);
+        if (scroll % 2 == 0) {
+            for (int i = 0; i < field.Width() + 1; i++) {
+                for (int jj = 0; jj < maxj; jj += 2) {
+                    g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
+                }
+            }
+            for (int i = 0; i <= field.Width() + 1; i++) {
+                for (int jj = 1; jj < maxj; jj += 2) {
+                    g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
+                }
+            }
+        } else {
+            for (int i = 0; i <= field.Width() + 1; i++) {
+                for (int jj = 0; jj < maxj; jj += 2) {
+                    g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
+                }
+            }
+            for (int i = 0; i < field.Width() + 1; i++) {
+                for (int jj = 1; jj < maxj; jj += 2) {
+                    g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
+                }
+            }
+        }
+        if (scroll % 2 == 0) {
+            g.drawLine(left, getHeight() - 1, left + field.Width() * grid + 1, getHeight() - 1);
+            for (int jj = 1; jj < maxj; jj++) {
+                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
+            }
+        } else {
+            for (int jj = 0; jj < maxj; jj++) {
+                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
+            }
+        }
 
-		// Daten
-		for (int i = 0; i < field.Width(); i++) {
-			for (int jj = 0; jj < maxj; jj++) {
-				byte c = field.Get(i, jj + scroll);
-				assert (c >= 0 && c <= 9);
-				g.setColor(coltable[c]);
-				int ii = i;
-				int j1 = jj;
-				ii = CorrectCoordinatesX(ii, j1);
-				j1 = CorrectCoordinatesY(ii, j1);
-				if (scroll % 2 == 0) {
-					if (j1 % 2 == 0) {
-						g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
-					} else {
-						g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
-					}
-				} else {
-					if (j1 % 2 == 1) {
-						g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
-					} else {
-						g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
-					}
-				}
-			}
-		}
-	}
+        // Daten
+        for (int i = 0; i < field.Width(); i++) {
+            for (int jj = 0; jj < maxj; jj++) {
+                byte c = field.Get(i, jj + scroll);
+                assert (c >= 0 && c <= 9);
+                g.setColor(coltable[c]);
+                int ii = i;
+                int j1 = jj;
+                ii = CorrectCoordinatesX(ii, j1);
+                j1 = CorrectCoordinatesY(ii, j1);
+                if (scroll % 2 == 0) {
+                    if (j1 % 2 == 0) {
+                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                    } else {
+                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                    }
+                } else {
+                    if (j1 % 2 == 1) {
+                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                    } else {
+                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                    }
+                }
+            }
+        }
+    }
 
-    int CorrectCoordinatesX (int _i, int _j)
-    {
-        int idx = _i + (_j+scroll)*field.Width();
+    int CorrectCoordinatesX(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.Width();
         int m1 = field.Width();
-        int m2 = field.Width()+1;
+        int m2 = field.Width() + 1;
         int k = 0;
-        int m = (k%2==0) ? m1 : m2;
-        while (idx>=m) {
+        int m = (k % 2 == 0) ? m1 : m2;
+        while (idx >= m) {
             idx -= m;
             k++;
-            m = (k%2==0) ? m1 : m2;
+            m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k-scroll;
+        _j = k - scroll;
         return _i;
     }
 
-    int CorrectCoordinatesY (int _i, int _j)
-    {
-        int idx = _i + (_j+scroll)*field.Width();
+    int CorrectCoordinatesY(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.Width();
         int m1 = field.Width();
-        int m2 = field.Width()+1;
+        int m2 = field.Width() + 1;
         int k = 0;
-        int m = (k%2==0) ? m1 : m2;
-        while (idx>=m) {
+        int m = (k % 2 == 0) ? m1 : m2;
+        while (idx >= m) {
             idx -= m;
             k++;
-            m = (k%2==0) ? m1 : m2;
+            m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k-scroll;
+        _j = k - scroll;
         return _j;
     }
 
     public void updateBead(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = field.Get (_i, _j+scroll);
-        assert(c>=0 && c<=9);
+        byte c = field.Get(_i, _j + scroll);
+        assert (c >= 0 && c <= 9);
 
-        _i = CorrectCoordinatesX (_i, _j);
+        _i = CorrectCoordinatesX(_i, _j);
         _j = CorrectCoordinatesY(_i, _j);
 
         Graphics g = getGraphics();
         g.setColor(coltable[c]);
 
         int left = normalleft;
-        
-        if (scroll%2==0) {
-            if (_j%2==0) {
-                g.fillRect(left+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+
+        if (scroll % 2 == 0) {
+            if (_j % 2 == 0) {
+                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             } else {
-                g.fillRect(left-grid/2+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+                g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             }
         } else {
-            if (_j%2==1) {
-                g.fillRect(left+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+            if (_j % 2 == 1) {
+                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             } else {
-                g.fillRect(left-grid/2+_i*grid+1, getHeight()-(_j+1)*grid, grid, grid);
+                g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             }
         }
         g.dispose();
     }
 
-    boolean mouseToField (Point pt)
-    {
+    boolean mouseToField(Point pt) {
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
-        int jj = (getHeight()-_j)/grid;
-        if (scroll%2==0) {
-            if (jj%2==0) {
-                if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
-                i = (_i-normalleft) / grid;
+        int jj = (getHeight() - _j) / grid;
+        if (scroll % 2 == 0) {
+            if (jj % 2 == 0) {
+                if (_i < normalleft || _i > normalleft + field.Width() * grid) return false;
+                i = (_i - normalleft) / grid;
             } else {
-                if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
-                i = (_i-normalleft+grid/2) / grid;
+                if (_i < normalleft - grid / 2 || _i > normalleft + field.Width() * grid + grid / 2) return false;
+                i = (_i - normalleft + grid / 2) / grid;
             }
         } else {
-            if (jj%2==1) {
-                if (_i<normalleft || _i>normalleft+field.Width()*grid) return false;
-                i = (_i-normalleft) / grid;
+            if (jj % 2 == 1) {
+                if (_i < normalleft || _i > normalleft + field.Width() * grid) return false;
+                i = (_i - normalleft) / grid;
             } else {
-                if (_i<normalleft-grid/2 || _i>normalleft+field.Width()*grid+grid/2) return false;
-                i = (_i-normalleft+grid/2) / grid;
+                if (_i < normalleft - grid / 2 || _i > normalleft + field.Width() * grid + grid / 2) return false;
+                i = (_i - normalleft + grid / 2) / grid;
             }
         }
         pt.setX(i);
         pt.setY(jj);
         return true;
     }
-    
+
 }

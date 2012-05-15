@@ -34,8 +34,7 @@ public class ReportPanel extends JComponent {
     private int farbrapp;
     private String filename;
 
-    public ReportPanel(BeadField field, Color[] coltable, int farbrapp,
-            String filename) {
+    public ReportPanel(BeadField field, Color[] coltable, int farbrapp, String filename) {
         this.field = field;
         this.coltable = coltable;
         this.farbrapp = farbrapp;

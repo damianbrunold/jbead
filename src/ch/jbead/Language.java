@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package ch.jbead;
 
@@ -30,53 +30,53 @@ import javax.swing.JToggleButton;
  */
 public class Language {
 
-	public static enum LANG { EN, GE }
-	
-	public static LANG active_language = LANG.EN;
+    public static enum LANG {
+        EN, GE
+    }
 
-	public static void SwitchLanguage (LANG _language)
-	{
-	    if (active_language==_language) return;
+    public static LANG active_language = LANG.EN;
 
-	    active_language = _language;
+    public static void SwitchLanguage(LANG _language, BeadForm form) {
+        if (active_language == _language) return;
 
-	    // TODO 
-	    //BeadForm->reloadLanguage();
-	    //BeadForm->setAppTitle();
-	}
-	
-	public static String STR(String en, String ge) {
-		if (Language.active_language == Language.LANG.EN) {
-			return en;
-		} else {
-			return ge;
-		}
-	}
-	
-	public static void C_H(JFrame frame, Language.LANG language, String caption) {
-	    if (Language.active_language == language) {
-	        frame.setTitle(caption);
-	    }
-	}
+        active_language = _language;
 
-	public static void C_H(JDialog dialog, Language.LANG language, String caption) {
-	    if (Language.active_language == language) {
-	        dialog.setTitle(caption);
-	    }
-	}
+        form.reloadLanguage();
+        form.setAppTitle();
+    }
 
-	public static void C_H(JButton  button, Language.LANG language, String caption, String hint) {
-	    if (Language.active_language == language) {
-	        button.setText(caption);
-	        button.setToolTipText(hint);
-	    }
-	}
+    public static String STR(String en, String ge) {
+        if (Language.active_language == Language.LANG.EN) {
+            return en;
+        } else {
+            return ge;
+        }
+    }
 
-	public static void C_H(JLabel label, Language.LANG language, String caption) {
-	    if (Language.active_language == language) {
-	        label.setText(caption);
-	    }
-	}
+    public static void C_H(JFrame frame, Language.LANG language, String caption) {
+        if (Language.active_language == language) {
+            frame.setTitle(caption);
+        }
+    }
+
+    public static void C_H(JDialog dialog, Language.LANG language, String caption) {
+        if (Language.active_language == language) {
+            dialog.setTitle(caption);
+        }
+    }
+
+    public static void C_H(JButton button, Language.LANG language, String caption, String hint) {
+        if (Language.active_language == language) {
+            button.setText(caption);
+            button.setToolTipText(hint);
+        }
+    }
+
+    public static void C_H(JLabel label, Language.LANG language, String caption) {
+        if (Language.active_language == language) {
+            label.setText(caption);
+        }
+    }
 
     public static void C_H(JMenu menu, Language.LANG language, String caption) {
         if (Language.active_language == language) {
