@@ -31,6 +31,8 @@ public class NormalPanel extends JComponent {
 
     private Model model;
     private int offsetx;
+    private int maxj;
+    private int left;
 
     public NormalPanel(Model model) {
         this.model = model;
@@ -39,50 +41,72 @@ public class NormalPanel extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        offsetx = getOffsetX();
+        maxj = getMaxJ();
+        left = getLeft();
+        paintGrid(g);
+        paintBeads(g);
+    }
 
-        // Grid
+    private int getLeft() {
+        return offsetx < 0 ? model.getGrid() / 2 : offsetx;
+    }
+
+    private int getMaxJ() {
+        return Math.min(model.getField().getHeight(), getHeight() / model.getGrid() + 1);
+    }
+
+    private int getOffsetX() {
         int grid = model.getGrid();
-        BeadField field = model.getField();
-        g.setColor(Color.DARK_GRAY);
-        offsetx = getWidth() - 1 - (field.getWidth() + 1) * grid + grid / 2;
-        int left = offsetx;
-        if (left < 0) left = grid / 2;
-        int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
-        if (model.getScroll() % 2 == 0) {
-            for (int i = 0; i < field.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
-                }
-            }
-            for (int i = 0; i <= field.getWidth() + 1; i++) {
-                for (int jj = 1; jj < maxj; jj += 2) {
-                    g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
-                }
-            }
-        } else {
-            for (int i = 0; i <= field.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
-                }
-            }
-            for (int i = 0; i < field.getWidth() + 1; i++) {
-                for (int jj = 1; jj < maxj; jj += 2) {
-                    g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
-                }
-            }
-        }
-        if (model.getScroll() % 2 == 0) {
-            g.drawLine(left, getHeight() - 1, left + field.getWidth() * grid + 1, getHeight() - 1);
-            for (int jj = 1; jj < maxj; jj++) {
-                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.getWidth() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
-            }
-        } else {
-            for (int jj = 0; jj < maxj; jj++) {
-                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.getWidth() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
-            }
-        }
+        return getWidth() - 1 - (model.getField().getWidth() + 1) * grid + grid / 2;
+    }
 
-        // Data
+    private int x(int i) {
+        return left + i * model.getGrid();
+    }
+    
+    private int y(int j) {
+        return getHeight() - 1 - j * model.getGrid();
+    }
+    
+    private void paintGrid(Graphics g) {
+        BeadField field = model.getField();
+        int grid = model.getGrid();
+        g.setColor(Color.DARK_GRAY);
+        if (model.getScroll() % 2 == 0) {
+            for (int i = 0; i < field.getWidth() + 1; i++) {
+                for (int jj = 0; jj < maxj; jj += 2) {
+                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj) + 1);
+                }
+            }
+            for (int i = 0; i <= field.getWidth() + 1; i++) {
+                for (int jj = 1; jj < maxj; jj += 2) {
+                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj) + 1);
+                }
+            }
+        } else {
+            for (int i = 0; i <= field.getWidth() + 1; i++) {
+                for (int jj = 0; jj < maxj; jj += 2) {
+                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj) + 1);
+                }
+            }
+            for (int i = 0; i < field.getWidth() + 1; i++) {
+                for (int jj = 1; jj < maxj; jj += 2) {
+                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj) + 1);
+                }
+            }
+        }
+        if (model.getScroll() % 2 == 0) {
+            g.drawLine(x(0), y(0), x(field.getWidth()) + 1, y(0));
+        }
+        for (int jj = 0; jj < maxj; jj++) {
+            g.drawLine(x(0) - grid / 2, y(jj), x(field.getWidth()) + grid / 2 + 1, y(jj));
+        }
+    }
+
+    private void paintBeads(Graphics g) {
+        BeadField field = model.getField();
+        int grid = model.getGrid();
         for (int i = 0; i < field.getWidth(); i++) {
             for (int jj = 0; jj < maxj; jj++) {
                 byte c = field.get(i, jj + model.getScroll());
