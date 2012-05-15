@@ -122,5 +122,31 @@ public class DraftPanel extends JComponent {
         g.setColor(_draw ? Color.BLACK : Color.DARK_GRAY);
         g.drawRect(draftleft + p1.getX()*grid, getHeight() - p1.getY()*grid - 1,
                    draftleft + (p2.getX()+1)*grid, getHeight() - (p2.getY()+1)*grid - 1);
+        g.dispose();
     }
+
+    public void linePreview(Point pt1, Point pt2) {
+        Graphics g = getGraphics();
+        g.setColor(Color.DARK_GRAY);
+        g.setXORMode(Color.BLACK);
+        g.drawLine(draftleft + pt1.getX()*grid+grid/2, getHeight() - pt1.getY()*grid - grid/2,
+                   draftleft + pt2.getX()*grid+grid/2, getHeight() - pt2.getY()*grid - grid/2);
+        g.dispose();
+    }
+    
+    public void drawPrepress(Point pt) {
+        Graphics g = getGraphics();
+        g.setColor(Color.BLACK);
+        g.drawLine(draftleft+pt.getX()*grid+1, getHeight()-pt.getY()*grid-2,
+                   draftleft+pt.getX()*grid+1, getHeight()-(pt.getY()+1)*grid);
+        g.drawLine(draftleft+pt.getX()*grid+1, getHeight()-(pt.getY()+1)*grid,
+                   draftleft+(pt.getX()+1)*grid-1, getHeight()-(pt.getY()+1)*grid);
+        g.setColor(Color.WHITE);
+        g.drawLine(draftleft+(pt.getX()+1)*grid-1, getHeight()-(pt.getY()+1)*grid+1,
+                   draftleft+(pt.getX()+1)*grid-1, getHeight()-pt.getY()*grid-2);
+        g.drawLine(draftleft+(pt.getX()+1)*grid-1, getHeight()-pt.getY()*grid-2,
+                   draftleft+pt.getX()*grid, getHeight()-pt.getY()*grid-2);
+        g.dispose();
+    }
+    
 }

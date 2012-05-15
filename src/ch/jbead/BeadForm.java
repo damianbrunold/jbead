@@ -649,7 +649,7 @@ public class BeadForm extends JFrame {
 
         void DraftLinePreview()
         {
-            if (!sbToolPoint.Down) return;
+            if (!sbToolPoint.isSelected()) return;
             if (begin_i==end_i && begin_j==end_j) return;
 
             int ei = end_i;
@@ -657,11 +657,7 @@ public class BeadForm extends JFrame {
             ei = CalcLineCoordX(begin_i, begin_j, ei, ej);
             ej = CalcLineCoordY(begin_i, begin_j, ei, ej);
 
-            TPenMode oldmode = draft.Canvas.Pen.Mode;
-            draft.Canvas.Pen.Mode = pmNot;
-            draft.Canvas.MoveTo (draftleft + begin_i*grid+grid/2, draft.ClientHeight - begin_j*grid - grid/2);
-            draft.Canvas.LineTo (draftleft + ei*grid+grid/2, draft.ClientHeight - ej*grid - grid/2);
-            draft.Canvas.Pen.Mode = oldmode;
+            draft.linePreview(new Point(begin_i, begin_j), new Point(ei, ej));
         }
 
         void DraftSelectPreview (boolean _draw, boolean _doit)
@@ -711,17 +707,10 @@ public class BeadForm extends JFrame {
                 end_j = pt.getY();
                 // Prepress
                 if (sbToolPoint.isSelected()) {
-                    draft.Canvas.Pen.Color = clBlack;
-                    draft.Canvas.MoveTo (draftleft+begin_i*grid+1, draft.ClientHeight-begin_j*grid-2);
-                    draft.Canvas.LineTo (draftleft+begin_i*grid+1, draft.ClientHeight-(begin_j+1)*grid);
-                    draft.Canvas.LineTo (draftleft+(begin_i+1)*grid-1, draft.ClientHeight-(begin_j+1)*grid);
-                    draft.Canvas.Pen.Color = clWhite;
-                    draft.Canvas.MoveTo (draftleft+(begin_i+1)*grid-1, draft.ClientHeight-(begin_j+1)*grid+1);
-                    draft.Canvas.LineTo (draftleft+(begin_i+1)*grid-1, draft.ClientHeight-begin_j*grid-2);
-                    draft.Canvas.LineTo (draftleft+begin_i*grid, draft.ClientHeight-begin_j*grid-2);
+                    draft.drawPrepress(new Point(begin_i, begin_j));
                 }
                 DraftLinePreview();
-                DraftSelectPreview(true);
+                DraftSelectPreview(true, false);
             }
         }
 
@@ -729,12 +718,12 @@ public class BeadForm extends JFrame {
         {
             Point pt = new Point(event.getX(), event.getY());
             if (dragging && draft.mouseToField(pt)) {
-                DraftSelectPreview(false);
+                DraftSelectPreview(false, false);
                 DraftLinePreview();
                 end_i = pt.getX();
                 end_j = pt.getY();
                 DraftLinePreview();
-                DraftSelectPreview(true);
+                DraftSelectPreview(true, false);
             }
         }
 
