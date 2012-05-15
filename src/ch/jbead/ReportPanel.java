@@ -19,6 +19,7 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.File;
 
 import javax.swing.JComponent;
 
@@ -30,15 +31,15 @@ public class ReportPanel extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private BeadField field;
-    private Color[] coltable;
-    private int farbrapp;
-    private String filename;
+    private Color[] colors;
+    private int colorRepeat;
+    private File file;
 
-    public ReportPanel(BeadField field, Color[] coltable, int farbrapp, String filename) {
+    public ReportPanel(BeadField field, Color[] colors, int colorRepeat, File file) {
         this.field = field;
-        this.coltable = coltable;
-        this.farbrapp = farbrapp;
-        this.filename = filename;
+        this.colors = colors;
+        this.colorRepeat = colorRepeat;
+        this.file = file;
     }
 
     @Override
@@ -53,34 +54,34 @@ public class ReportPanel extends JComponent {
 
         // Mustername
         g.setColor(Color.BLACK);
-        g.drawString(Language.STR("Pattern:", "Muster:"), x1, y);
-        g.drawString(filename, x2, y);
+        g.drawString(Texts.text("Pattern:", "Muster:"), x1, y);
+        g.drawString(file.getPath(), x2, y);
         y += dy;
 
         // Umfang
-        g.drawString(Language.STR("Circumference:", "Umfang:"), x1, y);
-        g.drawString(Integer.toString(field.Width()), x2, y);
+        g.drawString(Texts.text("Circumference:", "Umfang:"), x1, y);
+        g.drawString(Integer.toString(field.getWidth()), x2, y);
         y += dy;
 
         // Farbrapport
-        g.drawString(Language.STR("repeat of colors:", "Farbrapport:"), x1, y);
-        g.drawString(farbrapp + Language.STR(" beads", " Perlen"), x2, y);
+        g.drawString(Texts.text("repeat of colors:", "Farbrapport:"), x1, y);
+        g.drawString(colorRepeat + Texts.text(" beads", " Perlen"), x2, y);
         y += dy;
 
         // Farben
         // Faedelliste...
-        if (farbrapp > 0) {
-            g.drawString(Language.STR("List of beads", "Fädelliste"), x1, y);
+        if (colorRepeat > 0) {
+            g.drawString(Texts.text("List of beads", "Fädelliste"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = field.Get(farbrapp - 1);
+            byte col = field.get(colorRepeat - 1);
             int count = 1;
-            for (int i = farbrapp - 2; i >= 0; i--) {
-                if (field.Get(i) == col) {
+            for (int i = colorRepeat - 2; i >= 0; i--) {
+                if (field.get(i) == col) {
                     count++;
                 } else {
                     if (col != 0) {
-                        g.setColor(coltable[col]);
+                        g.setColor(colors[col]);
                         g.fillRect(x1, y, dx, dy);
                     } else {
                         g.setColor(Color.DARK_GRAY);
@@ -89,7 +90,7 @@ public class ReportPanel extends JComponent {
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
-                    col = field.Get(i);
+                    col = field.get(i);
                     count = 1;
                 }
                 if (y >= getHeight() - 10) {
@@ -98,7 +99,7 @@ public class ReportPanel extends JComponent {
                 }
             }
             if (y < getHeight() - 3) {
-                g.setColor(coltable[col]);
+                g.setColor(colors[col]);
                 g.fillRect(x1, y, dx, dy);
                 g.setColor(Color.BLACK);
                 g.drawString(Integer.toString(count), x1 + dx + 3, y);

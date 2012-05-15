@@ -98,19 +98,19 @@ public class PatternWidthForm extends JDialog {
     }
 
     public void reloadLanguage() {
-        Language.C_H(this, Language.LANG.EN, "Width of pattern");
-        Language.C_H(this, Language.LANG.GE, "Musterbreite");
-        Language.C_H(labelDescription, Language.LANG.EN, "The width of pattern is equivalent to the circumference of the rope");
-        Language.C_H(labelWidth, Language.LANG.GE, "Die Musterbreite entspricht dem Umfang der Kette");
-        Language.C_H(labelWidth, Language.LANG.EN, "&Width of pattern:");
-        Language.C_H(labelWidth, Language.LANG.GE, "&Musterbreite:");
-        Language.C_H(bOk, Language.LANG.EN, "OK", "");
-        Language.C_H(bOk, Language.LANG.GE, "OK", "");
-        Language.C_H(bCancel, Language.LANG.EN, "Cancel", "");
-        Language.C_H(bCancel, Language.LANG.GE, "Abbrechen", "");
+        Texts.update(this, Language.EN, "Width of pattern");
+        Texts.update(this, Language.GE, "Musterbreite");
+        Texts.update(labelDescription, Language.EN, "The width of pattern is equivalent to the circumference of the rope");
+        Texts.update(labelWidth, Language.GE, "Die Musterbreite entspricht dem Umfang der Kette");
+        Texts.update(labelWidth, Language.EN, "&Width of pattern:");
+        Texts.update(labelWidth, Language.GE, "&Musterbreite:");
+        Texts.update(bOk, Language.EN, "OK", "");
+        Texts.update(bOk, Language.GE, "OK", "");
+        Texts.update(bCancel, Language.EN, "Cancel", "");
+        Texts.update(bCancel, Language.GE, "Abbrechen", "");
     }
 
-    public void FormShow() {
+    public void formShow() {
         reloadLanguage();
         setVisible(true);
     }
@@ -125,10 +125,6 @@ public class PatternWidthForm extends JDialog {
 
     public int getWidth() {
         return (Integer) Width.getValue();
-    }
-
-    public static void main(String[] args) {
-        new PatternWidthForm().FormShow();
     }
 
 }

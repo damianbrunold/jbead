@@ -30,15 +30,15 @@ public class SimulationPanel extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private BeadField field;
-    private Color[] coltable;
+    private Color[] colors;
     private int grid;
     private int scroll;
     private int shift;
-    private int simulationleft;
+    private int offsetx;
 
-    public SimulationPanel(BeadField field, Color[] coltable, int grid, int scroll, int shift) {
+    public SimulationPanel(BeadField field, Color[] colors, int grid, int scroll, int shift) {
         this.field = field;
-        this.coltable = coltable;
+        this.colors = colors;
         this.grid = grid;
         this.scroll = scroll;
     }
@@ -47,21 +47,17 @@ public class SimulationPanel extends JComponent {
         this.shift = shift;
     }
 
-    public int getSimulationleft() {
-        return simulationleft;
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         // Grid
         g.setColor(Color.DARK_GRAY);
-        simulationleft = getWidth() - 1 - (field.Width() + 1) * grid / 2 + grid / 2;
-        int left = simulationleft;
+        offsetx = getWidth() - 1 - (field.getWidth() + 1) * grid / 2 + grid / 2;
+        int left = offsetx;
         if (left < 0) left = grid / 2;
-        int maxj = Math.min(field.Height(), getHeight() / grid + 1);
-        int w = field.Width() / 2;
+        int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
+        int w = field.getWidth() / 2;
         if (scroll % 2 == 0) {
             for (int j = 0; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
@@ -76,14 +72,14 @@ public class SimulationPanel extends JComponent {
                 for (int i = 0; i < w + 1; i++) {
                     g.drawLine(left + i * grid - grid / 2, getHeight() - (j + 1) * grid, left + i * grid - grid / 2, getHeight() - j * grid);
                 }
-                g.drawLine(left + field.Width() * grid, getHeight() - (j + 1) * grid, left + field.Width() * grid, getHeight() - j * grid);
+                g.drawLine(left + field.getWidth() * grid, getHeight() - (j + 1) * grid, left + field.getWidth() * grid, getHeight() - j * grid);
             }
         } else {
             for (int j = 0; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
                     g.drawLine(left + i * grid - grid / 2, getHeight() - (j + 1) * grid, left + i * grid - grid / 2, getHeight() - j * grid);
                 }
-                g.drawLine(left + field.Width() * grid, getHeight() - (j + 1) * grid, left + field.Width() * grid, getHeight() - j * grid);
+                g.drawLine(left + field.getWidth() * grid, getHeight() - (j + 1) * grid, left + field.getWidth() * grid, getHeight() - j * grid);
             }
             for (int j = 1; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
@@ -112,26 +108,26 @@ public class SimulationPanel extends JComponent {
             g.drawLine(left + w * grid, 0, left + w * grid, getHeight() - 1);
         }
 
-        // Daten
-        for (int i = 0; i < field.Width(); i++) {
+        // Data
+        for (int i = 0; i < field.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = field.Get(i, j + scroll);
+                byte c = field.get(i, j + scroll);
                 assert (c >= 0 && c <= 9);
-                g.setColor(coltable[c]);
-                int idx = i + field.Width() * j + shift;
-                int ii = idx % field.Width();
-                int jj = idx / field.Width();
-                ii = CorrectCoordinatesX(ii, jj);
-                jj = CorrectCoordinatesY(ii, jj);
-                if (ii > w && ii != field.Width()) continue;
+                g.setColor(colors[c]);
+                int idx = i + field.getWidth() * j + shift;
+                int ii = idx % field.getWidth();
+                int jj = idx / field.getWidth();
+                ii = correctCoordinatesX(ii, jj);
+                jj = correctCoordinatesY(ii, jj);
+                if (ii > w && ii != field.getWidth()) continue;
                 if (scroll % 2 == 0) {
                     if (jj % 2 == 0) {
                         if (ii == w) continue;
                         g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid, grid);
                     } else {
-                        if (ii != field.Width() && ii != w) {
+                        if (ii != field.getWidth() && ii != w) {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid, grid);
-                        } else if (ii == field.Width()) {
+                        } else if (ii == field.getWidth()) {
                             g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2, grid);
                         } else {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2, grid);
@@ -142,9 +138,9 @@ public class SimulationPanel extends JComponent {
                         if (ii == w) continue;
                         g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid, grid);
                     } else {
-                        if (ii != field.Width() && ii != w) {
+                        if (ii != field.getWidth() && ii != w) {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid, grid);
-                        } else if (ii == field.Width()) {
+                        } else if (ii == field.getWidth()) {
                             g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2, grid);
                         } else {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2, grid);
@@ -155,10 +151,10 @@ public class SimulationPanel extends JComponent {
         }
     }
 
-    int CorrectCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.Width();
-        int m1 = field.Width();
-        int m2 = field.Width() + 1;
+    int correctCoordinatesX(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.getWidth();
+        int m1 = field.getWidth();
+        int m2 = field.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -171,10 +167,10 @@ public class SimulationPanel extends JComponent {
         return _i;
     }
 
-    int CorrectCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.Width();
-        int m1 = field.Width();
-        int m2 = field.Width() + 1;
+    int correctCoordinatesY(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.getWidth();
+        int m1 = field.getWidth();
+        int m2 = field.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -190,29 +186,29 @@ public class SimulationPanel extends JComponent {
     public void updateBead(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = field.Get(_i, _j + scroll);
+        byte c = field.get(_i, _j + scroll);
         assert (c >= 0 && c <= 9);
 
         int ii = _i;
         int jj = _j;
 
-        int idx = ii + field.Width() * jj + shift;
-        _i = idx % field.Width();
-        _j = idx / field.Width();
-        _i = CorrectCoordinatesX(_i, _j);
-        _j = CorrectCoordinatesY(_i, _j);
+        int idx = ii + field.getWidth() * jj + shift;
+        _i = idx % field.getWidth();
+        _j = idx / field.getWidth();
+        _i = correctCoordinatesX(_i, _j);
+        _j = correctCoordinatesY(_i, _j);
 
         Graphics g = getGraphics();
-        g.setColor(coltable[c]);
-        int left = simulationleft;
-        int w = field.Width() / 2;
-        if (_i > w && _i != field.Width()) return;
+        g.setColor(colors[c]);
+        int left = offsetx;
+        int w = field.getWidth() / 2;
+        if (_i > w && _i != field.getWidth()) return;
         if (scroll % 2 == 0) {
             if (_j % 2 == 0) {
                 if (_i == w) return;
                 g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             } else {
-                if (_i != field.Width() && _i != w) {
+                if (_i != field.getWidth() && _i != w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
                 } else if (_i == w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2, grid);
@@ -225,7 +221,7 @@ public class SimulationPanel extends JComponent {
                 if (_i == w) return;
                 g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
             } else {
-                if (_i != field.Width() && _i != w) {
+                if (_i != field.getWidth() && _i != w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
                 } else if (_i == w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2, grid);

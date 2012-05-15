@@ -34,36 +34,36 @@ public class Settings {
 		category = "General";
 	}
 
-	public void SetCategory(String _category) {
-		category = _category;
+	public void SetCategory(String category) {
+		this.category = category;
 	}
 
 	public String Category() {
 		return category;
 	}
 
-	public int LoadInt(String _name) {
-		return LoadInt(_name, 0);
+	public int LoadInt(String name) {
+		return LoadInt(name, 0);
 	}
 
-	public int LoadInt(String _name, int _default) {
-		return preferences.node(category).getInt(_name, _default);
+	public int LoadInt(String name, int defaultvalue) {
+		return preferences.node(category).getInt(name, defaultvalue);
 	}
 
-	public String LoadString(String _name) {
-		return LoadString(_name, "");
+	public String LoadString(String name) {
+		return LoadString(name, "");
 	}
 
-	public String LoadString(String _name, String _default) {
-		return preferences.node(category).get(_name, _default);
+	public String LoadString(String name, String defaultvalue) {
+		return preferences.node(category).get(name, defaultvalue);
 	}
 
-	public void SaveInt(String _name, int _value) {
-		preferences.node(category).putInt(_name, _value);
+	public void SaveInt(String name, int value) {
+		preferences.node(category).putInt(name, value);
 	}
 
-	public void SaveString(String _name, String _value) {
-		preferences.node(category).put(_name, _value);
+	public void SaveString(String name, String value) {
+		preferences.node(category).put(name, value);
 	}
 
 	public void Flush() throws BackingStoreException {

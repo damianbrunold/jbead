@@ -56,15 +56,12 @@ public class JBeadOutputStream {
     }
 
     public void writeColor(Color color) throws IOException {
-        // TODO verify the order of the components
-        out.write(color.getAlpha());
         out.write(color.getRed());
         out.write(color.getGreen());
         out.write(color.getBlue());
     }
 
     public void writeBool(boolean value) throws IOException {
-        // TODO verify layout of booleans
         out.write(value ? 1 : 0);
     }
 

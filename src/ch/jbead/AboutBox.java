@@ -54,7 +54,7 @@ public class AboutBox extends JDialog {
         });
     }
 
-    public void FormShow() {
+    public void formShow() {
         reloadLanguage();
         setVisible(true);
     }
@@ -101,18 +101,15 @@ public class AboutBox extends JDialog {
     }
 
     public void reloadLanguage() {
-        Language.C_H(this, Language.LANG.EN, "About DB-BEAD");
-        Language.C_H(this, Language.LANG.GE, "Über DB-BEAD");
-        if (Language.active_language == Language.LANG.EN) {
+        Texts.update(this, Language.EN, "About DB-BEAD");
+        Texts.update(this, Language.GE, "Über DB-BEAD");
+        if (Texts.active_language == Language.EN) {
             setEnglishText();
         } else {
             setGermanText();
         }
-        Language.C_H(bOK, Language.LANG.EN, "OK", "");
-        Language.C_H(bOK, Language.LANG.GE, "OK", "");
+        Texts.update(bOK, Language.EN, "OK", "");
+        Texts.update(bOK, Language.GE, "OK", "");
     }
 
-    public static void main(String[] args) {
-        new AboutBox().FormShow();
-    }
 }

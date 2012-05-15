@@ -62,16 +62,14 @@ public class JBeadInputStream {
     }
 
     public Color readColor() throws IOException {
-        // TODO verify the order of the components
-        int alpha = in.read();
         int red = in.read();
         int green = in.read();
         int blue = in.read();
-        return new Color(red, green, blue, alpha);
+        return new Color(red, green, blue);
     }
 
     public boolean readBool() throws IOException {
-        return in.read() == 1;
+        return in.read() != 0;
     }
 
     public void close() throws IOException {

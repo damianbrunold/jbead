@@ -30,20 +30,16 @@ public class NormalPanel extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private BeadField field;
-    private Color[] coltable;
+    private Color[] colors;
     private int grid;
     private int scroll;
-    private int normalleft;
+    private int offsetx;
 
-    public NormalPanel(BeadField field, Color[] coltable, int grid, int scroll) {
+    public NormalPanel(BeadField field, Color[] colors, int grid, int scroll) {
         this.field = field;
-        this.coltable = coltable;
+        this.colors = colors;
         this.grid = grid;
         this.scroll = scroll;
-    }
-
-    public int getNormalleft() {
-        return normalleft;
     }
 
     @Override
@@ -52,54 +48,54 @@ public class NormalPanel extends JComponent {
 
         // Grid
         g.setColor(Color.DARK_GRAY);
-        normalleft = getWidth() - 1 - (field.Width() + 1) * grid + grid / 2;
-        int left = normalleft;
+        offsetx = getWidth() - 1 - (field.getWidth() + 1) * grid + grid / 2;
+        int left = offsetx;
         if (left < 0) left = grid / 2;
-        int maxj = Math.min(field.Height(), getHeight() / grid + 1);
+        int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
         if (scroll % 2 == 0) {
-            for (int i = 0; i < field.Width() + 1; i++) {
+            for (int i = 0; i < field.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
                 }
             }
-            for (int i = 0; i <= field.Width() + 1; i++) {
+            for (int i = 0; i <= field.getWidth() + 1; i++) {
                 for (int jj = 1; jj < maxj; jj += 2) {
                     g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
                 }
             }
         } else {
-            for (int i = 0; i <= field.Width() + 1; i++) {
+            for (int i = 0; i <= field.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(left + i * grid - grid / 2, getHeight() - (jj + 1) * grid, left + i * grid - grid / 2, getHeight() - jj * grid);
                 }
             }
-            for (int i = 0; i < field.Width() + 1; i++) {
+            for (int i = 0; i < field.getWidth() + 1; i++) {
                 for (int jj = 1; jj < maxj; jj += 2) {
                     g.drawLine(left + i * grid, getHeight() - (jj + 1) * grid, left + i * grid, getHeight() - jj * grid);
                 }
             }
         }
         if (scroll % 2 == 0) {
-            g.drawLine(left, getHeight() - 1, left + field.Width() * grid + 1, getHeight() - 1);
+            g.drawLine(left, getHeight() - 1, left + field.getWidth() * grid + 1, getHeight() - 1);
             for (int jj = 1; jj < maxj; jj++) {
-                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
+                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.getWidth() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
             }
         } else {
             for (int jj = 0; jj < maxj; jj++) {
-                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.Width() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
+                g.drawLine(left - grid / 2, getHeight() - 1 - jj * grid, left + field.getWidth() * grid + grid / 2 + 1, getHeight() - 1 - jj * grid);
             }
         }
 
-        // Daten
-        for (int i = 0; i < field.Width(); i++) {
+        // Data
+        for (int i = 0; i < field.getWidth(); i++) {
             for (int jj = 0; jj < maxj; jj++) {
-                byte c = field.Get(i, jj + scroll);
+                byte c = field.get(i, jj + scroll);
                 assert (c >= 0 && c <= 9);
-                g.setColor(coltable[c]);
+                g.setColor(colors[c]);
                 int ii = i;
                 int j1 = jj;
-                ii = CorrectCoordinatesX(ii, j1);
-                j1 = CorrectCoordinatesY(ii, j1);
+                ii = correctCoordinatesX(ii, j1);
+                j1 = correctCoordinatesY(ii, j1);
                 if (scroll % 2 == 0) {
                     if (j1 % 2 == 0) {
                         g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
@@ -117,10 +113,10 @@ public class NormalPanel extends JComponent {
         }
     }
 
-    int CorrectCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.Width();
-        int m1 = field.Width();
-        int m2 = field.Width() + 1;
+    int correctCoordinatesX(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.getWidth();
+        int m1 = field.getWidth();
+        int m2 = field.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -133,10 +129,10 @@ public class NormalPanel extends JComponent {
         return _i;
     }
 
-    int CorrectCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + scroll) * field.Width();
-        int m1 = field.Width();
-        int m2 = field.Width() + 1;
+    int correctCoordinatesY(int _i, int _j) {
+        int idx = _i + (_j + scroll) * field.getWidth();
+        int m1 = field.getWidth();
+        int m2 = field.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -152,16 +148,16 @@ public class NormalPanel extends JComponent {
     public void updateBead(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = field.Get(_i, _j + scroll);
+        byte c = field.get(_i, _j + scroll);
         assert (c >= 0 && c <= 9);
 
-        _i = CorrectCoordinatesX(_i, _j);
-        _j = CorrectCoordinatesY(_i, _j);
+        _i = correctCoordinatesX(_i, _j);
+        _j = correctCoordinatesY(_i, _j);
 
         Graphics g = getGraphics();
-        g.setColor(coltable[c]);
+        g.setColor(colors[c]);
 
-        int left = normalleft;
+        int left = offsetx;
 
         if (scroll % 2 == 0) {
             if (_j % 2 == 0) {
@@ -186,19 +182,19 @@ public class NormalPanel extends JComponent {
         int jj = (getHeight() - _j) / grid;
         if (scroll % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < normalleft || _i > normalleft + field.Width() * grid) return false;
-                i = (_i - normalleft) / grid;
+                if (_i < offsetx || _i > offsetx + field.getWidth() * grid) return false;
+                i = (_i - offsetx) / grid;
             } else {
-                if (_i < normalleft - grid / 2 || _i > normalleft + field.Width() * grid + grid / 2) return false;
-                i = (_i - normalleft + grid / 2) / grid;
+                if (_i < offsetx - grid / 2 || _i > offsetx + field.getWidth() * grid + grid / 2) return false;
+                i = (_i - offsetx + grid / 2) / grid;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < normalleft || _i > normalleft + field.Width() * grid) return false;
-                i = (_i - normalleft) / grid;
+                if (_i < offsetx || _i > offsetx + field.getWidth() * grid) return false;
+                i = (_i - offsetx) / grid;
             } else {
-                if (_i < normalleft - grid / 2 || _i > normalleft + field.Width() * grid + grid / 2) return false;
-                i = (_i - normalleft + grid / 2) / grid;
+                if (_i < offsetx - grid / 2 || _i > offsetx + field.getWidth() * grid + grid / 2) return false;
+                i = (_i - offsetx + grid / 2) / grid;
             }
         }
         pt.setX(i);

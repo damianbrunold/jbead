@@ -40,18 +40,18 @@ public class CopyForm extends JDialog {
 
     private boolean isOK = false;
 
-    SpinnerModel horzModel = new SpinnerNumberModel(5, 0, 100, 1);
-    SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
-    SpinnerModel copyModel = new SpinnerNumberModel(1, 0, 100, 1);
+    private SpinnerModel horzModel = new SpinnerNumberModel(5, 0, 100, 1);
+    private SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
+    private SpinnerModel copyModel = new SpinnerNumberModel(1, 0, 100, 1);
 
-    JLabel lHorz = new JLabel();
-    JSpinner horz = new JSpinner(horzModel);
-    JLabel lVert = new JLabel();
-    JSpinner vert = new JSpinner(vertModel);
-    JLabel lCopies = new JLabel();
-    JSpinner Copies = new JSpinner(copyModel);
-    JButton bOK = new JButton();
-    JButton bCancel = new JButton();
+    private JLabel lHorz = new JLabel();
+    private JSpinner horz = new JSpinner(horzModel);
+    private JLabel lVert = new JLabel();
+    private JSpinner vert = new JSpinner(vertModel);
+    private JLabel lCopies = new JLabel();
+    private JSpinner Copies = new JSpinner(copyModel);
+    private JButton bOK = new JButton();
+    private JButton bCancel = new JButton();
 
     public CopyForm() {
         setLayout(new BorderLayout());
@@ -134,26 +134,23 @@ public class CopyForm extends JDialog {
     }
 
     public void reloadLanguage() {
-        Language.C_H(this, Language.LANG.EN, "Arrangement");
-        Language.C_H(this, Language.LANG.GE, "Anordnen");
-        Language.C_H(lCopies, Language.LANG.EN, "&Number of copies:");
-        Language.C_H(lCopies, Language.LANG.GE, "&Anzahl Kopien:");
-        Language.C_H(lHorz, Language.LANG.EN, "&Horizontal displacement:");
-        Language.C_H(lHorz, Language.LANG.GE, "&Horizontaler Versatz:");
-        Language.C_H(lVert, Language.LANG.EN, "&Vertical displacement:");
-        Language.C_H(lVert, Language.LANG.GE, "&Vertikaler Versatz:");
-        Language.C_H(bOK, Language.LANG.EN, "OK", "");
-        Language.C_H(bOK, Language.LANG.GE, "OK", "");
-        Language.C_H(bCancel, Language.LANG.EN, "Cancel", "");
-        Language.C_H(bCancel, Language.LANG.GE, "Abbrechen", "");
+        Texts.update(this, Language.EN, "Arrangement");
+        Texts.update(this, Language.GE, "Anordnen");
+        Texts.update(lCopies, Language.EN, "&Number of copies:");
+        Texts.update(lCopies, Language.GE, "&Anzahl Kopien:");
+        Texts.update(lHorz, Language.EN, "&Horizontal displacement:");
+        Texts.update(lHorz, Language.GE, "&Horizontaler Versatz:");
+        Texts.update(lVert, Language.EN, "&Vertical displacement:");
+        Texts.update(lVert, Language.GE, "&Vertikaler Versatz:");
+        Texts.update(bOK, Language.EN, "OK", "");
+        Texts.update(bOK, Language.GE, "OK", "");
+        Texts.update(bCancel, Language.EN, "Cancel", "");
+        Texts.update(bCancel, Language.GE, "Abbrechen", "");
     }
 
-    public void FormShow() {
+    public void formShow() {
         reloadLanguage();
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        new CopyForm().FormShow();
-    }
 }

@@ -55,14 +55,11 @@ I have to add observer pattern for various paint panels
 because they use state that is changing, e.g. scroll,
 grid, filename, coltable, ...
 
-Right now the filename handling code is a mess, there
-are opendialog and savedialog and they kind of persist
-the filename. But I would rather explicitly store the
-selected file and set it into the appropriate open/save
-dialog whenever needed. Also, why have opendialog and
-savedialog hanging around. Instantiate them whenever
-needed! Of course, we also have to store the current
-working directory, because we want to persist this.
+Analyze whether we need to handle files with absolute
+paths. Right now they are relative. Also: is it possible
+to change the directory? Is this persisted?
+
+Switch MRU stuff to use File instances instead of Strings.
 
 The various components of beadform are now layouted
 using no layout manager (actually it is not done at all,
@@ -75,11 +72,6 @@ a box layout. each component would use a border layout
 to lay out the description below the component proper.
 The real contents of the components will - of coure -
 still be custom painted.
-
-When the code compiles, check that getNormalleft in
-NormalPanel and all analogous getters are really
-used, if they are, think about how to refactor this
-if they are not used, then delete them.
 
 Make the Point class to a value object, thus immutable.
 Right now it is mutable, because the conversion methods

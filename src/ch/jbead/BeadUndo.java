@@ -36,47 +36,48 @@ public class BeadUndo {
         current = 0;
     }
 
-    public boolean CanUndo() {
+    public boolean canUndo() {
         return current != first;
     }
 
-    public boolean CanRedo() {
+    public boolean canRedo() {
         return current != last;
     }
 
-    public void Clear() {
+    public void clear() {
         first = 0;
         last = 0;
         current = 0;
     }
 
-    public void Snapshot(BeadField _data, boolean _modified) {
-        data[current].CopyFrom(_data);
-        modified[current] = _modified;
+    public void snapshot(BeadField data, boolean modified) {
+        this.data[current].copyFrom(data);
+        this.modified[current] = modified;
         current = (current + 1) % MAXUNDO;
         if (current == first) first = (first + 1) % MAXUNDO;
         last = current;
     }
 
-    public void PreSnapshot(BeadField _data, boolean _modified) {
-        if (!_modified) return;
-        data[current].CopyFrom(_data);
-        modified[current] = _modified;
+    public void prepareSnapshot(BeadField data, boolean modified) {
+        if (!modified) return;
+        this.data[current].copyFrom(data);
+        this.modified[current] = modified;
     }
 
-    public void Undo(BeadField _data) {
-        if (current == first) return; // nothing to undo
+    public void undo(BeadField data) {
+        if (current == first) return;
         current = (current - 1 + MAXUNDO) % MAXUNDO;
-        _data.CopyFrom(data[current]);
+        data.copyFrom(this.data[current]);
     }
 
-    public void Redo(BeadField _data) {
-        if (current == last) return; // nothing to redo
+    public void redo(BeadField data) {
+        if (current == last) return;
         current = (current + 1) % MAXUNDO;
-        _data.CopyFrom(data[current]);
+        data.copyFrom(this.data[current]);
     }
 
-    public boolean Modified() {
+    public boolean isModified() {
         return modified[current];
     }
+
 }
