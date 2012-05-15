@@ -34,6 +34,7 @@ public class DraftPanel extends JComponent {
     private int grid;
     private int scroll;
     private int offsetx;
+    private int maxj;
 
     public DraftPanel(BeadField field, Color[] colors, int grid, int scroll) {
         this.field = field;
@@ -45,52 +46,98 @@ public class DraftPanel extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        offsetx = getOffsetX();
+        maxj = getMaxJ();
+        paintGrid(g);
+        paintBeads(g);
+        paintMarkers(g);
+        paintSelection(g);
+    }
 
-        // Grid
+    private int getOffsetX() {
+        return Math.max(0, getWidth() - field.getWidth() * grid - 1);
+    }
+
+    private int getMaxJ() {
+        return Math.min(field.getHeight(), getHeight() / grid + 1);
+    }
+
+    private int x(int i) {
+        return offsetx + i * grid;
+    }
+    
+    private int y(int j) {
+        return getHeight() - 1 - j * grid;
+    }
+    
+    private int paintGrid(Graphics g) {
         g.setColor(Color.DARK_GRAY);
-        offsetx = getWidth() - field.getWidth() * grid - 1;
-        int left = offsetx;
-        if (left < 0) left = 0;
-        int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
         for (int i = 0; i < field.getWidth() + 1; i++) {
-            g.drawLine(left + i * grid, 0, left + i * grid, getHeight() - 1);
+            g.drawLine(x(i), 0, x(i), getHeight() - 1);
         }
         for (int j = 0; j < maxj; j++) {
-            g.drawLine(left, getHeight() - 1 - j * grid, left + field.getWidth() * grid, getHeight() - 1 - j * grid);
+            g.drawLine(x(0), y(j), x(field.getWidth()), y(j));
         }
+        return maxj;
+    }
 
-        // Daten
-        for (int i = 0; i < field.getWidth(); i++)
+    private void paintBeads(Graphics g) {
+        for (int i = 0; i < field.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
                 byte c = field.get(i, j + scroll);
-                assert (c >= 0 && c <= 9);
                 g.setColor(colors[c]);
-                g.fillRect(left + i * grid + 1, getHeight() - (j + 1) * grid, grid, grid);
+                g.fillRect(x(i) + 1, y(j + 1) + 1, grid, grid);
             }
+        }
+    }
 
-        // Zehnermarkierungen
+    private void paintMarkers(Graphics g) {
         g.setColor(Color.DARK_GRAY);
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
-                g.drawLine(0, getHeight() - j * grid - 1, left - 6, getHeight() - j * grid - 1);
+                g.drawLine(0, getHeight() - j * grid - 1, offsetx - 6, getHeight() - j * grid - 1);
                 g.drawString(Integer.toString(j + scroll), 6, getHeight() - j * grid + 1);
             }
         }
+    }
 
-        // Auswahl
+    private void paintSelection(Graphics g) {
         // TODO
         // DraftSelectDraw();
     }
 
-    public void redraw(int _i, int _j) {
+    public void redraw(int i, int j) {
         if (!isVisible()) return;
-
-        byte c = field.get(_i, _j + scroll);
-        assert (c >= 0 && c <= 9);
-
+        byte c = field.get(i, j + scroll);
         Graphics g = getGraphics();
         g.setColor(colors[c]);
-        g.fillRect(offsetx + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
+        g.fillRect(x(i) + 1, y(j) + 1, grid, grid);
+        g.dispose();
+    }
+
+    public void selectPreview(boolean draw, Point pt1, Point pt2) {
+        Graphics g = getGraphics();
+        g.setColor(draw ? Color.BLACK : Color.DARK_GRAY);
+        g.drawRect(x(pt1.getX()), y(pt1.getY()), x(pt2.getX() + 1), y(pt2.getY() + 1));
+        g.dispose();
+    }
+
+    public void linePreview(Point pt1, Point pt2) {
+        Graphics g = getGraphics();
+        g.setColor(Color.DARK_GRAY);
+        g.setXORMode(Color.BLACK);
+        g.drawLine(x(pt1.getX()) + grid / 2, y(pt1.getY()) - grid / 2, x(pt2.getX()) + grid / 2, y(pt2.getY()) - grid / 2);
+        g.dispose();
+    }
+
+    public void drawPrepress(Point pt) {
+        Graphics g = getGraphics();
+        g.setColor(Color.BLACK);
+        g.drawLine(x(pt.getX()) + 1, y(pt.getY()) + 1, x(pt.getX()) + 1, y(pt.getY() + 1) + 1);
+        g.drawLine(x(pt.getX()) + 1, y(pt.getY()) + 1, x(pt.getX()) - 1, y(pt.getY() + 1) + 1);
+        g.setColor(Color.WHITE);
+        g.drawLine(x(pt.getX() + 1) - 1, y(pt.getY() + 1) + 1, x(pt.getX() + 1) - 1, y(pt.getY()) - 1);
+        g.drawLine(x(pt.getX() + 1) - 1, y(pt.getY()) - 1, x(pt.getX()), y(pt.getY()) - 1);
         g.dispose();
     }
 
@@ -102,41 +149,9 @@ public class DraftPanel extends JComponent {
         i = (_i - offsetx) / grid;
         if (i >= field.getWidth()) return false;
         jj = (getHeight() - _j) / grid;
-        _i = i;
-        _j = jj;
+        pt.setX(i);
+        pt.setY(jj);
         return true;
-    }
-
-    public void selectPreview(boolean draw, Point pt1, Point pt2) {
-        Graphics g = getGraphics();
-        g.setColor(draw ? Color.BLACK : Color.DARK_GRAY);
-        g.drawRect(offsetx + pt1.getX() * grid, getHeight() - pt1.getY() * grid - 1, offsetx + (pt2.getX() + 1) * grid, getHeight()
-                - (pt2.getY() + 1) * grid - 1);
-        g.dispose();
-    }
-
-    public void linePreview(Point pt1, Point pt2) {
-        Graphics g = getGraphics();
-        g.setColor(Color.DARK_GRAY);
-        g.setXORMode(Color.BLACK);
-        g.drawLine(offsetx + pt1.getX() * grid + grid / 2, getHeight() - pt1.getY() * grid - grid / 2, offsetx + pt2.getX() * grid + grid / 2,
-                getHeight() - pt2.getY() * grid - grid / 2);
-        g.dispose();
-    }
-
-    public void drawPrepress(Point pt) {
-        Graphics g = getGraphics();
-        g.setColor(Color.BLACK);
-        g.drawLine(offsetx + pt.getX() * grid + 1, getHeight() - pt.getY() * grid - 2, offsetx + pt.getX() * grid + 1, getHeight()
-                - (pt.getY() + 1) * grid);
-        g.drawLine(offsetx + pt.getX() * grid + 1, getHeight() - (pt.getY() + 1) * grid, offsetx + (pt.getX() + 1) * grid - 1,
-                getHeight() - (pt.getY() + 1) * grid);
-        g.setColor(Color.WHITE);
-        g.drawLine(offsetx + (pt.getX() + 1) * grid - 1, getHeight() - (pt.getY() + 1) * grid + 1, offsetx + (pt.getX() + 1) * grid - 1,
-                getHeight() - pt.getY() * grid - 2);
-        g.drawLine(offsetx + (pt.getX() + 1) * grid - 1, getHeight() - pt.getY() * grid - 2, offsetx + pt.getX() * grid, getHeight() - pt.getY()
-                * grid - 2);
-        g.dispose();
     }
 
 }
