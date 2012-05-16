@@ -17,8 +17,11 @@
 
 package ch.jbead;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.KeyEvent;
@@ -35,7 +38,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
@@ -45,6 +50,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
@@ -150,24 +156,28 @@ public class BeadForm extends JFrame {
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
 
-    private JButton sbNew = new JButton("new");
-    private JButton sbOpen = new JButton("open");
-    private JButton sbSave = new JButton("save");
-    private JButton sbPrint = new JButton("print");
-    private JButton sbUndo = new JButton("undo");
-    private JButton sbRedo = new JButton("redo");
-    private JButton sbRotateleft = new JButton("left");
-    private JButton sbRotateright = new JButton("right");
-    private JButton sbCopy = new JButton("arrange");
-    private JToggleButton sbToolSelect = new JToggleButton("select");
-    private JToggleButton sbToolPoint = new JToggleButton("pencil");
-    private JToggleButton sbToolFill = new JToggleButton("fill");
-    private JToggleButton sbToolSniff = new JToggleButton("pipette");
+    private JButton sbNew = createButton("new");
+    private JButton sbOpen = createButton("open");
+    private JButton sbSave = createButton("save");
+    private JButton sbPrint = createButton("print");
+    private JButton sbUndo = createButton("undo");
+    private JButton sbRedo = createButton("redo");
+    private JButton sbRotateleft = createButton("prev");
+    private JButton sbRotateright = createButton("next");
+    private JButton sbCopy = createButton("copy");
+    private JToggleButton sbToolSelect = createToggleButton("toolselect");
+    private JToggleButton sbToolPoint = createToggleButton("toolpoint");
+    private JToggleButton sbToolFill = createToggleButton("toolfill");
+    private JToggleButton sbToolSniff = createToggleButton("toolsniff");
 
     private PageFormat pageFormat;
 
+    private JPanel main = new JPanel();
+    private JPanel statusbar = new JPanel();
+    
     public BeadForm() {
         super("jbead");
+        createGUI();
         saved = false;
         modified = false;
         selection = false;
@@ -176,12 +186,37 @@ public class BeadForm extends JFrame {
         loadMRU();
         updateMRU();
         updateScrollbar();
+        initLanguage();
+        initCloseHandler();
+        
+        // TODO persist the pageFormat in Settings?
+        pageFormat = PrinterJob.getPrinterJob().defaultPage();
+        pageFormat.setOrientation(PageFormat.LANDSCAPE);
+    }
 
-        // init button group
-        languageGroup.add(languageEnglish);
-        languageGroup.add(languageGerman);
+    private JButton createButton(String imageName) {
+        ImageIcon icon = new ImageIcon(BeadForm.class.getResource("/images/sb_" + imageName + ".png"));
+        return new JButton(icon);
+    }
+    
+    private JToggleButton createToggleButton(String imageName) {
+        ImageIcon icon = new ImageIcon(BeadForm.class.getResource("/images/sb_" + imageName + ".png"));
+        return new JToggleButton(icon);
+    }
+    
+    private void initCloseHandler() {
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (canTerminateApp()) {
+                    System.exit(0);
+                }
+            }
+        });
+    }
 
-
+    private void initLanguage() {
         Settings settings = new Settings();
         settings.SetCategory("Environment");
         Language language;
@@ -202,26 +237,113 @@ public class BeadForm extends JFrame {
             languageGerman.setSelected(true);
         }
 
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                if (formCloseQuery()) {
-                    System.exit(0);
-                }
-            }
-        });
+        // TODO persist location and size in settings
+        setSize(1024, 700);
+        setLocation(100, 35);
+    }
+
+    private void createGUI() {
+        setLayout(new BorderLayout());
+        add(toolbar, BorderLayout.NORTH);
+        add(main, BorderLayout.CENTER);
+        add(statusbar, BorderLayout.SOUTH);
+        createToolbar();
+        createMainGUI();
+    }
+    
+    private void createToolbar() {
+        toolbar.add(sbNew);
+        toolbar.add(sbOpen);
+        toolbar.add(sbSave);
+        toolbar.add(sbPrint);
+        toolbar.add(sbUndo);
+        toolbar.add(sbRedo);
+        toolbar.add(sbRotateleft);
+        toolbar.add(sbRotateright);
+        toolbar.add(sbCopy);
         
-        // TODO persist the pageFormat in Settings?
-        pageFormat = PrinterJob.getPrinterJob().defaultPage();
-        pageFormat.setOrientation(PageFormat.LANDSCAPE);
+        toolbar.add(sbToolSelect);
+        toolbar.add(sbToolPoint);
+        toolbar.add(sbToolFill);
+        toolbar.add(sbToolSniff);
+        
+        toolbar.add(sbColor0);
+        toolbar.add(sbColor1);
+        toolbar.add(sbColor2);
+        toolbar.add(sbColor3);
+        toolbar.add(sbColor4);
+        toolbar.add(sbColor5);
+        toolbar.add(sbColor6);
+        toolbar.add(sbColor7);
+        toolbar.add(sbColor8);
+        toolbar.add(sbColor9);
+    }
+    
+    private void createMainGUI() {
+        main.setLayout(new GridBagLayout());
+        
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        main.add(draft, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        main.add(laDraft, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        main.add(normal, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 1;
+        main.add(laNormal, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 2;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        main.add(simulation, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 2;
+        c.gridy = 1;
+        main.add(laSimulation, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 3;
+        c.gridy = 0;
+        c.weightx = 2;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        main.add(report, c);
+        
+        c = new GridBagConstraints();
+        c.gridx = 3;
+        c.gridy = 1;
+        main.add(laReport, c);
+
+        // init button group
+        languageGroup.add(languageEnglish);
+        languageGroup.add(languageGerman);
     }
 
     private BeadField getField() {
         return model.getField();
     }
     
-    void setGlyphColors() {
+    private void setGlyphColors() {
         // init color buttons
         // TODO handle sbColor0 with transparent color and x lines
         sbColor1.setIcon(new ColorIcon(model, 1));
@@ -235,7 +357,7 @@ public class BeadForm extends JFrame {
         sbColor9.setIcon(new ColorIcon(model, 9));
     }
 
-    void formResize() {
+    private void formResize() {
         int cheight = getContentPane().getHeight() - toolbar.getHeight();
         int cwidth = getContentPane().getWidth() - scrollbar.getWidth();
         int top = toolbar.getHeight() + 6;
@@ -283,7 +405,7 @@ public class BeadForm extends JFrame {
         updateScrollbar();
     }
 
-    void updateScrollbar() {
+    private void updateScrollbar() {
         int h = draft.getHeight() / model.getGrid();
         assert (h < getField().getHeight());
         scrollbar.setMinimum(0);
@@ -294,7 +416,7 @@ public class BeadForm extends JFrame {
         scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - model.getScroll());
     }
 
-    int correctCoordinatesX(int i, int j) {
+    private int correctCoordinatesX(int i, int j) {
         int idx = i + (j + model.getScroll()) * getField().getWidth();
         int m1 = getField().getWidth();
         int m2 = getField().getWidth() + 1;
@@ -310,7 +432,7 @@ public class BeadForm extends JFrame {
         return i;
     }
 
-    int correctCoordinatesY(int i, int j) {
+    private int correctCoordinatesY(int i, int j) {
         int idx = i + (j + model.getScroll()) * getField().getWidth();
         int m1 = getField().getWidth();
         int m2 = getField().getWidth() + 1;
@@ -326,14 +448,14 @@ public class BeadForm extends JFrame {
         return j;
     }
 
-    void updateBead(int i, int j) {
+    private void updateBead(int i, int j) {
         // use observer pattern to remove this explicit dependency
         draft.redraw(i, j);
         normal.updateBead(i, j);
         simulation.updateBead(i, j);
     }
 
-    void fileNewClick() {
+    private void fileNewClick() {
         // ask whether to save modified document
         if (modified) {
             int answer = JOptionPane.showConfirmDialog(this,
@@ -358,7 +480,7 @@ public class BeadForm extends JFrame {
         updateTitle();
     }
 
-    void loadFile(File file, boolean addtomru) {
+    private void loadFile(File file, boolean addtomru) {
         // ask whether to save modified document
         if (modified) {
             int answer = JOptionPane.showConfirmDialog(this,
@@ -438,7 +560,7 @@ public class BeadForm extends JFrame {
         if (addtomru) addToMRU(file);
     }
 
-    void fileOpenClick() {
+    private void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getFile().getParentFile());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -446,7 +568,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void fileSaveClick() {
+    private void fileSaveClick() {
         if (saved) {
             // Einfach abspeichern...
             try {
@@ -470,7 +592,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void fileSaveasClick() {
+    private void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
@@ -487,7 +609,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void filePrintClick(ActionEvent event) {
+    private void filePrintClick(ActionEvent event) {
         try {
             Object Sender = event.getSource();
             if (Sender != sbPrint) {
@@ -526,12 +648,12 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void filePrintersetupClick() {
+    private void filePrintersetupClick() {
         PrinterJob pj = PrinterJob.getPrinterJob();
         pageFormat = pj.pageDialog(pj.defaultPage());
     }
 
-    void fileExitClick() {
+    private void fileExitClick() {
         if (modified) {
             int r = JOptionPane.showConfirmDialog(this,
                     Texts.text("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
@@ -542,7 +664,7 @@ public class BeadForm extends JFrame {
         System.exit(0);
     }
 
-    void patternWidthClick() {
+    private void patternWidthClick() {
         int old = getField().getWidth();
         PatternWidthForm form = new PatternWidthForm();
         form.setWidth(getField().getWidth());
@@ -560,7 +682,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    int calcLineCoordX(int _i1, int _j1, int _i2, int _j2) {
+    private int calcLineCoordX(int _i1, int _j1, int _i2, int _j2) {
         int dx = Math.abs(_i2 - _i1);
         int dy = Math.abs(_j2 - _j1);
         if (2 * dy < dx) {
@@ -579,7 +701,7 @@ public class BeadForm extends JFrame {
         return _i2;
     }
 
-    int calcLineCoordY(int _i1, int _j1, int _i2, int _j2) {
+    private int calcLineCoordY(int _i1, int _j1, int _i2, int _j2) {
         int dx = Math.abs(_i2 - _i1);
         int dy = Math.abs(_j2 - _j1);
         if (2 * dy < dx) {
@@ -598,7 +720,7 @@ public class BeadForm extends JFrame {
         return _j2;
     }
 
-    void draftLinePreview() {
+    private void draftLinePreview() {
         if (!sbToolPoint.isSelected()) return;
         if (begin_i == end_i && begin_j == end_j) return;
 
@@ -610,7 +732,7 @@ public class BeadForm extends JFrame {
         draft.linePreview(new Point(begin_i, begin_j), new Point(ei, ej));
     }
 
-    void draftSelectPreview(boolean _draw, boolean _doit) {
+    private void draftSelectPreview(boolean _draw, boolean _doit) {
         if (!sbToolSelect.isSelected() && !_doit) return;
         if (begin_i == end_i && begin_j == end_j) return;
 
@@ -622,7 +744,7 @@ public class BeadForm extends JFrame {
         draft.selectPreview(_draw, new Point(i1, j1), new Point(i2, j2));
     }
 
-    void draftSelectDraw() {
+    private void draftSelectDraw() {
         if (!selection) return;
         begin_i = sel_i1;
         begin_j = sel_j1;
@@ -631,7 +753,7 @@ public class BeadForm extends JFrame {
         draftSelectPreview(true, true);
     }
 
-    void draftSelectClear() {
+    private void draftSelectClear() {
         if (!selection) return;
         begin_i = sel_i1;
         begin_j = sel_j1;
@@ -641,7 +763,7 @@ public class BeadForm extends JFrame {
         selection = false;
     }
 
-    void draftMouseDown(MouseEvent event, int X, int Y) {
+    private void draftMouseDown(MouseEvent event, int X, int Y) {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
@@ -660,7 +782,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void draftMouseMove(MouseEvent event) {
+    private void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
             draftSelectPreview(false, false);
@@ -672,7 +794,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void draftMouseUp(MouseEvent event) {
+    private void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
@@ -796,7 +918,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void fillLine(int _i, int _j) {
+    private void fillLine(int _i, int _j) {
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
         // xxx experimentell nach links und rechts
@@ -817,7 +939,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void setPoint(int _i, int _j) {
+    private void setPoint(int _i, int _j) {
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
@@ -833,28 +955,28 @@ public class BeadForm extends JFrame {
         updateTitle();
     }
 
-    void editUndoClick() {
+    private void editUndoClick() {
         modified = model.undo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    void editRedoClick() {
+    private void editRedoClick() {
         modified = model.redo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    void viewZoominClick() {
+    private void viewZoominClick() {
         model.zoomIn();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    void viewZoomnormalClick() {
+    private void viewZoomnormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
         formResize();
@@ -862,42 +984,42 @@ public class BeadForm extends JFrame {
         updateScrollbar();
     }
 
-    void viewZoomoutClick() {
+    private void viewZoomoutClick() {
         model.zoomOut();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    void viewDraftClick() {
+    private void viewDraftClick() {
         viewDraft.setSelected(!viewDraft.isSelected());
         draft.setVisible(viewDraft.isSelected());
         laDraft.setVisible(draft.isVisible());
         formResize();
     }
 
-    void viewNormalClick() {
+    private void viewNormalClick() {
         viewNormal.setSelected(!viewNormal.isSelected());
         normal.setVisible(viewNormal.isSelected());
         laNormal.setVisible(normal.isVisible());
         formResize();
     }
 
-    void viewSimulationClick() {
+    private void viewSimulationClick() {
         viewSimulation.setSelected(!viewSimulation.isSelected());
         simulation.setVisible(viewSimulation.isSelected());
         laSimulation.setVisible(simulation.isVisible());
         formResize();
     }
 
-    void viewReportClick() {
+    private void viewReportClick() {
         viewReport.setSelected(!viewReport.isSelected());
         report.setVisible(viewReport.isSelected());
         laReport.setVisible(report.isVisible());
         formResize();
     }
 
-    void formKeyUp(KeyEvent event) {
+    private void formKeyUp(KeyEvent event) {
         int Key = event.getKeyCode();
         if (Key == KeyEvent.VK_F5)
             invalidate();
@@ -959,7 +1081,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void rotateLeft() {
+    private void rotateLeft() {
         int shift = model.getShift();
         shift = (shift - 1 + getField().getWidth()) % getField().getWidth();
         modified = true;
@@ -967,7 +1089,7 @@ public class BeadForm extends JFrame {
         simulation.invalidate();
     }
 
-    void rotateRight() {
+    private void rotateRight() {
         int shift = model.getShift();
         shift = (shift + 1) % getField().getWidth();
         modified = true;
@@ -976,7 +1098,7 @@ public class BeadForm extends JFrame {
     }
 
     // TODO split this for every color toolbar button
-    void colorClick(ActionEvent event) {
+    private void colorClick(ActionEvent event) {
         Object Sender = event.getSource();
         if (Sender == sbColor0)
             model.setColorIndex((byte) 0);
@@ -1000,7 +1122,7 @@ public class BeadForm extends JFrame {
     }
 
     // TODO split this for every color toolbar button
-    void colorDblClick(ActionEvent event) {
+    private void colorDblClick(ActionEvent event) {
         Object Sender = event.getSource();
         int c = 0;
         if (Sender == sbColor0)
@@ -1036,7 +1158,7 @@ public class BeadForm extends JFrame {
     }
 
     // TODO handle out parameter
-    void scrollbarScroll(AdjustmentEvent event) {
+    private void scrollbarScroll(AdjustmentEvent event) {
         int oldscroll = model.getScroll();
         // if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos =
         // scrollbar.Max - scrollbar.PageSize;
@@ -1044,7 +1166,7 @@ public class BeadForm extends JFrame {
         if (oldscroll != model.getScroll()) invalidate();
     }
 
-    void idleHandler() {
+    private void idleHandler() {
         // Menü- und Toolbar enablen/disablen
         editCopy.setEnabled(selection);
         sbCopy.setEnabled(selection);
@@ -1066,49 +1188,49 @@ public class BeadForm extends JFrame {
         model.prepareSnapshot(modified);
     }
 
-    void toolPointClick() {
+    private void toolPointClick() {
         toolPoint.setSelected(true);
         sbToolPoint.setSelected(true);
         draftSelectClear();
     }
 
-    void toolSelectClick() {
+    private void toolSelectClick() {
         toolSelect.setSelected(true);
         sbToolSelect.setSelected(true);
     }
 
-    void toolFillClick() {
+    private void toolFillClick() {
         toolFill.setSelected(true);
         sbToolFill.setSelected(true);
         draftSelectClear();
     }
 
-    void toolSniffClick() {
+    private void toolSniffClick() {
         toolSniff.setSelected(true);
         sbToolSniff.setSelected(true);
         draftSelectClear();
     }
 
-    void sbToolPointClick() {
+    private void sbToolPointClick() {
         toolPoint.setSelected(true);
         draftSelectClear();
     }
 
-    void sbToolFillClick() {
+    private void sbToolFillClick() {
         toolFill.setSelected(true);
         draftSelectClear();
     }
 
-    void sbToolSniffClick() {
+    private void sbToolSniffClick() {
         toolSniff.setSelected(true);
         draftSelectClear();
     }
 
-    void sbToolSelectClick() {
+    private void sbToolSelectClick() {
         toolSelect.setSelected(true);
     }
 
-    void normalMouseUp(MouseEvent event) {
+    private void normalMouseUp(MouseEvent event) {
         int scroll = model.getScroll();
         // TODO move this to the NormalPanel
         Point pt = new Point(event.getX(), event.getY());
@@ -1132,41 +1254,41 @@ public class BeadForm extends JFrame {
         }
     }
 
-    void infoAboutClick() {
+    private void infoAboutClick() {
         new AboutBox().setVisible(true);
     }
 
-    void lefttimerTimer() {
+    private void lefttimerTimer() {
         rotateLeft();
         // Application.ProcessMessages(); // FIXME maybe just remove it?
     }
 
-    void righttimerTimer() {
+    private void righttimerTimer() {
         rotateRight();
         // Application.ProcessMessages(); // FIXME maybe just remove it?
     }
 
-    void sbRotaterightMouseDown(MouseEvent event) {
+    private void sbRotaterightMouseDown(MouseEvent event) {
         rotateRight();
         // Application.ProcessMessages();
         // righttimer.Enabled = true;
     }
 
-    void sbRotaterightMouseUp(MouseEvent event) {
+    private void sbRotaterightMouseUp(MouseEvent event) {
         // righttimer.Enabled = false;
     }
 
-    void sbRotateleftMouseDown(MouseEvent event) {
+    private void sbRotateleftMouseDown(MouseEvent event) {
         rotateLeft();
         // Application.ProcessMessages();
         // lefttimer.Enabled = true;
     }
 
-    void sbRotateleftMouseUp(MouseEvent event) {
+    private void sbRotateleftMouseUp(MouseEvent event) {
         // lefttimer.Enabled = false;
     }
 
-    void formKeyDown(KeyEvent event) {
+    private void formKeyDown(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.VK_RIGHT) {
             rotateRight();
         } else if (event.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -1174,7 +1296,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    boolean formCloseQuery() {
+    private boolean canTerminateApp() {
         if (modified) {
             int r = JOptionPane.showConfirmDialog(this,
                     Texts.text("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"));
@@ -1186,7 +1308,7 @@ public class BeadForm extends JFrame {
         return true;
     }
 
-    void editCopyClick() {
+    private void editCopyClick() {
         CopyForm copyform = new CopyForm();
         copyform.setVisible(true);
         if (copyform.isOK()) {
@@ -1223,15 +1345,15 @@ public class BeadForm extends JFrame {
         }
     }
 
-    int getCopyOffset(CopyForm form) {
+    private int getCopyOffset(CopyForm form) {
         return form.getVertOffset() * getField().getWidth() + form.getHorzOffset();
     }
 
-    int getIndex(int i, int j) {
+    private int getIndex(int i, int j) {
         return j * getField().getWidth() + i;
     }
 
-    void editInsertlineClick() {
+    private void editInsertlineClick() {
         model.snapshot(modified);
         getField().insertLine();
         model.setRepeatDirty();
@@ -1240,7 +1362,7 @@ public class BeadForm extends JFrame {
         invalidate();
     }
 
-    void editDeletelineClick() {
+    private void editDeletelineClick() {
         model.snapshot(modified);
         getField().deleteLine();
         model.setRepeatDirty();
@@ -1253,7 +1375,7 @@ public class BeadForm extends JFrame {
         updateTitle();
     }
 
-    void updateTitle() {
+    private void updateTitle() {
         String c = "jbead"; // APP_TITLE;
         c += " - ";
         if (saved) {
@@ -1267,7 +1389,7 @@ public class BeadForm extends JFrame {
         setTitle(c);
     }
 
-    void languageEnglishClick() {
+    private void languageEnglishClick() {
         Texts.setLanguage(Language.EN, this);
         languageEnglish.setSelected(true);
         Settings settings = new Settings();
@@ -1275,7 +1397,7 @@ public class BeadForm extends JFrame {
         settings.SaveInt("Language", 0);
     }
 
-    void languageGermanClick() {
+    private void languageGermanClick() {
         Texts.setLanguage(Language.GE, this);
         languageGerman.setSelected(true);
         Settings settings = new Settings();
@@ -1283,15 +1405,15 @@ public class BeadForm extends JFrame {
         settings.SaveInt("Language", 1);
     }
 
-    int mm2px(int x, int sx) {
+    private int mm2px(int x, int sx) {
         return x * sx / 254;
     }
 
-    int mm2py(int y, int sy) {
+    private int mm2py(int y, int sy) {
         return y * sy / 254;
     }
 
-    void printAll(Graphics g, PageFormat pageFormat, int pageIndex) {
+    private void printAll(Graphics g, PageFormat pageFormat, int pageIndex) {
 //        String title = "jbead"; // APP_TITLE;
 //        title += " - " + savedialog.getSelectedFile().getName();
         // TODO print headers and footers?
@@ -1717,7 +1839,7 @@ public class BeadForm extends JFrame {
         invalidate();
     }
 
-    void addToMRU(File file) {
+    private void addToMRU(File file) {
         if (file.getPath() == "") return;
 
         // Wenn Datei schon in MRU: Eintrag nach oben schieben
@@ -1746,7 +1868,7 @@ public class BeadForm extends JFrame {
         saveMRU();
     }
 
-    void updateMRU() {
+    private void updateMRU() {
         updateMRUMenu(1, fileMRU1, mru[0]);
         updateMRUMenu(2, fileMRU2, mru[1]);
         updateMRUMenu(3, fileMRU3, mru[2]);
@@ -1757,7 +1879,7 @@ public class BeadForm extends JFrame {
                 || fileMRU5.isVisible() || fileMRU6.isVisible());
     }
 
-    void updateMRUMenu(int index, JMenuItem menuitem, String filename) {
+    private void updateMRUMenu(int index, JMenuItem menuitem, String filename) {
         menuitem.setVisible(filename != "");
         // xxx Eigene Dateien oder so?!
         // Bestimmen ob Datei im Daten-Verzeichnis ist, falls
@@ -1772,31 +1894,31 @@ public class BeadForm extends JFrame {
         menuitem.setAccelerator(KeyStroke.getKeyStroke(Integer.toString(index)));
     }
 
-    void fileMRU1Click() {
+    private void fileMRU1Click() {
         loadFile(new File(mru[0]), true);
     }
 
-    void fileMRU2Click() {
+    private void fileMRU2Click() {
         loadFile(new File(mru[1]), true);
     }
 
-    void fileMRU3Click() {
+    private void fileMRU3Click() {
         loadFile(new File(mru[2]), true);
     }
 
-    void fileMRU4Click() {
+    private void fileMRU4Click() {
         loadFile(new File(mru[3]), true);
     }
 
-    void fileMRU5Click() {
+    private void fileMRU5Click() {
         loadFile(new File(mru[4]), true);
     }
 
-    void fileMRU6Click() {
+    private void fileMRU6Click() {
         loadFile(new File(mru[5]), true);
     }
 
-    void saveMRU() {
+    private void saveMRU() {
         Settings settings = new Settings();
         settings.SetCategory("mru");
         settings.SaveString("mru0", mru[0]);
@@ -1807,7 +1929,7 @@ public class BeadForm extends JFrame {
         settings.SaveString("mru5", mru[5]);
     }
 
-    void loadMRU() {
+    private void loadMRU() {
         Settings settings = new Settings();
         settings.SetCategory("mru");
         mru[0] = settings.LoadString("mru0");
@@ -1816,6 +1938,10 @@ public class BeadForm extends JFrame {
         mru[3] = settings.LoadString("mru3");
         mru[4] = settings.LoadString("mru4");
         mru[5] = settings.LoadString("mru5");
+    }
+
+    public static void main(String[] args) {
+        new BeadForm().setVisible(true);
     }
 
 }
