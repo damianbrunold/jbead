@@ -84,16 +84,18 @@ public class BeadForm extends JFrame {
     private JRadioButtonMenuItem languageGerman = new JRadioButtonMenuItem("German");
 
     private JToolBar toolbar = new JToolBar();
-    private JButton sbColor0 = new JButton();
-    private JButton sbColor1 = new JButton();
-    private JButton sbColor2 = new JButton();
-    private JButton sbColor3 = new JButton();
-    private JButton sbColor4 = new JButton();
-    private JButton sbColor5 = new JButton();
-    private JButton sbColor6 = new JButton();
-    private JButton sbColor7 = new JButton();
-    private JButton sbColor8 = new JButton();
-    private JButton sbColor9 = new JButton();
+
+    private ButtonGroup colorsGroup = new ButtonGroup();
+    private JToggleButton sbColor0 = new JToggleButton();
+    private JToggleButton sbColor1 = new JToggleButton();
+    private JToggleButton sbColor2 = new JToggleButton();
+    private JToggleButton sbColor3 = new JToggleButton();
+    private JToggleButton sbColor4 = new JToggleButton();
+    private JToggleButton sbColor5 = new JToggleButton();
+    private JToggleButton sbColor6 = new JToggleButton();
+    private JToggleButton sbColor7 = new JToggleButton();
+    private JToggleButton sbColor8 = new JToggleButton();
+    private JToggleButton sbColor9 = new JToggleButton();
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
@@ -165,6 +167,8 @@ public class BeadForm extends JFrame {
     private JButton sbRotateleft = createButton("prev");
     private JButton sbRotateright = createButton("next");
     private JButton sbCopy = createButton("copy");
+    
+    private ButtonGroup toolsGroup = new ButtonGroup();
     private JToggleButton sbToolSelect = createToggleButton("toolselect");
     private JToggleButton sbToolPoint = createToggleButton("toolpoint");
     private JToggleButton sbToolFill = createToggleButton("toolfill");
@@ -182,7 +186,7 @@ public class BeadForm extends JFrame {
         modified = false;
         selection = false;
         updateTitle();
-        setGlyphColors();
+        setColorIcons();
         loadMRU();
         updateMRU();
         updateScrollbar();
@@ -262,11 +266,22 @@ public class BeadForm extends JFrame {
         toolbar.add(sbRotateright);
         toolbar.add(sbCopy);
         
-        toolbar.add(sbToolSelect);
+        toolbar.addSeparator();
+
+        sbToolPoint.setSelected(true);
         toolbar.add(sbToolPoint);
+        toolbar.add(sbToolSelect);
         toolbar.add(sbToolFill);
         toolbar.add(sbToolSniff);
         
+        toolsGroup.add(sbToolPoint);
+        toolsGroup.add(sbToolSelect);
+        toolsGroup.add(sbToolFill);
+        toolsGroup.add(sbToolSniff);
+
+        toolbar.addSeparator();
+
+        sbColor1.setSelected(true);
         toolbar.add(sbColor0);
         toolbar.add(sbColor1);
         toolbar.add(sbColor2);
@@ -277,6 +292,17 @@ public class BeadForm extends JFrame {
         toolbar.add(sbColor7);
         toolbar.add(sbColor8);
         toolbar.add(sbColor9);
+
+        colorsGroup.add(sbColor0);
+        colorsGroup.add(sbColor1);
+        colorsGroup.add(sbColor2);
+        colorsGroup.add(sbColor3);
+        colorsGroup.add(sbColor4);
+        colorsGroup.add(sbColor5);
+        colorsGroup.add(sbColor6);
+        colorsGroup.add(sbColor7);
+        colorsGroup.add(sbColor8);
+        colorsGroup.add(sbColor9);
     }
     
     private void createMainGUI() {
@@ -334,6 +360,12 @@ public class BeadForm extends JFrame {
         c.gridy = 1;
         main.add(laReport, c);
 
+        c = new GridBagConstraints();
+        c.gridx = 4;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.VERTICAL;
+        main.add(scrollbar, c);
+        
         // init button group
         languageGroup.add(languageEnglish);
         languageGroup.add(languageGerman);
@@ -343,9 +375,8 @@ public class BeadForm extends JFrame {
         return model.getField();
     }
     
-    private void setGlyphColors() {
-        // init color buttons
-        // TODO handle sbColor0 with transparent color and x lines
+    private void setColorIcons() {
+        sbColor0.setIcon(new ColorIcon(model, 0));
         sbColor1.setIcon(new ColorIcon(model, 1));
         sbColor2.setIcon(new ColorIcon(model, 2));
         sbColor3.setIcon(new ColorIcon(model, 3));
@@ -470,7 +501,7 @@ public class BeadForm extends JFrame {
         model.clear();
         invalidate();
         sbColor1.setSelected(true);
-        setGlyphColors();
+        setColorIcons();
         updateScrollbar();
         selection = false;
         sbToolPoint.setSelected(true);
@@ -541,7 +572,7 @@ public class BeadForm extends JFrame {
                     assert (false);
                     break;
                 }
-                setGlyphColors();
+                setColorIcons();
                 updateScrollbar();
             } finally {
                 in.close();
@@ -1154,7 +1185,7 @@ public class BeadForm extends JFrame {
         modified = true;
         updateTitle();
         invalidate();
-        setGlyphColors();
+        setColorIcons();
     }
 
     // TODO handle out parameter

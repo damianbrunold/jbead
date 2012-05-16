@@ -19,6 +19,8 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 
@@ -39,8 +41,10 @@ public class ReportPanel extends JComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         int x1 = 12;
-        int x2 = x1 + 100;
+        int x2 = x1 + g.getFontMetrics().stringWidth(Texts.text("repeat of colors: ", "Farbrapport: "));
         int y = 0;
         int dx = 15;
         int dy = dx;

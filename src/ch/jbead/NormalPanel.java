@@ -58,7 +58,7 @@ public class NormalPanel extends JComponent {
 
     private int getOffsetX() {
         int grid = model.getGrid();
-        return getWidth() - 1 - (model.getField().getWidth() + 1) * grid + grid / 2;
+        return (getWidth() - 1 - (model.getField().getWidth() + 1) * grid + grid / 2) / 2;
     }
 
     private int x(int i) {
@@ -76,31 +76,33 @@ public class NormalPanel extends JComponent {
         if (model.getScroll() % 2 == 0) {
             for (int i = 0; i < field.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj) + 1);
+                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
             for (int i = 0; i <= field.getWidth() + 1; i++) {
                 for (int jj = 1; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj) + 1);
+                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
         } else {
             for (int i = 0; i <= field.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj) + 1);
+                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
             for (int i = 0; i < field.getWidth() + 1; i++) {
                 for (int jj = 1; jj < maxj; jj += 2) {
-                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj) + 1);
+                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
         }
         if (model.getScroll() % 2 == 0) {
-            g.drawLine(x(0), y(0), x(field.getWidth()) + 1, y(0));
+            g.drawLine(x(0), y(0), x(field.getWidth()), y(0));
+        } else {
+            g.drawLine(x(0) - grid / 2, y(0), x(field.getWidth()) + grid / 2, y(0));
         }
-        for (int jj = 0; jj < maxj; jj++) {
-            g.drawLine(x(0) - grid / 2, y(jj), x(field.getWidth()) + grid / 2 + 1, y(jj));
+        for (int jj = 1; jj < maxj; jj++) {
+            g.drawLine(x(0) - grid / 2, y(jj), x(field.getWidth()) + grid / 2, y(jj));
         }
     }
 
@@ -117,15 +119,15 @@ public class NormalPanel extends JComponent {
                 j1 = correctCoordinatesY(ii, j1);
                 if (model.getScroll() % 2 == 0) {
                     if (j1 % 2 == 0) {
-                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
                     } else {
-                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
                     }
                 } else {
                     if (j1 % 2 == 1) {
-                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
                     } else {
-                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid, grid);
+                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
                     }
                 }
             }

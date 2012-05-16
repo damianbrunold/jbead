@@ -58,7 +58,7 @@ public class Model implements ColorTable {
     }
 
     private void defaultColors() {
-        colors[0] = Color.LIGHT_GRAY; // was clBtnFace
+        colors[0] = new Color(240, 240, 240); // was clBtnFace
         colors[1] = new Color(128, 0, 0); // maroon
         colors[2] = new Color(0, 0, 128); // navy
         colors[3] = Color.GREEN;

@@ -18,7 +18,10 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
 
@@ -26,6 +29,16 @@ import javax.swing.JComponent;
  * 
  */
 public class DraftPanel extends JComponent {
+
+    /**
+     * 
+     */
+    private static final int GAP = 6;
+
+    /**
+     * 
+     */
+    private static final int MARKER_WIDTH = 30;
 
     private static final long serialVersionUID = 1L;
 
@@ -35,6 +48,7 @@ public class DraftPanel extends JComponent {
 
     public DraftPanel(Model model) {
         this.model = model;
+        setBackground(Color.LIGHT_GRAY);
     }
 
     @Override
@@ -48,8 +62,13 @@ public class DraftPanel extends JComponent {
         paintSelection(g);
     }
 
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(model.getField().getWidth() * model.getGrid() + MARKER_WIDTH + GAP, 3 * model.getGrid());
+    }
+
     private int getOffsetX() {
-        return Math.max(0, getWidth() - model.getField().getWidth() * model.getGrid() - 1);
+        return Math.max(3 + MARKER_WIDTH + GAP, (getWidth() - model.getField().getWidth() * model.getGrid() - 1) / 2);
     }
 
     private int getMaxJ() {
@@ -84,19 +103,22 @@ public class DraftPanel extends JComponent {
             for (int j = 0; j < maxj; j++) {
                 byte c = field.get(i, j + scroll);
                 g.setColor(model.getColor(c));
-                g.fillRect(x(i) + 1, y(j + 1) + 1, grid, grid);
+                g.fillRect(x(i) + 1, y(j + 1) + 1, grid - 1, grid - 1);
             }
         }
     }
 
     private void paintMarkers(Graphics g) {
-        int grid = model.getGrid();
         int scroll = model.getScroll();
         g.setColor(Color.DARK_GRAY);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int fontHeight = g.getFontMetrics().getAscent();
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
-                g.drawLine(0, getHeight() - j * grid - 1, offsetx - 6, getHeight() - j * grid - 1);
-                g.drawString(Integer.toString(j + scroll), 6, getHeight() - j * grid + 1);
+                g.drawLine(offsetx - GAP - MARKER_WIDTH, y(j), offsetx - GAP, y(j));
+                String label = Integer.toString(j + scroll);
+                int labelWidth = g.getFontMetrics().stringWidth(label);
+                g.drawString(label, offsetx - GAP - MARKER_WIDTH + (MARKER_WIDTH - labelWidth) / 2, y(j) + fontHeight + 1);
             }
         }
     }
