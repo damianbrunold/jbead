@@ -147,7 +147,7 @@ public class BeadForm extends JFrame {
     private JRadioButtonMenuItem languageEnglish = new JRadioButtonMenuItem("English");
     private JRadioButtonMenuItem languageGerman = new JRadioButtonMenuItem("German");
 
-    private JMenuItem menuTool = new JMenu("tool");
+    private JMenu menuTool = new JMenu("tool");
     private JMenuItem toolPoint = new JMenuItem("pencil");
     private JMenuItem toolSelect = new JMenuItem("select");
     private JMenuItem toolFill = new JMenuItem("fill");
@@ -259,7 +259,16 @@ public class BeadForm extends JFrame {
     
     private void createMenu() {
         JMenuBar menubar = new JMenuBar();
+        menubar.add(createFileMenu());
+        menubar.add(createEditMenu());
+        menubar.add(createViewMenu());
+        menubar.add(createToolMenu());
+        menubar.add(createPatternMenu());
+        menubar.add(createInfoMenu());
+        setJMenuBar(menubar);
+    }
 
+    private JMenu createFileMenu() {
         menuFile.add(fileNew);
         menuFile.add(fileOpen);
         fileOpen.addActionListener(new ActionListener() {
@@ -294,16 +303,20 @@ public class BeadForm extends JFrame {
                 fileExitClick();
             }
         });
-        menubar.add(menuFile);
-        
+        return menuFile;
+    }
+    
+    private JMenu createEditMenu() {
         menuEdit.add(editUndo);
         menuEdit.add(editRedo);
         menuEdit.add(editCopy);
         menuEdit.add(editLine);
         editLine.add(editInsertline);
         editLine.add(editDeleteline);
-        menubar.add(menuEdit);
+        return menuEdit;
+    }
 
+    private JMenu createViewMenu() {
         menuView.add(viewDraft);
         menuView.add(viewNormal);
         menuView.add(viewSimulation);
@@ -316,23 +329,33 @@ public class BeadForm extends JFrame {
         menuView.add(viewZoomin);
         menuView.add(viewZoomnormal);
         menuView.add(viewZoomout);
-        menubar.add(menuView);
+        return menuView;
+    }
 
+    private JMenu createToolMenu() {
         menuTool.add(toolPoint);
         menuTool.add(toolSelect);
         menuTool.add(toolFill);
         menuTool.add(toolSniff);
-        menubar.add(menuTool);
-
-        menuPattern.add(patternWidth);
-        menubar.add(menuPattern);
-
-        menuInfo.add(infoAbout);
-        menubar.add(menuInfo);
-
-        setJMenuBar(menubar);
+        return menuTool;
     }
-    
+
+    private JMenu createPatternMenu() {
+        menuPattern.add(patternWidth);
+        return menuPattern;
+    }
+
+    private JMenu createInfoMenu() {
+        menuInfo.add(infoAbout);
+        infoAbout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new AboutBox().formShow();
+            }
+        });
+        return menuInfo;
+    }
+
     private void createToolbar() {
         toolbar.add(sbNew);
         toolbar.add(sbOpen);
