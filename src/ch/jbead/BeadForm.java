@@ -269,6 +269,12 @@ public class BeadForm extends JFrame {
             }
         });
         menuFile.add(fileSave);
+        fileSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileSaveClick();
+            }
+        });
         menuFile.add(fileSaveas);
         menuFile.addSeparator();
         menuFile.add(filePrint);
@@ -644,7 +650,7 @@ public class BeadForm extends JFrame {
                     assert (false);
                     break;
                 }
-                setColorIcons();
+                //setColorIcons(); TODO not needed anymore, I think, but maybe a refresh/invalidation
                 updateScrollbar();
             } finally {
                 in.close();
