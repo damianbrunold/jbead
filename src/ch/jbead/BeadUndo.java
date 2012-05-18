@@ -34,6 +34,10 @@ public class BeadUndo {
         first = 0;
         last = 0;
         current = 0;
+        for (int i = 0; i < MAXUNDO; i++) {
+            data[i] = new BeadField();
+            modified[i] = false;
+        }
     }
 
     public boolean canUndo() {
