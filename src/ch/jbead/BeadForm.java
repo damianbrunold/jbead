@@ -342,6 +342,12 @@ public class BeadForm extends JFrame {
 
     private JMenu createPatternMenu() {
         menuPattern.add(patternWidth);
+        patternWidth.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PatternWidthForm().formShow();
+            }
+        });
         return menuPattern;
     }
 
