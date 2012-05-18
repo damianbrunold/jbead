@@ -312,6 +312,12 @@ public class BeadForm extends JFrame {
         menuEdit.add(editUndo);
         menuEdit.add(editRedo);
         menuEdit.add(editCopy);
+        editCopy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editCopyClick();
+            }
+        });
         menuEdit.add(editLine);
         editLine.add(editInsertline);
         editLine.add(editDeleteline);
@@ -347,7 +353,7 @@ public class BeadForm extends JFrame {
         patternWidth.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new PatternWidthForm().formShow();
+                patternWidthClick();
             }
         });
         return menuPattern;
@@ -807,12 +813,12 @@ public class BeadForm extends JFrame {
     private void patternWidthClick() {
         int old = getField().getWidth();
         PatternWidthForm form = new PatternWidthForm();
-        form.setWidth(getField().getWidth());
+        form.setPatternWidth(getField().getWidth());
         form.formShow();
         if (form.isOK()) {
             model.snapshot(modified);
-            getField().setWidth(form.getWidth());
-            formResize();
+            getField().setWidth(form.getPatternWidth());
+            //formResize();
             invalidate();
             if (!modified) {
                 modified = (old != getField().getWidth());
@@ -1450,7 +1456,7 @@ public class BeadForm extends JFrame {
 
     private void editCopyClick() {
         CopyForm copyform = new CopyForm();
-        copyform.setVisible(true);
+        copyform.formShow();
         if (copyform.isOK()) {
             model.snapshot(modified);
             // Aktuelle Daten in Buffer kopieren

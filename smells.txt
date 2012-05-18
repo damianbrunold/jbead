@@ -77,3 +77,8 @@ Make the Point class to a value object, thus immutable.
 Right now it is mutable, because the conversion methods
 want to return a boolean that signifies if the conversion
 succeeded. Refactor this.
+
+Handle the UI state better. For example, the copy/arrange
+function should be disabled if no selection exists. This
+was handled using the idleHandler before. Now, this should
+probably be done using Actions.

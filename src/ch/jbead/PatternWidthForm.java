@@ -38,10 +38,10 @@ import javax.swing.SpinnerNumberModel;
 public class PatternWidthForm extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    private JLabel labelDescription = new JLabel();
-    private JLabel labelWidth = new JLabel();
+    private JLabel labelDescription = new JLabel("desc");
+    private JLabel labelWidth = new JLabel("width");
     private SpinnerModel widthModel = new SpinnerNumberModel(10, 5, 35, 1);
-    private JSpinner Width = new JSpinner(widthModel);
+    private JSpinner patternwidth = new JSpinner(widthModel);
     private JButton bOk = new JButton();
     private JButton bCancel = new JButton();
 
@@ -67,7 +67,7 @@ public class PatternWidthForm extends JDialog {
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
         constraints.gridy = 1;
-        form.add(Width, constraints);
+        form.add(patternwidth, constraints);
 
         add(form, BorderLayout.CENTER);
 
@@ -121,12 +121,12 @@ public class PatternWidthForm extends JDialog {
         return isOK;
     }
 
-    public void setWidth(int width) {
-        Width.setValue(width);
+    public void setPatternWidth(int width) {
+        patternwidth.setValue(width);
     }
 
-    public int getWidth() {
-        return (Integer) Width.getValue();
+    public int getPatternWidth() {
+        return (Integer) patternwidth.getValue();
     }
 
 }
