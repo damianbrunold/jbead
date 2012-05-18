@@ -161,21 +161,21 @@ public class BeadForm extends JFrame {
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
 
-    private JButton sbNew = createButton("new");
-    private JButton sbOpen = createButton("open");
-    private JButton sbSave = createButton("save");
-    private JButton sbPrint = createButton("print");
-    private JButton sbUndo = createButton("undo");
-    private JButton sbRedo = createButton("redo");
-    private JButton sbRotateleft = createButton("prev");
-    private JButton sbRotateright = createButton("next");
-    private JButton sbCopy = createButton("copy");
+    private JButton sbNew = createButton("sb_new");
+    private JButton sbOpen = createButton("sb_open");
+    private JButton sbSave = createButton("sb_save");
+    private JButton sbPrint = createButton("sb_print");
+    private JButton sbUndo = createButton("sb_undo");
+    private JButton sbRedo = createButton("sb_redo");
+    private JButton sbRotateleft = createButton("sb_prev");
+    private JButton sbRotateright = createButton("sb_next");
+    private JButton sbCopy = createButton("sb_copy");
     
     private ButtonGroup toolsGroup = new ButtonGroup();
-    private JToggleButton sbToolSelect = createToggleButton("toolselect");
-    private JToggleButton sbToolPoint = createToggleButton("toolpoint");
-    private JToggleButton sbToolFill = createToggleButton("toolfill");
-    private JToggleButton sbToolSniff = createToggleButton("toolsniff");
+    private JToggleButton sbToolSelect = createToggleButton("sb_toolselect");
+    private JToggleButton sbToolPoint = createToggleButton("sb_toolpoint");
+    private JToggleButton sbToolFill = createToggleButton("sb_toolfill");
+    private JToggleButton sbToolSniff = createToggleButton("sb_toolsniff");
 
     private PageFormat pageFormat;
 
@@ -204,13 +204,11 @@ public class BeadForm extends JFrame {
     }
 
     private JButton createButton(String imageName) {
-        ImageIcon icon = new ImageIcon(BeadForm.class.getResource("/images/sb_" + imageName + ".png"));
-        return new JButton(icon);
+        return new JButton(ImageFactory.getIcon(imageName));
     }
     
     private JToggleButton createToggleButton(String imageName) {
-        ImageIcon icon = new ImageIcon(BeadForm.class.getResource("/images/sb_" + imageName + ".png"));
-        return new JToggleButton(icon);
+        return new JToggleButton(ImageFactory.getIcon(imageName));
     }
     
     private void initCloseHandler() {
