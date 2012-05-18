@@ -52,6 +52,7 @@ public class AboutBox extends JDialog {
                 AboutBox.this.dispose();
             }
         });
+        setIconImage(ImageFactory.getImage("jbead-16"));
     }
 
     public void formShow() {

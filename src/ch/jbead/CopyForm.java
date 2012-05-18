@@ -115,6 +115,7 @@ public class CopyForm extends JDialog {
                 dispose();
             }
         });
+        setIconImage(ImageFactory.getImage("jbead-16"));
     }
 
     public boolean isOK() {

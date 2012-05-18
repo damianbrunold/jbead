@@ -95,6 +95,8 @@ public class PatternWidthForm extends JDialog {
                 dispose();
             }
         });
+
+        setIconImage(ImageFactory.getImage("jbead-16"));
     }
 
     public void reloadLanguage() {
