@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -38,7 +39,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -48,6 +48,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -78,10 +79,6 @@ public class BeadForm extends JFrame {
     private boolean saved;
     private boolean modified;
     private String mru[] = new String[6];
-
-    private ButtonGroup languageGroup = new ButtonGroup();
-    private JRadioButtonMenuItem languageEnglish = new JRadioButtonMenuItem("English");
-    private JRadioButtonMenuItem languageGerman = new JRadioButtonMenuItem("German");
 
     private JToolBar toolbar = new JToolBar();
 
@@ -118,19 +115,22 @@ public class BeadForm extends JFrame {
     private JMenuItem filePrintersetup = new JMenuItem("printer setup");
     private JMenuItem fileExit = new JMenuItem("exit");
 
+    private JMenuItem fileMRU1 = new JMenuItem();
+    private JMenuItem fileMRU2 = new JMenuItem();
+    private JMenuItem fileMRU3 = new JMenuItem();
+    private JMenuItem fileMRU4 = new JMenuItem();
+    private JMenuItem fileMRU5 = new JMenuItem();
+    private JMenuItem fileMRU6 = new JMenuItem();
+
+    private JPopupMenu.Separator fileMRUSeparator = new JPopupMenu.Separator();
+
     private JMenu menuEdit = new JMenu("edit");
     private JMenuItem editUndo = new JMenuItem("undo");
     private JMenuItem editRedo = new JMenuItem("redo");
     private JMenuItem editCopy = new JMenuItem("arrange");
-    private JMenuItem editLine = new JMenuItem("empty line");
+    private JMenu editLine = new JMenu("empty line");
     private JMenuItem editInsertline = new JMenuItem("insert");
     private JMenuItem editDeleteline = new JMenuItem("delete");
-
-    private JMenuItem toolTool = new JMenuItem("tool");
-    private JMenuItem toolPoint = new JMenuItem("pencil");
-    private JMenuItem toolSelect = new JMenuItem("select");
-    private JMenuItem toolFill = new JMenuItem("fill");
-    private JMenuItem toolSniff = new JMenuItem("pipette");
 
     private JMenu menuView = new JMenu("view");
     private JMenuItem viewZoomin = new JMenuItem("zoom in");
@@ -143,14 +143,15 @@ public class BeadForm extends JFrame {
     private JCheckBoxMenuItem viewSimulation = new JCheckBoxMenuItem("simulation");
     private JCheckBoxMenuItem viewReport = new JCheckBoxMenuItem("report");
 
-    private JMenuItem fileMRU1 = new JMenuItem();
-    private JMenuItem fileMRU2 = new JMenuItem();
-    private JMenuItem fileMRU3 = new JMenuItem();
-    private JMenuItem fileMRU4 = new JMenuItem();
-    private JMenuItem fileMRU5 = new JMenuItem();
-    private JMenuItem fileMRU6 = new JMenuItem();
+    private ButtonGroup languageGroup = new ButtonGroup();
+    private JRadioButtonMenuItem languageEnglish = new JRadioButtonMenuItem("English");
+    private JRadioButtonMenuItem languageGerman = new JRadioButtonMenuItem("German");
 
-    private JPopupMenu.Separator fileMRUSeparator = new JPopupMenu.Separator();
+    private JMenuItem menuTool = new JMenu("tool");
+    private JMenuItem toolPoint = new JMenuItem("pencil");
+    private JMenuItem toolSelect = new JMenuItem("select");
+    private JMenuItem toolFill = new JMenuItem("fill");
+    private JMenuItem toolSniff = new JMenuItem("pipette");
 
     private JMenu menuPattern = new JMenu("pattern");
     private JMenuItem patternWidth = new JMenuItem("width");
@@ -177,7 +178,7 @@ public class BeadForm extends JFrame {
     private PageFormat pageFormat;
 
     private JPanel main = new JPanel();
-    private JPanel statusbar = new JPanel();
+    private JLabel statusbar = new JLabel("X");
     
     public BeadForm() {
         super("jbead");
@@ -247,12 +248,83 @@ public class BeadForm extends JFrame {
     }
 
     private void createGUI() {
+        createMenu();
         setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         add(main, BorderLayout.CENTER);
         add(statusbar, BorderLayout.SOUTH);
         createToolbar();
         createMainGUI();
+    }
+    
+    private void createMenu() {
+        JMenuBar menubar = new JMenuBar();
+
+        menuFile.add(fileNew);
+        menuFile.add(fileOpen);
+        fileOpen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileOpenClick();
+            }
+        });
+        menuFile.add(fileSave);
+        menuFile.add(fileSaveas);
+        menuFile.addSeparator();
+        menuFile.add(filePrint);
+        menuFile.add(filePrintersetup);
+        menuFile.addSeparator();
+        menuFile.add(fileMRU1);
+        menuFile.add(fileMRU2);
+        menuFile.add(fileMRU3);
+        menuFile.add(fileMRU4);
+        menuFile.add(fileMRU5);
+        menuFile.add(fileMRU6);
+        menuFile.add(fileMRUSeparator);
+        menuFile.add(fileExit);
+        fileExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileExitClick();
+            }
+        });
+        menubar.add(menuFile);
+        
+        menuEdit.add(editUndo);
+        menuEdit.add(editRedo);
+        menuEdit.add(editCopy);
+        menuEdit.add(editLine);
+        editLine.add(editInsertline);
+        editLine.add(editDeleteline);
+        menubar.add(menuEdit);
+
+        menuView.add(viewDraft);
+        menuView.add(viewNormal);
+        menuView.add(viewSimulation);
+        menuView.add(viewReport);
+        menuView.addSeparator();
+        menuView.add(viewLanguage);
+        viewLanguage.add(languageEnglish);
+        viewLanguage.add(languageGerman);
+        menuView.addSeparator();
+        menuView.add(viewZoomin);
+        menuView.add(viewZoomnormal);
+        menuView.add(viewZoomout);
+        menubar.add(menuView);
+
+        menuTool.add(toolPoint);
+        menuTool.add(toolSelect);
+        menuTool.add(toolFill);
+        menuTool.add(toolSniff);
+        menubar.add(menuTool);
+
+        menuPattern.add(patternWidth);
+        menubar.add(menuPattern);
+
+        menuInfo.add(infoAbout);
+        menubar.add(menuInfo);
+
+        setJMenuBar(menubar);
     }
     
     private void createToolbar() {
@@ -1763,8 +1835,8 @@ public class BeadForm extends JFrame {
         Texts.update(editDeleteline, Language.GE, "E&ntfernen", "");
 
         // Menu Werkzeug
-        Texts.update(toolTool, Language.EN, "&Tool", "");
-        Texts.update(toolTool, Language.GE, "&Werkzeug", "");
+        Texts.update(menuTool, Language.EN, "&Tool", "");
+        Texts.update(menuTool, Language.GE, "&Werkzeug", "");
         Texts.update(toolPoint, Language.EN, "&Pencil", "");
         Texts.update(toolPoint, Language.GE, "&Eingabe", "");
         Texts.update(toolSelect, Language.EN, "&Select", "");
