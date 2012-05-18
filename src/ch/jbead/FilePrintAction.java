@@ -30,8 +30,10 @@ public class FilePrintAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.print";
+
     public FilePrintAction(BeadForm form) {
-        super("file.print", ImageFactory.getIcon("file.print"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Prints the pattern");
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));

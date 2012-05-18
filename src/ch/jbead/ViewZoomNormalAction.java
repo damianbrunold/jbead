@@ -27,8 +27,10 @@ public class ViewZoomNormalAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "view.zoomnormal";
+    
     public ViewZoomNormalAction(BeadForm form) {
-        super("view.zoomnormal", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Restores the default zoom level");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }

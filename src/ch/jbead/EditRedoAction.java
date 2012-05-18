@@ -29,8 +29,10 @@ public class EditRedoAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "edit.redo";
+    
     public EditRedoAction(BeadForm form) {
-        super("edit.redo", ImageFactory.getIcon("edit.redo"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Redoes the last undone change");
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Y"));

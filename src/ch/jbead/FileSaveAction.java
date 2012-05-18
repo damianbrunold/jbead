@@ -29,8 +29,10 @@ public class FileSaveAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.save";
+
     public FileSaveAction(BeadForm form) {
-        super("file.save", ImageFactory.getIcon("file.save"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Saves the pattern");
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));

@@ -29,8 +29,10 @@ public class FileExitAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.exit";
+    
     public FileExitAction(BeadForm form) {
-        super("file.exit", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Exits the program");
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));

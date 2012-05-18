@@ -29,8 +29,10 @@ public class EditUndoAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "edit.undo";
+    
     public EditUndoAction(BeadForm form) {
-        super("edit.undo", ImageFactory.getIcon("edit.undo"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Undoes the last change");
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));

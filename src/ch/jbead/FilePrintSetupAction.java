@@ -27,8 +27,10 @@ public class FilePrintSetupAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.printsetup";
+
     public FilePrintSetupAction(BeadForm form) {
-        super("file.printsetup", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Configures the printer");
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
     }

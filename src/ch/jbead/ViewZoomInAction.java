@@ -29,8 +29,10 @@ public class ViewZoomInAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "view.zoomin";
+    
     public ViewZoomInAction(BeadForm form) {
-        super("view.zoomin", ImageFactory.getIcon("view.zoomin"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Increases the zoom level");
         putValue(MNEMONIC_KEY, KeyEvent.VK_Z);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control I"));

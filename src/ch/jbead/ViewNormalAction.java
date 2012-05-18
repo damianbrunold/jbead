@@ -27,8 +27,10 @@ public class ViewNormalAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "view.normal";
+    
     public ViewNormalAction(BeadForm form) {
-        super("view.normal", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Shows the corrected view");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }

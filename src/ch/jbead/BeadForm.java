@@ -114,32 +114,26 @@ public class BeadForm extends JFrame {
     private JMenuItem viewSimulation;
     private JMenuItem viewReport;
 
-    private JMenu menuTool = new JMenu("tool");
-    private JMenuItem toolPoint = new JMenuItem("pencil");
-    private JMenuItem toolSelect = new JMenuItem("select");
-    private JMenuItem toolFill = new JMenuItem("fill");
-    private JMenuItem toolSniff = new JMenuItem("pipette");
-
     private JMenu menuPattern = new JMenu("pattern");
     private JMenuItem patternWidth = new JMenuItem("width");
 
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
 
-//    private JButton sbOpen = createButton("sb_open");
-//    private JButton sbSave = createButton("sb_save");
-//    private JButton sbPrint = createButton("sb_print");
-//    private JButton sbUndo = createButton("sb_undo");
-//    private JButton sbRedo = createButton("sb_redo");
     private JButton sbRotateleft = createButton("sb_prev");
     private JButton sbRotateright = createButton("sb_next");
-//    private JButton sbCopy = createButton("sb_copy");
     
     private ButtonGroup toolsGroup = new ButtonGroup();
-    private JToggleButton sbToolSelect = createToggleButton("sb_toolselect");
-    private JToggleButton sbToolPoint = createToggleButton("sb_toolpoint");
-    private JToggleButton sbToolFill = createToggleButton("sb_toolfill");
-    private JToggleButton sbToolSniff = createToggleButton("sb_toolsniff");
+    private JRadioButtonMenuItem toolPencil;
+    private JRadioButtonMenuItem toolSelect;
+    private JRadioButtonMenuItem toolFill;
+    private JRadioButtonMenuItem toolPipette;
+
+    private ButtonGroup sbToolsGroup = new ButtonGroup();
+    private JToggleButton sbToolPencil;
+    private JToggleButton sbToolSelect;
+    private JToggleButton sbToolFill;
+    private JToggleButton sbToolPipette;
 
     private PageFormat pageFormat;
 
@@ -260,10 +254,10 @@ public class BeadForm extends JFrame {
 
     private JMenu createViewMenu() {
         JMenu menuView = new JMenu(bundle.getString("action.view"));
-        menuView.add(viewDraft = new JMenuItem(new ViewDraftAction(this)));
-        menuView.add(viewNormal = new JMenuItem(new ViewNormalAction(this)));
-        menuView.add(viewSimulation = new JMenuItem(new ViewSimulationAction(this)));
-        menuView.add(viewReport = new JMenuItem(new ViewReportAction(this)));
+        menuView.add(viewDraft = new JCheckBoxMenuItem(new ViewDraftAction(this)));
+        menuView.add(viewNormal = new JCheckBoxMenuItem(new ViewNormalAction(this)));
+        menuView.add(viewSimulation = new JCheckBoxMenuItem(new ViewSimulationAction(this)));
+        menuView.add(viewReport = new JCheckBoxMenuItem(new ViewReportAction(this)));
         menuView.addSeparator();
         menuView.add(new ViewZoomInAction(this));
         menuView.add(new ViewZoomNormalAction(this));
@@ -272,10 +266,15 @@ public class BeadForm extends JFrame {
     }
 
     private JMenu createToolMenu() {
-        menuTool.add(toolPoint);
-        menuTool.add(toolSelect);
-        menuTool.add(toolFill);
-        menuTool.add(toolSniff);
+        JMenu menuTool = new JMenu(bundle.getString("action.tool"));
+        menuTool.add(toolPencil = new JRadioButtonMenuItem(new ToolPencilAction(this)));
+        menuTool.add(toolSelect = new JRadioButtonMenuItem(new ToolSelectAction(this)));
+        menuTool.add(toolFill = new JRadioButtonMenuItem(new ToolFillAction(this)));
+        menuTool.add(toolPipette = new JRadioButtonMenuItem(new ToolPipetteAction(this)));
+        toolsGroup.add(toolPencil);
+        toolsGroup.add(toolSelect);
+        toolsGroup.add(toolFill);
+        toolsGroup.add(toolPipette);
         return menuTool;
     }
 
@@ -314,16 +313,17 @@ public class BeadForm extends JFrame {
         
         toolbar.addSeparator();
 
-        sbToolPoint.setSelected(true);
-        toolbar.add(sbToolPoint);
-        toolbar.add(sbToolSelect);
-        toolbar.add(sbToolFill);
-        toolbar.add(sbToolSniff);
+        toolbar.add(sbToolPencil = new JToggleButton(getAction("tool.pencil")));
+        toolbar.add(sbToolSelect = new JToggleButton(getAction("tool.select")));
+        toolbar.add(sbToolFill = new JToggleButton(getAction("tool.fill")));
+        toolbar.add(sbToolPipette = new JToggleButton(getAction("tool.pipette")));
         
-        toolsGroup.add(sbToolPoint);
-        toolsGroup.add(sbToolSelect);
-        toolsGroup.add(sbToolFill);
-        toolsGroup.add(sbToolSniff);
+        sbToolPencil.setSelected(true);
+        
+        sbToolsGroup.add(sbToolPencil);
+        sbToolsGroup.add(sbToolSelect);
+        sbToolsGroup.add(sbToolFill);
+        sbToolsGroup.add(sbToolPipette);
 
         toolbar.addSeparator();
 
@@ -546,8 +546,6 @@ public class BeadForm extends JFrame {
         setColorIcons();
         updateScrollbar();
         selection = false;
-        sbToolPoint.setSelected(true);
-        toolPoint.setSelected(true);
         saved = false;
         modified = false;
         updateTitle();
@@ -793,7 +791,7 @@ public class BeadForm extends JFrame {
     }
 
     private void draftLinePreview() {
-        if (!sbToolPoint.isSelected()) return;
+        if (!sbToolPencil.isSelected()) return;
         if (begin_i == end_i && begin_j == end_j) return;
 
         int ei = end_i;
@@ -846,7 +844,7 @@ public class BeadForm extends JFrame {
             end_i = pt.getX();
             end_j = pt.getY();
             // Prepress
-            if (sbToolPoint.isSelected()) {
+            if (sbToolPencil.isSelected()) {
                 draft.drawPrepress(new Point(begin_i, begin_j));
             }
             draftLinePreview();
@@ -876,7 +874,7 @@ public class BeadForm extends JFrame {
             end_j = pt.getY();
             dragging = false;
 
-            if (sbToolPoint.isSelected()) {
+            if (sbToolPencil.isSelected()) {
                 if (begin_i == end_i && begin_j == end_j) {
                     setPoint(begin_i, begin_j);
                 } else {
@@ -938,7 +936,7 @@ public class BeadForm extends JFrame {
                 updateTitle();
                 model.setRepeatDirty();
                 report.invalidate();
-            } else if (sbToolSniff.isSelected()) {
+            } else if (sbToolPipette.isSelected()) {
                 colorIndex = getField().get(begin_i, begin_j + scroll);
                 assert (colorIndex >= 0 && colorIndex < 10);
                 switch (colorIndex) {
@@ -1093,20 +1091,8 @@ public class BeadForm extends JFrame {
 
     private void formKeyUp(KeyEvent event) {
         int Key = event.getKeyCode();
-        if (Key == KeyEvent.VK_F5)
+        if (Key == KeyEvent.VK_F5) {
             invalidate();
-        else if (Key == KeyEvent.VK_1 && event.isControlDown() && !event.isAltDown()) {
-            sbToolPoint.setSelected(true);
-            toolPoint.setSelected(true);
-        } else if (Key == KeyEvent.VK_2 && event.isControlDown() && !event.isAltDown()) {
-            sbToolSelect.setSelected(true);
-            toolSelect.setSelected(true);
-        } else if (Key == KeyEvent.VK_3 && event.isControlDown() && !event.isAltDown()) {
-            sbToolFill.setSelected(true);
-            toolFill.setSelected(true);
-        } else if (Key == KeyEvent.VK_4 && event.isControlDown() && !event.isAltDown()) {
-            sbToolSniff.setSelected(true);
-            toolSniff.setSelected(true);
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
             model.setColorIndex((byte) (event.getKeyChar() - '0'));
             switch (model.getColorIndex()) {
@@ -1145,8 +1131,9 @@ public class BeadForm extends JFrame {
                 break;
             }
         } else if (Key == KeyEvent.VK_SPACE) {
-            sbToolPoint.setSelected(true);
-            toolPoint.setSelected(true);
+            getAction("tool.pencil").putValue("SELECT", true);
+//            sbToolPoint.setSelected(true);
+//            toolPoint.setSelected(true);
         } else if (Key == KeyEvent.VK_ESCAPE) {
             // righttimer.Enabled = false;
             // lefttimer.Enabled = false;
@@ -1257,46 +1244,20 @@ public class BeadForm extends JFrame {
         model.prepareSnapshot(modified);
     }
 
-    private void toolPointClick() {
-        toolPoint.setSelected(true);
-        sbToolPoint.setSelected(true);
+    void toolPencilClick() {
         draftSelectClear();
     }
 
-    private void toolSelectClick() {
-        toolSelect.setSelected(true);
-        sbToolSelect.setSelected(true);
-    }
-
-    private void toolFillClick() {
-        toolFill.setSelected(true);
-        sbToolFill.setSelected(true);
+    void toolSelectClick() {
         draftSelectClear();
     }
 
-    private void toolSniffClick() {
-        toolSniff.setSelected(true);
-        sbToolSniff.setSelected(true);
+    void toolFillClick() {
         draftSelectClear();
     }
 
-    private void sbToolPointClick() {
-        toolPoint.setSelected(true);
+    void toolPipetteClick() {
         draftSelectClear();
-    }
-
-    private void sbToolFillClick() {
-        toolFill.setSelected(true);
-        draftSelectClear();
-    }
-
-    private void sbToolSniffClick() {
-        toolSniff.setSelected(true);
-        draftSelectClear();
-    }
-
-    private void sbToolSelectClick() {
-        toolSelect.setSelected(true);
     }
 
     private void normalMouseUp(MouseEvent event) {
@@ -1785,16 +1746,16 @@ public class BeadForm extends JFrame {
 //        Texts.update(editDeleteline, Language.GE, "E&ntfernen", "");
 
         // Menu Werkzeug
-        Texts.update(menuTool, Language.EN, "&Tool", "");
-        Texts.update(menuTool, Language.GE, "&Werkzeug", "");
-        Texts.update(toolPoint, Language.EN, "&Pencil", "");
-        Texts.update(toolPoint, Language.GE, "&Eingabe", "");
-        Texts.update(toolSelect, Language.EN, "&Select", "");
-        Texts.update(toolSelect, Language.GE, "&Auswahl", "");
-        Texts.update(toolFill, Language.EN, "&Fill", "");
-        Texts.update(toolFill, Language.GE, "&F�llen", "");
-        Texts.update(toolSniff, Language.EN, "P&ipette", "");
-        Texts.update(toolSniff, Language.GE, "&Pipette", "");
+//        Texts.update(menuTool, Language.EN, "&Tool", "");
+//        Texts.update(menuTool, Language.GE, "&Werkzeug", "");
+//        Texts.update(toolPoint, Language.EN, "&Pencil", "");
+//        Texts.update(toolPoint, Language.GE, "&Eingabe", "");
+//        Texts.update(toolSelect, Language.EN, "&Select", "");
+//        Texts.update(toolSelect, Language.GE, "&Auswahl", "");
+//        Texts.update(toolFill, Language.EN, "&Fill", "");
+//        Texts.update(toolFill, Language.GE, "&F�llen", "");
+//        Texts.update(toolSniff, Language.EN, "P&ipette", "");
+//        Texts.update(toolSniff, Language.GE, "&Pipette", "");
 
         // Menu Ansicht
 //        Texts.update(menuView, Language.EN, "&View", "");
@@ -1865,14 +1826,14 @@ public class BeadForm extends JFrame {
         Texts.update(sbColor8, Language.GE, "", "Farbe 8");
         Texts.update(sbColor9, Language.EN, "", "Color 9");
         Texts.update(sbColor9, Language.GE, "", "Farbe 9");
-        Texts.update(sbToolSelect, Language.EN, "", "Select");
-        Texts.update(sbToolSelect, Language.GE, "", "Auswahl");
-        Texts.update(sbToolPoint, Language.EN, "", "Pencil");
-        Texts.update(sbToolPoint, Language.GE, "", "Eingabe");
-        Texts.update(sbToolFill, Language.EN, "", "Fill");
-        Texts.update(sbToolFill, Language.GE, "", "F�llen");
-        Texts.update(sbToolSniff, Language.EN, "", "Pipette");
-        Texts.update(sbToolSniff, Language.GE, "", "Pipette");
+//        Texts.update(sbToolSelect, Language.EN, "", "Select");
+//        Texts.update(sbToolSelect, Language.GE, "", "Auswahl");
+//        Texts.update(sbToolPoint, Language.EN, "", "Pencil");
+//        Texts.update(sbToolPoint, Language.GE, "", "Eingabe");
+//        Texts.update(sbToolFill, Language.EN, "", "Fill");
+//        Texts.update(sbToolFill, Language.GE, "", "F�llen");
+//        Texts.update(sbToolSniff, Language.EN, "", "Pipette");
+//        Texts.update(sbToolSniff, Language.GE, "", "Pipette");
 
         Texts.update(laDraft, Language.EN, "Draft");
         Texts.update(laDraft, Language.GE, "Entwurf");

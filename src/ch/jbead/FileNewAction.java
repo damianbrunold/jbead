@@ -29,8 +29,10 @@ public class FileNewAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.new";
+    
     public FileNewAction(BeadForm form) {
-        super("file.new", ImageFactory.getIcon("file.new"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Creates a new pattern");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));

@@ -29,8 +29,10 @@ public class EditArrangeAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "edit.arrange";
+    
     public EditArrangeAction(BeadForm form) {
-        super("edit.arrange", ImageFactory.getIcon("edit.arrange"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Arranges copies of the selected part");
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("F8"));

@@ -27,8 +27,10 @@ public class FileSaveAsAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.saveas";
+
     public FileSaveAsAction(BeadForm form) {
-        super("file.saveas", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Saves a pattern to a new file");
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
     }

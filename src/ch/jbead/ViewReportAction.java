@@ -27,8 +27,10 @@ public class ViewReportAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "view.report";
+    
     public ViewReportAction(BeadForm form) {
-        super("view.report", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Shows the report view");
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
     }

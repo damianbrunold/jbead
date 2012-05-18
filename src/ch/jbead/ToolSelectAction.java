@@ -25,22 +25,22 @@ import javax.swing.KeyStroke;
 /**
  * 
  */
-public class ViewZoomOutAction extends BaseAction {
+public class ToolSelectAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "view.zoomout";
+    private static final String NAME = "tool.select";
     
-    public ViewZoomOutAction(BeadForm form) {
+    public ToolSelectAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Decreases the zoom level");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_M);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
+        putValue(SHORT_DESCRIPTION, "Selects a part of the pattern");
+        putValue(MNEMONIC_KEY, KeyEvent.VK_S);
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomOutClick();
+        form.toolSelectClick();
     }
 
 }

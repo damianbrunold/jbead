@@ -29,8 +29,10 @@ public class EditDeleteLineAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "edit.deleteline";
+    
     public EditDeleteLineAction(BeadForm form) {
-        super("edit.deleteline", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Deletes a line");
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));

@@ -29,8 +29,10 @@ public class FileOpenAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "file.open";
+    
     public FileOpenAction(BeadForm form) {
-        super("file.open", ImageFactory.getIcon("file.open"), form);
+        super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Opens a pattern");
         putValue(MNEMONIC_KEY, KeyEvent.VK_O);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));

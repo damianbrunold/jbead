@@ -27,8 +27,10 @@ public class ViewSimulationAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String NAME = "view.simulation";
+    
     public ViewSimulationAction(BeadForm form) {
-        super("view.simulation", form);
+        super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Shows the simulation view");
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
     }
