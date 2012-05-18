@@ -22,7 +22,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -38,11 +37,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
-import javax.imageio.ImageIO;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
@@ -54,12 +55,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 
 /**
  * 
@@ -68,6 +67,8 @@ public class BeadForm extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
+    private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
+    
     private Model model = new Model();
     
     private int begin_i;
@@ -108,46 +109,10 @@ public class BeadForm extends JFrame {
     private JLabel laSimulation = new JLabel("simulation");
     private JLabel laReport = new JLabel("report");
 
-    private JMenu menuFile = new JMenu("file");
-    private JMenuItem fileNew = new JMenuItem("new");
-    private JMenuItem fileOpen = new JMenuItem("open");
-    private JMenuItem fileSave = new JMenuItem("save");
-    private JMenuItem fileSaveas = new JMenuItem("save as");
-    private JMenuItem filePrint = new JMenuItem("print");
-    private JMenuItem filePrintersetup = new JMenuItem("printer setup");
-    private JMenuItem fileExit = new JMenuItem("exit");
-
-    private JMenuItem fileMRU1 = new JMenuItem();
-    private JMenuItem fileMRU2 = new JMenuItem();
-    private JMenuItem fileMRU3 = new JMenuItem();
-    private JMenuItem fileMRU4 = new JMenuItem();
-    private JMenuItem fileMRU5 = new JMenuItem();
-    private JMenuItem fileMRU6 = new JMenuItem();
-
-    private JPopupMenu.Separator fileMRUSeparator = new JPopupMenu.Separator();
-
-    private JMenu menuEdit = new JMenu("edit");
-    private JMenuItem editUndo = new JMenuItem("undo");
-    private JMenuItem editRedo = new JMenuItem("redo");
-    private JMenuItem editCopy = new JMenuItem("arrange");
-    private JMenu editLine = new JMenu("empty line");
-    private JMenuItem editInsertline = new JMenuItem("insert");
-    private JMenuItem editDeleteline = new JMenuItem("delete");
-
-    private JMenu menuView = new JMenu("view");
-    private JMenuItem viewZoomin = new JMenuItem("zoom in");
-    private JMenuItem viewZoomout = new JMenuItem("zoom out");
-    private JMenuItem viewZoomnormal = new JMenuItem("normal");
-    private JMenu viewLanguage = new JMenu("language");
-
-    private JCheckBoxMenuItem viewDraft = new JCheckBoxMenuItem("draft");
-    private JCheckBoxMenuItem viewNormal = new JCheckBoxMenuItem("normal");
-    private JCheckBoxMenuItem viewSimulation = new JCheckBoxMenuItem("simulation");
-    private JCheckBoxMenuItem viewReport = new JCheckBoxMenuItem("report");
-
-    private ButtonGroup languageGroup = new ButtonGroup();
-    private JRadioButtonMenuItem languageEnglish = new JRadioButtonMenuItem("English");
-    private JRadioButtonMenuItem languageGerman = new JRadioButtonMenuItem("German");
+    private JMenuItem viewDraft;
+    private JMenuItem viewNormal;
+    private JMenuItem viewSimulation;
+    private JMenuItem viewReport;
 
     private JMenu menuTool = new JMenu("tool");
     private JMenuItem toolPoint = new JMenuItem("pencil");
@@ -161,15 +126,14 @@ public class BeadForm extends JFrame {
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
 
-    private JButton sbNew = createButton("sb_new");
-    private JButton sbOpen = createButton("sb_open");
-    private JButton sbSave = createButton("sb_save");
-    private JButton sbPrint = createButton("sb_print");
-    private JButton sbUndo = createButton("sb_undo");
-    private JButton sbRedo = createButton("sb_redo");
+//    private JButton sbOpen = createButton("sb_open");
+//    private JButton sbSave = createButton("sb_save");
+//    private JButton sbPrint = createButton("sb_print");
+//    private JButton sbUndo = createButton("sb_undo");
+//    private JButton sbRedo = createButton("sb_redo");
     private JButton sbRotateleft = createButton("sb_prev");
     private JButton sbRotateright = createButton("sb_next");
-    private JButton sbCopy = createButton("sb_copy");
+//    private JButton sbCopy = createButton("sb_copy");
     
     private ButtonGroup toolsGroup = new ButtonGroup();
     private JToggleButton sbToolSelect = createToggleButton("sb_toolselect");
@@ -182,6 +146,8 @@ public class BeadForm extends JFrame {
     private JPanel main = new JPanel();
     private JLabel statusbar = new JLabel("X");
     
+    private Map<String, Action> actions = new HashMap<String, Action>();
+    
     public BeadForm() {
         super("jbead");
         createGUI();
@@ -193,11 +159,14 @@ public class BeadForm extends JFrame {
         loadMRU();
         updateMRU();
         updateScrollbar();
-        initLanguage();
         initCloseHandler();
         
         setIconImage(ImageFactory.getImage("jbead-16"));
         
+        // TODO persist location and size in settings
+        setSize(1024, 700);
+        setLocation(100, 35);
+
         // TODO persist the pageFormat in Settings?
         pageFormat = PrinterJob.getPrinterJob().defaultPage();
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
@@ -222,31 +191,17 @@ public class BeadForm extends JFrame {
             }
         });
     }
-
-    private void initLanguage() {
-        Settings settings = new Settings();
-        settings.SetCategory("Environment");
-        Language language;
-        int lang = settings.LoadInt("Language", -1);
-        if (lang == -1) { // Windows-Spracheinstellung abfragen
-            Locale locale = Locale.getDefault();
-            if (locale.getLanguage().equals("de")) {
-                lang = 1;
-            } else {
-                lang = 0;
-            }
-        }
-        language = lang == 0 ? Language.EN : Language.GE;
-        Texts.forceLanguage(language,  this);
-        if (Texts.active_language == Language.EN) {
-            languageEnglish.setSelected(true);
-        } else {
-            languageGerman.setSelected(true);
-        }
-
-        // TODO persist location and size in settings
-        setSize(1024, 700);
-        setLocation(100, 35);
+    
+    public void registerAction(String name, Action action) {
+        actions.put(name, action);
+    }
+    
+    public ResourceBundle getBundle() {
+        return bundle;
+    }
+    
+    public Action getAction(String name) {
+        return actions.get(name);
     }
 
     private void createGUI() {
@@ -271,72 +226,48 @@ public class BeadForm extends JFrame {
     }
 
     private JMenu createFileMenu() {
-        menuFile.add(fileNew);
-        menuFile.add(fileOpen);
-        fileOpen.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileOpenClick();
-            }
-        });
-        menuFile.add(fileSave);
-        fileSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileSaveClick();
-            }
-        });
-        menuFile.add(fileSaveas);
+        JMenu menuFile = new JMenu(bundle.getString("action.file"));
+        menuFile.add(new FileNewAction(this));
+        menuFile.add(new FileOpenAction(this));
+        menuFile.add(new FileSaveAction(this));
+        menuFile.add(new FileSaveAsAction(this));
         menuFile.addSeparator();
-        menuFile.add(filePrint);
-        menuFile.add(filePrintersetup);
+        menuFile.add(new FilePrintAction(this));
+        menuFile.add(new FilePrintSetupAction(this));
         menuFile.addSeparator();
-        menuFile.add(fileMRU1);
-        menuFile.add(fileMRU2);
-        menuFile.add(fileMRU3);
-        menuFile.add(fileMRU4);
-        menuFile.add(fileMRU5);
-        menuFile.add(fileMRU6);
-        menuFile.add(fileMRUSeparator);
-        menuFile.add(fileExit);
-        fileExit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileExitClick();
-            }
-        });
+        menuFile.add(new MRUMenuItem(new FileMRU1Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRU2Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRU3Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRU4Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRU5Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRU6Action(this)));
+        menuFile.addSeparator(); // TODO what if no mru files are there?
+        menuFile.add(new FileExitAction(this));
         return menuFile;
     }
     
     private JMenu createEditMenu() {
-        menuEdit.add(editUndo);
-        menuEdit.add(editRedo);
-        menuEdit.add(editCopy);
-        editCopy.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editCopyClick();
-            }
-        });
-        menuEdit.add(editLine);
-        editLine.add(editInsertline);
-        editLine.add(editDeleteline);
+        JMenu menuEdit = new JMenu(bundle.getString("action.edit"));
+        menuEdit.add(new EditUndoAction(this));
+        menuEdit.add(new EditRedoAction(this));
+        menuEdit.add(new EditArrangeAction(this));
+        JMenu menuEditLine = new JMenu(bundle.getString("action.edit.line"));
+        menuEdit.add(menuEditLine);
+        menuEditLine.add(new EditInsertLineAction(this));
+        menuEditLine.add(new EditDeleteLineAction(this));
         return menuEdit;
     }
 
     private JMenu createViewMenu() {
-        menuView.add(viewDraft);
-        menuView.add(viewNormal);
-        menuView.add(viewSimulation);
-        menuView.add(viewReport);
+        JMenu menuView = new JMenu(bundle.getString("action.view"));
+        menuView.add(viewDraft = new JMenuItem(new ViewDraftAction(this)));
+        menuView.add(viewNormal = new JMenuItem(new ViewNormalAction(this)));
+        menuView.add(viewSimulation = new JMenuItem(new ViewSimulationAction(this)));
+        menuView.add(viewReport = new JMenuItem(new ViewReportAction(this)));
         menuView.addSeparator();
-        menuView.add(viewLanguage);
-        viewLanguage.add(languageEnglish);
-        viewLanguage.add(languageGerman);
-        menuView.addSeparator();
-        menuView.add(viewZoomin);
-        menuView.add(viewZoomnormal);
-        menuView.add(viewZoomout);
+        menuView.add(new ViewZoomInAction(this));
+        menuView.add(new ViewZoomNormalAction(this));
+        menuView.add(new ViewZoomOutAction(this));
         return menuView;
     }
 
@@ -371,15 +302,15 @@ public class BeadForm extends JFrame {
     }
 
     private void createToolbar() {
-        toolbar.add(sbNew);
-        toolbar.add(sbOpen);
-        toolbar.add(sbSave);
-        toolbar.add(sbPrint);
-        toolbar.add(sbUndo);
-        toolbar.add(sbRedo);
+        toolbar.add(getAction("file.new"));
+        toolbar.add(getAction("file.open"));
+        toolbar.add(getAction("file.save"));
+        toolbar.add(getAction("file.print"));
+        toolbar.add(getAction("edit.undo"));
+        toolbar.add(getAction("edit.redo"));
         toolbar.add(sbRotateleft);
         toolbar.add(sbRotateright);
-        toolbar.add(sbCopy);
+        toolbar.add(getAction("edit.arrange"));
         
         toolbar.addSeparator();
 
@@ -480,10 +411,6 @@ public class BeadForm extends JFrame {
         c.gridy = 0;
         c.fill = GridBagConstraints.VERTICAL;
         main.add(scrollbar, c);
-        
-        // init button group
-        languageGroup.add(languageEnglish);
-        languageGroup.add(languageGerman);
     }
 
     private BeadField getField() {
@@ -601,7 +528,7 @@ public class BeadForm extends JFrame {
         simulation.updateBead(i, j);
     }
 
-    private void fileNewClick() {
+    void fileNewClick() {
         // ask whether to save modified document
         if (modified) {
             int answer = JOptionPane.showConfirmDialog(this,
@@ -706,7 +633,7 @@ public class BeadForm extends JFrame {
         if (addtomru) addToMRU(file);
     }
 
-    private void fileOpenClick() {
+    void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getFile().getParentFile());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -714,7 +641,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    private void fileSaveClick() {
+    void fileSaveClick() {
         if (saved) {
             // Einfach abspeichern...
             try {
@@ -738,7 +665,7 @@ public class BeadForm extends JFrame {
         }
     }
 
-    private void fileSaveasClick() {
+    void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
@@ -755,10 +682,9 @@ public class BeadForm extends JFrame {
         }
     }
 
-    private void filePrintClick(ActionEvent event) {
+    void filePrintClick(boolean showDialog) {
         try {
-            Object Sender = event.getSource();
-            if (Sender != sbPrint) {
+            if (showDialog) {
                 PrinterJob pj = PrinterJob.getPrinterJob();
                 if (pj.printDialog()) {
                     pj.setPrintable(new Printable() {
@@ -794,12 +720,12 @@ public class BeadForm extends JFrame {
         }
     }
 
-    private void filePrintersetupClick() {
+    void filePrintersetupClick() {
         PrinterJob pj = PrinterJob.getPrinterJob();
         pageFormat = pj.pageDialog(pj.defaultPage());
     }
 
-    private void fileExitClick() {
+    void fileExitClick() {
         if (modified) {
             int r = JOptionPane.showConfirmDialog(this,
                     Texts.text("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
@@ -1101,28 +1027,28 @@ public class BeadForm extends JFrame {
         updateTitle();
     }
 
-    private void editUndoClick() {
+    void editUndoClick() {
         modified = model.undo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    private void editRedoClick() {
+    void editRedoClick() {
         modified = model.redo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    private void viewZoominClick() {
+    void viewZoomInClick() {
         model.zoomIn();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    private void viewZoomnormalClick() {
+    void viewZoomNormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
         formResize();
@@ -1130,35 +1056,35 @@ public class BeadForm extends JFrame {
         updateScrollbar();
     }
 
-    private void viewZoomoutClick() {
+    void viewZoomOutClick() {
         model.zoomOut();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    private void viewDraftClick() {
+    void viewDraftClick() {
         viewDraft.setSelected(!viewDraft.isSelected());
         draft.setVisible(viewDraft.isSelected());
         laDraft.setVisible(draft.isVisible());
         formResize();
     }
 
-    private void viewNormalClick() {
+    void viewNormalClick() {
         viewNormal.setSelected(!viewNormal.isSelected());
         normal.setVisible(viewNormal.isSelected());
         laNormal.setVisible(normal.isVisible());
         formResize();
     }
 
-    private void viewSimulationClick() {
+    void viewSimulationClick() {
         viewSimulation.setSelected(!viewSimulation.isSelected());
         simulation.setVisible(viewSimulation.isSelected());
         laSimulation.setVisible(simulation.isVisible());
         formResize();
     }
 
-    private void viewReportClick() {
+    void viewReportClick() {
         viewReport.setSelected(!viewReport.isSelected());
         report.setVisible(viewReport.isSelected());
         laReport.setVisible(report.isVisible());
@@ -1314,12 +1240,9 @@ public class BeadForm extends JFrame {
 
     private void idleHandler() {
         // Menü- und Toolbar enablen/disablen
-        editCopy.setEnabled(selection);
-        sbCopy.setEnabled(selection);
-        editUndo.setEnabled(model.canUndo());
-        editRedo.setEnabled(model.canRedo());
-        sbUndo.setEnabled(model.canUndo());
-        sbRedo.setEnabled(model.canRedo());
+        getAction("arrange").setEnabled(selection);
+        getAction("undo").setEnabled(model.canUndo());
+        getAction("redo").setEnabled(model.canRedo());
 
         // FIXME is this whole rapport stuff needed? all drawing code was
         // commented out and thus removed...
@@ -1454,7 +1377,7 @@ public class BeadForm extends JFrame {
         return true;
     }
 
-    private void editCopyClick() {
+    void editArrangeClick() {
         CopyForm copyform = new CopyForm();
         copyform.formShow();
         if (copyform.isOK()) {
@@ -1499,7 +1422,7 @@ public class BeadForm extends JFrame {
         return j * getField().getWidth() + i;
     }
 
-    private void editInsertlineClick() {
+    void editInsertLineClick() {
         model.snapshot(modified);
         getField().insertLine();
         model.setRepeatDirty();
@@ -1508,7 +1431,7 @@ public class BeadForm extends JFrame {
         invalidate();
     }
 
-    private void editDeletelineClick() {
+    void editDeleteLineClick() {
         model.snapshot(modified);
         getField().deleteLine();
         model.setRepeatDirty();
@@ -1533,22 +1456,6 @@ public class BeadForm extends JFrame {
             c += "*";
         }
         setTitle(c);
-    }
-
-    private void languageEnglishClick() {
-        Texts.setLanguage(Language.EN, this);
-        languageEnglish.setSelected(true);
-        Settings settings = new Settings();
-        settings.SetCategory("Environment");
-        settings.SaveInt("Language", 0);
-    }
-
-    private void languageGermanClick() {
-        Texts.setLanguage(Language.GE, this);
-        languageGerman.setSelected(true);
-        Settings settings = new Settings();
-        settings.SetCategory("Environment");
-        settings.SaveInt("Language", 1);
     }
 
     private int mm2px(int x, int sx) {
@@ -1844,38 +1751,38 @@ public class BeadForm extends JFrame {
     void reloadLanguage() {
         // Menüs
         // Menu Datei
-        Texts.update(menuFile, Language.EN, "&File");
-        Texts.update(menuFile, Language.GE, "&Datei");
-        Texts.update(fileNew, Language.EN, "&New", "Creates a new pattern");
-        Texts.update(fileNew, Language.GE, "&Neu", "Erstellt ein neues Muster");
-        Texts.update(fileOpen, Language.EN, "&Open...", "Opens a pattern");
-        Texts.update(fileOpen, Language.GE, "�&ffnen...", "�ffnet ein Muster");
-        Texts.update(fileSave, Language.EN, "&Save", "Saves the pattern");
-        Texts.update(fileSave, Language.GE, "&Speichern", "Speichert das Muster");
-        Texts.update(fileSaveas, Language.EN, "Save &as...", "Saves the pattern to a new file");
-        Texts.update(fileSaveas, Language.GE, "Speichern &unter...", "Speichert das Muster unter einem neuen Namen");
-        Texts.update(filePrint, Language.EN, "&Print...", "Prints the pattern");
-        Texts.update(filePrint, Language.GE, "&Drucken...", "Druckt das Muster");
-        Texts.update(filePrintersetup, Language.EN, "Printer set&up...", "Configures the printer");
-        Texts.update(filePrintersetup, Language.GE, "D&ruckereinstellung...", "Konfiguriert den Drucker");
-        Texts.update(fileExit, Language.EN, "E&xit", "Exits the program");
-        Texts.update(fileExit, Language.GE, "&Beenden", "Beendet das Programm");
+//        Texts.update(menuFile, Language.EN, "&File");
+//        Texts.update(menuFile, Language.GE, "&Datei");
+//        Texts.update(fileNew, Language.EN, "&New", "Creates a new pattern");
+//        Texts.update(fileNew, Language.GE, "&Neu", "Erstellt ein neues Muster");
+//        Texts.update(fileOpen, Language.EN, "&Open...", "Opens a pattern");
+//        Texts.update(fileOpen, Language.GE, "�&ffnen...", "�ffnet ein Muster");
+//        Texts.update(fileSave, Language.EN, "&Save", "Saves the pattern");
+//        Texts.update(fileSave, Language.GE, "&Speichern", "Speichert das Muster");
+//        Texts.update(fileSaveas, Language.EN, "Save &as...", "Saves the pattern to a new file");
+//        Texts.update(fileSaveas, Language.GE, "Speichern &unter...", "Speichert das Muster unter einem neuen Namen");
+//        Texts.update(filePrint, Language.EN, "&Print...", "Prints the pattern");
+//        Texts.update(filePrint, Language.GE, "&Drucken...", "Druckt das Muster");
+//        Texts.update(filePrintersetup, Language.EN, "Printer set&up...", "Configures the printer");
+//        Texts.update(filePrintersetup, Language.GE, "D&ruckereinstellung...", "Konfiguriert den Drucker");
+//        Texts.update(fileExit, Language.EN, "E&xit", "Exits the program");
+//        Texts.update(fileExit, Language.GE, "&Beenden", "Beendet das Programm");
 
         // Menu Bearbeiten
-        Texts.update(menuEdit, Language.EN, "&Edit", "");
-        Texts.update(menuEdit, Language.GE, "&Bearbeiten", "");
-        Texts.update(editUndo, Language.EN, "&Undo", "Undoes the last action");
-        Texts.update(editUndo, Language.GE, "&R�ckg�ngig", "Macht die letzte �nderung r�ckg�ngig");
-        Texts.update(editRedo, Language.EN, "&Redo", "Redoes the last undone action");
-        Texts.update(editRedo, Language.GE, "&Wiederholen", "F�hrt die letzte r�ckg�ngig gemachte �nderung durch");
-        Texts.update(editCopy, Language.EN, "&Arrange", "");
-        Texts.update(editCopy, Language.GE, "&Anordnen", "");
-        Texts.update(editLine, Language.EN, "&Empty Line", "");
-        Texts.update(editLine, Language.GE, "&Leerzeile", "");
-        Texts.update(editInsertline, Language.EN, "&Insert", "");
-        Texts.update(editInsertline, Language.GE, "&Einf�gen", "");
-        Texts.update(editDeleteline, Language.EN, "&Delete", "");
-        Texts.update(editDeleteline, Language.GE, "E&ntfernen", "");
+//        Texts.update(menuEdit, Language.EN, "&Edit", "");
+//        Texts.update(menuEdit, Language.GE, "&Bearbeiten", "");
+//        Texts.update(editUndo, Language.EN, "&Undo", "Undoes the last action");
+//        Texts.update(editUndo, Language.GE, "&R�ckg�ngig", "Macht die letzte �nderung r�ckg�ngig");
+//        Texts.update(editRedo, Language.EN, "&Redo", "Redoes the last undone action");
+//        Texts.update(editRedo, Language.GE, "&Wiederholen", "F�hrt die letzte r�ckg�ngig gemachte �nderung durch");
+//        Texts.update(editCopy, Language.EN, "&Arrange", "");
+//        Texts.update(editCopy, Language.GE, "&Anordnen", "");
+//        Texts.update(editLine, Language.EN, "&Empty Line", "");
+//        Texts.update(editLine, Language.GE, "&Leerzeile", "");
+//        Texts.update(editInsertline, Language.EN, "&Insert", "");
+//        Texts.update(editInsertline, Language.GE, "&Einf�gen", "");
+//        Texts.update(editDeleteline, Language.EN, "&Delete", "");
+//        Texts.update(editDeleteline, Language.GE, "E&ntfernen", "");
 
         // Menu Werkzeug
         Texts.update(menuTool, Language.EN, "&Tool", "");
@@ -1890,28 +1797,22 @@ public class BeadForm extends JFrame {
         Texts.update(toolSniff, Language.GE, "&Pipette", "");
 
         // Menu Ansicht
-        Texts.update(menuView, Language.EN, "&View", "");
-        Texts.update(menuView, Language.GE, "&Ansicht", "");
-        Texts.update(viewDraft, Language.EN, "&Design", "");
-        Texts.update(viewDraft, Language.GE, "&Entwurf", "");
-        Texts.update(viewNormal, Language.EN, "&Corrected", "");
-        Texts.update(viewNormal, Language.GE, "&Korrigiert", "");
-        Texts.update(viewSimulation, Language.EN, "&Simulation", "");
-        Texts.update(viewSimulation, Language.GE, "&Simulation", "");
-        Texts.update(viewReport, Language.EN, "&Report", "");
-        Texts.update(viewReport, Language.GE, "&Auswertung", "");
-        Texts.update(viewZoomin, Language.EN, "&Zoom in", "Zoom in");
-        Texts.update(viewZoomin, Language.GE, "&Vergr�ssern", "Vergr�ssert die Ansicht");
-        Texts.update(viewZoomnormal, Language.EN, "&Normal", "Sets magnification to default value");
-        Texts.update(viewZoomnormal, Language.GE, "&Normal", "Stellt die Standardgr�sse ein");
-        Texts.update(viewZoomout, Language.EN, "Zoo&m out", "Zoom out");
-        Texts.update(viewZoomout, Language.GE, "Ver&kleinern", "Verkleinert die Ansicht");
-        Texts.update(viewLanguage, Language.EN, "&Language", "");
-        Texts.update(viewLanguage, Language.GE, "&Sprache", "");
-        Texts.update(languageEnglish, Language.EN, "&English", "");
-        Texts.update(languageEnglish, Language.GE, "&Englisch", "");
-        Texts.update(languageGerman, Language.EN, "&German", "");
-        Texts.update(languageGerman, Language.GE, "&Deutsch", "");
+//        Texts.update(menuView, Language.EN, "&View", "");
+//        Texts.update(menuView, Language.GE, "&Ansicht", "");
+//        Texts.update(viewDraft, Language.EN, "&Design", "");
+//        Texts.update(viewDraft, Language.GE, "&Entwurf", "");
+//        Texts.update(viewNormal, Language.EN, "&Corrected", "");
+//        Texts.update(viewNormal, Language.GE, "&Korrigiert", "");
+//        Texts.update(viewSimulation, Language.EN, "&Simulation", "");
+//        Texts.update(viewSimulation, Language.GE, "&Simulation", "");
+//        Texts.update(viewReport, Language.EN, "&Report", "");
+//        Texts.update(viewReport, Language.GE, "&Auswertung", "");
+//        Texts.update(viewZoomin, Language.EN, "&Zoom in", "Zoom in");
+//        Texts.update(viewZoomin, Language.GE, "&Vergr�ssern", "Vergr�ssert die Ansicht");
+//        Texts.update(viewZoomnormal, Language.EN, "&Normal", "Sets magnification to default value");
+//        Texts.update(viewZoomnormal, Language.GE, "&Normal", "Stellt die Standardgr�sse ein");
+//        Texts.update(viewZoomout, Language.EN, "Zoo&m out", "Zoom out");
+//        Texts.update(viewZoomout, Language.GE, "Ver&kleinern", "Verkleinert die Ansicht");
 
         // Menu Muster
         Texts.update(menuPattern, Language.EN, "&Pattern", "");
@@ -1926,24 +1827,24 @@ public class BeadForm extends JFrame {
         Texts.update(infoAbout, Language.GE, "�ber &DB-BEAD...", "Zeigt Informationen �ber DB-BEAD an");
 
         // Toolbar
-        Texts.update(sbNew, Language.EN, "", "New|Creates a new pattern");
-        Texts.update(sbNew, Language.GE, "", "Neu|Erstellt ein neues Muster");
-        Texts.update(sbOpen, Language.EN, "", "Open|Opens a pattern");
-        Texts.update(sbOpen, Language.GE, "", "�ffnen|�ffnet ein Muster");
-        Texts.update(sbSave, Language.EN, "", "Save|Saves the pattern");
-        Texts.update(sbSave, Language.GE, "", "Speichern|Speichert das Muster");
-        Texts.update(sbPrint, Language.EN, "", "Print|Prints the pattern");
-        Texts.update(sbPrint, Language.GE, "", "Drucken|Druckt das Muster");
-        Texts.update(sbUndo, Language.EN, "", "Undo|Undoes the last change");
-        Texts.update(sbUndo, Language.GE, "", "R�ckg�ngig|Macht die letzte �nderung r�ckg�ngig");
-        Texts.update(sbRedo, Language.EN, "", "Redo|Redoes the last undone change");
-        Texts.update(sbRedo, Language.GE, "", "Wiederholen|Macht die letzte r�ckg�ngig gemachte �nderung");
+//        Texts.update(sbNew, Language.EN, "", "New|Creates a new pattern");
+//        Texts.update(sbNew, Language.GE, "", "Neu|Erstellt ein neues Muster");
+//        Texts.update(sbOpen, Language.EN, "", "Open|Opens a pattern");
+//        Texts.update(sbOpen, Language.GE, "", "�ffnen|�ffnet ein Muster");
+//        Texts.update(sbSave, Language.EN, "", "Save|Saves the pattern");
+//        Texts.update(sbSave, Language.GE, "", "Speichern|Speichert das Muster");
+//        Texts.update(sbPrint, Language.EN, "", "Print|Prints the pattern");
+//        Texts.update(sbPrint, Language.GE, "", "Drucken|Druckt das Muster");
+//        Texts.update(sbUndo, Language.EN, "", "Undo|Undoes the last change");
+//        Texts.update(sbUndo, Language.GE, "", "R�ckg�ngig|Macht die letzte �nderung r�ckg�ngig");
+//        Texts.update(sbRedo, Language.EN, "", "Redo|Redoes the last undone change");
+//        Texts.update(sbRedo, Language.GE, "", "Wiederholen|Macht die letzte r�ckg�ngig gemachte �nderung");
         Texts.update(sbRotateleft, Language.EN, "", "Left|Rotates the pattern left");
         Texts.update(sbRotateleft, Language.GE, "", "Links|Rotiert das Muster nach links");
         Texts.update(sbRotateright, Language.EN, "", "Right|Rotates the pattern right");
         Texts.update(sbRotateright, Language.GE, "", "Rechts|Rotiert das Muster nach rechts");
-        Texts.update(sbCopy, Language.EN, "", "Arrange");
-        Texts.update(sbCopy, Language.GE, "", "Anordnen");
+//        Texts.update(sbCopy, Language.EN, "", "Arrange");
+//        Texts.update(sbCopy, Language.GE, "", "Anordnen");
         Texts.update(sbColor0, Language.EN, "", "Color 0");
         Texts.update(sbColor0, Language.GE, "", "Farbe 0");
         Texts.update(sbColor1, Language.EN, "", "Color 1");
@@ -1990,7 +1891,7 @@ public class BeadForm extends JFrame {
 
         // Wenn Datei schon in MRU: Eintrag nach oben schieben
         for (int i = 0; i < 6; i++) {
-            if (mru[i] == file.getPath()) {
+            if (mru[i].equals(file.getPath())) {
                 if (i > 0) {
                     String temp = mru[i];
                     for (int j = i; j > 0; j--)
@@ -2015,52 +1916,37 @@ public class BeadForm extends JFrame {
     }
 
     private void updateMRU() {
-        updateMRUMenu(1, fileMRU1, mru[0]);
-        updateMRUMenu(2, fileMRU2, mru[1]);
-        updateMRUMenu(3, fileMRU3, mru[2]);
-        updateMRUMenu(4, fileMRU4, mru[3]);
-        updateMRUMenu(5, fileMRU5, mru[4]);
-        updateMRUMenu(6, fileMRU6, mru[5]);
-        fileMRUSeparator.setVisible(fileMRU1.isVisible() || fileMRU2.isVisible() || fileMRU3.isVisible() || fileMRU4.isVisible()
-                || fileMRU5.isVisible() || fileMRU6.isVisible());
+        // TODO maybe need to tweak the mru text so that local directory is taken into account
+        getAction("file.mru1").putValue(Action.NAME, mru[0]);
+        getAction("file.mru2").putValue(Action.NAME, mru[1]);
+        getAction("file.mru3").putValue(Action.NAME, mru[2]);
+        getAction("file.mru4").putValue(Action.NAME, mru[3]);
+        getAction("file.mru5").putValue(Action.NAME, mru[4]);
+        getAction("file.mru6").putValue(Action.NAME, mru[5]);
+        // TODO maybe have to set visibility of separator after last mru menu item
     }
-
-    private void updateMRUMenu(int index, JMenuItem menuitem, String filename) {
-        menuitem.setVisible(filename != "");
-        // xxx Eigene Dateien oder so?!
-        // Bestimmen ob Datei im Daten-Verzeichnis ist, falls
-        // nicht, ganzen Pfad anzeigen!
-        String path = filename;
-        String datapath = System.getProperty("user.dir");
-        if (path == datapath) {
-            menuitem.setText(new File(filename).getName());
-        } else {
-            menuitem.setText(filename);
-        }
-        menuitem.setAccelerator(KeyStroke.getKeyStroke(Integer.toString(index)));
-    }
-
-    private void fileMRU1Click() {
+    
+    void fileMRU1Click() {
         loadFile(new File(mru[0]), true);
     }
 
-    private void fileMRU2Click() {
+    void fileMRU2Click() {
         loadFile(new File(mru[1]), true);
     }
 
-    private void fileMRU3Click() {
+    void fileMRU3Click() {
         loadFile(new File(mru[2]), true);
     }
 
-    private void fileMRU4Click() {
+    void fileMRU4Click() {
         loadFile(new File(mru[3]), true);
     }
 
-    private void fileMRU5Click() {
+    void fileMRU5Click() {
         loadFile(new File(mru[4]), true);
     }
 
-    private void fileMRU6Click() {
+    void fileMRU6Click() {
         loadFile(new File(mru[5]), true);
     }
 
