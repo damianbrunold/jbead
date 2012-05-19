@@ -32,9 +32,11 @@ public class ReportPanel extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private Model model;
+    private Localization localization;
 
-    public ReportPanel(Model model) {
+    public ReportPanel(Model model, Localization localization) {
         this.model = model;
+        this.localization = localization;
     }
 
     @Override
@@ -44,31 +46,31 @@ public class ReportPanel extends JComponent {
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int x1 = 12;
-        int x2 = x1 + g.getFontMetrics().stringWidth(Texts.text("repeat of colors: ", "Farbrapport: "));
+        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.colorrepeat"));
         int y = 0;
         int dx = 15;
         int dy = dx;
 
         // Mustername
         g.setColor(Color.BLACK);
-        g.drawString(Texts.text("Pattern:", "Muster:"), x1, y);
+        g.drawString(localization.getString("report.pattern"), x1, y);
         g.drawString(model.getFile().getPath(), x2, y);
         y += dy;
 
         // Umfang
-        g.drawString(Texts.text("Circumference:", "Umfang:"), x1, y);
+        g.drawString(localization.getString("report.circumference"), x1, y);
         g.drawString(Integer.toString(model.getField().getWidth()), x2, y);
         y += dy;
 
         // Farbrapport
-        g.drawString(Texts.text("repeat of colors:", "Farbrapport:"), x1, y);
-        g.drawString(model.getColorRepeat() + Texts.text(" beads", " Perlen"), x2, y);
+        g.drawString(localization.getString("report.colorrepeat"), x1, y);
+        g.drawString(model.getColorRepeat() + " " + localization.getString("report.beads"), x2, y);
         y += dy;
 
         // Farben
         // Faedelliste...
         if (model.getColorRepeat() > 0) {
-            g.drawString(Texts.text("List of beads", "Fädelliste"), x1, y);
+            g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
             byte col = model.getField().get(model.getColorRepeat() - 1);

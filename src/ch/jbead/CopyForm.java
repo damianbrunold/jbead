@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -44,16 +45,15 @@ public class CopyForm extends JDialog {
     private SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
     private SpinnerModel copyModel = new SpinnerNumberModel(1, 0, 100, 1);
 
-    private JLabel lHorz = new JLabel();
     private JSpinner horz = new JSpinner(horzModel);
-    private JLabel lVert = new JLabel();
     private JSpinner vert = new JSpinner(vertModel);
-    private JLabel lCopies = new JLabel();
     private JSpinner Copies = new JSpinner(copyModel);
-    private JButton bOK = new JButton();
-    private JButton bCancel = new JButton();
+    private JButton bOK;
+    private JButton bCancel;
 
-    public CopyForm() {
+    public CopyForm(Localization localization) {
+        setTitle(localization.getString("copyform.title"));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setLayout(new BorderLayout());
 
         JPanel form = new JPanel();
@@ -62,7 +62,7 @@ public class CopyForm extends JDialog {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
-        form.add(lHorz, constraints);
+        form.add(new JLabel(localization.getString("copyform.horz")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -72,7 +72,7 @@ public class CopyForm extends JDialog {
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        form.add(lVert, constraints);
+        form.add(new JLabel(localization.getString("copyform.vert")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -82,7 +82,7 @@ public class CopyForm extends JDialog {
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 2;
-        form.add(lCopies, constraints);
+        form.add(new JLabel(localization.getString("copyform.copies")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -93,12 +93,13 @@ public class CopyForm extends JDialog {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout());
-        buttons.add(bOK);
-        buttons.add(bCancel);
+        buttons.add(bOK = new JButton(localization.getString("ok")));
+        buttons.add(bCancel  = new JButton(localization.getString("cancel")));
         add(buttons, BorderLayout.SOUTH);
 
+        setIconImage(ImageFactory.getImage("jbead-16"));
         setModal(true);
-        setSize(500, 400);
+        pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         bOK.addActionListener(new ActionListener() {
@@ -115,7 +116,6 @@ public class CopyForm extends JDialog {
                 dispose();
             }
         });
-        setIconImage(ImageFactory.getImage("jbead-16"));
     }
 
     public boolean isOK() {
@@ -132,26 +132,6 @@ public class CopyForm extends JDialog {
 
     public int getHorzOffset() {
         return (Integer) horz.getValue();
-    }
-
-    public void reloadLanguage() {
-        Texts.update(this, Language.EN, "Arrangement");
-        Texts.update(this, Language.GE, "Anordnen");
-        Texts.update(lCopies, Language.EN, "&Number of copies:");
-        Texts.update(lCopies, Language.GE, "&Anzahl Kopien:");
-        Texts.update(lHorz, Language.EN, "&Horizontal displacement:");
-        Texts.update(lHorz, Language.GE, "&Horizontaler Versatz:");
-        Texts.update(lVert, Language.EN, "&Vertical displacement:");
-        Texts.update(lVert, Language.GE, "&Vertikaler Versatz:");
-        Texts.update(bOK, Language.EN, "OK", "");
-        Texts.update(bOK, Language.GE, "OK", "");
-        Texts.update(bCancel, Language.EN, "Cancel", "");
-        Texts.update(bCancel, Language.GE, "Abbrechen", "");
-    }
-
-    public void formShow() {
-        reloadLanguage();
-        setVisible(true);
     }
 
 }

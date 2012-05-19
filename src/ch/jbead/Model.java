@@ -35,13 +35,14 @@ public class Model implements ColorTable {
     private int zoomIndex;
     private int scroll;
     private int shift;
-    private File file = new File(Texts.text("unnamed", "unbenannt"));
+    private File file;
     private boolean repeatDirty;
     private int repeat;
     private int colorRepeat;
+    private String unnamed;
 
 
-    public Model() {
+    public Model(Localization localization) {
         repeatDirty = false;
         field.clear();
         field.setWidth(15);
@@ -55,6 +56,8 @@ public class Model implements ColorTable {
         zoomtable[4] = 14;
         grid = zoomtable[zoomIndex];
         defaultColors();
+        unnamed = localization.getString("unnamed");
+        file = new File(unnamed);
     }
 
     private void defaultColors() {
@@ -127,7 +130,7 @@ public class Model implements ColorTable {
         defaultColors();
         zoomIndex = 2;
         scroll = 0;
-        file = new File(Texts.text("unnamed", "unbenannt"));
+        file = new File(unnamed);
     }
     
     public void setFile(File file) {

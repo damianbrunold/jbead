@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -38,16 +39,14 @@ import javax.swing.SpinnerNumberModel;
 public class PatternWidthForm extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    private JLabel labelDescription = new JLabel("desc");
-    private JLabel labelWidth = new JLabel("width");
     private SpinnerModel widthModel = new SpinnerNumberModel(10, 5, 35, 1);
     private JSpinner patternwidth = new JSpinner(widthModel);
-    private JButton bOk = new JButton();
-    private JButton bCancel = new JButton();
 
     private boolean isOK = false;
 
-    public PatternWidthForm() {
+    public PatternWidthForm(Localization localization) {
+        setTitle(localization.getString("patternwidthform.title"));
+        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setLayout(new BorderLayout());
 
         JPanel form = new JPanel();
@@ -57,12 +56,12 @@ public class PatternWidthForm extends JDialog {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
-        form.add(labelDescription, constraints);
+        form.add(new JLabel(localization.getString("patternwidthform.description")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        form.add(labelWidth, constraints);
+        form.add(new JLabel(localization.getString("patternwidthform.width")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -73,48 +72,31 @@ public class PatternWidthForm extends JDialog {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout());
-        buttons.add(bOk);
-        buttons.add(bCancel);
+        JButton ok = new JButton(localization.getString("ok"));
+        buttons.add(ok);
+        JButton cancel = new JButton(localization.getString("cancel"));
+        buttons.add(cancel);
         add(buttons, BorderLayout.SOUTH);
 
+        setIconImage(ImageFactory.getImage("jbead-16"));
         setModal(true);
-        setSize(500, 400);
+        pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        bOk.addActionListener(new ActionListener() {
+        ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = true;
                 dispose();
             }
         });
-        bCancel.addActionListener(new ActionListener() {
+        cancel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = false;
                 dispose();
             }
         });
-
-        setIconImage(ImageFactory.getImage("jbead-16"));
-    }
-
-    public void reloadLanguage() {
-        Texts.update(this, Language.EN, "Width of pattern");
-        Texts.update(this, Language.GE, "Musterbreite");
-        Texts.update(labelDescription, Language.EN, "The width of pattern is equivalent to the circumference of the rope");
-        Texts.update(labelWidth, Language.GE, "Die Musterbreite entspricht dem Umfang der Kette");
-        Texts.update(labelWidth, Language.EN, "&Width of pattern:");
-        Texts.update(labelWidth, Language.GE, "&Musterbreite:");
-        Texts.update(bOk, Language.EN, "OK", "");
-        Texts.update(bOk, Language.GE, "OK", "");
-        Texts.update(bCancel, Language.EN, "Cancel", "");
-        Texts.update(bCancel, Language.GE, "Abbrechen", "");
-    }
-
-    public void formShow() {
-        reloadLanguage();
-        setVisible(true);
     }
 
     public boolean isOK() {

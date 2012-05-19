@@ -38,7 +38,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -63,13 +62,13 @@ import javax.swing.JToolBar;
 /**
  * 
  */
-public class BeadForm extends JFrame {
+public class BeadForm extends JFrame implements Localization {
 
     private static final long serialVersionUID = 1L;
 
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
     
-    private Model model = new Model();
+    private Model model = new Model(this);
     
     private int begin_i;
     private int begin_j;
@@ -102,7 +101,7 @@ public class BeadForm extends JFrame {
     private DraftPanel draft = new DraftPanel(model);
     private NormalPanel normal = new NormalPanel(model);
     private SimulationPanel simulation = new SimulationPanel(model);
-    private ReportPanel report = new ReportPanel(model);
+    private ReportPanel report = new ReportPanel(model, this);
 
     private JLabel laDraft = new JLabel("draft");
     private JLabel laNormal = new JLabel("normal");
@@ -190,8 +189,14 @@ public class BeadForm extends JFrame {
         actions.put(name, action);
     }
     
+    @Override
     public ResourceBundle getBundle() {
         return bundle;
+    }
+    
+    @Override
+    public String getString(String key) {
+        return getBundle().getString(key);
     }
     
     public Action getAction(String name) {
@@ -294,7 +299,7 @@ public class BeadForm extends JFrame {
         infoAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AboutBox().formShow();
+                new AboutBox(BeadForm.this).setVisible(true);
             }
         });
         return menuInfo;
@@ -531,8 +536,7 @@ public class BeadForm extends JFrame {
     void fileNewClick() {
         // ask whether to save modified document
         if (modified) {
-            int answer = JOptionPane.showConfirmDialog(this,
-                    Texts.text("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+            int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (answer == JOptionPane.CANCEL_OPTION) return;
             if (answer == JOptionPane.YES_OPTION) {
                 fileSaveClick();
@@ -554,8 +558,7 @@ public class BeadForm extends JFrame {
     private void loadFile(File file, boolean addtomru) {
         // ask whether to save modified document
         if (modified) {
-            int answer = JOptionPane.showConfirmDialog(this,
-                    Texts.text("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+            int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (answer == JOptionPane.CANCEL_OPTION) return;
             if (answer == JOptionPane.YES_OPTION) {
                 fileSaveClick();
@@ -568,8 +571,7 @@ public class BeadForm extends JFrame {
             try {
                 String strid = in.read(13);
                 if (!strid.equals("DB-BEAD/01:\r\n")) {
-                    JOptionPane.showMessageDialog(this, Texts.text("The file is not a jbead pattern file. It cannot be loaded.",
-                            "Die Datei ist keine jbead Musterdatei. Sie kann nicht geladen werden."));
+                    JOptionPane.showMessageDialog(this, getString("invalidformat"));
                     return;
                 }
                 model.clear();
@@ -667,8 +669,8 @@ public class BeadForm extends JFrame {
         JFileChooser dialog = new JFileChooser();
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
-                String msg = Texts.text("The file ", "Die Datei ") + dialog.getSelectedFile().getName()
-                        + Texts.text(" already exists. Do you want to overwrite it?", " existiert bereits. Soll sie überschrieben werden?");
+                String msg = getString("fileexists");
+                msg.replace("{1}", dialog.getSelectedFile().getName());
                 if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     return;
                 }
@@ -725,8 +727,7 @@ public class BeadForm extends JFrame {
 
     void fileExitClick() {
         if (modified) {
-            int r = JOptionPane.showConfirmDialog(this,
-                    Texts.text("Do you want to save your changes?", "Sollen die Änderungen gespeichert werden?"));
+            int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) return;
             if (r == JOptionPane.OK_OPTION) fileSaveClick();
         }
@@ -736,9 +737,9 @@ public class BeadForm extends JFrame {
 
     private void patternWidthClick() {
         int old = getField().getWidth();
-        PatternWidthForm form = new PatternWidthForm();
+        PatternWidthForm form = new PatternWidthForm(this);
         form.setPatternWidth(getField().getWidth());
-        form.formShow();
+        form.setVisible(true);
         if (form.isOK()) {
             model.snapshot(modified);
             getField().setWidth(form.getPatternWidth());
@@ -1285,7 +1286,7 @@ public class BeadForm extends JFrame {
     }
 
     private void infoAboutClick() {
-        new AboutBox().setVisible(true);
+        new AboutBox(this).setVisible(true);
     }
 
     private void lefttimerTimer() {
@@ -1328,8 +1329,7 @@ public class BeadForm extends JFrame {
 
     private boolean canTerminateApp() {
         if (modified) {
-            int r = JOptionPane.showConfirmDialog(this,
-                    Texts.text("Do you want to save your changes?", "Sollen die �nderungen gespeichert werden?"));
+            int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) {
                 return false;
             }
@@ -1339,8 +1339,8 @@ public class BeadForm extends JFrame {
     }
 
     void editArrangeClick() {
-        CopyForm copyform = new CopyForm();
-        copyform.formShow();
+        CopyForm copyform = new CopyForm(this);
+        copyform.setVisible(true);
         if (copyform.isOK()) {
             model.snapshot(modified);
             // Aktuelle Daten in Buffer kopieren
@@ -1623,23 +1623,23 @@ public class BeadForm extends JFrame {
 
         // Mustername
         g.setColor(Color.BLACK);
-        g.drawString(Texts.text("Pattern:", "Muster:"), x1, y);
+        g.drawString(getString("report.pattern"), x1, y);
         g.drawString(model.getFile().getName(), x2, y);
         y += dy;
         // Umfang
-        g.drawString(Texts.text("Circumference:", "Umfang:"), x1, y);
+        g.drawString(getString("report.circumference"), x1, y);
         g.drawString(Integer.toString(getField().getWidth()), x2, y);
         y += dy;
         // Farbrapport
-        g.drawString(Texts.text("Repeat of colors:", "Farbrapport:"), x1, y);
-        g.drawString(Integer.toString(model.getColorRepeat()) + Texts.text(" beads", " Perlen"), x2, y);
+        g.drawString(getString("report.colorrepeat"), x1, y);
+        g.drawString(Integer.toString(model.getColorRepeat()) + " " + getString("report.beads"), x2, y);
         y += dy;
         int colorRepeat = model.getColorRepeat();
         // Faedelliste...
         if (colorRepeat > 0) {
             int page = 1;
             int column = 0;
-            g.drawString(Texts.text("List of beads", "Fädelliste"), x1, y);
+            g.drawString(getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
             byte col = getField().get(colorRepeat - 1);
@@ -1707,144 +1707,6 @@ public class BeadForm extends JFrame {
                 g.drawString(Integer.toString(count), x1 + dx + 3, y);
             }
         }
-    }
-
-    void reloadLanguage() {
-        // Menüs
-        // Menu Datei
-//        Texts.update(menuFile, Language.EN, "&File");
-//        Texts.update(menuFile, Language.GE, "&Datei");
-//        Texts.update(fileNew, Language.EN, "&New", "Creates a new pattern");
-//        Texts.update(fileNew, Language.GE, "&Neu", "Erstellt ein neues Muster");
-//        Texts.update(fileOpen, Language.EN, "&Open...", "Opens a pattern");
-//        Texts.update(fileOpen, Language.GE, "�&ffnen...", "�ffnet ein Muster");
-//        Texts.update(fileSave, Language.EN, "&Save", "Saves the pattern");
-//        Texts.update(fileSave, Language.GE, "&Speichern", "Speichert das Muster");
-//        Texts.update(fileSaveas, Language.EN, "Save &as...", "Saves the pattern to a new file");
-//        Texts.update(fileSaveas, Language.GE, "Speichern &unter...", "Speichert das Muster unter einem neuen Namen");
-//        Texts.update(filePrint, Language.EN, "&Print...", "Prints the pattern");
-//        Texts.update(filePrint, Language.GE, "&Drucken...", "Druckt das Muster");
-//        Texts.update(filePrintersetup, Language.EN, "Printer set&up...", "Configures the printer");
-//        Texts.update(filePrintersetup, Language.GE, "D&ruckereinstellung...", "Konfiguriert den Drucker");
-//        Texts.update(fileExit, Language.EN, "E&xit", "Exits the program");
-//        Texts.update(fileExit, Language.GE, "&Beenden", "Beendet das Programm");
-
-        // Menu Bearbeiten
-//        Texts.update(menuEdit, Language.EN, "&Edit", "");
-//        Texts.update(menuEdit, Language.GE, "&Bearbeiten", "");
-//        Texts.update(editUndo, Language.EN, "&Undo", "Undoes the last action");
-//        Texts.update(editUndo, Language.GE, "&R�ckg�ngig", "Macht die letzte �nderung r�ckg�ngig");
-//        Texts.update(editRedo, Language.EN, "&Redo", "Redoes the last undone action");
-//        Texts.update(editRedo, Language.GE, "&Wiederholen", "F�hrt die letzte r�ckg�ngig gemachte �nderung durch");
-//        Texts.update(editCopy, Language.EN, "&Arrange", "");
-//        Texts.update(editCopy, Language.GE, "&Anordnen", "");
-//        Texts.update(editLine, Language.EN, "&Empty Line", "");
-//        Texts.update(editLine, Language.GE, "&Leerzeile", "");
-//        Texts.update(editInsertline, Language.EN, "&Insert", "");
-//        Texts.update(editInsertline, Language.GE, "&Einf�gen", "");
-//        Texts.update(editDeleteline, Language.EN, "&Delete", "");
-//        Texts.update(editDeleteline, Language.GE, "E&ntfernen", "");
-
-        // Menu Werkzeug
-//        Texts.update(menuTool, Language.EN, "&Tool", "");
-//        Texts.update(menuTool, Language.GE, "&Werkzeug", "");
-//        Texts.update(toolPoint, Language.EN, "&Pencil", "");
-//        Texts.update(toolPoint, Language.GE, "&Eingabe", "");
-//        Texts.update(toolSelect, Language.EN, "&Select", "");
-//        Texts.update(toolSelect, Language.GE, "&Auswahl", "");
-//        Texts.update(toolFill, Language.EN, "&Fill", "");
-//        Texts.update(toolFill, Language.GE, "&F�llen", "");
-//        Texts.update(toolSniff, Language.EN, "P&ipette", "");
-//        Texts.update(toolSniff, Language.GE, "&Pipette", "");
-
-        // Menu Ansicht
-//        Texts.update(menuView, Language.EN, "&View", "");
-//        Texts.update(menuView, Language.GE, "&Ansicht", "");
-//        Texts.update(viewDraft, Language.EN, "&Design", "");
-//        Texts.update(viewDraft, Language.GE, "&Entwurf", "");
-//        Texts.update(viewNormal, Language.EN, "&Corrected", "");
-//        Texts.update(viewNormal, Language.GE, "&Korrigiert", "");
-//        Texts.update(viewSimulation, Language.EN, "&Simulation", "");
-//        Texts.update(viewSimulation, Language.GE, "&Simulation", "");
-//        Texts.update(viewReport, Language.EN, "&Report", "");
-//        Texts.update(viewReport, Language.GE, "&Auswertung", "");
-//        Texts.update(viewZoomin, Language.EN, "&Zoom in", "Zoom in");
-//        Texts.update(viewZoomin, Language.GE, "&Vergr�ssern", "Vergr�ssert die Ansicht");
-//        Texts.update(viewZoomnormal, Language.EN, "&Normal", "Sets magnification to default value");
-//        Texts.update(viewZoomnormal, Language.GE, "&Normal", "Stellt die Standardgr�sse ein");
-//        Texts.update(viewZoomout, Language.EN, "Zoo&m out", "Zoom out");
-//        Texts.update(viewZoomout, Language.GE, "Ver&kleinern", "Verkleinert die Ansicht");
-
-        // Menu Muster
-        Texts.update(menuPattern, Language.EN, "&Pattern", "");
-        Texts.update(menuPattern, Language.GE, "&Muster", "");
-        Texts.update(patternWidth, Language.EN, "&Width...", "");
-        Texts.update(patternWidth, Language.GE, "&Breite...", "");
-
-        // Menu ?
-        Texts.update(menuInfo, Language.EN, "&?", "");
-        Texts.update(menuInfo, Language.GE, "&?", "");
-        Texts.update(infoAbout, Language.EN, "About &DB-BEAD...", "Displays information about DB-BEAD");
-        Texts.update(infoAbout, Language.GE, "�ber &DB-BEAD...", "Zeigt Informationen �ber DB-BEAD an");
-
-        // Toolbar
-//        Texts.update(sbNew, Language.EN, "", "New|Creates a new pattern");
-//        Texts.update(sbNew, Language.GE, "", "Neu|Erstellt ein neues Muster");
-//        Texts.update(sbOpen, Language.EN, "", "Open|Opens a pattern");
-//        Texts.update(sbOpen, Language.GE, "", "�ffnen|�ffnet ein Muster");
-//        Texts.update(sbSave, Language.EN, "", "Save|Saves the pattern");
-//        Texts.update(sbSave, Language.GE, "", "Speichern|Speichert das Muster");
-//        Texts.update(sbPrint, Language.EN, "", "Print|Prints the pattern");
-//        Texts.update(sbPrint, Language.GE, "", "Drucken|Druckt das Muster");
-//        Texts.update(sbUndo, Language.EN, "", "Undo|Undoes the last change");
-//        Texts.update(sbUndo, Language.GE, "", "R�ckg�ngig|Macht die letzte �nderung r�ckg�ngig");
-//        Texts.update(sbRedo, Language.EN, "", "Redo|Redoes the last undone change");
-//        Texts.update(sbRedo, Language.GE, "", "Wiederholen|Macht die letzte r�ckg�ngig gemachte �nderung");
-        Texts.update(sbRotateleft, Language.EN, "", "Left|Rotates the pattern left");
-        Texts.update(sbRotateleft, Language.GE, "", "Links|Rotiert das Muster nach links");
-        Texts.update(sbRotateright, Language.EN, "", "Right|Rotates the pattern right");
-        Texts.update(sbRotateright, Language.GE, "", "Rechts|Rotiert das Muster nach rechts");
-//        Texts.update(sbCopy, Language.EN, "", "Arrange");
-//        Texts.update(sbCopy, Language.GE, "", "Anordnen");
-        Texts.update(sbColor0, Language.EN, "", "Color 0");
-        Texts.update(sbColor0, Language.GE, "", "Farbe 0");
-        Texts.update(sbColor1, Language.EN, "", "Color 1");
-        Texts.update(sbColor1, Language.GE, "", "Farbe 1");
-        Texts.update(sbColor2, Language.EN, "", "Color 2");
-        Texts.update(sbColor2, Language.GE, "", "Farbe 2");
-        Texts.update(sbColor3, Language.EN, "", "Color 3");
-        Texts.update(sbColor3, Language.GE, "", "Farbe 3");
-        Texts.update(sbColor4, Language.EN, "", "Color 4");
-        Texts.update(sbColor4, Language.GE, "", "Farbe 4");
-        Texts.update(sbColor5, Language.EN, "", "Color 5");
-        Texts.update(sbColor5, Language.GE, "", "Farbe 5");
-        Texts.update(sbColor6, Language.EN, "", "Color 6");
-        Texts.update(sbColor6, Language.GE, "", "Farbe 6");
-        Texts.update(sbColor7, Language.EN, "", "Color 7");
-        Texts.update(sbColor7, Language.GE, "", "Farbe 7");
-        Texts.update(sbColor8, Language.EN, "", "Color 8");
-        Texts.update(sbColor8, Language.GE, "", "Farbe 8");
-        Texts.update(sbColor9, Language.EN, "", "Color 9");
-        Texts.update(sbColor9, Language.GE, "", "Farbe 9");
-//        Texts.update(sbToolSelect, Language.EN, "", "Select");
-//        Texts.update(sbToolSelect, Language.GE, "", "Auswahl");
-//        Texts.update(sbToolPoint, Language.EN, "", "Pencil");
-//        Texts.update(sbToolPoint, Language.GE, "", "Eingabe");
-//        Texts.update(sbToolFill, Language.EN, "", "Fill");
-//        Texts.update(sbToolFill, Language.GE, "", "F�llen");
-//        Texts.update(sbToolSniff, Language.EN, "", "Pipette");
-//        Texts.update(sbToolSniff, Language.GE, "", "Pipette");
-
-        Texts.update(laDraft, Language.EN, "Draft");
-        Texts.update(laDraft, Language.GE, "Entwurf");
-        Texts.update(laNormal, Language.EN, "Corrected");
-        Texts.update(laNormal, Language.GE, "Korrigiert");
-        Texts.update(laSimulation, Language.EN, "Simulation");
-        Texts.update(laSimulation, Language.GE, "Simulation");
-        Texts.update(laReport, Language.EN, "Report");
-        Texts.update(laReport, Language.GE, "Auswertung");
-
-        invalidate();
     }
 
     private void addToMRU(File file) {
