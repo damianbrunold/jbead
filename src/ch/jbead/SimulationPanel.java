@@ -106,10 +106,10 @@ public class SimulationPanel extends JComponent {
                 assert (c >= 0 && c <= 9);
                 g.setColor(model.getColor(c));
                 int idx = i + field.getWidth() * j + model.getShift();
-                int ii = idx % field.getWidth();
-                int jj = idx / field.getWidth();
-                ii = correctCoordinatesX(ii, jj);
-                jj = correctCoordinatesY(ii, jj);
+                int i1 = idx % field.getWidth();
+                int j1 = idx / field.getWidth();
+                int ii = correctCoordinatesX(i1, j1);
+                int jj = correctCoordinatesY(i1, j1);
                 if (ii > w && ii != field.getWidth()) continue;
                 if (model.getScroll() % 2 == 0) {
                     if (jj % 2 == 0) {
@@ -184,10 +184,10 @@ public class SimulationPanel extends JComponent {
         int jj = _j;
 
         int idx = ii + model.getField().getWidth() * jj + model.getShift();
-        _i = idx % model.getField().getWidth();
-        _j = idx / model.getField().getWidth();
-        _i = correctCoordinatesX(_i, _j);
-        _j = correctCoordinatesY(_i, _j);
+        int i1 = idx % model.getField().getWidth();
+        int j1 = idx / model.getField().getWidth();
+        _i = correctCoordinatesX(i1, j1);
+        _j = correctCoordinatesY(i1, j1);
 
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
@@ -198,27 +198,27 @@ public class SimulationPanel extends JComponent {
         if (model.getScroll() % 2 == 0) {
             if (_j % 2 == 0) {
                 if (_i == w) return;
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
+                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
             } else {
                 if (_i != model.getField().getWidth() && _i != w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
+                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
                 } else if (_i == w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2, grid);
+                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
                 } else {
-                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2, grid);
+                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2 - 1, grid - 1);
                 }
             }
         } else {
             if (_j % 2 == 1) {
                 if (_i == w) return;
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
+                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
             } else {
                 if (_i != model.getField().getWidth() && _i != w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
+                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
                 } else if (_i == w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2, grid);
+                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
                 } else {
-                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2, grid);
+                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2 - 1, grid - 1);
                 }
             }
         }
