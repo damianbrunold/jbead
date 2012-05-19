@@ -22,6 +22,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 
@@ -30,25 +32,34 @@ import javax.swing.JComponent;
  */
 public class DraftPanel extends JComponent {
 
-    /**
-     * 
-     */
-    private static final int GAP = 6;
-
-    /**
-     * 
-     */
-    private static final int MARKER_WIDTH = 30;
-
     private static final long serialVersionUID = 1L;
+
+    private static final int GAP = 6;
+    private static final int MARKER_WIDTH = 30;
 
     private Model model;
     private int offsetx;
     private int maxj;
 
-    public DraftPanel(Model model) {
+    public DraftPanel(Model model, final BeadForm form) {
         this.model = model;
         setBackground(Color.LIGHT_GRAY);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                form.draftMouseDown(e);
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                form.draftMouseMove(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                form.draftMouseUp(e);
+            }
+        });
     }
 
     @Override
@@ -80,7 +91,7 @@ public class DraftPanel extends JComponent {
     }
     
     private int y(int j) {
-        return getHeight() - 1 - j * model.getGrid();
+        return getHeight() - 1 - (j + 1) * model.getGrid();
     }
     
     private int paintGrid(Graphics g) {
@@ -89,7 +100,7 @@ public class DraftPanel extends JComponent {
         for (int i = 0; i < field.getWidth() + 1; i++) {
             g.drawLine(x(i), 0, x(i), getHeight() - 1);
         }
-        for (int j = 0; j < maxj; j++) {
+        for (int j = -1; j < maxj; j++) {
             g.drawLine(x(0), y(j), x(field.getWidth()), y(j));
         }
         return maxj;
@@ -113,12 +124,13 @@ public class DraftPanel extends JComponent {
         g.setColor(Color.DARK_GRAY);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int fontHeight = g.getFontMetrics().getAscent();
+        int grid = model.getGrid();
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
-                g.drawLine(offsetx - GAP - MARKER_WIDTH, y(j), offsetx - GAP, y(j));
+                g.drawLine(offsetx - GAP - MARKER_WIDTH, y(j) + grid, offsetx - GAP, y(j) + grid);
                 String label = Integer.toString(j + scroll);
                 int labelWidth = g.getFontMetrics().stringWidth(label);
-                g.drawString(label, offsetx - GAP - MARKER_WIDTH + (MARKER_WIDTH - labelWidth) / 2, y(j) + fontHeight + 1);
+                g.drawString(label, offsetx - GAP - MARKER_WIDTH + (MARKER_WIDTH - labelWidth) / 2, y(j) + grid + fontHeight + 1);
             }
         }
     }
@@ -133,21 +145,21 @@ public class DraftPanel extends JComponent {
         byte c = model.getField().get(i, j + model.getScroll());
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
-        g.fillRect(x(i) + 1, y(j) + 1, model.getGrid(), model.getGrid());
+        g.fillRect(x(i) + 1, y(j) + 1, model.getGrid() - 1, model.getGrid() - 1);
         g.dispose();
     }
 
     public void selectPreview(boolean draw, Point pt1, Point pt2) {
         Graphics g = getGraphics();
-        g.setColor(draw ? Color.BLACK : Color.DARK_GRAY);
-        g.drawRect(x(pt1.getX()), y(pt1.getY()), x(pt2.getX() + 1), y(pt2.getY() + 1));
+        g.setColor(draw ? Color.RED : Color.DARK_GRAY);
+        g.drawRect(x(pt1.getX()), y(pt2.getY()), (pt2.getX() - pt1.getX()) * model.getGrid(), (pt2.getY() - pt1.getY()) * model.getGrid());
         g.dispose();
     }
 
     public void linePreview(Point pt1, Point pt2) {
         int grid = model.getGrid();
         Graphics g = getGraphics();
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(Color.BLACK);
         g.setXORMode(Color.BLACK);
         g.drawLine(x(pt1.getX()) + grid / 2, y(pt1.getY()) - grid / 2, x(pt2.getX()) + grid / 2, y(pt2.getY()) - grid / 2);
         g.dispose();
@@ -155,12 +167,15 @@ public class DraftPanel extends JComponent {
 
     public void drawPrepress(Point pt) {
         Graphics g = getGraphics();
+        int grid = model.getGrid();
+        int x0 = x(pt.getX());
+        int y0 = y(pt.getY());
         g.setColor(Color.BLACK);
-        g.drawLine(x(pt.getX()) + 1, y(pt.getY()) + 1, x(pt.getX()) + 1, y(pt.getY() + 1) + 1);
-        g.drawLine(x(pt.getX()) + 1, y(pt.getY()) + 1, x(pt.getX()) - 1, y(pt.getY() + 1) + 1);
+        g.drawLine(x0 + 1, y0 + grid - 1, x0 + 1, y0 + 1);
+        g.drawLine(x0 + 1, y0 + 1, x0 + grid - 1, y0 + 1);
         g.setColor(Color.WHITE);
-        g.drawLine(x(pt.getX() + 1) - 1, y(pt.getY() + 1) + 1, x(pt.getX() + 1) - 1, y(pt.getY()) - 1);
-        g.drawLine(x(pt.getX() + 1) - 1, y(pt.getY()) - 1, x(pt.getX()), y(pt.getY()) - 1);
+        g.drawLine(x0 + 1 + 1, y0 + grid - 1, x0 + grid - 1, y0 + grid - 1);
+        g.drawLine(x0 + grid - 1, y0 + grid - 1, x0 + grid - 1, y0 + 1);
         g.dispose();
     }
 

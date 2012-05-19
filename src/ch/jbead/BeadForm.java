@@ -98,7 +98,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
-    private DraftPanel draft = new DraftPanel(model);
+    private DraftPanel draft = new DraftPanel(model, this);
     private NormalPanel normal = new NormalPanel(model);
     private SimulationPanel simulation = new SimulationPanel(model);
     private ReportPanel report = new ReportPanel(model, this);
@@ -795,10 +795,8 @@ public class BeadForm extends JFrame implements Localization {
         if (!sbToolPencil.isSelected()) return;
         if (begin_i == end_i && begin_j == end_j) return;
 
-        int ei = end_i;
-        int ej = end_j;
-        ei = calcLineCoordX(begin_i, begin_j, ei, ej);
-        ej = calcLineCoordY(begin_i, begin_j, ei, ej);
+        int ei = calcLineCoordX(begin_i, begin_j, end_i, end_j);
+        int ej = calcLineCoordY(begin_i, begin_j, end_i, end_j);
 
         draft.linePreview(new Point(begin_i, begin_j), new Point(ei, ej));
     }
@@ -834,7 +832,7 @@ public class BeadForm extends JFrame implements Localization {
         selection = false;
     }
 
-    private void draftMouseDown(MouseEvent event, int X, int Y) {
+    void draftMouseDown(MouseEvent event) {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
@@ -844,6 +842,7 @@ public class BeadForm extends JFrame implements Localization {
             begin_j = pt.getY();
             end_i = pt.getX();
             end_j = pt.getY();
+            statusbar.setText("draft " + begin_i + "," + begin_j + " - " + end_i + "," + end_j + ", scroll=" + model.getScroll());
             // Prepress
             if (sbToolPencil.isSelected()) {
                 draft.drawPrepress(new Point(begin_i, begin_j));
@@ -853,7 +852,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    private void draftMouseMove(MouseEvent event) {
+    void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
             draftSelectPreview(false, false);
@@ -865,7 +864,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    private void draftMouseUp(MouseEvent event) {
+    void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();

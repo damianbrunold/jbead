@@ -66,7 +66,7 @@ public class NormalPanel extends JComponent {
     }
     
     private int y(int j) {
-        return getHeight() - 1 - j * model.getGrid();
+        return getHeight() - 1 - (j + 1) * model.getGrid();
     }
     
     private void paintGrid(Graphics g) {
@@ -75,33 +75,30 @@ public class NormalPanel extends JComponent {
         g.setColor(Color.DARK_GRAY);
         if (model.getScroll() % 2 == 0) {
             for (int i = 0; i < field.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
+                for (int jj = -1; jj < maxj; jj += 2) {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
             for (int i = 0; i <= field.getWidth() + 1; i++) {
-                for (int jj = 1; jj < maxj; jj += 2) {
+                for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
+            g.drawLine(x(0), y(-1), x(field.getWidth()), y(-1));
         } else {
             for (int i = 0; i <= field.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
+                for (int jj = -1; jj < maxj; jj += 2) {
                     g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
             for (int i = 0; i < field.getWidth() + 1; i++) {
-                for (int jj = 1; jj < maxj; jj += 2) {
+                for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
+            g.drawLine(x(0) - grid / 2, y(-1), x(field.getWidth()) + grid / 2, y(-1));
         }
-        if (model.getScroll() % 2 == 0) {
-            g.drawLine(x(0), y(0), x(field.getWidth()), y(0));
-        } else {
-            g.drawLine(x(0) - grid / 2, y(0), x(field.getWidth()) + grid / 2, y(0));
-        }
-        for (int jj = 1; jj < maxj; jj++) {
+        for (int jj = 0; jj < maxj; jj++) {
             g.drawLine(x(0) - grid / 2, y(jj), x(field.getWidth()) + grid / 2, y(jj));
         }
     }
@@ -109,26 +106,17 @@ public class NormalPanel extends JComponent {
     private void paintBeads(Graphics g) {
         BeadField field = model.getField();
         int grid = model.getGrid();
+        int scroll = model.getScroll();
         for (int i = 0; i < field.getWidth(); i++) {
-            for (int jj = 0; jj < maxj; jj++) {
-                byte c = field.get(i, jj + model.getScroll());
+            for (int j = 0; j < maxj; j++) {
+                byte c = field.get(i, j + scroll);
                 g.setColor(model.getColor(c));
-                int ii = i;
-                int j1 = jj;
-                ii = correctCoordinatesX(ii, j1);
-                j1 = correctCoordinatesY(ii, j1);
-                if (model.getScroll() % 2 == 0) {
-                    if (j1 % 2 == 0) {
-                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
-                    } else {
-                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
-                    }
+                int i1 = correctCoordinatesX(i, j);
+                int j1 = correctCoordinatesY(i, j);
+                if ((j1 + scroll) % 2 == 0) {
+                    g.fillRect(x(i1) + 1, y(j1) + 1, grid - 1, grid - 1);
                 } else {
-                    if (j1 % 2 == 1) {
-                        g.fillRect(left + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
-                    } else {
-                        g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (j1 + 1) * grid, grid - 1, grid - 1);
-                    }
+                    g.fillRect(x(i1) + 1 - grid / 2, y(j1) + 1, grid - 1, grid - 1);
                 }
             }
         }
@@ -140,7 +128,7 @@ public class NormalPanel extends JComponent {
         int m1 = field.getWidth();
         int m2 = field.getWidth() + 1;
         int k = 0;
-        int m = (k % 2 == 0) ? m1 : m2;
+        int m = m1;
         while (idx >= m) {
             idx -= m;
             k++;
@@ -168,34 +156,19 @@ public class NormalPanel extends JComponent {
         return _j;
     }
 
-    public void updateBead(int _i, int _j) {
+    public void updateBead(int i, int j) {
         if (!isVisible()) return;
-
         int grid = model.getGrid();
         int scroll = model.getScroll();
-        byte c = model.getField().get(_i, _j + scroll);
-        assert (c >= 0 && c <= 9);
-
-        _i = correctCoordinatesX(_i, _j);
-        _j = correctCoordinatesY(_i, _j);
-
+        byte c = model.getField().get(i, j + scroll);
+        int _i = correctCoordinatesX(i, j);
+        int _j = correctCoordinatesY(i, j);
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
-
-        int left = offsetx;
-
-        if (scroll % 2 == 0) {
-            if (_j % 2 == 0) {
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
-            } else {
-                g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
-            }
+        if ((scroll + _j) % 2 == 0) {
+            g.fillRect(x(_i) + 1, y(_j) + 1, grid - 1, grid - 1);
         } else {
-            if (_j % 2 == 1) {
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
-            } else {
-                g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid, grid);
-            }
+            g.fillRect(x(_i) + 1 - grid / 2, y(_j) + 1, grid - 1, grid - 1);
         }
         g.dispose();
     }
