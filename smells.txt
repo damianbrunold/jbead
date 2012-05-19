@@ -1,27 +1,10 @@
 Code Smells
 -----------
 
-Switching Language calls reloadLanguage/setAppTitle on
-BeadForm. This should better use the observer pattern.
-
-Clean up language stuff, use property bundles and rely
-on locales.
-
 custom define the default colors so that they are exactly
 as in dbbead, use named constants instead of directly
 allocating the colors, do not use predefined, system
 colors.
-
-split beadform into the various components, for example,
-now all code for handling event and drawing the draft,
-corrected and the simulation is in beadform. Much better 
-would be to introduce full-fledged objects for draft,
-corrected and simulation (that all use the same data
-model, that is already abstracted), move all drawing
-code to these objects and maybe the event handling too
-or maybe add a controller class for doing the event
-handling. Then I could also use the observer pattern to 
-update each view when something changes in the model.
 
 Now the code uses separate x/y and i/j coordinates
 throughout. This should be abstracted so that physical
@@ -41,11 +24,6 @@ Not exactly a code smell, but a smelly artificial limit.
 The FileMRUClick handler are highly repetitive. Remove
 code duplication.
 
-Instead of calling SetGlyphColors that does reset all
-color icons, better abstract the coltable to an object
-and let the ColorIcon be an observer thereof. Then only
-the icon that needs to be updated will be redrawn.
-
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
@@ -60,18 +38,6 @@ paths. Right now they are relative. Also: is it possible
 to change the directory? Is this persisted?
 
 Switch MRU stuff to use File instances instead of Strings.
-
-The various components of beadform are now layouted
-using no layout manager (actually it is not done at all,
-but if the code is finally transliterated this will be
-the result). I think it would be way better and much
-easier to handle this with explicit layout managers.
-I think it would not need to be very complex. The
-four main components could use a gridbag layout or
-a box layout. each component would use a border layout
-to lay out the description below the component proper.
-The real contents of the components will - of coure -
-still be custom painted.
 
 Make the Point class to a value object, thus immutable.
 Right now it is mutable, because the conversion methods
