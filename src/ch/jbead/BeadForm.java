@@ -99,7 +99,7 @@ public class BeadForm extends JFrame implements Localization {
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
     private DraftPanel draft = new DraftPanel(model, this);
-    private NormalPanel normal = new NormalPanel(model);
+    private NormalPanel normal = new NormalPanel(model, this);
     private SimulationPanel simulation = new SimulationPanel(model);
     private ReportPanel report = new ReportPanel(model, this);
 
@@ -1260,7 +1260,7 @@ public class BeadForm extends JFrame implements Localization {
         draftSelectClear();
     }
 
-    private void normalMouseUp(MouseEvent event) {
+    void normalMouseUp(MouseEvent event) {
         int scroll = model.getScroll();
         // TODO move this to the NormalPanel
         Point pt = new Point(event.getX(), event.getY());

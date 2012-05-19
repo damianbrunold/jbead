@@ -19,6 +19,8 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 
@@ -34,8 +36,14 @@ public class NormalPanel extends JComponent {
     private int maxj;
     private int left;
 
-    public NormalPanel(Model model) {
+    public NormalPanel(Model model, final BeadForm form) {
         this.model = model;
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                form.normalMouseUp(e);
+            }
+        });
     }
 
     @Override

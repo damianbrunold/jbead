@@ -48,3 +48,6 @@ Handle the UI state better. For example, the copy/arrange
 function should be disabled if no selection exists. This
 was handled using the idleHandler before. Now, this should
 probably be done using Actions.
+
+Rework selection stuff. Abstract a selection object and
+let the panels observe it.
