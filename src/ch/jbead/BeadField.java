@@ -57,10 +57,10 @@ public class BeadField {
     }
 
     public void setWidth(int width) {
-        assert (width > 0 && width < SIZE / 10);
+        assert width > 0 && width < SIZE / 10;
         this.width = width;
         this.height = SIZE / width;
-        assert (this.width > 0 && this.height > 0);
+        assert this.width > 0 && this.height > 0;
     }
     
     public byte get(Point pt) {
@@ -68,16 +68,15 @@ public class BeadField {
     }
 
     public byte get(int x, int y) {
-        assert (width > 0 && height > 0);
-        assert (x < width);
-        assert (y < height);
-        assert (x + width * y < SIZE);
+        assert width > 0 && height > 0;
+        assert x < width;
+        assert y < height;
         return field[x + width * y];
     }
 
     public byte get(int index) {
-        assert (width > 0);
-        assert (index >= 0 && index < width * height);
+        assert width > 0;
+        assert index >= 0 && index < width * height;
         int i = index % width;
         int j = index / width;
         return get(i, j);
@@ -88,28 +87,25 @@ public class BeadField {
     }
 
     public void set(int x, int y, byte value) {
-        assert (width > 0 && height > 0);
-        assert (x < width);
-        assert (y < height);
-        assert (x + width * y < SIZE);
+        assert width > 0 && height > 0;
+        assert x < width;
+        assert y < height;
         field[x + width * y] = value;
     }
 
     public void set(int index, byte value) {
-        assert (width > 0);
-        assert (index >= 0 && index < width * height);
+        assert width > 0;
+        assert index >= 0 && index < width * height;
         int i = index % width;
         int j = index / width;
         set(i, j, value);
     }
 
     public byte rawGet(int index) {
-        assert (index < width * height);
         return field[index];
     }
 
     public void rawSet(int index, byte value) {
-        assert (index < width * height);
         field[index] = value;
     }
 
