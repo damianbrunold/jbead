@@ -241,4 +241,8 @@ public class SimulationPanel extends JComponent {
         g.dispose();
     }
 
+    public void redraw(Point pt) {
+        redraw(pt.getX(), pt.getY());
+    }
+
 }

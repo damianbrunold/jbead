@@ -526,6 +526,12 @@ public class BeadForm extends JFrame implements Localization {
         normal.redraw(i, j);
         simulation.redraw(i, j);
     }
+    
+    private void redraw(Point pt) {
+        draft.redraw(pt);
+        normal.redraw(pt);
+        simulation.redraw(pt);
+    }
 
     public void fileNewClick() {
         // ask whether to save modified document
@@ -838,6 +844,8 @@ public class BeadForm extends JFrame implements Localization {
                         getField().set(i, j + scroll, colorIndex);
                         redraw(i, j);
                     }
+                    getField().set(selection.getLineDest(), colorIndex);
+                    redraw(selection.getLineDest());
                     System.out.println();
                     model.setRepeatDirty();
                     modified = true;

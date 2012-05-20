@@ -51,13 +51,14 @@ public class DraftPanel extends JComponent {
             }
 
             @Override
-            public void mouseMoved(MouseEvent e) {
-                form.draftMouseMove(e);
-            }
-
-            @Override
             public void mouseReleased(MouseEvent e) {
                 form.draftMouseUp(e);
+            }
+        });
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                form.draftMouseMove(e);
             }
         });
     }
@@ -158,6 +159,10 @@ public class DraftPanel extends JComponent {
         g.fillRect(x(i) + 1, y(j) + 1, model.getGrid() - 1, model.getGrid() - 1);
         g.dispose();
     }
+    
+    public void redraw(Point pt) {
+        redraw(pt.getX(), pt.getY());
+    }
 
     public void selectPreview(boolean draw, Point pt1, Point pt2) {
         Graphics g = getGraphics();
@@ -169,9 +174,9 @@ public class DraftPanel extends JComponent {
     public void linePreview(Point pt1, Point pt2) {
         int grid = model.getGrid();
         Graphics g = getGraphics();
-        g.setColor(Color.BLACK);
-        //g.setXORMode(Color.BLACK);
-        g.drawLine(x(pt1.getX()) + grid / 2, y(pt1.getY()) - grid / 2, x(pt2.getX()) + grid / 2, y(pt2.getY()) - grid / 2);
+        g.setColor(Color.WHITE);
+        g.setXORMode(Color.BLACK);
+        g.drawLine(x(pt1.getX()) + grid / 2, y(pt1.getY()) + grid / 2, x(pt2.getX()) + grid / 2, y(pt2.getY()) + grid / 2);
         g.dispose();
     }
 

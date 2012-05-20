@@ -97,12 +97,13 @@ public class Selection {
         int y = dest.getY();
         int ax = Math.abs(getDeltaX());
         int ay = Math.abs(getDeltaY());
+        if (ax == 0 || ay == 0) return new Point(dest);
         if (ax > ay) {
             x = origin.getX() + ay * getDx();
         } else {
             y = origin.getY() + ax * getDy();
         }
-        return new Point(x + getDx(), y + getDy());
+        return new Point(x, y);
     }
 
     public int getDeltaX() {

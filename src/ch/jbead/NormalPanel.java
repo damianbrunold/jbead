@@ -197,6 +197,10 @@ public class NormalPanel extends JComponent {
         g.dispose();
     }
 
+    public void redraw(Point pt) {
+        redraw(pt.getX(), pt.getY());
+    }
+
     boolean mouseToField(Point pt) {
         int grid = model.getGrid();
         BeadField field = model.getField();

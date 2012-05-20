@@ -66,4 +66,9 @@ public class Point {
     public Point scrolled(int scroll) {
         return new Point(x, y + scroll);
     }
+    
+    @Override
+    public String toString() {
+        return x + "," + y;
+    }
 }
