@@ -58,3 +58,7 @@ corrected, thus there are some lines at the top, that are
 not painted.
 
 Model should use Points instead of single coordinates!
+
+Fix 45° line drawing with non-bottomleft-to-topright
+
+Use abstracted tool object for the different tools.

@@ -813,8 +813,8 @@ public class BeadForm extends JFrame implements Localization {
                     if (selection.isSquare()) {
                         // 45 grad Linie
                         model.snapshot(modified);
-                        for (int i = selection.left(); i <= selection.right(); i++) {
-                            int j = selection.bottom() + (i - selection.left());
+                        for (int i = selection.getOrigin().getX(); i <= selection.getLineEnd().getX(); i++) {
+                            int j = selection.getOrigin().getY() + (i - selection.getOrigin().getX());
                             getField().set(i, j + scroll, colorIndex);
                             redraw(i, j);
                         }
