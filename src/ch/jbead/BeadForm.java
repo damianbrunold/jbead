@@ -187,6 +187,23 @@ public class BeadForm extends JFrame implements Localization {
         viewSimulation.setSelected(true);
         viewReport.setSelected(true);
         
+        ActionListener colorActionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                colorClick(e);
+            }
+        };
+        sbColor0.addActionListener(colorActionListener);
+        sbColor1.addActionListener(colorActionListener);
+        sbColor2.addActionListener(colorActionListener);
+        sbColor3.addActionListener(colorActionListener);
+        sbColor4.addActionListener(colorActionListener);
+        sbColor5.addActionListener(colorActionListener);
+        sbColor6.addActionListener(colorActionListener);
+        sbColor7.addActionListener(colorActionListener);
+        sbColor8.addActionListener(colorActionListener);
+        sbColor9.addActionListener(colorActionListener);
+        
         setIconImage(ImageFactory.getImage("jbead-16"));
         
         // TODO persist location and size in settings
@@ -1046,6 +1063,7 @@ public class BeadForm extends JFrame implements Localization {
     // TODO split this for every color toolbar button
     public void colorClick(ActionEvent event) {
         Object Sender = event.getSource();
+        System.out.println(Sender);
         if (Sender == sbColor0)
             model.setColorIndex((byte) 0);
         else if (Sender == sbColor1)
