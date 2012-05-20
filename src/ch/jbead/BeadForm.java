@@ -509,11 +509,11 @@ public class BeadForm extends JFrame implements Localization {
         return j;
     }
 
-    private void updateBead(int i, int j) {
+    private void redraw(int i, int j) {
         // use observer pattern to remove this explicit dependency
         draft.redraw(i, j);
-        normal.updateBead(i, j);
-        simulation.updateBead(i, j);
+        normal.redraw(i, j);
+        simulation.redraw(i, j);
     }
 
     public void fileNewClick() {
@@ -880,7 +880,7 @@ public class BeadForm extends JFrame implements Localization {
                             else
                                 jj = begin_j - (i - begin_i);
                             getField().set(i, jj + scroll, colorIndex);
-                            updateBead(i, jj);
+                            redraw(i, jj);
                         }
                         model.setRepeatDirty();
                         modified = true;
@@ -892,7 +892,7 @@ public class BeadForm extends JFrame implements Localization {
                         int j2 = Math.max(end_j, begin_j);
                         for (int jj = j1; jj <= j2; jj++) {
                             getField().set(begin_i, jj + scroll, colorIndex);
-                            updateBead(begin_i, jj);
+                            redraw(begin_i, jj);
                         }
                         modified = true;
                         model.setRepeatDirty();
@@ -904,7 +904,7 @@ public class BeadForm extends JFrame implements Localization {
                         int i2 = Math.max(end_i, begin_i);
                         for (int i = i1; i <= i2; i++) {
                             getField().set(i, begin_j + scroll, colorIndex);
-                            updateBead(i, begin_j);
+                            redraw(i, begin_j);
                         }
                         modified = true;
                         model.setRepeatDirty();
@@ -979,14 +979,14 @@ public class BeadForm extends JFrame implements Localization {
         while (i >= 0 && getField().get(i, _j + scroll) == bk) {
             getField().set(i, _j + scroll, colorIndex);
             // TODO make draft an observer of field!
-            updateBead(i, _j);
+            redraw(i, _j);
             i--;
         }
         i = begin_i + 1;
         while (i < getField().getWidth() && getField().get(i, _j + scroll) == bk) {
             getField().set(i, _j + scroll, colorIndex);
             // TODO make draft an observer of field!
-            updateBead(i, _j);
+            redraw(i, _j);
             i++;
         }
     }
@@ -1001,7 +1001,7 @@ public class BeadForm extends JFrame implements Localization {
         } else {
             getField().set(_i, _j + scroll, colorIndex);
         }
-        updateBead(_i, _j);
+        redraw(_i, _j);
         modified = true;
         model.setRepeatDirty();
         updateTitle();

@@ -190,7 +190,7 @@ public class SimulationPanel extends JComponent {
         return _j;
     }
 
-    public void updateBead(int _i, int _j) {
+    public void redraw(int _i, int _j) {
         if (!isVisible()) return;
 
         byte c = model.getField().get(_i, _j + model.getScroll());

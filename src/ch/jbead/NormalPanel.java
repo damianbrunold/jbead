@@ -180,7 +180,7 @@ public class NormalPanel extends JComponent {
         return _j;
     }
 
-    public void updateBead(int i, int j) {
+    public void redraw(int i, int j) {
         if (!isVisible()) return;
         int grid = model.getGrid();
         int scroll = model.getScroll();
