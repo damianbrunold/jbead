@@ -846,7 +846,6 @@ public class BeadForm extends JFrame implements Localization {
                     }
                     getField().set(selection.getLineDest(), colorIndex);
                     redraw(selection.getLineDest());
-                    System.out.println();
                     model.setRepeatDirty();
                     modified = true;
                     updateTitle();
