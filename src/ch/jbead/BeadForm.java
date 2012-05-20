@@ -824,98 +824,21 @@ public class BeadForm extends JFrame implements Localization {
 
     public void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
-        int scroll = model.getScroll();
-        byte colorIndex = model.getColorIndex();
         if (dragging && draft.mouseToField(pt)) {
             draftLinePreview();
             clearSelection();
             selection.update(pt);
             dragging = false;
-
             if (sbToolPencil.isSelected()) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
-                } else if (selection.isColumn()) {
-                    // Senkrechte Linie
-                    model.snapshot(modified);
-                    int i = selection.left();
-                    for (int j = selection.bottom(); j <= selection.top(); j++) {
-                        getField().set(i, j + scroll, colorIndex);
-                        redraw(i, j);
-                    }
-                    modified = true;
-                    model.setRepeatDirty();
-                    updateTitle();
-                } else if (selection.isRow()) {
-                    // Waagrechte Linie ziehen
-                    model.snapshot(modified);
-                    int j = selection.bottom();
-                    for (int i = selection.left(); i <= selection.right(); i++) {
-                        getField().set(i, j + scroll, colorIndex);
-                        redraw(i, j);
-                    }
-                    modified = true;
-                    model.setRepeatDirty();
-                    updateTitle();
                 } else {
-                    // 45 grad Linie
-                    model.snapshot(modified);
-                    for (int i = selection.getOrigin().getX(); i != selection.getLineDest().getX(); i += selection.getDx()) {
-                        int j = selection.getOrigin().getY() + selection.getDy() * Math.abs(i - selection.getOrigin().getX());
-                        getField().set(i, j + scroll, colorIndex);
-                        redraw(i, j);
-                    }
-                    getField().set(selection.getLineDest(), colorIndex);
-                    redraw(selection.getLineDest());
-                    model.setRepeatDirty();
-                    modified = true;
-                    updateTitle();
+                    drawLine(selection.getOrigin(), selection.getLineDest());
                 }
             } else if (sbToolFill.isSelected()) {
-                model.snapshot(modified);
                 fillLine(selection.getOrigin());
-                modified = true;
-                updateTitle();
-                model.setRepeatDirty();
-                report.repaint();
             } else if (sbToolPipette.isSelected()) {
-                colorIndex = getField().get(selection.getOrigin().scrolled(scroll));
-                assert (colorIndex >= 0 && colorIndex < 10);
-                switch (colorIndex) {
-                case 0:
-                    sbColor0.setSelected(true);
-                    break;
-                case 1:
-                    sbColor1.setSelected(true);
-                    break;
-                case 2:
-                    sbColor2.setSelected(true);
-                    break;
-                case 3:
-                    sbColor3.setSelected(true);
-                    break;
-                case 4:
-                    sbColor4.setSelected(true);
-                    break;
-                case 5:
-                    sbColor5.setSelected(true);
-                    break;
-                case 6:
-                    sbColor6.setSelected(true);
-                    break;
-                case 7:
-                    sbColor7.setSelected(true);
-                    break;
-                case 8:
-                    sbColor8.setSelected(true);
-                    break;
-                case 9:
-                    sbColor9.setSelected(true);
-                    break;
-                default:
-                    assert (false);
-                    break;
-                }
+                selectColorFrom(selection.getOrigin());
             } else if (sbToolSelect.isSelected()) {
                 if (selection.isActive()) {
                     drawSelection();
@@ -926,7 +849,62 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
+    private void selectColorFrom(Point pt) {
+        byte colorIndex;
+        colorIndex = getField().get(pt.scrolled(model.getScroll()));
+        assert (colorIndex >= 0 && colorIndex < 10);
+        switch (colorIndex) {
+        case 0:
+            sbColor0.setSelected(true);
+            break;
+        case 1:
+            sbColor1.setSelected(true);
+            break;
+        case 2:
+            sbColor2.setSelected(true);
+            break;
+        case 3:
+            sbColor3.setSelected(true);
+            break;
+        case 4:
+            sbColor4.setSelected(true);
+            break;
+        case 5:
+            sbColor5.setSelected(true);
+            break;
+        case 6:
+            sbColor6.setSelected(true);
+            break;
+        case 7:
+            sbColor7.setSelected(true);
+            break;
+        case 8:
+            sbColor8.setSelected(true);
+            break;
+        case 9:
+            sbColor9.setSelected(true);
+            break;
+        default:
+            assert (false);
+            break;
+        }
+    }
+
+    private void drawLine(Point begin, Point end) {
+        int scroll = model.getScroll();
+        byte colorIndex = model.getColorIndex();
+        model.snapshot(modified);
+        for (Point pt : new Segment(begin, end)) {
+            getField().set(pt.scrolled(scroll), colorIndex);
+            redraw(pt);
+        }
+        model.setRepeatDirty();
+        modified = true;
+        updateTitle();
+    }
+
     private void fillLine(Point pt) {
+        model.snapshot(modified);
         int _i = pt.getX();
         int _j = pt.getY();
         int scroll = model.getScroll();
@@ -947,6 +925,10 @@ public class BeadForm extends JFrame implements Localization {
             redraw(i, _j);
             i++;
         }
+        modified = true;
+        updateTitle();
+        model.setRepeatDirty();
+        report.repaint();
     }
 
     private void setPoint(Point pt) {
