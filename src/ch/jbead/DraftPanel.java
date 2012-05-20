@@ -114,7 +114,7 @@ public class DraftPanel extends JComponent {
             for (int j = 0; j < maxj; j++) {
                 byte c = field.get(i, j + scroll);
                 g.setColor(model.getColor(c));
-                g.fillRect(x(i) + 1, y(j + 1) + 1, grid - 1, grid - 1);
+                g.fillRect(x(i) + 1, y(j) + 1, grid - 1, grid - 1);
             }
         }
     }
