@@ -162,7 +162,7 @@ public class DraftPanel extends JComponent {
     public void selectPreview(boolean draw, Point pt1, Point pt2) {
         Graphics g = getGraphics();
         g.setColor(draw ? Color.RED : Color.DARK_GRAY);
-        g.drawRect(x(pt1.getX()), y(pt2.getY()), (pt2.getX() - pt1.getX()) * model.getGrid(), (pt2.getY() - pt1.getY()) * model.getGrid());
+        g.drawRect(x(pt1.getX()), y(pt2.getY()), (pt2.getX() - pt1.getX() + 1) * model.getGrid(), (pt2.getY() - pt1.getY() + 1) * model.getGrid());
         g.dispose();
     }
 
@@ -170,7 +170,7 @@ public class DraftPanel extends JComponent {
         int grid = model.getGrid();
         Graphics g = getGraphics();
         g.setColor(Color.BLACK);
-        g.setXORMode(Color.BLACK);
+        //g.setXORMode(Color.BLACK);
         g.drawLine(x(pt1.getX()) + grid / 2, y(pt1.getY()) - grid / 2, x(pt2.getX()) + grid / 2, y(pt2.getY()) - grid / 2);
         g.dispose();
     }

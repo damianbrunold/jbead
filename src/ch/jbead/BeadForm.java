@@ -102,14 +102,8 @@ public class BeadForm extends JFrame implements Localization {
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
     
     private Model model = new Model(this);
-    
-    private int begin_i;
-    private int begin_j;
-    private int end_i;
-    private int end_j;
-    private int sel_i1, sel_i2, sel_j1, sel_j2;
-    private boolean selection;
-    private BeadField sel_buff = new BeadField();
+    private Selection selection = new Selection();
+
     private boolean dragging;
     private boolean saved;
     private boolean modified;
@@ -179,7 +173,7 @@ public class BeadForm extends JFrame implements Localization {
         createGUI();
         saved = false;
         modified = false;
-        selection = false;
+        selection.clear();
         updateTitle();
         setColorIcons();
         loadMRU();
@@ -531,7 +525,7 @@ public class BeadForm extends JFrame implements Localization {
         sbColor1.setSelected(true);
         setColorIcons();
         updateScrollbar();
-        selection = false;
+        selection.clear();
         saved = false;
         modified = false;
         repaint();
@@ -735,83 +729,27 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    private int calcLineCoordX(int _i1, int _j1, int _i2, int _j2) {
-        int dx = Math.abs(_i2 - _i1);
-        int dy = Math.abs(_j2 - _j1);
-        if (2 * dy < dx) {
-            _j2 = _j1;
-        } else if (2 * dx < dy) {
-            _i2 = _i1;
-        } else {
-            int d = Math.min(dx, dy);
-            if (_i2 - _i1 > d)
-                _i2 = _i1 + d;
-            else if (_i1 - _i2 > d) _i2 = _i1 - d;
-            if (_j2 - _j1 > d)
-                _j2 = _j1 + d;
-            else if (_j1 - _j2 > d) _j2 = _j1 - d;
-        }
-        return _i2;
-    }
-
-    private int calcLineCoordY(int _i1, int _j1, int _i2, int _j2) {
-        int dx = Math.abs(_i2 - _i1);
-        int dy = Math.abs(_j2 - _j1);
-        if (2 * dy < dx) {
-            _j2 = _j1;
-        } else if (2 * dx < dy) {
-            _i2 = _i1;
-        } else {
-            int d = Math.min(dx, dy);
-            if (_i2 - _i1 > d)
-                _i2 = _i1 + d;
-            else if (_i1 - _i2 > d) _i2 = _i1 - d;
-            if (_j2 - _j1 > d)
-                _j2 = _j1 + d;
-            else if (_j1 - _j2 > d) _j2 = _j1 - d;
-        }
-        return _j2;
-    }
-
     private void draftLinePreview() {
         if (!sbToolPencil.isSelected()) return;
-        if (begin_i == end_i && begin_j == end_j) return;
-
-        int ei = calcLineCoordX(begin_i, begin_j, end_i, end_j);
-        int ej = calcLineCoordY(begin_i, begin_j, end_i, end_j);
-
-        draft.linePreview(new Point(begin_i, begin_j), new Point(ei, ej));
+        if (!selection.isActive()) return;
+        draft.linePreview(selection.getOrigin(), selection.getLineEnd());
     }
 
     private void draftSelectPreview(boolean _draw, boolean _doit) {
         if (!sbToolSelect.isSelected() && !_doit) return;
-        if (begin_i == end_i && begin_j == end_j) return;
-
-        int i1 = Math.min(begin_i, end_i);
-        int i2 = Math.max(begin_i, end_i);
-        int j1 = Math.min(begin_j, end_j);
-        int j2 = Math.max(begin_j, end_j);
-
-        draft.selectPreview(_draw, new Point(i1, j1), new Point(i2, j2));
+        if (!selection.isActive()) return;
+        draft.selectPreview(_draw, selection.getBegin(), selection.getEnd());
     }
 
     private void draftSelectDraw() {
-        if (!selection) return;
-        begin_i = sel_i1;
-        begin_j = sel_j1;
-        end_i = sel_i2;
-        end_j = sel_j2;
+        if (!selection.isActive()) return;
         draftSelectPreview(true, true);
     }
 
     private void draftSelectClear() {
-        if (!selection) return;
-        begin_i = sel_i1;
-        begin_j = sel_j1;
-        end_i = sel_i2;
-        end_j = sel_j2;
+        if (!selection.isActive()) return;
         draftSelectPreview(false, true);
-        selection = false;
+        selection.clear();
     }
 
     public void draftMouseDown(MouseEvent event) {
@@ -820,14 +758,10 @@ public class BeadForm extends JFrame implements Localization {
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
             draftSelectClear();
             dragging = true;
-            begin_i = pt.getX();
-            begin_j = pt.getY();
-            end_i = pt.getX();
-            end_j = pt.getY();
-            statusbar.setText("draft " + begin_i + "," + begin_j + " - " + end_i + "," + end_j + ", scroll=" + model.getScroll());
+            selection.init(pt);
             // Prepress
             if (sbToolPencil.isSelected()) {
-                draft.drawPrepress(new Point(begin_i, begin_j));
+                draft.drawPrepress(selection.getOrigin());
             }
             draftLinePreview();
             draftSelectPreview(true, false);
@@ -839,8 +773,7 @@ public class BeadForm extends JFrame implements Localization {
         if (dragging && draft.mouseToField(pt)) {
             draftSelectPreview(false, false);
             draftLinePreview();
-            end_i = pt.getX();
-            end_j = pt.getY();
+            selection.update(pt);
             draftLinePreview();
             draftSelectPreview(true, false);
         }
@@ -852,59 +785,43 @@ public class BeadForm extends JFrame implements Localization {
         byte colorIndex = model.getColorIndex();
         if (dragging && draft.mouseToField(pt)) {
             draftLinePreview();
-            end_i = pt.getX();
-            end_j = pt.getY();
+            selection.update(pt);
             dragging = false;
 
             if (sbToolPencil.isSelected()) {
-                if (begin_i == end_i && begin_j == end_j) {
-                    setPoint(begin_i, begin_j);
+                if (!selection.isActive()) {
+                    setPoint(selection.getOrigin());
                 } else {
-                    end_i = calcLineCoordX(begin_i, begin_j, end_i, end_j);
-                    end_j = calcLineCoordY(begin_i, begin_j, end_i, end_j);
-                    if (Math.abs(end_i - begin_i) == Math.abs(end_j - begin_j)) {
+                    selection.update(selection.getLineEnd());
+                    if (selection.isSquare()) {
                         // 45 grad Linie
                         model.snapshot(modified);
-                        int jj;
-                        if (begin_i > end_i) {
-                            int tmp = begin_i;
-                            begin_i = end_i;
-                            end_i = tmp;
-                            tmp = begin_j;
-                            begin_j = end_j;
-                            end_j = tmp;
-                        }
-                        for (int i = begin_i; i <= end_i; i++) {
-                            if (begin_j < end_j)
-                                jj = begin_j + (i - begin_i);
-                            else
-                                jj = begin_j - (i - begin_i);
-                            getField().set(i, jj + scroll, colorIndex);
-                            redraw(i, jj);
+                        for (int i = selection.left(); i <= selection.right(); i++) {
+                            int j = selection.bottom() + (i - selection.left());
+                            getField().set(i, j + scroll, colorIndex);
+                            redraw(i, j);
                         }
                         model.setRepeatDirty();
                         modified = true;
                         updateTitle();
-                    } else if (end_i == begin_i) {
+                    } else if (selection.isColumn()) {
                         // Senkrechte Linie
                         model.snapshot(modified);
-                        int j1 = Math.min(end_j, begin_j);
-                        int j2 = Math.max(end_j, begin_j);
-                        for (int jj = j1; jj <= j2; jj++) {
-                            getField().set(begin_i, jj + scroll, colorIndex);
-                            redraw(begin_i, jj);
+                        int i = selection.left();
+                        for (int j = selection.bottom(); j <= selection.top(); j++) {
+                            getField().set(i, j + scroll, colorIndex);
+                            redraw(i, j);
                         }
                         modified = true;
                         model.setRepeatDirty();
                         updateTitle();
-                    } else if (end_j == begin_j) {
+                    } else if (selection.isRow()) {
                         // Waagrechte Linie ziehen
                         model.snapshot(modified);
-                        int i1 = Math.min(end_i, begin_i);
-                        int i2 = Math.max(end_i, begin_i);
-                        for (int i = i1; i <= i2; i++) {
-                            getField().set(i, begin_j + scroll, colorIndex);
-                            redraw(i, begin_j);
+                        int j = selection.bottom();
+                        for (int i = selection.left(); i <= selection.right(); i++) {
+                            getField().set(i, j + scroll, colorIndex);
+                            redraw(i, j);
                         }
                         modified = true;
                         model.setRepeatDirty();
@@ -913,13 +830,13 @@ public class BeadForm extends JFrame implements Localization {
                 }
             } else if (sbToolFill.isSelected()) {
                 model.snapshot(modified);
-                fillLine(end_i, end_j);
+                fillLine(selection.getOrigin());
                 modified = true;
                 updateTitle();
                 model.setRepeatDirty();
                 report.repaint();
             } else if (sbToolPipette.isSelected()) {
-                colorIndex = getField().get(begin_i, begin_j + scroll);
+                colorIndex = getField().get(selection.getOrigin().scrolled(scroll));
                 assert (colorIndex >= 0 && colorIndex < 10);
                 switch (colorIndex) {
                 case 0:
@@ -958,19 +875,16 @@ public class BeadForm extends JFrame implements Localization {
                 }
             } else if (sbToolSelect.isSelected()) {
                 draftSelectPreview(false, false);
-                if (begin_i != end_i || begin_j != end_j) {
-                    selection = true;
-                    sel_i1 = begin_i;
-                    sel_j1 = begin_j;
-                    sel_i2 = end_i;
-                    sel_j2 = end_j;
+                if (selection.isNormal()) {
                     draftSelectDraw();
                 }
             }
         }
     }
 
-    private void fillLine(int _i, int _j) {
+    private void fillLine(Point pt) {
+        int _i = pt.getX();
+        int _j = pt.getY();
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
         // xxx experimentell nach links und rechts
@@ -982,7 +896,7 @@ public class BeadForm extends JFrame implements Localization {
             redraw(i, _j);
             i--;
         }
-        i = begin_i + 1;
+        i = _i + 1;
         while (i < getField().getWidth() && getField().get(i, _j + scroll) == bk) {
             getField().set(i, _j + scroll, colorIndex);
             // TODO make draft an observer of field!
@@ -991,7 +905,9 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    private void setPoint(int _i, int _j) {
+    private void setPoint(Point pt) {
+        int _i = pt.getX();
+        int _j = pt.getY();
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
@@ -1198,7 +1114,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private void idleHandler() {
         // Menü- und Toolbar enablen/disablen
-        getAction("arrange").setEnabled(selection);
+        getAction("arrange").setEnabled(selection.isActive());
         getAction("undo").setEnabled(model.canUndo());
         getAction("redo").setEnabled(model.canRedo());
 
@@ -1251,7 +1167,7 @@ public class BeadForm extends JFrame implements Localization {
             // Feld setzen und Darstellung nachf�hren
             int j = idx / getField().getWidth();
             int i = idx % getField().getWidth();
-            setPoint(i, j - scroll);
+            setPoint(new Point(i, j - scroll));
         }
     }
 
@@ -1312,26 +1228,15 @@ public class BeadForm extends JFrame implements Localization {
         CopyForm copyform = new CopyForm(this);
         copyform.setVisible(true);
         if (copyform.isOK()) {
+            // move this to model!
             model.snapshot(modified);
-            // Aktuelle Daten in Buffer kopieren
-            sel_buff.copyFrom(model.getField());
-            // Daten vervielf�ltigen
-            if (sel_i1 > sel_i2) {
-                int temp = sel_i1;
-                sel_i1 = sel_i2;
-                sel_i2 = temp;
-            }
-            if (sel_j1 > sel_j2) {
-                int temp = sel_j1;
-                sel_j1 = sel_j2;
-                sel_j2 = temp;
-            }
-            for (int i = sel_i1; i <= sel_i2; i++) {
-                for (int j = sel_j1; j <= sel_j2; j++) {
-                    byte c = sel_buff.get(i, j);
+            BeadField buffer = new BeadField();
+            buffer.copyFrom(model.getField());
+            for (int i = selection.left(); i <= selection.right(); i++) {
+                for (int j = selection.bottom(); j <= selection.top(); j++) {
+                    byte c = buffer.get(i, j);
                     if (c == 0) continue;
                     int idx = getIndex(i, j);
-                    // Diesen Punkt x-mal vervielf�ltigen
                     for (int k = 0; k < copyform.getCopies(); k++) {
                         idx += getCopyOffset(copyform);
                         if (getField().isValidIndex(idx)) getField().set(idx, c);

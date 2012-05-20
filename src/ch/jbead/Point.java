@@ -51,4 +51,19 @@ public class Point {
         this.y = y;
     }
 
+    @Override
+    public int hashCode() {
+        return x ^ y;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Point other = (Point) obj;
+        if (other == null) return false;
+        return x == other.x && y == other.y;
+    }
+
+    public Point scrolled(int scroll) {
+        return new Point(x, y + scroll);
+    }
 }

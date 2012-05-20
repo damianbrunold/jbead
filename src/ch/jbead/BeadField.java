@@ -62,6 +62,10 @@ public class BeadField {
         this.height = SIZE / width;
         assert (this.width > 0 && this.height > 0);
     }
+    
+    public byte get(Point pt) {
+        return get(pt.getX(), pt.getY());
+    }
 
     public byte get(int x, int y) {
         assert (width > 0 && height > 0);
@@ -77,6 +81,10 @@ public class BeadField {
         int i = index % width;
         int j = index / width;
         return get(i, j);
+    }
+
+    public void set(Point pt, byte value) {
+        set(pt.getX(), pt.getY(), value);
     }
 
     public void set(int x, int y, byte value) {
