@@ -38,11 +38,13 @@ public class DraftPanel extends JComponent {
     private static final int MARKER_WIDTH = 30;
 
     private Model model;
+    private Selection selection;
     private int offsetx;
     private int maxj;
 
-    public DraftPanel(Model model, final BeadForm form) {
+    public DraftPanel(Model model, Selection selection, final BeadForm form) {
         this.model = model;
+        this.selection = selection;
         setBackground(Color.LIGHT_GRAY);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -71,7 +73,9 @@ public class DraftPanel extends JComponent {
         paintGrid(g);
         paintBeads(g);
         paintMarkers(g);
-        paintSelection(g);
+        if (selection.isNormal()) { 
+            paintSelection(g, Color.RED);
+        }
     }
 
     @Override
@@ -146,9 +150,21 @@ public class DraftPanel extends JComponent {
         }
     }
 
-    private void paintSelection(Graphics g) {
-        // TODO
-        // DraftSelectDraw();
+    public void drawSelection() {
+        Graphics g = getGraphics();
+        paintSelection(g, Color.RED);
+        g.dispose();
+    }
+    
+    public void clearSelection() {
+        Graphics g = getGraphics();
+        paintSelection(g, Color.DARK_GRAY);
+        g.dispose();
+    }
+    
+    private void paintSelection(Graphics g, Color color) {
+        g.setColor(color);
+        g.drawRect(x(selection.left()), y(selection.top()), selection.width() * model.getGrid(), selection.height() * model.getGrid());
     }
 
     public void redraw(int i, int j) {

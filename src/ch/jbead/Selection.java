@@ -92,6 +92,14 @@ public class Selection {
         return getEnd().getY();
     }
     
+    public int width() {
+        return right() - left() + 1;
+    }
+    
+    public int height() {
+        return top() - bottom() + 1;
+    }
+
     public Point getLineDest() {
         int x = dest.getX();
         int y = dest.getY();
@@ -122,4 +130,8 @@ public class Selection {
         return origin.getY() < dest.getY() ? 1 : -1; 
     }
 
+    @Override
+    public String toString() {
+        return "(" + getBegin() + "-" + getEnd() + ")";
+    }
 }

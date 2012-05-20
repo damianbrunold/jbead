@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -125,7 +126,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
-    private DraftPanel draft = new DraftPanel(model, this);
+    private DraftPanel draft = new DraftPanel(model, selection, this);
     private NormalPanel normal = new NormalPanel(model, this);
     private SimulationPanel simulation = new SimulationPanel(model);
     private ReportPanel report = new ReportPanel(model, this);
@@ -193,6 +194,16 @@ public class BeadForm extends JFrame implements Localization {
                 colorClick(e);
             }
         };
+        MouseAdapter colorMouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (e.getClickCount() == 2) {
+                    colorDblClick(e.getSource());
+                }
+            }
+            
+        };
         sbColor0.addActionListener(colorActionListener);
         sbColor1.addActionListener(colorActionListener);
         sbColor2.addActionListener(colorActionListener);
@@ -203,6 +214,16 @@ public class BeadForm extends JFrame implements Localization {
         sbColor7.addActionListener(colorActionListener);
         sbColor8.addActionListener(colorActionListener);
         sbColor9.addActionListener(colorActionListener);
+        
+        sbColor1.addMouseListener(colorMouseAdapter);
+        sbColor2.addMouseListener(colorMouseAdapter);
+        sbColor3.addMouseListener(colorMouseAdapter);
+        sbColor4.addMouseListener(colorMouseAdapter);
+        sbColor5.addMouseListener(colorMouseAdapter);
+        sbColor6.addMouseListener(colorMouseAdapter);
+        sbColor7.addMouseListener(colorMouseAdapter);
+        sbColor8.addMouseListener(colorMouseAdapter);
+        sbColor9.addMouseListener(colorMouseAdapter);
         
         setIconImage(ImageFactory.getImage("jbead-16"));
         
@@ -758,47 +779,46 @@ public class BeadForm extends JFrame implements Localization {
         draft.linePreview(selection.getOrigin(), selection.getLineDest());
     }
 
-    private void draftSelectPreview(boolean _draw, boolean _doit) {
-        if (!sbToolSelect.isSelected() && !_doit) return;
+    private void drawSelection() {
+        if (!sbToolSelect.isSelected()) return;
         if (!selection.isActive()) return;
-        draft.selectPreview(_draw, selection.getBegin(), selection.getEnd());
+        draft.drawSelection();
     }
 
-    private void draftSelectDraw() {
+    private void clearSelection() {
+        if (!sbToolSelect.isSelected()) return;
         if (!selection.isActive()) return;
-        draftSelectPreview(true, true);
-    }
-
-    private void draftSelectClear() {
-        if (!selection.isActive()) return;
-        draftSelectPreview(false, true);
+        draft.clearSelection();
         selection.clear();
+    }
+
+    private void drawPrepress() {
+        if (sbToolPencil.isSelected()) {
+            draft.drawPrepress(selection.getOrigin());
+        }
     }
 
     public void draftMouseDown(MouseEvent event) {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
-            draftSelectClear();
+            clearSelection();
             dragging = true;
             selection.init(pt);
-            // Prepress
-            if (sbToolPencil.isSelected()) {
-                draft.drawPrepress(selection.getOrigin());
-            }
+            drawPrepress();
             draftLinePreview();
-            draftSelectPreview(true, false);
+            drawSelection();
         }
     }
 
     public void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
-            draftSelectPreview(false, false);
+            clearSelection();
             draftLinePreview();
             selection.update(pt);
             draftLinePreview();
-            draftSelectPreview(true, false);
+            drawSelection();
         }
     }
 
@@ -808,6 +828,7 @@ public class BeadForm extends JFrame implements Localization {
         byte colorIndex = model.getColorIndex();
         if (dragging && draft.mouseToField(pt)) {
             draftLinePreview();
+            clearSelection();
             selection.update(pt);
             dragging = false;
 
@@ -896,9 +917,10 @@ public class BeadForm extends JFrame implements Localization {
                     break;
                 }
             } else if (sbToolSelect.isSelected()) {
-                draftSelectPreview(false, false);
-                if (selection.isNormal()) {
-                    draftSelectDraw();
+                if (selection.isActive()) {
+                    drawSelection();
+                } else {
+                    setPoint(selection.getOrigin());
                 }
             }
         }
@@ -1067,52 +1089,50 @@ public class BeadForm extends JFrame implements Localization {
 
     // TODO split this for every color toolbar button
     public void colorClick(ActionEvent event) {
-        Object Sender = event.getSource();
-        System.out.println(Sender);
-        if (Sender == sbColor0)
+        Object sender = event.getSource();
+        if (sender == sbColor0)
             model.setColorIndex((byte) 0);
-        else if (Sender == sbColor1)
+        else if (sender == sbColor1)
             model.setColorIndex((byte) 1);
-        else if (Sender == sbColor2)
+        else if (sender == sbColor2)
             model.setColorIndex((byte) 2);
-        else if (Sender == sbColor3)
+        else if (sender == sbColor3)
             model.setColorIndex((byte) 3);
-        else if (Sender == sbColor4)
+        else if (sender == sbColor4)
             model.setColorIndex((byte) 4);
-        else if (Sender == sbColor5)
+        else if (sender == sbColor5)
             model.setColorIndex((byte) 5);
-        else if (Sender == sbColor6)
+        else if (sender == sbColor6)
             model.setColorIndex((byte) 6);
-        else if (Sender == sbColor7)
+        else if (sender == sbColor7)
             model.setColorIndex((byte) 7);
-        else if (Sender == sbColor8)
+        else if (sender == sbColor8)
             model.setColorIndex((byte) 8);
-        else if (Sender == sbColor9) model.setColorIndex((byte) 9);
+        else if (sender == sbColor9) model.setColorIndex((byte) 9);
     }
 
     // TODO split this for every color toolbar button
-    public void colorDblClick(ActionEvent event) {
-        Object Sender = event.getSource();
+    public void colorDblClick(Object sender) {
         int c = 0;
-        if (Sender == sbColor0)
+        if (sender == sbColor0)
             c = 0;
-        else if (Sender == sbColor1)
+        else if (sender == sbColor1)
             c = 1;
-        else if (Sender == sbColor2)
+        else if (sender == sbColor2)
             c = 2;
-        else if (Sender == sbColor3)
+        else if (sender == sbColor3)
             c = 3;
-        else if (Sender == sbColor4)
+        else if (sender == sbColor4)
             c = 4;
-        else if (Sender == sbColor5)
+        else if (sender == sbColor5)
             c = 5;
-        else if (Sender == sbColor6)
+        else if (sender == sbColor6)
             c = 6;
-        else if (Sender == sbColor7)
+        else if (sender == sbColor7)
             c = 7;
-        else if (Sender == sbColor8)
+        else if (sender == sbColor8)
             c = 8;
-        else if (Sender == sbColor9) c = 9;
+        else if (sender == sbColor9) c = 9;
         if (c == 0) return;
         Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
         if (color == null) return;
@@ -1155,19 +1175,19 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void toolPencilClick() {
-        draftSelectClear();
+        clearSelection();
     }
 
     public void toolSelectClick() {
-        draftSelectClear();
+        clearSelection();
     }
 
     public void toolFillClick() {
-        draftSelectClear();
+        clearSelection();
     }
 
     public void toolPipetteClick() {
-        draftSelectClear();
+        clearSelection();
     }
 
     public void normalMouseUp(MouseEvent event) {
