@@ -51,3 +51,7 @@ probably be done using Actions.
 
 Rework selection stuff. Abstract a selection object and
 let the panels observe it.
+
+Delete formresize
+
+Rename updateBead to redraw

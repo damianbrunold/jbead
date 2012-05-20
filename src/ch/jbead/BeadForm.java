@@ -59,6 +59,39 @@ import javax.swing.JScrollBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import ch.jbead.action.EditArrangeAction;
+import ch.jbead.action.EditDeleteLineAction;
+import ch.jbead.action.EditInsertLineAction;
+import ch.jbead.action.EditRedoAction;
+import ch.jbead.action.EditUndoAction;
+import ch.jbead.action.FileExitAction;
+import ch.jbead.action.FileMRU1Action;
+import ch.jbead.action.FileMRU2Action;
+import ch.jbead.action.FileMRU3Action;
+import ch.jbead.action.FileMRU4Action;
+import ch.jbead.action.FileMRU5Action;
+import ch.jbead.action.FileMRU6Action;
+import ch.jbead.action.FileNewAction;
+import ch.jbead.action.FileOpenAction;
+import ch.jbead.action.FilePrintAction;
+import ch.jbead.action.FilePrintSetupAction;
+import ch.jbead.action.FileSaveAction;
+import ch.jbead.action.FileSaveAsAction;
+import ch.jbead.action.ToolFillAction;
+import ch.jbead.action.ToolPencilAction;
+import ch.jbead.action.ToolPipetteAction;
+import ch.jbead.action.ToolSelectAction;
+import ch.jbead.action.ViewDraftAction;
+import ch.jbead.action.ViewNormalAction;
+import ch.jbead.action.ViewReportAction;
+import ch.jbead.action.ViewSimulationAction;
+import ch.jbead.action.ViewZoomInAction;
+import ch.jbead.action.ViewZoomNormalAction;
+import ch.jbead.action.ViewZoomOutAction;
+import ch.jbead.dialog.AboutBox;
+import ch.jbead.dialog.CopyForm;
+import ch.jbead.dialog.PatternWidthForm;
+
 /**
  * 
  */
@@ -119,8 +152,8 @@ public class BeadForm extends JFrame implements Localization {
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
 
-    private JButton sbRotateleft = createButton("sb_prev");
-    private JButton sbRotateright = createButton("sb_next");
+    private JButton sbRotateleft;
+    private JButton sbRotateright;
     
     private ButtonGroup toolsGroup = new ButtonGroup();
     private JRadioButtonMenuItem toolPencil;
@@ -165,14 +198,6 @@ public class BeadForm extends JFrame implements Localization {
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
     }
 
-    private JButton createButton(String imageName) {
-        return new JButton(ImageFactory.getIcon(imageName));
-    }
-    
-    private JToggleButton createToggleButton(String imageName) {
-        return new JToggleButton(ImageFactory.getIcon(imageName));
-    }
-    
     private void initCloseHandler() {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -312,8 +337,8 @@ public class BeadForm extends JFrame implements Localization {
         toolbar.add(getAction("file.print"));
         toolbar.add(getAction("edit.undo"));
         toolbar.add(getAction("edit.redo"));
-        toolbar.add(sbRotateleft);
-        toolbar.add(sbRotateright);
+        toolbar.add(sbRotateleft = new JButton(ImageFactory.getIcon("sb_prev")));
+        toolbar.add(sbRotateright = new JButton(ImageFactory.getIcon("sb_next")));
         toolbar.add(getAction("edit.arrange"));
         
         toolbar.addSeparator();
@@ -533,7 +558,7 @@ public class BeadForm extends JFrame implements Localization {
         simulation.updateBead(i, j);
     }
 
-    void fileNewClick() {
+    public void fileNewClick() {
         // ask whether to save modified document
         if (modified) {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
@@ -633,7 +658,7 @@ public class BeadForm extends JFrame implements Localization {
         if (addtomru) addToMRU(file);
     }
 
-    void fileOpenClick() {
+    public void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getFile().getParentFile());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -641,7 +666,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void fileSaveClick() {
+    public void fileSaveClick() {
         if (saved) {
             // Einfach abspeichern...
             try {
@@ -665,7 +690,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void fileSaveasClick() {
+    public void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
@@ -682,7 +707,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void filePrintClick(boolean showDialog) {
+    public void filePrintClick(boolean showDialog) {
         try {
             if (showDialog) {
                 PrinterJob pj = PrinterJob.getPrinterJob();
@@ -720,12 +745,12 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void filePrintersetupClick() {
+    public void filePrintersetupClick() {
         PrinterJob pj = PrinterJob.getPrinterJob();
         pageFormat = pj.pageDialog(pj.defaultPage());
     }
 
-    void fileExitClick() {
+    public void fileExitClick() {
         if (modified) {
             int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) return;
@@ -735,7 +760,7 @@ public class BeadForm extends JFrame implements Localization {
         System.exit(0);
     }
 
-    private void patternWidthClick() {
+    public void patternWidthClick() {
         int old = getField().getWidth();
         PatternWidthForm form = new PatternWidthForm(this);
         form.setPatternWidth(getField().getWidth());
@@ -832,7 +857,7 @@ public class BeadForm extends JFrame implements Localization {
         selection = false;
     }
 
-    void draftMouseDown(MouseEvent event) {
+    public void draftMouseDown(MouseEvent event) {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
@@ -852,7 +877,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void draftMouseMove(MouseEvent event) {
+    public void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
             draftSelectPreview(false, false);
@@ -864,7 +889,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    void draftMouseUp(MouseEvent event) {
+    public void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
@@ -1025,28 +1050,28 @@ public class BeadForm extends JFrame implements Localization {
         updateTitle();
     }
 
-    void editUndoClick() {
+    public void editUndoClick() {
         modified = model.undo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    void editRedoClick() {
+    public void editRedoClick() {
         modified = model.redo();
         updateTitle();
         invalidate();
         model.setRepeatDirty();
     }
 
-    void viewZoomInClick() {
+    public void viewZoomInClick() {
         model.zoomIn();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    void viewZoomNormalClick() {
+    public void viewZoomNormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
         formResize();
@@ -1054,42 +1079,42 @@ public class BeadForm extends JFrame implements Localization {
         updateScrollbar();
     }
 
-    void viewZoomOutClick() {
+    public void viewZoomOutClick() {
         model.zoomOut();
         formResize();
         invalidate();
         updateScrollbar();
     }
 
-    void viewDraftClick() {
+    public void viewDraftClick() {
         viewDraft.setSelected(!viewDraft.isSelected());
         draft.setVisible(viewDraft.isSelected());
         laDraft.setVisible(draft.isVisible());
         formResize();
     }
 
-    void viewNormalClick() {
+    public void viewNormalClick() {
         viewNormal.setSelected(!viewNormal.isSelected());
         normal.setVisible(viewNormal.isSelected());
         laNormal.setVisible(normal.isVisible());
         formResize();
     }
 
-    void viewSimulationClick() {
+    public void viewSimulationClick() {
         viewSimulation.setSelected(!viewSimulation.isSelected());
         simulation.setVisible(viewSimulation.isSelected());
         laSimulation.setVisible(simulation.isVisible());
         formResize();
     }
 
-    void viewReportClick() {
+    public void viewReportClick() {
         viewReport.setSelected(!viewReport.isSelected());
         report.setVisible(viewReport.isSelected());
         laReport.setVisible(report.isVisible());
         formResize();
     }
 
-    private void formKeyUp(KeyEvent event) {
+    public void formKeyUp(KeyEvent event) {
         int Key = event.getKeyCode();
         if (Key == KeyEvent.VK_F5) {
             invalidate();
@@ -1157,7 +1182,7 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     // TODO split this for every color toolbar button
-    private void colorClick(ActionEvent event) {
+    public void colorClick(ActionEvent event) {
         Object Sender = event.getSource();
         if (Sender == sbColor0)
             model.setColorIndex((byte) 0);
@@ -1181,7 +1206,7 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     // TODO split this for every color toolbar button
-    private void colorDblClick(ActionEvent event) {
+    public void colorDblClick(ActionEvent event) {
         Object Sender = event.getSource();
         int c = 0;
         if (Sender == sbColor0)
@@ -1244,23 +1269,23 @@ public class BeadForm extends JFrame implements Localization {
         model.prepareSnapshot(modified);
     }
 
-    void toolPencilClick() {
+    public void toolPencilClick() {
         draftSelectClear();
     }
 
-    void toolSelectClick() {
+    public void toolSelectClick() {
         draftSelectClear();
     }
 
-    void toolFillClick() {
+    public void toolFillClick() {
         draftSelectClear();
     }
 
-    void toolPipetteClick() {
+    public void toolPipetteClick() {
         draftSelectClear();
     }
 
-    void normalMouseUp(MouseEvent event) {
+    public void normalMouseUp(MouseEvent event) {
         int scroll = model.getScroll();
         // TODO move this to the NormalPanel
         Point pt = new Point(event.getX(), event.getY());
@@ -1284,7 +1309,7 @@ public class BeadForm extends JFrame implements Localization {
         }
     }
 
-    private void infoAboutClick() {
+    public void infoAboutClick() {
         new AboutBox(this).setVisible(true);
     }
 
@@ -1318,7 +1343,7 @@ public class BeadForm extends JFrame implements Localization {
         // lefttimer.Enabled = false;
     }
 
-    private void formKeyDown(KeyEvent event) {
+    public void formKeyDown(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.VK_RIGHT) {
             rotateRight();
         } else if (event.getKeyCode() == KeyEvent.VK_LEFT) {
@@ -1337,7 +1362,7 @@ public class BeadForm extends JFrame implements Localization {
         return true;
     }
 
-    void editArrangeClick() {
+    public void editArrangeClick() {
         CopyForm copyform = new CopyForm(this);
         copyform.setVisible(true);
         if (copyform.isOK()) {
@@ -1382,7 +1407,7 @@ public class BeadForm extends JFrame implements Localization {
         return j * getField().getWidth() + i;
     }
 
-    void editInsertLineClick() {
+    public void editInsertLineClick() {
         model.snapshot(modified);
         getField().insertLine();
         model.setRepeatDirty();
@@ -1391,7 +1416,7 @@ public class BeadForm extends JFrame implements Localization {
         invalidate();
     }
 
-    void editDeleteLineClick() {
+    public void editDeleteLineClick() {
         model.snapshot(modified);
         getField().deleteLine();
         model.setRepeatDirty();
@@ -1400,11 +1425,11 @@ public class BeadForm extends JFrame implements Localization {
         invalidate();
     }
 
-    void setAppTitle() {
+    public void setAppTitle() {
         updateTitle();
     }
 
-    private void updateTitle() {
+    public void updateTitle() {
         String c = "jbead"; // APP_TITLE;
         c += " - ";
         if (saved) {
@@ -1748,27 +1773,27 @@ public class BeadForm extends JFrame implements Localization {
         // TODO maybe have to set visibility of separator after last mru menu item
     }
     
-    void fileMRU1Click() {
+    public void fileMRU1Click() {
         loadFile(new File(mru[0]), true);
     }
 
-    void fileMRU2Click() {
+    public void fileMRU2Click() {
         loadFile(new File(mru[1]), true);
     }
 
-    void fileMRU3Click() {
+    public void fileMRU3Click() {
         loadFile(new File(mru[2]), true);
     }
 
-    void fileMRU4Click() {
+    public void fileMRU4Click() {
         loadFile(new File(mru[3]), true);
     }
 
-    void fileMRU5Click() {
+    public void fileMRU5Click() {
         loadFile(new File(mru[4]), true);
     }
 
-    void fileMRU6Click() {
+    public void fileMRU6Click() {
         loadFile(new File(mru[5]), true);
     }
 
