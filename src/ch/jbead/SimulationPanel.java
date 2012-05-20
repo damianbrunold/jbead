@@ -18,6 +18,7 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 
 import javax.swing.JComponent;
@@ -34,6 +35,21 @@ public class SimulationPanel extends JComponent {
 
     public SimulationPanel(Model model) {
         this.model = model;
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension((model.getField().getWidth() / 2 + 1) * model.getGrid(), 3 * model.getGrid());
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return getMinimumSize();
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return getMinimumSize();
     }
 
     @Override

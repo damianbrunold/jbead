@@ -18,6 +18,7 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -47,6 +48,21 @@ public class NormalPanel extends JComponent {
     }
 
     @Override
+    public Dimension getMinimumSize() {
+        return new Dimension((model.getField().getWidth() + 2) * model.getGrid(), 3 * model.getGrid());
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return getMinimumSize();
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return getMinimumSize();
+    }
+
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         offsetx = getOffsetX();
@@ -66,7 +82,7 @@ public class NormalPanel extends JComponent {
 
     private int getOffsetX() {
         int grid = model.getGrid();
-        return (getWidth() - 1 - (model.getField().getWidth() + 1) * grid + grid / 2) / 2;
+        return grid / 2 + (getWidth() - 1 - model.getField().getWidth() * grid - grid / 2) / 2;
     }
 
     private int x(int i) {

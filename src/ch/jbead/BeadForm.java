@@ -186,6 +186,12 @@ public class BeadForm extends JFrame implements Localization {
         updateMRU();
         updateScrollbar();
         initCloseHandler();
+
+        // persist settings?
+        viewDraft.setSelected(true);
+        viewNormal.setSelected(true);
+        viewSimulation.setSelected(true);
+        viewReport.setSelected(true);
         
         setIconImage(ImageFactory.getImage("jbead-16"));
         
@@ -426,7 +432,7 @@ public class BeadForm extends JFrame implements Localization {
         c = new GridBagConstraints();
         c.gridx = 3;
         c.gridy = 0;
-        c.weightx = 2;
+        c.weightx = 5;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         main.add(report, c);
@@ -458,54 +464,6 @@ public class BeadForm extends JFrame implements Localization {
         sbColor7.setIcon(new ColorIcon(model, 7));
         sbColor8.setIcon(new ColorIcon(model, 8));
         sbColor9.setIcon(new ColorIcon(model, 9));
-    }
-
-    private void formResize() {
-        int cheight = getContentPane().getHeight() - toolbar.getHeight();
-        int cwidth = getContentPane().getWidth() - scrollbar.getWidth();
-        int top = toolbar.getHeight() + 6;
-
-        int nr = 0;
-        if (viewDraft.isSelected()) nr++;
-        if (viewNormal.isSelected()) nr++;
-        if (viewSimulation.isSelected()) nr++;
-        if (viewReport.isSelected()) nr += 2;
-        if (nr == 0) {
-            viewDraft.setSelected(true);
-            draft.setVisible(true);
-            laDraft.setVisible(true);
-            nr = 1;
-        }
-
-        int m = 6;
-        int grid = model.getGrid();
-
-        if (viewDraft.isSelected()) {
-            draft.setBounds(m, top, getField().getWidth() * grid + 35, cheight - 6 - laDraft.getHeight() - 3);
-            laDraft.setLocation(m + (draft.getWidth() - laDraft.getWidth()) / 2, draft.getY() + draft.getHeight() + 2);
-            m += draft.getWidth() + 12;
-        }
-
-        if (viewNormal.isSelected()) {
-            normal.setBounds(m, top, (getField().getWidth() + 1) * grid + 10, cheight - 6 - laNormal.getHeight() - 3);
-            laNormal.setLocation(m + (normal.getWidth() - laNormal.getWidth()) / 2, normal.getY() + normal.getHeight() + 2);
-            m += normal.getWidth() + 12;
-        }
-
-        if (viewSimulation.isSelected()) {
-            simulation.setBounds(m, top, (getField().getWidth() + 2) * grid / 2 + 10, cheight - 6 - laSimulation.getHeight() - 3);
-            laSimulation.setLocation(m + (simulation.getWidth() - laSimulation.getWidth()) / 2, simulation.getY() + simulation.getHeight() + 2);
-            m += simulation.getWidth() + 12;
-        }
-
-        if (viewReport.isSelected()) {
-            report.setBounds(m, top, cwidth - m - 6, cheight - 6 - laReport.getHeight() - 3);
-            laReport.setLocation(m + 5, report.getY() + report.getHeight() + 2);
-        }
-
-        scrollbar.setBounds(getContentPane().getWidth() - scrollbar.getWidth(), top, scrollbar.getWidth(), cheight - 6 - laDraft.getHeight() - 3);
-
-        updateScrollbar();
     }
 
     private void updateScrollbar() {
@@ -653,7 +611,6 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         model.setFile(file);
         updateTitle();
-        formResize();
         invalidate();
         if (addtomru) addToMRU(file);
     }
@@ -1066,52 +1023,41 @@ public class BeadForm extends JFrame implements Localization {
 
     public void viewZoomInClick() {
         model.zoomIn();
-        formResize();
-        invalidate();
         updateScrollbar();
+        repaint();
     }
 
     public void viewZoomNormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
-        formResize();
-        invalidate();
         updateScrollbar();
+        repaint();
     }
 
     public void viewZoomOutClick() {
         model.zoomOut();
-        formResize();
-        invalidate();
         updateScrollbar();
+        repaint();
     }
 
     public void viewDraftClick() {
-        viewDraft.setSelected(!viewDraft.isSelected());
         draft.setVisible(viewDraft.isSelected());
         laDraft.setVisible(draft.isVisible());
-        formResize();
     }
 
     public void viewNormalClick() {
-        viewNormal.setSelected(!viewNormal.isSelected());
         normal.setVisible(viewNormal.isSelected());
         laNormal.setVisible(normal.isVisible());
-        formResize();
     }
 
     public void viewSimulationClick() {
-        viewSimulation.setSelected(!viewSimulation.isSelected());
         simulation.setVisible(viewSimulation.isSelected());
         laSimulation.setVisible(simulation.isVisible());
-        formResize();
     }
 
     public void viewReportClick() {
-        viewReport.setSelected(!viewReport.isSelected());
         report.setVisible(viewReport.isSelected());
         laReport.setVisible(report.isVisible());
-        formResize();
     }
 
     public void formKeyUp(KeyEvent event) {

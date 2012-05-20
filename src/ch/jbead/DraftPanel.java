@@ -78,6 +78,16 @@ public class DraftPanel extends JComponent {
         return new Dimension(model.getField().getWidth() * model.getGrid() + MARKER_WIDTH + GAP, 3 * model.getGrid());
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return getMinimumSize();
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return getMinimumSize();
+    }
+
     private int getOffsetX() {
         return Math.max(3 + MARKER_WIDTH + GAP, (getWidth() - model.getField().getWidth() * model.getGrid() - 1) / 2);
     }

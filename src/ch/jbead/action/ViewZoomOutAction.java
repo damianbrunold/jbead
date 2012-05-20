@@ -39,7 +39,7 @@ public class ViewZoomOutAction extends BaseAction {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, "Decreases the zoom level");
         putValue(MNEMONIC_KEY, KeyEvent.VK_M);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control U"));
     }
     
     @Override
