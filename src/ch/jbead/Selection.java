@@ -22,8 +22,8 @@ package ch.jbead;
  */
 public class Selection {
 
-    private Point begin = new Point(0, 0);
-    private Point end = new Point(0, 0);
+    private Point origin = new Point(0, 0);
+    private Point dest = new Point(0, 0);
     private boolean selection;
 
     public void clear() {
@@ -35,41 +35,45 @@ public class Selection {
     }
     
     public void init(Point origin) {
-        begin = end = origin;
+        this.origin = this.dest = origin;
         selection = false;
     }
     
     public void update(Point end) {
-        this.end = end;
-        selection = !begin.equals(end);
+        this.dest = end;
+        selection = !origin.equals(dest);
     }
 
     public Point getOrigin() {
-        return begin;
+        return origin;
+    }
+    
+    public Point getDestination() {
+        return dest;
     }
     
     public Point getBegin() {
-        return new Point(Math.min(begin.getX(), end.getX()), Math.min(begin.getY(), end.getY()));
+        return new Point(Math.min(origin.getX(), dest.getX()), Math.min(origin.getY(), dest.getY()));
     }
     
     public Point getEnd() {
-        return new Point(Math.max(begin.getX(), end.getX()), Math.max(begin.getY(), end.getY()));
+        return new Point(Math.max(origin.getX(), dest.getX()), Math.max(origin.getY(), dest.getY()));
     }
     
     public boolean isSquare() {
-        return Math.abs(end.getX() - begin.getX()) == Math.abs(end.getY() - begin.getY());
+        return Math.abs(dest.getX() - origin.getX()) == Math.abs(dest.getY() - origin.getY());
     }
     
     public boolean isColumn() {
-        return begin.getX() == end.getX();
+        return origin.getX() == dest.getX();
     }
     
     public boolean isRow() {
-        return begin.getY() == end.getY();
+        return origin.getY() == dest.getY();
     }
     
     public boolean isNormal() {
-        return begin.getX() != end.getX() && begin.getY() != end.getY();
+        return origin.getX() != dest.getX() && origin.getY() != dest.getY();
     }
 
     public int left() {
@@ -88,27 +92,33 @@ public class Selection {
         return getEnd().getY();
     }
     
-    public Point getLineEnd() {
-        int _i1 = begin.getX();
-        int _j1 = begin.getY();
-        int _i2 = end.getX();
-        int _j2 = end.getY();
-        int dx = Math.abs(_i2 - _i1);
-        int dy = Math.abs(_j2 - _j1);
-        if (2 * dy < dx) {
-            _j2 = _j1;
-        } else if (2 * dx < dy) {
-            _i2 = _i1;
+    public Point getLineDest() {
+        int x = dest.getX();
+        int y = dest.getY();
+        int ax = Math.abs(getDeltaX());
+        int ay = Math.abs(getDeltaY());
+        if (ax > ay) {
+            x = origin.getX() + ay * getDx();
         } else {
-            int d = Math.min(dx, dy);
-            if (_i2 - _i1 > d)
-                _i2 = _i1 + d;
-            else if (_i1 - _i2 > d) _i2 = _i1 - d;
-            if (_j2 - _j1 > d)
-                _j2 = _j1 + d;
-            else if (_j1 - _j2 > d) _j2 = _j1 - d;
+            y = origin.getY() + ax * getDy();
         }
-        return new Point(_i2, _j2);
+        return new Point(x + getDx(), y + getDy());
+    }
+
+    public int getDeltaX() {
+        return dest.getX() - origin.getX();
     }
     
+    public int getDeltaY() {
+        return dest.getY() - origin.getY();
+    }
+    
+    public int getDx() {
+        return origin.getX() < dest.getX() ? 1 : -1;
+    }
+    
+    public int getDy() {
+        return origin.getY() < dest.getY() ? 1 : -1; 
+    }
+
 }

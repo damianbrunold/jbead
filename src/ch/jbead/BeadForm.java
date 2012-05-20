@@ -749,7 +749,7 @@ public class BeadForm extends JFrame implements Localization {
     private void draftLinePreview() {
         if (!sbToolPencil.isSelected()) return;
         if (!selection.isActive()) return;
-        draft.linePreview(selection.getOrigin(), selection.getLineEnd());
+        draft.linePreview(selection.getOrigin(), selection.getLineDest());
     }
 
     private void draftSelectPreview(boolean _draw, boolean _doit) {
@@ -808,42 +808,40 @@ public class BeadForm extends JFrame implements Localization {
             if (sbToolPencil.isSelected()) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
-                } else {
-                    selection.update(selection.getLineEnd());
-                    if (selection.isSquare()) {
-                        // 45 grad Linie
-                        model.snapshot(modified);
-                        for (int i = selection.getOrigin().getX(); i <= selection.getLineEnd().getX(); i++) {
-                            int j = selection.getOrigin().getY() + (i - selection.getOrigin().getX());
-                            getField().set(i, j + scroll, colorIndex);
-                            redraw(i, j);
-                        }
-                        model.setRepeatDirty();
-                        modified = true;
-                        updateTitle();
-                    } else if (selection.isColumn()) {
-                        // Senkrechte Linie
-                        model.snapshot(modified);
-                        int i = selection.left();
-                        for (int j = selection.bottom(); j <= selection.top(); j++) {
-                            getField().set(i, j + scroll, colorIndex);
-                            redraw(i, j);
-                        }
-                        modified = true;
-                        model.setRepeatDirty();
-                        updateTitle();
-                    } else if (selection.isRow()) {
-                        // Waagrechte Linie ziehen
-                        model.snapshot(modified);
-                        int j = selection.bottom();
-                        for (int i = selection.left(); i <= selection.right(); i++) {
-                            getField().set(i, j + scroll, colorIndex);
-                            redraw(i, j);
-                        }
-                        modified = true;
-                        model.setRepeatDirty();
-                        updateTitle();
+                } else if (selection.isColumn()) {
+                    // Senkrechte Linie
+                    model.snapshot(modified);
+                    int i = selection.left();
+                    for (int j = selection.bottom(); j <= selection.top(); j++) {
+                        getField().set(i, j + scroll, colorIndex);
+                        redraw(i, j);
                     }
+                    modified = true;
+                    model.setRepeatDirty();
+                    updateTitle();
+                } else if (selection.isRow()) {
+                    // Waagrechte Linie ziehen
+                    model.snapshot(modified);
+                    int j = selection.bottom();
+                    for (int i = selection.left(); i <= selection.right(); i++) {
+                        getField().set(i, j + scroll, colorIndex);
+                        redraw(i, j);
+                    }
+                    modified = true;
+                    model.setRepeatDirty();
+                    updateTitle();
+                } else {
+                    // 45 grad Linie
+                    model.snapshot(modified);
+                    for (int i = selection.getOrigin().getX(); i != selection.getLineDest().getX(); i += selection.getDx()) {
+                        int j = selection.getOrigin().getY() + selection.getDy() * Math.abs(i - selection.getOrigin().getX());
+                        getField().set(i, j + scroll, colorIndex);
+                        redraw(i, j);
+                    }
+                    System.out.println();
+                    model.setRepeatDirty();
+                    modified = true;
+                    updateTitle();
                 }
             } else if (sbToolFill.isSelected()) {
                 model.snapshot(modified);
