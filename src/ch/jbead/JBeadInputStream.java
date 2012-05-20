@@ -65,7 +65,25 @@ public class JBeadInputStream {
         int red = in.read();
         int green = in.read();
         int blue = in.read();
+        @SuppressWarnings("unused")
+        int alpha = in.read();
         return new Color(red, green, blue);
+    }
+    
+    /**
+     * For backwards compatibility with db-bead, we treat the first
+     * color, the background color, differently.
+     */
+    public Color readBackgroundColor() throws IOException {
+        int red = in.read();
+        int green = in.read();
+        int blue = in.read();
+        int alpha = in.read();
+        if (red == 15 && green == 0 && blue == 0 && alpha == 128) {
+            return new Color(240, 240, 240);
+        } else {
+            return new Color(red, green, blue);
+        }
     }
 
     public boolean readBool() throws IOException {

@@ -42,6 +42,10 @@ public class JBeadOutputStream {
         out.write(b3);
         out.write(b4);
     }
+    
+    public void write(int value) throws IOException {
+        out.write(value);
+    }
 
     public void write(byte[] bytes, int off, int length) throws IOException {
         out.write(bytes, off, length);
@@ -59,8 +63,9 @@ public class JBeadOutputStream {
         out.write(color.getRed());
         out.write(color.getGreen());
         out.write(color.getBlue());
+        out.write(0);
     }
-
+    
     public void writeBool(boolean value) throws IOException {
         out.write(value ? 1 : 0);
     }

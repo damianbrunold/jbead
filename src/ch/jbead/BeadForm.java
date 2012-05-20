@@ -528,13 +528,13 @@ public class BeadForm extends JFrame implements Localization {
 
         // delete all
         model.clear();
-        invalidate();
         sbColor1.setSelected(true);
         setColorIcons();
         updateScrollbar();
         selection = false;
         saved = false;
         modified = false;
+        repaint();
         updateTitle();
     }
 
@@ -611,7 +611,7 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         model.setFile(file);
         updateTitle();
-        invalidate();
+        repaint();
         if (addtomru) addToMRU(file);
     }
 
@@ -634,6 +634,7 @@ public class BeadForm extends JFrame implements Localization {
                     out.writeBool(viewDraft.isSelected());
                     out.writeBool(viewNormal.isSelected());
                     out.writeBool(viewSimulation.isSelected());
+                    // report flag is not saved?!
                     modified = false;
                     updateTitle();
                 } finally {
@@ -652,7 +653,7 @@ public class BeadForm extends JFrame implements Localization {
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
                 String msg = getString("fileexists");
-                msg.replace("{1}", dialog.getSelectedFile().getName());
+                msg = msg.replace("{1}", dialog.getSelectedFile().getName());
                 if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
                     return;
                 }
@@ -725,8 +726,7 @@ public class BeadForm extends JFrame implements Localization {
         if (form.isOK()) {
             model.snapshot(modified);
             getField().setWidth(form.getPatternWidth());
-            //formResize();
-            invalidate();
+            repaint();
             if (!modified) {
                 modified = (old != getField().getWidth());
             }
@@ -917,7 +917,7 @@ public class BeadForm extends JFrame implements Localization {
                 modified = true;
                 updateTitle();
                 model.setRepeatDirty();
-                report.invalidate();
+                report.repaint();
             } else if (sbToolPipette.isSelected()) {
                 colorIndex = getField().get(begin_i, begin_j + scroll);
                 assert (colorIndex >= 0 && colorIndex < 10);
@@ -1010,14 +1010,14 @@ public class BeadForm extends JFrame implements Localization {
     public void editUndoClick() {
         modified = model.undo();
         updateTitle();
-        invalidate();
+        repaint();
         model.setRepeatDirty();
     }
 
     public void editRedoClick() {
         modified = model.redo();
         updateTitle();
-        invalidate();
+        repaint();
         model.setRepeatDirty();
     }
 
@@ -1063,7 +1063,7 @@ public class BeadForm extends JFrame implements Localization {
     public void formKeyUp(KeyEvent event) {
         int Key = event.getKeyCode();
         if (Key == KeyEvent.VK_F5) {
-            invalidate();
+            repaint();
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
             model.setColorIndex((byte) (event.getKeyChar() - '0'));
             switch (model.getColorIndex()) {
@@ -1116,7 +1116,7 @@ public class BeadForm extends JFrame implements Localization {
         shift = (shift - 1 + getField().getWidth()) % getField().getWidth();
         modified = true;
         updateTitle();
-        simulation.invalidate();
+        simulation.repaint();
     }
 
     private void rotateRight() {
@@ -1124,7 +1124,7 @@ public class BeadForm extends JFrame implements Localization {
         shift = (shift + 1) % getField().getWidth();
         modified = true;
         updateTitle();
-        simulation.invalidate();
+        simulation.repaint();
     }
 
     // TODO split this for every color toolbar button
@@ -1183,7 +1183,7 @@ public class BeadForm extends JFrame implements Localization {
         // pattern)
         modified = true;
         updateTitle();
-        invalidate();
+        repaint();
         setColorIcons();
     }
 
@@ -1193,7 +1193,7 @@ public class BeadForm extends JFrame implements Localization {
         // if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos =
         // scrollbar.Max - scrollbar.PageSize;
         model.setScroll(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue());
-        if (oldscroll != model.getScroll()) invalidate();
+        if (oldscroll != model.getScroll()) repaint();
     }
 
     private void idleHandler() {
@@ -1208,7 +1208,7 @@ public class BeadForm extends JFrame implements Localization {
         // Rapport berechnen und zeichnen
         if (model.isRepeatDirty()) {
             model.updateRepeat();
-            report.invalidate();
+            report.repaint();
         }
 
         // Vorsorgliches Undo
@@ -1341,7 +1341,7 @@ public class BeadForm extends JFrame implements Localization {
             model.setRepeatDirty();
             modified = true;
             updateTitle();
-            invalidate();
+            repaint();
         }
     }
 
@@ -1359,7 +1359,7 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         modified = true;
         updateTitle();
-        invalidate();
+        repaint();
     }
 
     public void editDeleteLineClick() {
@@ -1368,7 +1368,7 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         modified = true;
         updateTitle();
-        invalidate();
+        repaint();
     }
 
     public void setAppTitle() {

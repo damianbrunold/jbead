@@ -61,7 +61,7 @@ public class Model implements ColorTable {
     }
 
     private void defaultColors() {
-        colors[0] = new Color(240, 240, 240); // was clBtnFace
+        colors[0] = new Color(240, 240, 240);
         colors[1] = new Color(128, 0, 0); // maroon
         colors[2] = new Color(0, 0, 128); // navy
         colors[3] = Color.GREEN;
@@ -139,7 +139,8 @@ public class Model implements ColorTable {
     
     public void load(JBeadInputStream in) throws IOException {
         field.load(in);
-        for (int i = 0; i < getColorCount(); i++) {
+        setColor(0, in.readBackgroundColor());
+        for (int i = 1; i < getColorCount(); i++) {
             setColor(i, in.readColor());
         }
         colorIndex = in.read();
@@ -153,7 +154,7 @@ public class Model implements ColorTable {
         for (Color color : colors) {
             out.writeColor(color);
         }
-        out.writeInt(colorIndex);
+        out.write(colorIndex);
         out.writeInt(zoomIndex);
         out.writeInt(shift);
         out.writeInt(scroll);
