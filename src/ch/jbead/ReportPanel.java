@@ -59,7 +59,7 @@ public class ReportPanel extends JComponent {
 
         // Umfang
         g.drawString(localization.getString("report.circumference"), x1, y);
-        g.drawString(Integer.toString(model.getField().getWidth()), x2, y);
+        g.drawString(Integer.toString(model.getWidth()), x2, y);
         y += dy;
 
         // Farbrapport
@@ -73,10 +73,10 @@ public class ReportPanel extends JComponent {
             g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = model.getField().get(model.getColorRepeat() - 1);
+            byte col = model.get(model.getColorRepeat() - 1);
             int count = 1;
             for (int i = model.getColorRepeat() - 2; i >= 0; i--) {
-                if (model.getField().get(i) == col) {
+                if (model.get(i) == col) {
                     count++;
                 } else {
                     if (col != 0) {
@@ -89,7 +89,7 @@ public class ReportPanel extends JComponent {
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
-                    col = model.getField().get(i);
+                    col = model.get(i);
                     count = 1;
                 }
                 if (y >= getHeight() - 10) {

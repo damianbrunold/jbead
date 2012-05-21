@@ -481,9 +481,9 @@ public class BeadForm extends JFrame implements Localization {
         main.add(scrollbar, c);
     }
 
-    private BeadField getField() {
-        return model.getField();
-    }
+//    private BeadField getField() {
+//        return model.getField();
+//    }
     
     private void setColorIcons() {
         sbColor0.setIcon(new ColorIcon(model, 0));
@@ -500,9 +500,9 @@ public class BeadForm extends JFrame implements Localization {
 
     private void updateScrollbar() {
         int h = draft.getHeight() / model.getGrid();
-        assert (h < getField().getHeight());
+        assert (h < model.getHeight());
         scrollbar.setMinimum(0);
-        scrollbar.setMaximum(getField().getHeight() - h);
+        scrollbar.setMaximum(model.getHeight() - h);
         if (scrollbar.getMaximum() < 0) scrollbar.setMaximum(0);
         scrollbar.setUnitIncrement(h);
         scrollbar.setBlockIncrement(h);
@@ -510,9 +510,9 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private int correctCoordinatesX(int i, int j) {
-        int idx = i + (j + model.getScroll()) * getField().getWidth();
-        int m1 = getField().getWidth();
-        int m2 = getField().getWidth() + 1;
+        int idx = i + (j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -526,9 +526,9 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private int correctCoordinatesY(int i, int j) {
-        int idx = i + (j + model.getScroll()) * getField().getWidth();
-        int m1 = getField().getWidth();
-        int m2 = getField().getWidth() + 1;
+        int idx = i + (j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -757,16 +757,16 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void patternWidthClick() {
-        int old = getField().getWidth();
+        int old = model.getWidth();
         PatternWidthForm form = new PatternWidthForm(this);
-        form.setPatternWidth(getField().getWidth());
+        form.setPatternWidth(model.getWidth());
         form.setVisible(true);
         if (form.isOK()) {
             model.snapshot(modified);
-            getField().setWidth(form.getPatternWidth());
+            model.setWidth(form.getPatternWidth());
             repaint();
             if (!modified) {
-                modified = (old != getField().getWidth());
+                modified = (old != model.getWidth());
             }
             updateTitle();
             model.setRepeatDirty();
@@ -851,7 +851,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private void selectColorFrom(Point pt) {
         byte colorIndex;
-        colorIndex = getField().get(pt.scrolled(model.getScroll()));
+        colorIndex = model.get(pt.scrolled(model.getScroll()));
         assert (colorIndex >= 0 && colorIndex < 10);
         switch (colorIndex) {
         case 0:
@@ -895,7 +895,7 @@ public class BeadForm extends JFrame implements Localization {
         byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
         for (Point pt : new Segment(begin, end)) {
-            getField().set(pt.scrolled(scroll), colorIndex);
+            model.set(pt.scrolled(scroll), colorIndex);
             redraw(pt);
         }
         model.setRepeatDirty();
@@ -907,20 +907,20 @@ public class BeadForm extends JFrame implements Localization {
         model.snapshot(modified);
         int scroll = model.getScroll();
         byte color = model.getColorIndex();
-        byte background = getField().get(pt.scrolled(scroll));
-        for (Point point : new Segment(pt, pt.lastRight(getField().getWidth()))) {
-            if (getField().get(point.scrolled(scroll)) != background) {
+        byte background = model.get(pt.scrolled(scroll));
+        for (Point point : new Segment(pt, pt.lastRight(model.getWidth()))) {
+            if (model.get(point.scrolled(scroll)) != background) {
                 break;
             }
-            getField().set(point, color);
+            model.set(point, color);
             redraw(point);
         }
         if (pt.getX() != 0) {
             for (Point point : new Segment(pt.nextLeft(), pt.lastLeft())) {
-                if (getField().get(point.scrolled(scroll)) != background) {
+                if (model.get(point.scrolled(scroll)) != background) {
                     break;
                 }
-                getField().set(point, color);
+                model.set(point, color);
                 redraw(point);
             }
         }
@@ -931,18 +931,16 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void setPoint(Point pt) {
-        int _i = pt.getX();
-        int _j = pt.getY();
         int scroll = model.getScroll();
         byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
-        byte s = getField().get(_i, _j + scroll);
+        byte s = model.get(pt.scrolled(scroll));
         if (s == colorIndex) {
-            getField().set(_i, _j + scroll, (byte) 0);
+            model.set(pt.scrolled(scroll), (byte) 0);
         } else {
-            getField().set(_i, _j + scroll, colorIndex);
+            model.set(pt.scrolled(scroll), colorIndex);
         }
-        redraw(_i, _j);
+        redraw(pt);
         modified = true;
         model.setRepeatDirty();
         updateTitle();
@@ -1054,7 +1052,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private void rotateLeft() {
         int shift = model.getShift();
-        shift = (shift - 1 + getField().getWidth()) % getField().getWidth();
+        shift = (shift - 1 + model.getWidth()) % model.getWidth();
         modified = true;
         updateTitle();
         simulation.repaint();
@@ -1062,7 +1060,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private void rotateRight() {
         int shift = model.getShift();
-        shift = (shift + 1) % getField().getWidth();
+        shift = (shift + 1) % model.getWidth();
         modified = true;
         updateTitle();
         simulation.repaint();
@@ -1178,7 +1176,7 @@ public class BeadForm extends JFrame implements Localization {
         if (event.getButton() == MouseEvent.BUTTON1 && normal.mouseToField(pt)) {
             // Lineare Koordinaten berechnen
             int idx = 0;
-            int m1 = getField().getWidth();
+            int m1 = model.getWidth();
             int m2 = m1 + 1;
             for (int j = 0; j < pt.getY() + scroll; j++) {
                 if (j % 2 == 0)
@@ -1189,8 +1187,8 @@ public class BeadForm extends JFrame implements Localization {
             idx += pt.getX();
 
             // Feld setzen und Darstellung nachf�hren
-            int j = idx / getField().getWidth();
-            int i = idx % getField().getWidth();
+            int j = idx / model.getWidth();
+            int i = idx % model.getWidth();
             setPoint(new Point(i, j - scroll));
         }
     }
@@ -1252,18 +1250,17 @@ public class BeadForm extends JFrame implements Localization {
         CopyForm copyform = new CopyForm(this);
         copyform.setVisible(true);
         if (copyform.isOK()) {
-            // move this to model!
+            // TODO move this to model!
             model.snapshot(modified);
-            BeadField buffer = new BeadField();
-            buffer.copyFrom(model.getField());
+            BeadField buffer = model.getCopy();
             for (int i = selection.left(); i <= selection.right(); i++) {
                 for (int j = selection.bottom(); j <= selection.top(); j++) {
-                    byte c = buffer.get(i, j);
+                    byte c = buffer.get(new Point(i, j));
                     if (c == 0) continue;
                     int idx = getIndex(i, j);
                     for (int k = 0; k < copyform.getCopies(); k++) {
                         idx += getCopyOffset(copyform);
-                        if (getField().isValidIndex(idx)) getField().set(idx, c);
+                        if (model.isValidIndex(idx)) model.set(idx, c);
                     }
                 }
             }
@@ -1275,16 +1272,16 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private int getCopyOffset(CopyForm form) {
-        return form.getVertOffset() * getField().getWidth() + form.getHorzOffset();
+        return form.getVertOffset() * model.getWidth() + form.getHorzOffset();
     }
 
     private int getIndex(int i, int j) {
-        return j * getField().getWidth() + i;
+        return j * model.getWidth() + i;
     }
 
     public void editInsertLineClick() {
         model.snapshot(modified);
-        getField().insertLine();
+        model.insertLine();
         model.setRepeatDirty();
         modified = true;
         updateTitle();
@@ -1293,7 +1290,7 @@ public class BeadForm extends JFrame implements Localization {
 
     public void editDeleteLineClick() {
         model.snapshot(modified);
-        getField().deleteLine();
+        model.deleteLine();
         model.setRepeatDirty();
         modified = true;
         updateTitle();
@@ -1347,17 +1344,17 @@ public class BeadForm extends JFrame implements Localization {
         int m = mm2px(10, sx);
         if (draft.isVisible()) {
             draftleft = m;
-            m += mm2px(13, sx) + getField().getWidth() * gx + mm2px(7, sx);
+            m += mm2px(13, sx) + model.getWidth() * gx + mm2px(7, sx);
         }
 
         if (normal.isVisible()) {
             normalleft = m;
-            m += mm2px(7, sx) + (getField().getWidth() + 1) * gx;
+            m += mm2px(7, sx) + (model.getWidth() + 1) * gx;
         }
 
         if (simulation.isVisible()) {
             simulationleft = m;
-            m += mm2px(7, sx) + (getField().getWidth() / 2 + 1) * gx;
+            m += mm2px(7, sx) + (model.getWidth() / 2 + 1) * gx;
         }
 
         if (report.isVisible()) {
@@ -1377,19 +1374,18 @@ public class BeadForm extends JFrame implements Localization {
         g.setColor(Color.BLACK);
         int left = draftleft + mm2px(13, sx);
         if (left < 0) left = 0;
-        int maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
-        for (int i = 0; i < getField().getWidth() + 1; i++) {
+        int maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+        for (int i = 0; i < model.getWidth() + 1; i++) {
             g.drawLine(left + i * gx, h - (maxj) * gy, left + i * gx, h - 1);
         }
         for (int j = 0; j <= maxj; j++) {
-            g.drawLine(left, h - 1 - j * gy, left + getField().getWidth() * gx, h - 1 - j * gy);
+            g.drawLine(left, h - 1 - j * gy, left + model.getWidth() * gx, h - 1 - j * gy);
         }
 
         // Daten
-        for (int i = 0; i < getField().getWidth(); i++) {
+        for (int i = 0; i < model.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = getField().get(i, j);
-                assert (c >= 0 && c <= 9);
+                byte c = model.get(new Point(i, j));
                 if (c > 0) {
                     g.setColor(model.getColor(c));
                     g.fillRect(left + i * gx + 1, h - (j + 1) * gy, gx, gy);
@@ -1416,27 +1412,26 @@ public class BeadForm extends JFrame implements Localization {
         g.setColor(Color.BLACK);
         left = normalleft + gx / 2;
         if (left < 0) left = gx / 2;
-        maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
-        for (int i = 0; i < getField().getWidth() + 1; i++) {
+        maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+        for (int i = 0; i < model.getWidth() + 1; i++) {
             for (int jj = 0; jj < maxj; jj += 2) {
                 g.drawLine(left + i * gx, h - (jj + 1) * gy, left + i * gx, h - jj * gy);
             }
         }
-        for (int i = 0; i <= getField().getWidth() + 1; i++) {
+        for (int i = 0; i <= model.getWidth() + 1; i++) {
             for (int jj = 1; jj < maxj; jj += 2) {
                 g.drawLine(left + i * gx - gx / 2, h - (jj + 1) * gy, left + i * gx - gx / 2, h - jj * gy);
             }
         }
-        g.drawLine(left, h - 1, left + getField().getWidth() * gx + 1, h - 1);
+        g.drawLine(left, h - 1, left + model.getWidth() * gx + 1, h - 1);
         for (int jj = 1; jj <= maxj; jj++) {
-            g.drawLine(left - gx / 2, h - 1 - jj * gy, left + getField().getWidth() * gx + gx / 2 + 1, h - 1 - jj * gy);
+            g.drawLine(left - gx / 2, h - 1 - jj * gy, left + model.getWidth() * gx + gx / 2 + 1, h - 1 - jj * gy);
         }
 
         // Daten
-        int scroll = model.getScroll();
-        for (int i = 0; i < getField().getWidth(); i++) {
+        for (int i = 0; i < model.getWidth(); i++) {
             for (int jj = 0; jj < maxj; jj++) {
-                byte c = getField().get(i, jj + scroll);
+                byte c = model.get(new Point(i, jj));
                 if (c == 0) continue;
                 g.setColor(model.getColor(c));
                 int ii = i;
@@ -1461,13 +1456,13 @@ public class BeadForm extends JFrame implements Localization {
         g.setColor(Color.BLACK);
         left = simulationleft + gx / 2;
         if (left < 0) left = gx / 2;
-        maxj = Math.min(getField().getHeight(), (h - mm2py(10, sy)) / gy);
-        int w = getField().getWidth() / 2;
+        maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+        int w = model.getWidth() / 2;
         for (int j = 0; j < maxj; j += 2) {
             for (int i = 0; i < w + 1; i++) {
                 g.drawLine(left + i * gx, h - (j + 1) * gy, left + i * gx, h - j * gy);
             }
-            if (j > 0 || scroll > 0) {
+            if (j > 0) {
                 g.drawLine(left - gx / 2, h - (j + 1) * gy, left - gx / 2, h - j * gy);
             }
         }
@@ -1483,21 +1478,21 @@ public class BeadForm extends JFrame implements Localization {
         }
 
         // Daten
-        for (int i = 0; i < getField().getWidth(); i++) {
+        for (int i = 0; i < model.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = getField().get(i, j + scroll);
+                byte c = model.get(new Point(i, j));
                 if (c == 0) continue;
                 g.setColor(model.getColor(c));
                 int ii = i;
                 int jj = j;
                 ii = correctCoordinatesX(ii, jj);
                 jj = correctCoordinatesY(ii, jj);
-                if (ii > w && ii != getField().getWidth()) continue;
+                if (ii > w && ii != model.getWidth()) continue;
                 if (jj % 2 == 0) {
                     if (ii == w) continue;
                     g.fillRect(left + ii * gx + 1, h - (jj + 1) * gy, gx, gy);
                 } else {
-                    if (ii != getField().getWidth() && ii != w) {
+                    if (ii != model.getWidth() && ii != w) {
                         g.fillRect(left - gx / 2 + ii * gx + 1, h - (jj + 1) * gy, gx, gy);
                     } else if (ii == w) {
                         g.fillRect(left - gx / 2 + ii * gx + 1, h - (jj + 1) * gy, gx / 2, gy);
@@ -1527,7 +1522,7 @@ public class BeadForm extends JFrame implements Localization {
         y += dy;
         // Umfang
         g.drawString(getString("report.circumference"), x1, y);
-        g.drawString(Integer.toString(getField().getWidth()), x2, y);
+        g.drawString(Integer.toString(model.getWidth()), x2, y);
         y += dy;
         // Farbrapport
         g.drawString(getString("report.colorrepeat"), x1, y);
@@ -1541,10 +1536,10 @@ public class BeadForm extends JFrame implements Localization {
             g.drawString(getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = getField().get(colorRepeat - 1);
+            byte col = model.get(colorRepeat - 1);
             int count = 1;
             for (int i = colorRepeat - 2; i >= 0; i--) {
-                if (getField().get(i) == col) {
+                if (model.get(i) == col) {
                     count++;
                 } else {
                     if (col != 0) {
@@ -1561,7 +1556,7 @@ public class BeadForm extends JFrame implements Localization {
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
-                    col = getField().get(i);
+                    col = model.get(i);
                     count = 1;
                 }
                 if (y >= (int) pageFormat.getHeight() - mm2py(10, sy)) {

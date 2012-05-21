@@ -20,6 +20,8 @@ package ch.jbead;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -40,6 +42,8 @@ public class Model implements ColorTable {
     private int repeat;
     private int colorRepeat;
     private String unnamed;
+    
+    private List<ModelListener> listeners = new ArrayList<ModelListener>();
 
 
     public Model(Localization localization) {
@@ -58,6 +62,40 @@ public class Model implements ColorTable {
         defaultColors();
         unnamed = localization.getString("unnamed");
         file = new File(unnamed);
+    }
+    
+    public void addListener(ModelListener listener) {
+        listeners.add(listener);
+    }
+    
+    private void firePointChanged(Point pt) {
+        for (ModelListener listener : listeners) {
+            listener.pointChanged(pt);
+        }
+    }
+
+    private void fireModelChanged() {
+        for (ModelListener listener : listeners) {
+            listener.modelChanged();
+        }
+    }
+
+    private void fireColorChanged(int colorIndex) {
+        for (ModelListener listener : listeners) {
+            listener.colorChanged(colorIndex);
+        }
+    }
+
+    private void fireScrollChanged(int scroll) {
+        for (ModelListener listener : listeners) {
+            listener.scrollChanged(scroll);
+        }
+    }
+
+    private void fireZoomChanged(int gridx, int gridy) {
+        for (ModelListener listener : listeners) {
+            listener.zoomChanged(gridx, gridy);
+        }
     }
 
     private void defaultColors() {
@@ -87,14 +125,60 @@ public class Model implements ColorTable {
     @Override
     public void setColor(int index, Color color) {
         colors[index] = color;
+        fireColorChanged(index);
     }
     
     public void setColorIndex(byte colorIndex) {
         this.colorIndex = colorIndex;
     }
     
-    public BeadField getField() {
-        return field;
+    public int getHeight() {
+        return field.getHeight();
+    }
+    
+    public int getWidth() {
+        return field.getWidth();
+    }
+
+    public void setWidth(int width) {
+        field.setWidth(width);
+        fireModelChanged();
+    }
+    
+    public byte get(Point pt) {
+        return field.get(pt);
+    }
+    
+    public void set(Point pt, byte value) {
+        field.set(pt, value);
+        firePointChanged(pt);
+    }
+    
+    public boolean isValidIndex(int idx) {
+        return field.isValidIndex(idx);
+    }
+    
+    public void set(int idx, byte value) {
+        field.set(idx, value);
+        firePointChanged(field.getPoint(idx));
+    }
+    
+    public byte get(int idx) {
+        return field.get(idx);
+    }
+
+    public void insertLine() {
+        field.insertLine();
+    }
+    
+    public void deleteLine() {
+        field.deleteLine();
+    }
+    
+    public BeadField getCopy() {
+        BeadField copy = new BeadField();
+        copy.copyFrom(field);
+        return copy;
     }
 
     public File getFile() {
@@ -115,6 +199,7 @@ public class Model implements ColorTable {
     
     public void setScroll(int scroll) {
         this.scroll = scroll;
+        fireScrollChanged(scroll);
     }
     
     public int getShift() {
@@ -131,6 +216,7 @@ public class Model implements ColorTable {
         zoomIndex = 2;
         scroll = 0;
         file = new File(unnamed);
+        fireModelChanged();
     }
     
     public void setFile(File file) {
@@ -147,6 +233,7 @@ public class Model implements ColorTable {
         zoomIndex = in.readInt();
         shift = in.readInt();
         scroll = in.readInt();
+        fireModelChanged();
     }
     
     public void save(JBeadOutputStream out) throws IOException {
@@ -178,27 +265,35 @@ public class Model implements ColorTable {
 
     public boolean undo() {
         undo.undo(field);
+        fireModelChanged();
         return undo.isModified();
     }
 
     public boolean redo() {
         undo.redo(field);
+        fireModelChanged();
         return undo.isModified();
     }
 
     public void zoomIn() {
-        if (zoomIndex < zoomtable.length - 1) zoomIndex++;
+        if (zoomIndex >= zoomtable.length - 1) return;
+        zoomIndex++;
         grid = zoomtable[zoomIndex];
+        fireZoomChanged(grid, grid);
     }
     
     public void zoomNormal() {
+        if (isNormalZoom()) return;
         zoomIndex = 2;
         grid = zoomtable[zoomIndex];
+        fireZoomChanged(grid, grid);
     }
     
     public void zoomOut() {
-        if (zoomIndex > 0) zoomIndex--;
+        if (zoomIndex <= 0) return;
+        zoomIndex--;
         grid = zoomtable[zoomIndex];
+        fireZoomChanged(grid, grid);
     }
     
     public boolean isNormalZoom() {
@@ -226,7 +321,7 @@ public class Model implements ColorTable {
         int last = -1;
         for (int j = 0; j < field.getHeight(); j++) {
             for (int i = 0; i < field.getWidth(); i++) {
-                int c = field.get(i, j);
+                int c = field.get(new Point(i, j));
                 if (c > 0) {
                     last = j;
                     break;
@@ -278,8 +373,8 @@ public class Model implements ColorTable {
     }
 
     public boolean equalRows(int j, int k) {
-        for (int i = 0; i < getField().getWidth(); i++) {
-            if (getField().get(i, j) != getField().get(i, k)) return false;
+        for (int i = 0; i < getWidth(); i++) {
+            if (get(new Point(i, j)) != get(new Point(i, k))) return false;
         }
         return true;
     }

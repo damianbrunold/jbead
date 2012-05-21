@@ -75,6 +75,14 @@ public class Point {
         return new Point(x + 1, y);
     }
     
+    public Point nextBelow() {
+        return new Point(x, y - 1);
+    }
+    
+    public Point nextAbove() {
+        return new Point(x, y + 1);
+    }
+    
     public Point lastLeft() {
         return new Point(0, y);
     }

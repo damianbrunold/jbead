@@ -49,7 +49,7 @@ public class NormalPanel extends JComponent {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension((model.getField().getWidth() + 2) * model.getGrid(), 3 * model.getGrid());
+        return new Dimension((model.getWidth() + 2) * model.getGrid(), 3 * model.getGrid());
     }
 
     @Override
@@ -77,12 +77,12 @@ public class NormalPanel extends JComponent {
     }
 
     private int getMaxJ() {
-        return Math.min(model.getField().getHeight(), getHeight() / model.getGrid() + 1);
+        return Math.min(model.getHeight(), getHeight() / model.getGrid() + 1);
     }
 
     private int getOffsetX() {
         int grid = model.getGrid();
-        return grid / 2 + (getWidth() - 1 - model.getField().getWidth() * grid - grid / 2) / 2;
+        return grid / 2 + (getWidth() - 1 - model.getWidth() * grid - grid / 2) / 2;
     }
 
     private int x(int i) {
@@ -94,46 +94,44 @@ public class NormalPanel extends JComponent {
     }
     
     private void paintGrid(Graphics g) {
-        BeadField field = model.getField();
         int grid = model.getGrid();
         g.setColor(Color.DARK_GRAY);
         if (model.getScroll() % 2 == 0) {
-            for (int i = 0; i < field.getWidth() + 1; i++) {
+            for (int i = 0; i < model.getWidth() + 1; i++) {
                 for (int jj = -1; jj < maxj; jj += 2) {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
-            for (int i = 0; i <= field.getWidth() + 1; i++) {
+            for (int i = 0; i <= model.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
-            g.drawLine(x(0), y(-1), x(field.getWidth()), y(-1));
+            g.drawLine(x(0), y(-1), x(model.getWidth()), y(-1));
         } else {
-            for (int i = 0; i <= field.getWidth() + 1; i++) {
+            for (int i = 0; i <= model.getWidth() + 1; i++) {
                 for (int jj = -1; jj < maxj; jj += 2) {
                     g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
                 }
             }
-            for (int i = 0; i < field.getWidth() + 1; i++) {
+            for (int i = 0; i < model.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
-            g.drawLine(x(0) - grid / 2, y(-1), x(field.getWidth()) + grid / 2, y(-1));
+            g.drawLine(x(0) - grid / 2, y(-1), x(model.getWidth()) + grid / 2, y(-1));
         }
         for (int jj = 0; jj < maxj; jj++) {
-            g.drawLine(x(0) - grid / 2, y(jj), x(field.getWidth()) + grid / 2, y(jj));
+            g.drawLine(x(0) - grid / 2, y(jj), x(model.getWidth()) + grid / 2, y(jj));
         }
     }
 
     private void paintBeads(Graphics g) {
-        BeadField field = model.getField();
         int grid = model.getGrid();
         int scroll = model.getScroll();
-        for (int i = 0; i < field.getWidth(); i++) {
+        for (int i = 0; i < model.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = field.get(i, j + scroll);
+                byte c = model.get(new Point(i, j).scrolled(scroll));
                 g.setColor(model.getColor(c));
                 int i1 = correctCoordinatesX(i, j);
                 int j1 = correctCoordinatesY(i, j);
@@ -147,10 +145,9 @@ public class NormalPanel extends JComponent {
     }
 
     int correctCoordinatesX(int _i, int _j) {
-        BeadField field = model.getField();
-        int idx = _i + (_j + model.getScroll()) * field.getWidth();
-        int m1 = field.getWidth();
-        int m2 = field.getWidth() + 1;
+        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = m1;
         while (idx >= m) {
@@ -164,10 +161,9 @@ public class NormalPanel extends JComponent {
     }
 
     int correctCoordinatesY(int _i, int _j) {
-        BeadField field = model.getField();
-        int idx = _i + (_j + model.getScroll()) * field.getWidth();
-        int m1 = field.getWidth();
-        int m2 = field.getWidth() + 1;
+        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -184,7 +180,7 @@ public class NormalPanel extends JComponent {
         if (!isVisible()) return;
         int grid = model.getGrid();
         int scroll = model.getScroll();
-        byte c = model.getField().get(i, j + scroll);
+        byte c = model.get(new Point(i, j).scrolled(scroll));
         int _i = correctCoordinatesX(i, j);
         int _j = correctCoordinatesY(i, j);
         Graphics g = getGraphics();
@@ -203,25 +199,24 @@ public class NormalPanel extends JComponent {
 
     boolean mouseToField(Point pt) {
         int grid = model.getGrid();
-        BeadField field = model.getField();
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
         int jj = (getHeight() - _j) / grid;
         if (model.getScroll() % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + field.getWidth() * grid) return false;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * grid) return false;
                 i = (_i - offsetx) / grid;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + field.getWidth() * grid + grid / 2) return false;
+                if (_i < offsetx - grid / 2 || _i > offsetx + model.getWidth() * grid + grid / 2) return false;
                 i = (_i - offsetx + grid / 2) / grid;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + field.getWidth() * grid) return false;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * grid) return false;
                 i = (_i - offsetx) / grid;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + field.getWidth() * grid + grid / 2) return false;
+                if (_i < offsetx - grid / 2 || _i > offsetx + model.getWidth() * grid + grid / 2) return false;
                 i = (_i - offsetx + grid / 2) / grid;
             }
         }

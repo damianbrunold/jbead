@@ -39,7 +39,7 @@ public class SimulationPanel extends JComponent {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension((model.getField().getWidth() / 2 + 1) * model.getGrid(), 3 * model.getGrid());
+        return new Dimension((model.getWidth() / 2 + 1) * model.getGrid(), 3 * model.getGrid());
     }
 
     @Override
@@ -56,15 +56,14 @@ public class SimulationPanel extends JComponent {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        BeadField field = model.getField();
         int grid = model.getGrid();
 
         g.setColor(Color.DARK_GRAY);
-        offsetx = (getWidth() - 1 - (field.getWidth() + 1) * grid / 2 + grid / 2) / 2;
+        offsetx = (getWidth() - 1 - (model.getWidth() + 1) * grid / 2 + grid / 2) / 2;
         int left = offsetx;
         if (left < 0) left = grid / 2;
-        int maxj = Math.min(field.getHeight(), getHeight() / grid + 1);
-        int w = field.getWidth() / 2;
+        int maxj = Math.min(model.getHeight(), getHeight() / grid + 1);
+        int w = model.getWidth() / 2;
         if (model.getScroll() % 2 == 0) {
             for (int j = 0; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
@@ -116,25 +115,25 @@ public class SimulationPanel extends JComponent {
         }
 
         // Data
-        for (int i = 0; i < field.getWidth(); i++) {
+        for (int i = 0; i < model.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = field.get(i, j + model.getScroll());
+                byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
                 assert (c >= 0 && c <= 9);
                 g.setColor(model.getColor(c));
-                int idx = i + field.getWidth() * j + model.getShift();
-                int i1 = idx % field.getWidth();
-                int j1 = idx / field.getWidth();
+                int idx = i + model.getWidth() * j + model.getShift();
+                int i1 = idx % model.getWidth();
+                int j1 = idx / model.getWidth();
                 int ii = correctCoordinatesX(i1, j1);
                 int jj = correctCoordinatesY(i1, j1);
-                if (ii > w && ii != field.getWidth()) continue;
+                if (ii > w && ii != model.getWidth()) continue;
                 if (model.getScroll() % 2 == 0) {
                     if (jj % 2 == 0) {
                         if (ii == w) continue;
                         g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
                     } else {
-                        if (ii != field.getWidth() && ii != w) {
+                        if (ii != model.getWidth() && ii != w) {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
-                        } else if (ii == field.getWidth()) {
+                        } else if (ii == model.getWidth()) {
                             g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid - 1);
                         } else {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid - 1);
@@ -145,9 +144,9 @@ public class SimulationPanel extends JComponent {
                         if (ii == w) continue;
                         g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
                     } else {
-                        if (ii != field.getWidth() && ii != w) {
+                        if (ii != model.getWidth() && ii != w) {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
-                        } else if (ii == field.getWidth()) {
+                        } else if (ii == model.getWidth()) {
                             g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid - 1);
                         } else {
                             g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid - 1);
@@ -159,9 +158,9 @@ public class SimulationPanel extends JComponent {
     }
 
     int correctCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getField().getWidth();
-        int m1 = model.getField().getWidth();
-        int m2 = model.getField().getWidth() + 1;
+        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -175,9 +174,9 @@ public class SimulationPanel extends JComponent {
     }
 
     int correctCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getField().getWidth();
-        int m1 = model.getField().getWidth();
-        int m2 = model.getField().getWidth() + 1;
+        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = model.getWidth() + 1;
         int k = 0;
         int m = (k % 2 == 0) ? m1 : m2;
         while (idx >= m) {
@@ -193,30 +192,30 @@ public class SimulationPanel extends JComponent {
     public void redraw(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = model.getField().get(_i, _j + model.getScroll());
+        byte c = model.get(new Point(_i, _j).scrolled(model.getScroll()));
         assert (c >= 0 && c <= 9);
 
         int ii = _i;
         int jj = _j;
 
-        int idx = ii + model.getField().getWidth() * jj + model.getShift();
-        int i1 = idx % model.getField().getWidth();
-        int j1 = idx / model.getField().getWidth();
+        int idx = ii + model.getWidth() * jj + model.getShift();
+        int i1 = idx % model.getWidth();
+        int j1 = idx / model.getWidth();
         _i = correctCoordinatesX(i1, j1);
         _j = correctCoordinatesY(i1, j1);
 
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
         int left = offsetx;
-        int w = model.getField().getWidth() / 2;
-        if (_i > w && _i != model.getField().getWidth()) return;
+        int w = model.getWidth() / 2;
+        if (_i > w && _i != model.getWidth()) return;
         int grid = model.getGrid();
         if (model.getScroll() % 2 == 0) {
             if (_j % 2 == 0) {
                 if (_i == w) return;
                 g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
             } else {
-                if (_i != model.getField().getWidth() && _i != w) {
+                if (_i != model.getWidth() && _i != w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
                 } else if (_i == w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
@@ -229,7 +228,7 @@ public class SimulationPanel extends JComponent {
                 if (_i == w) return;
                 g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
             } else {
-                if (_i != model.getField().getWidth() && _i != w) {
+                if (_i != model.getWidth() && _i != w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
                 } else if (_i == w) {
                     g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
