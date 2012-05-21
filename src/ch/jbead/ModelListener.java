@@ -27,5 +27,6 @@ public interface ModelListener {
     public void colorChanged(int colorIndex);
     public void scrollChanged(int scroll);
     public void zoomChanged(int gridx, int gridy);
+    public void repeatChanged(int repeat, int colorRepeat);
 
 }

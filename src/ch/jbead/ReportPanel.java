@@ -78,13 +78,10 @@ public class ReportPanel extends BasePanel {
                 if (model.get(i) == col) {
                     count++;
                 } else {
-                    if (col != 0) {
-                        g.setColor(model.getColor(col));
-                        g.fillRect(x1, y, dx, dy);
-                    } else {
-                        g.setColor(Color.DARK_GRAY);
-                        g.drawRect(x1, y, dx, dy);
-                    }
+                    g.setColor(model.getColor(col));
+                    g.fillRect(x1 + 1, y + 1, dx - 1, dy - 1);
+                    g.setColor(Color.DARK_GRAY);
+                    g.drawRect(x1, y, dx, dy);
                     g.setColor(Color.BLACK);
                     g.drawString(Integer.toString(count), x1 + dx + 3, y);
                     y += dy;
@@ -108,6 +105,11 @@ public class ReportPanel extends BasePanel {
     @Override
     public void redraw(Point pt) {
         // empty
+    }
+
+    @Override
+    public void repeatChanged(int repeat, int colorRepeat) {
+        repaint();
     }
 
 }

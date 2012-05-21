@@ -98,6 +98,12 @@ public class Model implements ColorTable {
         }
     }
 
+    private void fireRepeatChanged(int repeat, int colorRepeat) {
+        for (ModelListener listener : listeners) {
+            listener.repeatChanged(repeat, colorRepeat);
+        }
+    }
+
     private void defaultColors() {
         colors[0] = new Color(240, 240, 240);
         colors[1] = new Color(128, 0, 0); // maroon
@@ -355,7 +361,9 @@ public class Model implements ColorTable {
     }
     
     public void updateRepeat() {
-        // Musterrapport neu berechnen
+        int oldRepeat = repeat;
+        int oldColorRepeat = colorRepeat;
+        
         int last = -1;
         for (int j = 0; j < field.getHeight(); j++) {
             for (int i = 0; i < field.getWidth(); i++) {
@@ -370,6 +378,9 @@ public class Model implements ColorTable {
             repeat = 0;
             colorRepeat = 0;
             repeatDirty = false;
+            if (oldRepeat != repeat || oldColorRepeat != colorRepeat) {
+                fireRepeatChanged(repeat, colorRepeat);
+            }
             return;
         }
         repeat = last + 1;
@@ -408,6 +419,9 @@ public class Model implements ColorTable {
         }
 
         repeatDirty = false;
+        if (oldRepeat != repeat || oldColorRepeat != colorRepeat) {
+            fireRepeatChanged(repeat, colorRepeat);
+        }
     }
 
     public boolean equalRows(int j, int k) {

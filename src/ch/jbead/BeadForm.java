@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -169,6 +171,8 @@ public class BeadForm extends JFrame implements Localization {
     
     private Map<String, Action> actions = new HashMap<String, Action>();
     
+    private Timer timer;
+    
     public BeadForm() {
         super("jbead");
         createGUI();
@@ -234,6 +238,14 @@ public class BeadForm extends JFrame implements Localization {
         // TODO persist the pageFormat in Settings?
         pageFormat = PrinterJob.getPrinterJob().defaultPage();
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
+        
+        timer = new Timer("updateTimer", true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateHandler();
+            }
+        }, 500, 500);
     }
 
     private void initCloseHandler() {
@@ -1075,16 +1087,15 @@ public class BeadForm extends JFrame implements Localization {
         model.setScroll(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue());
     }
 
-    private void idleHandler() {
+    private void updateHandler() {
         // Menü- und Toolbar enablen/disablen
-        getAction("arrange").setEnabled(selection.isActive());
-        getAction("undo").setEnabled(model.canUndo());
-        getAction("redo").setEnabled(model.canRedo());
+        getAction("edit.arrange").setEnabled(selection.isActive());
+        getAction("edit.undo").setEnabled(model.canUndo());
+        getAction("edit.redo").setEnabled(model.canRedo());
 
         // Rapport berechnen und zeichnen
         if (model.isRepeatDirty()) {
             model.updateRepeat();
-            report.repaint();
         }
 
         // Vorsorgliches Undo
