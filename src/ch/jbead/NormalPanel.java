@@ -23,12 +23,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JComponent;
-
-/**
- * 
- */
-public class NormalPanel extends JComponent {
+public class NormalPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +34,7 @@ public class NormalPanel extends JComponent {
 
     public NormalPanel(Model model, final BeadForm form) {
         this.model = model;
+        model.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -193,8 +189,9 @@ public class NormalPanel extends JComponent {
         g.dispose();
     }
 
+    @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY());
+        redraw(pt.getX(), pt.getY() - model.getScroll());
     }
 
     boolean mouseToField(Point pt) {

@@ -13,19 +13,41 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 package ch.jbead;
 
-/**
- * 
- */
-public interface ModelListener {
+import javax.swing.JComponent;
 
-    public void pointChanged(Point pt);
-    public void modelChanged();
-    public void colorChanged(int colorIndex);
-    public void scrollChanged(int scroll);
-    public void zoomChanged(int gridx, int gridy);
+public abstract class BasePanel extends JComponent implements ModelListener{
+
+    private static final long serialVersionUID = 1L;
+
+    public abstract void redraw(Point pt);
+    
+    @Override
+    public void pointChanged(Point pt) {
+        redraw(pt);
+    }
+
+    @Override
+    public void modelChanged() {
+        repaint();
+    }
+
+    @Override
+    public void colorChanged(int colorIndex) {
+        repaint();
+    }
+
+    @Override
+    public void scrollChanged(int scroll) {
+        // empty
+    }
+
+    @Override
+    public void zoomChanged(int gridx, int gridy) {
+        repaint();
+    }
 
 }

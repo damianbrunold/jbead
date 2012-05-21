@@ -25,12 +25,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JComponent;
-
-/**
- * 
- */
-public class DraftPanel extends JComponent {
+public class DraftPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,6 +40,7 @@ public class DraftPanel extends JComponent {
     public DraftPanel(Model model, Selection selection, final BeadForm form) {
         this.model = model;
         this.selection = selection;
+        model.addListener(this);
         setBackground(Color.LIGHT_GRAY);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -174,8 +170,9 @@ public class DraftPanel extends JComponent {
         g.dispose();
     }
     
+    @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY());
+        redraw(pt.getX(), pt.getY() - model.getScroll());
     }
 
     public void selectPreview(boolean draw, Point pt1, Point pt2) {

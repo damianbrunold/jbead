@@ -21,12 +21,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 
-import javax.swing.JComponent;
-
-/**
- * 
- */
-public class SimulationPanel extends JComponent {
+public class SimulationPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,6 +30,7 @@ public class SimulationPanel extends JComponent {
 
     public SimulationPanel(Model model) {
         this.model = model;
+        model.addListener(this);
     }
 
     @Override
@@ -240,8 +236,9 @@ public class SimulationPanel extends JComponent {
         g.dispose();
     }
 
+    @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY());
+        redraw(pt.getX(), pt.getY() - model.getScroll());
     }
 
 }

@@ -22,12 +22,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-import javax.swing.JComponent;
-
 /**
  * 
  */
-public class ReportPanel extends JComponent {
+public class ReportPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,6 +35,7 @@ public class ReportPanel extends JComponent {
     public ReportPanel(Model model, Localization localization) {
         this.model = model;
         this.localization = localization;
+        model.addListener(this);
     }
 
     @Override
@@ -104,6 +103,11 @@ public class ReportPanel extends JComponent {
                 g.drawString(Integer.toString(count), x1 + dx + 3, y);
             }
         }
+    }
+
+    @Override
+    public void redraw(Point pt) {
+        // empty
     }
 
 }

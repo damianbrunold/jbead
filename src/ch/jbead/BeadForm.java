@@ -565,14 +565,14 @@ public class BeadForm extends JFrame implements Localization {
         }
 
         // delete all
+        selection.clear();
         model.clear();
         sbColor1.setSelected(true);
         setColorIcons();
         updateScrollbar();
-        selection.clear();
         saved = false;
         modified = false;
-        repaint();
+        //repaint();
         updateTitle();
     }
 
@@ -649,7 +649,7 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         model.setFile(file);
         updateTitle();
-        repaint();
+        //repaint();
         if (addtomru) addToMRU(file);
     }
 
@@ -764,7 +764,7 @@ public class BeadForm extends JFrame implements Localization {
         if (form.isOK()) {
             model.snapshot(modified);
             model.setWidth(form.getPatternWidth());
-            repaint();
+            //repaint();
             if (!modified) {
                 modified = (old != model.getWidth());
             }
@@ -786,7 +786,6 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void clearSelection() {
-        if (!sbToolSelect.isSelected()) return;
         if (!selection.isActive()) return;
         draft.clearSelection();
         selection.clear();
@@ -913,7 +912,7 @@ public class BeadForm extends JFrame implements Localization {
                 break;
             }
             model.set(point, color);
-            redraw(point);
+//            redraw(point);
         }
         if (pt.getX() != 0) {
             for (Point point : new Segment(pt.nextLeft(), pt.lastLeft())) {
@@ -921,7 +920,7 @@ public class BeadForm extends JFrame implements Localization {
                     break;
                 }
                 model.set(point, color);
-                redraw(point);
+//                redraw(point);
             }
         }
         modified = true;
@@ -940,7 +939,7 @@ public class BeadForm extends JFrame implements Localization {
         } else {
             model.set(pt.scrolled(scroll), colorIndex);
         }
-        redraw(pt);
+//        redraw(pt);
         modified = true;
         model.setRepeatDirty();
         updateTitle();
@@ -949,34 +948,34 @@ public class BeadForm extends JFrame implements Localization {
     public void editUndoClick() {
         modified = model.undo();
         updateTitle();
-        repaint();
+//        repaint();
         model.setRepeatDirty();
     }
 
     public void editRedoClick() {
         modified = model.redo();
         updateTitle();
-        repaint();
+//        repaint();
         model.setRepeatDirty();
     }
 
     public void viewZoomInClick() {
         model.zoomIn();
         updateScrollbar();
-        repaint();
+//        repaint();
     }
 
     public void viewZoomNormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
         updateScrollbar();
-        repaint();
+//        repaint();
     }
 
     public void viewZoomOutClick() {
         model.zoomOut();
         updateScrollbar();
-        repaint();
+//        repaint();
     }
 
     public void viewDraftClick() {
@@ -1117,11 +1116,9 @@ public class BeadForm extends JFrame implements Localization {
         if (color == null) return;
         model.snapshot(modified);
         model.setColor(c, color);
-        // TODO propagate change to all dependants (or better use observer
-        // pattern)
         modified = true;
         updateTitle();
-        repaint();
+//        repaint();
         setColorIcons();
     }
 
@@ -1267,7 +1264,8 @@ public class BeadForm extends JFrame implements Localization {
             model.setRepeatDirty();
             modified = true;
             updateTitle();
-            repaint();
+//            repaint();
+            report.repaint();
         }
     }
 
@@ -1285,7 +1283,6 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         modified = true;
         updateTitle();
-        repaint();
     }
 
     public void editDeleteLineClick() {
@@ -1294,7 +1291,6 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         modified = true;
         updateTitle();
-        repaint();
     }
 
     public void setAppTitle() {

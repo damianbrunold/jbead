@@ -6,14 +6,6 @@ as in dbbead, use named constants instead of directly
 allocating the colors, do not use predefined, system
 colors.
 
-Now the code uses separate x/y and i/j coordinates
-throughout. This should be abstracted so that physical
-and logical coordinates are objects and can be handled
-conveniently. Maybe I have to do this at least rudimentarily
-already at the transliterating stage, because the code
-uses lots of out parameters that are just not supported
-in java.
- 
 Now the color (index) is of type byte, thus there are
 only 127 colors possible. In practice the limit is 9.
 But maybe it would pay to extend this to short or int.
@@ -27,11 +19,6 @@ code duplication.
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
-
-I have to add observer pattern for various paint panels
-(DraftPanel, NormalPanel, SimulationPanel, ReportPanel),
-because they use state that is changing, e.g. scroll,
-grid, filename, coltable, ...
 
 Analyze whether we need to handle files with absolute
 paths. Right now they are relative. Also: is it possible
