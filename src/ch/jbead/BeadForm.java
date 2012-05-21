@@ -541,19 +541,6 @@ public class BeadForm extends JFrame implements Localization {
         return j;
     }
 
-    private void redraw(int i, int j) {
-        // use observer pattern to remove this explicit dependency
-        draft.redraw(i, j);
-        normal.redraw(i, j);
-        simulation.redraw(i, j);
-    }
-    
-    private void redraw(Point pt) {
-        draft.redraw(pt);
-        normal.redraw(pt);
-        simulation.redraw(pt);
-    }
-
     public void fileNewClick() {
         // ask whether to save modified document
         if (modified) {
@@ -572,7 +559,6 @@ public class BeadForm extends JFrame implements Localization {
         updateScrollbar();
         saved = false;
         modified = false;
-        //repaint();
         updateTitle();
     }
 
@@ -649,7 +635,6 @@ public class BeadForm extends JFrame implements Localization {
         model.setRepeatDirty();
         model.setFile(file);
         updateTitle();
-        //repaint();
         if (addtomru) addToMRU(file);
     }
 
@@ -764,7 +749,6 @@ public class BeadForm extends JFrame implements Localization {
         if (form.isOK()) {
             model.snapshot(modified);
             model.setWidth(form.getPatternWidth());
-            //repaint();
             if (!modified) {
                 modified = (old != model.getWidth());
             }
@@ -895,7 +879,6 @@ public class BeadForm extends JFrame implements Localization {
         model.snapshot(modified);
         for (Point pt : new Segment(begin, end)) {
             model.set(pt.scrolled(scroll), colorIndex);
-            redraw(pt);
         }
         model.setRepeatDirty();
         modified = true;
@@ -920,7 +903,6 @@ public class BeadForm extends JFrame implements Localization {
                     break;
                 }
                 model.set(point, color);
-//                redraw(point);
             }
         }
         modified = true;
@@ -939,7 +921,6 @@ public class BeadForm extends JFrame implements Localization {
         } else {
             model.set(pt.scrolled(scroll), colorIndex);
         }
-//        redraw(pt);
         modified = true;
         model.setRepeatDirty();
         updateTitle();
@@ -948,34 +929,29 @@ public class BeadForm extends JFrame implements Localization {
     public void editUndoClick() {
         modified = model.undo();
         updateTitle();
-//        repaint();
         model.setRepeatDirty();
     }
 
     public void editRedoClick() {
         modified = model.redo();
         updateTitle();
-//        repaint();
         model.setRepeatDirty();
     }
 
     public void viewZoomInClick() {
         model.zoomIn();
         updateScrollbar();
-//        repaint();
     }
 
     public void viewZoomNormalClick() {
         if (model.isNormalZoom()) return;
         model.zoomNormal();
         updateScrollbar();
-//        repaint();
     }
 
     public void viewZoomOutClick() {
         model.zoomOut();
         updateScrollbar();
-//        repaint();
     }
 
     public void viewDraftClick() {
@@ -1118,7 +1094,6 @@ public class BeadForm extends JFrame implements Localization {
         model.setColor(c, color);
         modified = true;
         updateTitle();
-//        repaint();
         setColorIcons();
     }
 
@@ -1128,7 +1103,6 @@ public class BeadForm extends JFrame implements Localization {
         // if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos =
         // scrollbar.Max - scrollbar.PageSize;
         model.setScroll(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue());
-        if (oldscroll != model.getScroll()) repaint();
     }
 
     private void idleHandler() {
@@ -1264,7 +1238,6 @@ public class BeadForm extends JFrame implements Localization {
             model.setRepeatDirty();
             modified = true;
             updateTitle();
-//            repaint();
             report.repaint();
         }
     }
