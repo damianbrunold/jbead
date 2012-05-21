@@ -47,3 +47,5 @@ not painted.
 Model should use Points instead of single coordinates!
 
 Use abstracted tool object for the different tools.
+
+Report seems to be broken.
