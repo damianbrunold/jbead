@@ -889,18 +889,11 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void setPoint(Point pt) {
-        int scroll = model.getScroll();
-        byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
-        byte s = model.get(pt.scrolled(scroll));
-        if (s == colorIndex) {
-            model.set(pt.scrolled(scroll), (byte) 0);
-        } else {
-            model.set(pt.scrolled(scroll), colorIndex);
-        }
+        model.setPoint(pt);
         modified = true;
-        model.setRepeatDirty();
         updateTitle();
+        report.repaint();
     }
 
     public void editUndoClick() {

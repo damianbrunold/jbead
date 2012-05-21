@@ -177,14 +177,14 @@ public class Model implements ColorTable {
     
     public void drawLine(Point begin, Point end) {
         for (Point pt : new Segment(begin.scrolled(scroll), end.scrolled(scroll))) {
-            set(pt.scrolled(scroll), getColorIndex());
+            set(pt.scrolled(scroll), colorIndex);
         }
         setRepeatDirty();
     }
     
     public void fillLine(Point pt) {
         pt = pt.scrolled(scroll);
-        byte color = getColorIndex();
+        byte color = colorIndex;
         byte background = get(pt);
         for (Point point : new Segment(pt, pt.lastRight(getWidth()))) {
             if (get(point) != background) {
@@ -203,6 +203,16 @@ public class Model implements ColorTable {
         setRepeatDirty();
     }
     
+    public void setPoint(Point pt) {
+        pt = pt.scrolled(scroll);
+        if (get(pt) == colorIndex) {
+            set(pt, (byte) 0);
+        } else {
+            set(pt, colorIndex);
+        }
+        setRepeatDirty();
+    }
+
     public BeadField getCopy() {
         BeadField copy = new BeadField();
         copy.copyFrom(field);
