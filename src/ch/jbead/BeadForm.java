@@ -874,40 +874,17 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void drawLine(Point begin, Point end) {
-        int scroll = model.getScroll();
-        byte colorIndex = model.getColorIndex();
         model.snapshot(modified);
-        for (Point pt : new Segment(begin, end)) {
-            model.set(pt.scrolled(scroll), colorIndex);
-        }
-        model.setRepeatDirty();
+        model.drawLine(begin, end);
         modified = true;
         updateTitle();
     }
 
     private void fillLine(Point pt) {
         model.snapshot(modified);
-        int scroll = model.getScroll();
-        byte color = model.getColorIndex();
-        byte background = model.get(pt.scrolled(scroll));
-        for (Point point : new Segment(pt, pt.lastRight(model.getWidth()))) {
-            if (model.get(point.scrolled(scroll)) != background) {
-                break;
-            }
-            model.set(point, color);
-//            redraw(point);
-        }
-        if (pt.getX() != 0) {
-            for (Point point : new Segment(pt.nextLeft(), pt.lastLeft())) {
-                if (model.get(point.scrolled(scroll)) != background) {
-                    break;
-                }
-                model.set(point, color);
-            }
-        }
+        model.fillLine(pt);
         modified = true;
         updateTitle();
-        model.setRepeatDirty();
         report.repaint();
     }
 
