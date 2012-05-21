@@ -1111,9 +1111,6 @@ public class BeadForm extends JFrame implements Localization {
         getAction("undo").setEnabled(model.canUndo());
         getAction("redo").setEnabled(model.canRedo());
 
-        // FIXME is this whole rapport stuff needed? all drawing code was
-        // commented out and thus removed...
-
         // Rapport berechnen und zeichnen
         if (model.isRepeatDirty()) {
             model.updateRepeat();
