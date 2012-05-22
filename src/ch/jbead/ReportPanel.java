@@ -22,6 +22,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import javax.swing.BorderFactory;
+
 /**
  * 
  */
@@ -49,6 +51,7 @@ public class ReportPanel extends BasePanel {
         int y = 0;
         int dx = 15;
         int dy = dx;
+        int colwidth = dx + 2 + g.getFontMetrics().stringWidth("999") + 3;
 
         // Mustername
         g.setColor(Color.BLACK);
@@ -69,6 +72,7 @@ public class ReportPanel extends BasePanel {
         // Farben
         // Faedelliste...
         if (model.getColorRepeat() > 0) {
+            int height = g.getFontMetrics().getLeading() + g.getFontMetrics().getAscent();
             g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
@@ -78,28 +82,31 @@ public class ReportPanel extends BasePanel {
                 if (model.get(i) == col) {
                     count++;
                 } else {
-                    g.setColor(model.getColor(col));
-                    g.fillRect(x1 + 1, y + 1, dx - 1, dy - 1);
-                    g.setColor(Color.DARK_GRAY);
-                    g.drawRect(x1, y, dx, dy);
-                    g.setColor(Color.BLACK);
-                    g.drawString(Integer.toString(count), x1 + dx + 3, y);
+                    drawColorCount(g, x1, y, dx, dy, height, col, count);
                     y += dy;
                     col = model.get(i);
                     count = 1;
                 }
-                if (y >= getHeight() - 10) {
-                    x1 += dx + 24;
+                if (y >= getHeight() - dy) {
+                    x1 += colwidth;
                     y = ystart;
                 }
             }
-            if (y < getHeight() - 3) {
-                g.setColor(model.getColor(col));
-                g.fillRect(x1, y, dx, dy);
-                g.setColor(Color.BLACK);
-                g.drawString(Integer.toString(count), x1 + dx + 3, y);
+            if (y >= getHeight() - dy) {
+                x1 += colwidth;
+                y = ystart;
             }
+            drawColorCount(g, x1, y, dx, dy, height, col, count);
         }
+    }
+
+    private void drawColorCount(Graphics g, int x1, int y, int dx, int dy, int height, byte col, int count) {
+        g.setColor(model.getColor(col));
+        g.fillRect(x1 + 1, y + 1, dx - 1, dy - 1);
+        g.setColor(Color.DARK_GRAY);
+        g.drawRect(x1, y, dx, dy);
+        g.setColor(Color.BLACK);
+        g.drawString(Integer.toString(count), x1 + dx + 3, y + height);
     }
 
     @Override

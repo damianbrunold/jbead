@@ -41,6 +41,7 @@ upper border. Instead it works til maxj and this gets
 corrected, thus there are some lines at the top, that are
 not painted.
 
-Model should use Points instead of single coordinates!
-
 Use abstracted tool object for the different tools.
+
+Create a RectIterator in analogy to SegmentIterator. It would
+probably make various loops nicer...
