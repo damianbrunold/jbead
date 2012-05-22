@@ -238,6 +238,8 @@ public class BeadForm extends JFrame implements Localization {
         // TODO persist the pageFormat in Settings?
         pageFormat = PrinterJob.getPrinterJob().defaultPage();
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
+
+        selection.addListener(draft);
         
         timer = new Timer("updateTimer", true);
         timer.schedule(new TimerTask() {
@@ -775,18 +777,6 @@ public class BeadForm extends JFrame implements Localization {
         draft.linePreview(selection.getOrigin(), selection.getLineDest());
     }
 
-    private void drawSelection() {
-        if (!sbToolSelect.isSelected()) return;
-        if (!selection.isActive()) return;
-        draft.drawSelection();
-    }
-
-    private void clearSelection() {
-        if (!selection.isActive()) return;
-        draft.clearSelection();
-        selection.clear();
-    }
-
     private void drawPrepress() {
         if (sbToolPencil.isSelected()) {
             draft.drawPrepress(selection.getOrigin());
@@ -797,23 +787,19 @@ public class BeadForm extends JFrame implements Localization {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
-            clearSelection();
             dragging = true;
             selection.init(pt);
             drawPrepress();
             draftLinePreview();
-            drawSelection();
         }
     }
 
     public void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
-            clearSelection();
             draftLinePreview();
             selection.update(pt);
             draftLinePreview();
-            drawSelection();
         }
     }
 
@@ -821,7 +807,6 @@ public class BeadForm extends JFrame implements Localization {
         Point pt = new Point(event.getX(), event.getY());
         if (dragging && draft.mouseToField(pt)) {
             draftLinePreview();
-            clearSelection();
             selection.update(pt);
             dragging = false;
             if (sbToolPencil.isSelected()) {
@@ -835,9 +820,7 @@ public class BeadForm extends JFrame implements Localization {
             } else if (sbToolPipette.isSelected()) {
                 selectColorFrom(selection.getOrigin());
             } else if (sbToolSelect.isSelected()) {
-                if (selection.isActive()) {
-                    drawSelection();
-                } else {
+                if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
                 }
             }
@@ -1103,19 +1086,19 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void toolPencilClick() {
-        clearSelection();
+        selection.clear();
     }
 
     public void toolSelectClick() {
-        clearSelection();
+        selection.clear();
     }
 
     public void toolFillClick() {
-        clearSelection();
+        selection.clear();
     }
 
     public void toolPipetteClick() {
-        clearSelection();
+        selection.clear();
     }
 
     public void normalMouseUp(MouseEvent event) {

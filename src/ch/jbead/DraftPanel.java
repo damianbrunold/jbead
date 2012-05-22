@@ -25,7 +25,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class DraftPanel extends BasePanel {
+public class DraftPanel extends BasePanel implements SelectionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,7 +70,7 @@ public class DraftPanel extends BasePanel {
         paintBeads(g);
         paintMarkers(g);
         if (selection.isNormal()) { 
-            paintSelection(g, Color.RED);
+            paintSelection(g, Color.RED, selection);
         }
     }
 
@@ -144,21 +144,23 @@ public class DraftPanel extends BasePanel {
         }
     }
 
-    public void drawSelection() {
+    public void drawSelection(Selection sel) {
+        if (!sel.isNormal()) return;
         Graphics g = getGraphics();
-        paintSelection(g, Color.RED);
+        paintSelection(g, Color.RED, sel);
         g.dispose();
     }
     
-    public void clearSelection() {
+    public void clearSelection(Selection sel) {
+        if (!sel.isNormal()) return;
         Graphics g = getGraphics();
-        paintSelection(g, Color.DARK_GRAY);
+        paintSelection(g, Color.DARK_GRAY, sel);
         g.dispose();
     }
     
-    private void paintSelection(Graphics g, Color color) {
+    private void paintSelection(Graphics g, Color color, Selection sel) {
         g.setColor(color);
-        g.drawRect(x(selection.left()), y(selection.top()), selection.width() * model.getGrid(), selection.height() * model.getGrid());
+        g.drawRect(x(sel.left()), y(sel.top()), sel.width() * model.getGrid(), sel.height() * model.getGrid());
     }
 
     public void redraw(int i, int j) {
@@ -217,6 +219,17 @@ public class DraftPanel extends BasePanel {
         pt.setX(i);
         pt.setY(jj);
         return true;
+    }
+
+    @Override
+    public void selectionUpdated(Selection before, Selection current) {
+        clearSelection(before);
+        drawSelection(current);
+    }
+
+    @Override
+    public void selectionDeleted(Selection sel) {
+        clearSelection(sel);
     }
 
 }

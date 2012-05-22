@@ -36,9 +36,6 @@ function should be disabled if no selection exists. This
 was handled using the idleHandler before. Now, this should
 probably be done using Actions.
 
-Rework selection stuff. Abstract a selection object and
-let the panels observe it.
-
 The redraw of normal and simulation does not go up to the
 upper border. Instead it works til maxj and this gets
 corrected, thus there are some lines at the top, that are
@@ -47,5 +44,3 @@ not painted.
 Model should use Points instead of single coordinates!
 
 Use abstracted tool object for the different tools.
-
-Report seems to be broken.

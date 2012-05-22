@@ -17,16 +17,50 @@
 
 package ch.jbead;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  */
 public class Selection {
 
-    private Point origin = new Point(0, 0);
-    private Point dest = new Point(0, 0);
+    private Point origin;
+    private Point dest;
     private boolean selection;
 
+    private List<SelectionListener> listeners = new ArrayList<SelectionListener>();
+    
+    public Selection() {
+        origin = new Point(0, 0);
+        dest = new Point(0, 0);
+        selection = false;
+    }
+    
+    public Selection(Selection sel) {
+        origin = sel.origin;
+        dest = sel.dest;
+        selection = sel.selection;
+    }
+    
+    public void addListener(SelectionListener listener) {
+        listeners.add(listener);
+    }
+    
+    private void fireSelectionChanged(Selection before, Selection current) {
+        for (SelectionListener listener : listeners) {
+            listener.selectionUpdated(before, current);
+        }
+    }
+    
+    private void fireSelectionDeleted(Selection sel) {
+        for (SelectionListener listener : listeners) {
+            listener.selectionDeleted(sel);
+        }
+    }
+    
     public void clear() {
+        fireSelectionDeleted(snapshot());
         selection = false;
     }
     
@@ -35,13 +69,21 @@ public class Selection {
     }
     
     public void init(Point origin) {
+        Selection before = snapshot();
         this.origin = this.dest = origin;
         selection = false;
+        fireSelectionChanged(before, snapshot());
     }
     
     public void update(Point end) {
+        Selection before = snapshot();
         this.dest = end;
         selection = !origin.equals(dest);
+        fireSelectionChanged(before, snapshot());
+    }
+    
+    public Selection snapshot() {
+        return new Selection(this);
     }
 
     public Point getOrigin() {
