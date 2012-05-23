@@ -92,6 +92,12 @@ public class Model implements ColorTable {
         }
     }
 
+    private void fireShiftChanged(int scroll) {
+        for (ModelListener listener : listeners) {
+            listener.shiftChanged(shift);
+        }
+    }
+
     private void fireZoomChanged(int gridx, int gridy) {
         for (ModelListener listener : listeners) {
             listener.zoomChanged(gridx, gridy);
@@ -248,6 +254,16 @@ public class Model implements ColorTable {
     
     public int getShift() {
         return shift;
+    }
+    
+    public void shiftRight() {
+        shift = (shift + 1) % getWidth();
+        fireShiftChanged(shift);
+    }
+    
+    public void shiftLeft() {
+        shift = (shift - 1 + getWidth()) % getWidth();
+        fireShiftChanged(shift);
     }
 
     public void clear() {

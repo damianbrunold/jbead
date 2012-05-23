@@ -46,6 +46,11 @@ public abstract class BasePanel extends JComponent implements ModelListener{
     }
 
     @Override
+    public void shiftChanged(int scroll) {
+        // empty
+    }
+
+    @Override
     public void zoomChanged(int gridx, int gridy) {
         repaint();
     }

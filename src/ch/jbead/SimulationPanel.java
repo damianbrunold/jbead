@@ -241,4 +241,9 @@ public class SimulationPanel extends BasePanel {
         redraw(pt.getX(), pt.getY() - model.getScroll());
     }
 
+    @Override
+    public void shiftChanged(int scroll) {
+        repaint();
+    }
+
 }

@@ -102,6 +102,8 @@ public class BeadForm extends JFrame implements Localization {
 
     private static final long serialVersionUID = 1L;
 
+    private static final int SHIFTING_PERIOD = 300;
+    
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
     
     private Model model = new Model(this);
@@ -171,7 +173,9 @@ public class BeadForm extends JFrame implements Localization {
     
     private Map<String, Action> actions = new HashMap<String, Action>();
     
-    private Timer timer;
+    private Timer updateTimer;
+    
+    private Timer shiftTimer;
     
     public BeadForm() {
         super("jbead");
@@ -241,8 +245,8 @@ public class BeadForm extends JFrame implements Localization {
 
         selection.addListener(draft);
         
-        timer = new Timer("updateTimer", true);
-        timer.schedule(new TimerTask() {
+        updateTimer = new Timer("updateTimer", true);
+        updateTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 updateHandler();
@@ -390,7 +394,31 @@ public class BeadForm extends JFrame implements Localization {
         toolbar.add(getAction("edit.undo"));
         toolbar.add(getAction("edit.redo"));
         toolbar.add(sbRotateleft = new JButton(ImageFactory.getIcon("sb_prev")));
+        sbRotateleft.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                sbRotateleftMouseDown(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                sbRotateleftMouseUp(e);
+            }
+        });
         toolbar.add(sbRotateright = new JButton(ImageFactory.getIcon("sb_next")));
+        sbRotateright.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                sbRotaterightMouseDown(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                sbRotaterightMouseUp(e);
+            }
+        });
         toolbar.add(getAction("edit.arrange"));
         
         toolbar.addSeparator();
@@ -984,23 +1012,21 @@ public class BeadForm extends JFrame implements Localization {
             getAction("tool.pencil").putValue("SELECT", true);
 //            sbToolPoint.setSelected(true);
 //            toolPoint.setSelected(true);
-        } else if (Key == KeyEvent.VK_ESCAPE) {
-            // righttimer.Enabled = false;
-            // lefttimer.Enabled = false;
+        } else if (Key == KeyEvent.VK_ESCAPE && shiftTimer != null) {
+            shiftTimer.cancel();
+            shiftTimer = null;
         }
     }
 
     private void rotateLeft() {
-        int shift = model.getShift();
-        shift = (shift - 1 + model.getWidth()) % model.getWidth();
+        model.shiftLeft();
         modified = true;
         updateTitle();
         simulation.repaint();
     }
 
     private void rotateRight() {
-        int shift = model.getShift();
-        shift = (shift + 1) % model.getWidth();
+        model.shiftRight();
         modified = true;
         updateTitle();
         simulation.repaint();
@@ -1129,34 +1155,38 @@ public class BeadForm extends JFrame implements Localization {
         new AboutBox(this).setVisible(true);
     }
 
-    private void lefttimerTimer() {
-        rotateLeft();
-        // Application.ProcessMessages(); // FIXME maybe just remove it?
-    }
-
-    private void righttimerTimer() {
-        rotateRight();
-        // Application.ProcessMessages(); // FIXME maybe just remove it?
-    }
-
     private void sbRotaterightMouseDown(MouseEvent event) {
         rotateRight();
-        // Application.ProcessMessages();
-        // righttimer.Enabled = true;
+        if (shiftTimer != null) shiftTimer.cancel();
+        shiftTimer = new Timer("shiftTimer");
+        shiftTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                rotateRight();
+            }
+        }, SHIFTING_PERIOD, SHIFTING_PERIOD);
     }
 
     private void sbRotaterightMouseUp(MouseEvent event) {
-        // righttimer.Enabled = false;
+        shiftTimer.cancel();
+        shiftTimer = null;
     }
 
     private void sbRotateleftMouseDown(MouseEvent event) {
         rotateLeft();
-        // Application.ProcessMessages();
-        // lefttimer.Enabled = true;
+        if (shiftTimer != null) shiftTimer.cancel();
+        shiftTimer = new Timer("shiftTimer");
+        shiftTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                rotateLeft();
+            }
+        }, SHIFTING_PERIOD, SHIFTING_PERIOD);
     }
 
     private void sbRotateleftMouseUp(MouseEvent event) {
-        // lefttimer.Enabled = false;
+        shiftTimer.cancel();
+        shiftTimer = null;
     }
 
     public void formKeyDown(KeyEvent event) {
