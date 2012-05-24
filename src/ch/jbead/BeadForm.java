@@ -1258,17 +1258,12 @@ public class BeadForm extends JFrame implements Localization {
         updateTitle();
     }
 
-    public void setAppTitle() {
-        updateTitle();
-    }
-
     public void updateTitle() {
-        String c = "jbead"; // APP_TITLE;
-        c += " - ";
+        String c = getString("title");
         if (saved) {
-            c += model.getFile().getName();
+            c = c.replace("{1}", model.getFile().getName());
         } else {
-            c += "unnamed"; // DATEI_UNBENANNT;
+            c = c.replace("{1}", getString("unnamed"));
         }
         if (modified) {
             c += "*";
