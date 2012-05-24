@@ -111,41 +111,44 @@ public class SimulationPanel extends BasePanel {
         }
 
         // Data
-        for (int i = 0; i < model.getWidth(); i++) {
+        int width = model.getWidth();
+        int scroll = model.getScroll();
+        int shift = model.getShift();
+        int grid1 = grid - 1;
+        for (int i = 0; i < width; i++) {
             for (int j = 0; j < maxj; j++) {
-                byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
-                assert (c >= 0 && c <= 9);
+                byte c = model.get(new Point(i, j).scrolled(scroll));
                 g.setColor(model.getColor(c));
-                int idx = i + model.getWidth() * j + model.getShift();
-                int i1 = idx % model.getWidth();
-                int j1 = idx / model.getWidth();
+                int idx = i + width * j + shift;
+                int i1 = idx % width;
+                int j1 = idx / width;
                 int ii = correctCoordinatesX(i1, j1);
                 int jj = correctCoordinatesY(i1, j1);
-                if (ii > w && ii != model.getWidth()) continue;
-                if (model.getScroll() % 2 == 0) {
+                if (ii > w && ii != width) continue;
+                if (scroll % 2 == 0) {
                     if (jj % 2 == 0) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
+                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
                     } else {
-                        if (ii != model.getWidth() && ii != w) {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
-                        } else if (ii == model.getWidth()) {
-                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid - 1);
+                        if (ii != width && ii != w) {
+                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                        } else if (ii == width) {
+                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid1);
                         } else {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid - 1);
+                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid1);
                         }
                     }
                 } else {
                     if (jj % 2 == 1) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
+                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
                     } else {
-                        if (ii != model.getWidth() && ii != w) {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid - 1, grid - 1);
-                        } else if (ii == model.getWidth()) {
-                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid - 1);
+                        if (ii != width && ii != w) {
+                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                        } else if (ii == width) {
+                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid1);
                         } else {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid - 1);
+                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid1);
                         }
                     }
                 }
@@ -156,33 +159,29 @@ public class SimulationPanel extends BasePanel {
     int correctCoordinatesX(int _i, int _j) {
         int idx = _i + (_j + model.getScroll()) * model.getWidth();
         int m1 = model.getWidth();
-        int m2 = model.getWidth() + 1;
+        int m2 = m1 + 1;
         int k = 0;
-        int m = (k % 2 == 0) ? m1 : m2;
+        int m = m1 ;
         while (idx >= m) {
             idx -= m;
             k++;
             m = (k % 2 == 0) ? m1 : m2;
         }
-        _i = idx;
-        _j = k - model.getScroll();
-        return _i;
+        return idx;
     }
 
     int correctCoordinatesY(int _i, int _j) {
         int idx = _i + (_j + model.getScroll()) * model.getWidth();
         int m1 = model.getWidth();
-        int m2 = model.getWidth() + 1;
+        int m2 = m1 + 1;
         int k = 0;
-        int m = (k % 2 == 0) ? m1 : m2;
+        int m = m1;
         while (idx >= m) {
             idx -= m;
             k++;
             m = (k % 2 == 0) ? m1 : m2;
         }
-        _i = idx;
-        _j = k - model.getScroll();
-        return _j;
+        return k - model.getScroll();
     }
 
     public void redraw(int _i, int _j) {
