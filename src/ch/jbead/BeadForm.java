@@ -684,6 +684,8 @@ public class BeadForm extends JFrame implements Localization {
     public void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getFile().getParentFile());
+        dialog.setAcceptAllFileFilterUsed(true);
+        dialog.setFileFilter(new DbbFileFilter());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             loadFile(dialog.getSelectedFile(), true);
         }
@@ -716,6 +718,8 @@ public class BeadForm extends JFrame implements Localization {
 
     public void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
+        dialog.setAcceptAllFileFilterUsed(true);
+        dialog.setFileFilter(new DbbFileFilter());
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
                 String msg = getString("fileexists");
@@ -724,7 +728,11 @@ public class BeadForm extends JFrame implements Localization {
                     return;
                 }
             }
-            model.setFile(dialog.getSelectedFile());
+            File file = dialog.getSelectedFile();
+            if (file.getName().indexOf('.') == -1) {
+                file = new File(file.getParentFile(), file.getName() + ".dbb");
+            }
+            model.setFile(file);
             saved = true;
             fileSaveClick();
             addToMRU(model.getFile());
