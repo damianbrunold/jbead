@@ -86,10 +86,10 @@ public class ReportPanel extends BasePanel {
                     y += dy;
                     col = model.get(i);
                     count = 1;
-                }
-                if (y >= getHeight() - dy) {
-                    x1 += colwidth;
-                    y = ystart;
+                    if (y >= getHeight() - dy) {
+                        x1 += colwidth;
+                        y = ystart;
+                    }
                 }
             }
             if (y >= getHeight() - dy) {
