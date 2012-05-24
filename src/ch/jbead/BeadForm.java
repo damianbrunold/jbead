@@ -102,7 +102,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int SHIFTING_INTERVAL = 300;
+    private static final int SHIFTING_INTERVAL = 150;
     private static final int UPDATE_INTERVAL = 500;
     
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
