@@ -102,7 +102,8 @@ public class BeadForm extends JFrame implements Localization {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int SHIFTING_PERIOD = 300;
+    private static final int SHIFTING_INTERVAL = 300;
+    private static final int UPDATE_INTERVAL = 500;
     
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
     
@@ -251,7 +252,7 @@ public class BeadForm extends JFrame implements Localization {
             public void run() {
                 updateHandler();
             }
-        }, 500, 500);
+        }, UPDATE_INTERVAL, UPDATE_INTERVAL);
     }
 
     private void initCloseHandler() {
@@ -1164,7 +1165,7 @@ public class BeadForm extends JFrame implements Localization {
             public void run() {
                 rotateRight();
             }
-        }, SHIFTING_PERIOD, SHIFTING_PERIOD);
+        }, SHIFTING_INTERVAL, SHIFTING_INTERVAL);
     }
 
     private void sbRotaterightMouseUp(MouseEvent event) {
@@ -1181,7 +1182,7 @@ public class BeadForm extends JFrame implements Localization {
             public void run() {
                 rotateLeft();
             }
-        }, SHIFTING_PERIOD, SHIFTING_PERIOD);
+        }, SHIFTING_INTERVAL, SHIFTING_INTERVAL);
     }
 
     private void sbRotateleftMouseUp(MouseEvent event) {
