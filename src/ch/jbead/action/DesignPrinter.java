@@ -81,12 +81,9 @@ public class DesignPrinter {
 //      title += " - " + savedialog.getSelectedFile().getName();
       // TODO print headers and footers?
 
-      int sx = 72; // 72 dpi
-      int sy = 72; // 72 dpi
-
       int zoomIndex = model.getZoomIndex();
-      int gx = (15 + zoomIndex * 5) * sx / 254;
-      int gy = (15 + zoomIndex * 5) * sy / 254;
+      int gx = mm2px(15 + zoomIndex * 5);
+      int gy = mm2py(15 + zoomIndex * 5);
 
       int draftleft = 0;
       int normalleft = 0;
@@ -94,28 +91,28 @@ public class DesignPrinter {
       int reportleft = 0;
       int reportcols = 0;
 
-      int m = mm2px(10, sx);
+      int m = mm2px(10);
       if (withDraft) {
           draftleft = m;
-          m += mm2px(13, sx) + model.getWidth() * gx + mm2px(7, sx);
+          m += mm2px(13) + model.getWidth() * gx + mm2px(7);
       }
 
       if (withNormal) {
           normalleft = m;
-          m += mm2px(7, sx) + (model.getWidth() + 1) * gx;
+          m += mm2px(7) + (model.getWidth() + 1) * gx;
       }
 
       if (withSimulation) {
           simulationleft = m;
-          m += mm2px(7, sx) + (model.getWidth() / 2 + 1) * gx;
+          m += mm2px(7) + (model.getWidth() / 2 + 1) * gx;
       }
 
       if (withReport) {
           reportleft = m;
-          reportcols = ((int) pageFormat.getWidth() - m - 10) / (mm2px(5, sx) + mm2px(8, sx));
+          reportcols = ((int) pageFormat.getWidth() - m - 10) / (mm2px(5) + mm2px(8));
       }
 
-      int h = (int) pageFormat.getHeight() - mm2py(10, sy);
+      int h = (int) pageFormat.getHeight() - mm2py(10);
 
       // //////////////////////////////////////
       //
@@ -125,9 +122,9 @@ public class DesignPrinter {
 
       // Grid
       g.setColor(Color.BLACK);
-      int left = draftleft + mm2px(13, sx);
+      int left = draftleft + mm2px(13);
       if (left < 0) left = 0;
-      int maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+      int maxj = Math.min(model.getHeight(), (h - mm2py(10)) / gy);
       for (int i = 0; i < model.getWidth() + 1; i++) {
           g.drawLine(left + i * gx, h - (maxj) * gy, left + i * gx, h - 1);
       }
@@ -150,8 +147,8 @@ public class DesignPrinter {
       g.setColor(Color.BLACK);
       for (int j = 0; j < maxj; j++) {
           if ((j % 10) == 0) {
-              g.drawLine(draftleft, h - j * gy - 1, left - mm2px(3, sx), h - j * gy - 1);
-              g.drawString(Integer.toString(j), draftleft, h - j * gy + mm2py(1, sy));
+              g.drawLine(draftleft, h - j * gy - 1, left - mm2px(3), h - j * gy - 1);
+              g.drawString(Integer.toString(j), draftleft, h - j * gy + mm2py(1));
           }
       }
 
@@ -165,7 +162,7 @@ public class DesignPrinter {
       g.setColor(Color.BLACK);
       left = normalleft + gx / 2;
       if (left < 0) left = gx / 2;
-      maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+      maxj = Math.min(model.getHeight(), (h - mm2py(10)) / gy);
       for (int i = 0; i < model.getWidth() + 1; i++) {
           for (int jj = 0; jj < maxj; jj += 2) {
               g.drawLine(left + i * gx, h - (jj + 1) * gy, left + i * gx, h - jj * gy);
@@ -209,7 +206,7 @@ public class DesignPrinter {
       g.setColor(Color.BLACK);
       left = simulationleft + gx / 2;
       if (left < 0) left = gx / 2;
-      maxj = Math.min(model.getHeight(), (h - mm2py(10, sy)) / gy);
+      maxj = Math.min(model.getHeight(), (h - mm2py(10)) / gy);
       int w = model.getWidth() / 2;
       for (int j = 0; j < maxj; j += 2) {
           for (int i = 0; i < w + 1; i++) {
@@ -263,10 +260,10 @@ public class DesignPrinter {
       // //////////////////////////////////////
 
       int x1 = reportleft;
-      int x2 = reportleft + mm2px(30, sx);
-      int y = mm2py(10, sy);
-      int dy = mm2py(5, sy);
-      int dx = mm2px(5, sx);
+      int x2 = reportleft + mm2px(30);
+      int y = mm2py(10);
+      int dy = mm2py(5);
+      int dx = mm2px(5);
 
       // Mustername
       g.setColor(Color.BLACK);
@@ -297,14 +294,14 @@ public class DesignPrinter {
               } else {
                   if (col != 0) {
                       g.setColor(model.getColor(col));
-                      g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                      g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                       g.setColor(Color.WHITE);
-                      g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                      g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                   } else {
                       g.setColor(Color.WHITE);
-                      g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                      g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                       g.setColor(Color.BLACK);
-                      g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                      g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                   }
                   g.setColor(Color.BLACK);
                   g.drawString(Integer.toString(count), x1 + dx + 3, y);
@@ -312,8 +309,8 @@ public class DesignPrinter {
                   col = model.get(i);
                   count = 1;
               }
-              if (y >= (int) pageFormat.getHeight() - mm2py(10, sy)) {
-                  x1 += dx + mm2px(8, sx);
+              if (y >= (int) pageFormat.getHeight() - mm2py(10)) {
+                  x1 += dx + mm2px(8);
                   y = ystart;
                   column++;
                   if (column >= reportcols) { // neue Seite und weiter...
@@ -321,10 +318,10 @@ public class DesignPrinter {
                       break;
                       // Printer().NewPage();
                       // x1 = draftleft;
-                      // x2 = draftleft + MM2PRx(30, sx);
-                      // y = MM2PRy(10, sy);
+                      // x2 = draftleft + MM2PRx(30);
+                      // y = MM2PRy(10);
                       // reportcols = (Printer().PageWidth - draftleft - 10) /
-                      // (MM2PRx(5, sx) + MM2PRx(8, sx));
+                      // (MM2PRx(5) + MM2PRx(8));
                       // column = 0;
                       // page++;
                       // canvas.Pen.Color = clBlack;
@@ -338,17 +335,17 @@ public class DesignPrinter {
                   }
               }
           }
-          if (y < (int) pageFormat.getHeight() - mm2py(10, sy)) {
+          if (y < (int) pageFormat.getHeight() - mm2py(10)) {
               if (col != 0) {
                   g.setColor(model.getColor(col));
-                  g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                  g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                   g.setColor(Color.WHITE);
-                  g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                  g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
               } else {
                   g.setColor(Color.WHITE);
-                  g.fillRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                  g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                   g.setColor(Color.BLACK);
-                  g.drawRect(x1, y, dx - mm2px(1, sx), dy - mm2py(1, sy));
+                  g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
               }
               g.setColor(Color.BLACK);
               g.drawString(Integer.toString(count), x1 + dx + 3, y);
@@ -388,12 +385,12 @@ public class DesignPrinter {
         return j;
     }
 
-    private int mm2px(int x, int sx) {
-        return x * sx / 254;
+    private int mm2px(int x) {
+        return x * 72 / 254;
     }
 
-    private int mm2py(int y, int sy) {
-        return y * sy / 254;
+    private int mm2py(int y) {
+        return y * 72 / 254;
     }
 
 }
