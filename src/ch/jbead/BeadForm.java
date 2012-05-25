@@ -59,7 +59,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import ch.jbead.action.DesignPrinter;
 import ch.jbead.action.EditArrangeAction;
 import ch.jbead.action.EditDeleteLineAction;
 import ch.jbead.action.EditInsertLineAction;

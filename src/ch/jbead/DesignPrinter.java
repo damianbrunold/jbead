@@ -15,7 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.jbead.action;
+package ch.jbead;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,9 +24,6 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
-import ch.jbead.Localization;
-import ch.jbead.Model;
-import ch.jbead.Point;
 
 public class DesignPrinter {
 
