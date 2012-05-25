@@ -19,7 +19,6 @@ package ch.jbead;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -110,8 +109,6 @@ public class BeadForm extends JFrame implements Localization {
     private Selection selection = new Selection();
 
     private boolean dragging;
-    private boolean saved;
-    private boolean modified;
     private String mru[] = new String[6];
 
     private JToolBar toolbar = new JToolBar();
@@ -180,8 +177,7 @@ public class BeadForm extends JFrame implements Localization {
     public BeadForm() {
         super("jbead");
         createGUI();
-        saved = false;
-        modified = false;
+        model.clear();
         selection.clear();
         updateTitle();
         setColorIcons();
@@ -553,7 +549,7 @@ public class BeadForm extends JFrame implements Localization {
 
     public void fileNewClick() {
         // ask whether to save modified document
-        if (modified) {
+        if (model.isModified()) {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (answer == JOptionPane.CANCEL_OPTION) return;
             if (answer == JOptionPane.YES_OPTION) {
@@ -567,14 +563,12 @@ public class BeadForm extends JFrame implements Localization {
         sbColor1.setSelected(true);
         setColorIcons();
         updateScrollbar();
-        saved = false;
-        modified = false;
         updateTitle();
     }
 
     private void loadFile(File file, boolean addtomru) {
         // ask whether to save modified document
-        if (modified) {
+        if (model.isModified()) {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (answer == JOptionPane.CANCEL_OPTION) return;
             if (answer == JOptionPane.YES_OPTION) {
@@ -640,8 +634,8 @@ public class BeadForm extends JFrame implements Localization {
             // xxx
             model.clear();
         }
-        saved = true;
-        modified = false;
+        model.setSaved();
+        model.setModified(false);
         model.setRepeatDirty();
         model.setFile(file);
         updateTitle();
@@ -659,7 +653,7 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void fileSaveClick() {
-        if (saved) {
+        if (model.isSaved()) {
             // Einfach abspeichern...
             try {
                 JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
@@ -670,7 +664,7 @@ public class BeadForm extends JFrame implements Localization {
                     out.writeBool(viewNormal.isSelected());
                     out.writeBool(viewSimulation.isSelected());
                     // report flag is not saved?!
-                    modified = false;
+                    model.setModified(false);
                     updateTitle();
                 } finally {
                     out.close();
@@ -700,7 +694,7 @@ public class BeadForm extends JFrame implements Localization {
                 file = new File(file.getParentFile(), file.getName() + ".dbb");
             }
             model.setFile(file);
-            saved = true;
+            model.setSaved();
             fileSaveClick();
             addToMRU(model.getFile());
         }
@@ -716,7 +710,7 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void fileExitClick() {
-        if (modified) {
+        if (model.isModified()) {
             int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) return;
             if (r == JOptionPane.OK_OPTION) fileSaveClick();
@@ -731,10 +725,10 @@ public class BeadForm extends JFrame implements Localization {
         form.setPatternWidth(model.getWidth());
         form.setVisible(true);
         if (form.isOK()) {
-            model.snapshot(modified);
+            model.snapshot();
             model.setWidth(form.getPatternWidth());
-            if (!modified) {
-                modified = (old != model.getWidth());
+            if (!model.isModified()) {
+                model.setModified(old != model.getWidth());
             }
             updateTitle();
             model.setRepeatDirty();
@@ -839,38 +833,33 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void drawLine(Point begin, Point end) {
-        model.snapshot(modified);
+        model.snapshot();
         model.drawLine(begin, end);
-        modified = true;
         updateTitle();
     }
 
     private void fillLine(Point pt) {
-        model.snapshot(modified);
+        model.snapshot();
         model.fillLine(pt);
-        modified = true;
         updateTitle();
         report.repaint();
     }
 
     private void setPoint(Point pt) {
-        model.snapshot(modified);
+        model.snapshot();
         model.setPoint(pt);
-        modified = true;
         updateTitle();
         report.repaint();
     }
 
     public void editUndoClick() {
-        modified = model.undo();
+        model.undo();
         updateTitle();
-        model.setRepeatDirty();
     }
 
     public void editRedoClick() {
-        modified = model.redo();
+        model.redo();
         updateTitle();
-        model.setRepeatDirty();
     }
 
     public void viewZoomInClick() {
@@ -962,14 +951,12 @@ public class BeadForm extends JFrame implements Localization {
 
     private void rotateLeft() {
         model.shiftLeft();
-        modified = true;
         updateTitle();
         simulation.repaint();
     }
 
     private void rotateRight() {
         model.shiftRight();
-        modified = true;
         updateTitle();
         simulation.repaint();
     }
@@ -1023,9 +1010,8 @@ public class BeadForm extends JFrame implements Localization {
         if (c == 0) return;
         Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
         if (color == null) return;
-        model.snapshot(modified);
+        model.snapshot();
         model.setColor(c, color);
-        modified = true;
         updateTitle();
         setColorIcons();
     }
@@ -1039,18 +1025,14 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private void updateHandler() {
-        // Menü- und Toolbar enablen/disablen
         getAction("edit.arrange").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
 
-        // Rapport berechnen und zeichnen
         if (model.isRepeatDirty()) {
             model.updateRepeat();
         }
-
-        // Vorsorgliches Undo
-        model.prepareSnapshot(modified);
+        model.prepareSnapshot();
     }
 
     public void toolPencilClick() {
@@ -1140,7 +1122,7 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     private boolean canTerminateApp() {
-        if (modified) {
+        if (model.isModified()) {
             int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) {
                 return false;
@@ -1154,25 +1136,31 @@ public class BeadForm extends JFrame implements Localization {
         CopyForm copyform = new CopyForm(this);
         copyform.setVisible(true);
         if (copyform.isOK()) {
-            // TODO move this to model!
-            model.snapshot(modified);
-            BeadField buffer = model.getCopy();
-            for (int i = selection.left(); i <= selection.right(); i++) {
-                for (int j = selection.bottom(); j <= selection.top(); j++) {
-                    byte c = buffer.get(new Point(i, j));
-                    if (c == 0) continue;
-                    int idx = getIndex(i, j);
-                    for (int k = 0; k < copyform.getCopies(); k++) {
-                        idx += getCopyOffset(copyform);
-                        if (model.isValidIndex(idx)) model.set(idx, c);
-                    }
-                }
-            }
-            model.setRepeatDirty();
-            modified = true;
+            int copies = copyform.getCopies();
+            int offset = getCopyOffset(copyform);
+            arrangeSelection(copies, offset);
             updateTitle();
             report.repaint();
         }
+    }
+
+    private void arrangeSelection(int copies, int offset) {
+        // TODO move this to model!
+        model.snapshot();
+        BeadField buffer = model.getCopy();
+        for (int i = selection.left(); i <= selection.right(); i++) {
+            for (int j = selection.bottom(); j <= selection.top(); j++) {
+                byte c = buffer.get(new Point(i, j));
+                if (c == 0) continue;
+                int idx = getIndex(i, j);
+                for (int k = 0; k < copies; k++) {
+                    idx += offset;
+                    if (model.isValidIndex(idx)) model.set(idx, c);
+                }
+            }
+        }
+        model.setRepeatDirty();
+        model.setModified();
     }
 
     private int getCopyOffset(CopyForm form) {
@@ -1184,35 +1172,28 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void editInsertLineClick() {
-        model.snapshot(modified);
+        model.snapshot();
         model.insertLine();
-        model.setRepeatDirty();
-        modified = true;
         updateTitle();
     }
 
     public void editDeleteLineClick() {
-        model.snapshot(modified);
+        model.snapshot();
         model.deleteLine();
-        model.setRepeatDirty();
-        modified = true;
         updateTitle();
     }
 
     public void updateTitle() {
         String c = getString("title");
-        if (saved) {
+        if (model.isSaved()) {
             c = c.replace("{1}", model.getFile().getName());
         } else {
             c = c.replace("{1}", getString("unnamed"));
         }
-        if (modified) {
+        if (model.isModified()) {
             c += "*";
         }
         setTitle(c);
-    }
-
-    private void printAll(Graphics g, PageFormat pageFormat, int pageIndex) {
     }
 
     private void addToMRU(File file) {

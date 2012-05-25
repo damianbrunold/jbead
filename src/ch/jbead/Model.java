@@ -42,6 +42,8 @@ public class Model implements ColorTable {
     private int repeat;
     private int colorRepeat;
     private String unnamed;
+    private boolean saved;
+    private boolean modified;
     
     private List<ModelListener> listeners = new ArrayList<ModelListener>();
 
@@ -137,6 +139,7 @@ public class Model implements ColorTable {
     @Override
     public void setColor(int index, Color color) {
         colors[index] = color;
+        setModified();
         fireColorChanged(index);
     }
     
@@ -181,10 +184,14 @@ public class Model implements ColorTable {
 
     public void insertLine() {
         field.insertLine();
+        setRepeatDirty();
+        setModified();
     }
     
     public void deleteLine() {
         field.deleteLine();
+        setRepeatDirty();
+        setModified();
     }
     
     public void drawLine(Point begin, Point end) {
@@ -192,6 +199,7 @@ public class Model implements ColorTable {
             set(pt.scrolled(scroll), colorIndex);
         }
         setRepeatDirty();
+        setModified();
     }
     
     public void fillLine(Point pt) {
@@ -213,6 +221,7 @@ public class Model implements ColorTable {
             }
         }
         setRepeatDirty();
+        setModified();
     }
     
     public void setPoint(Point pt) {
@@ -223,6 +232,7 @@ public class Model implements ColorTable {
             set(pt, colorIndex);
         }
         setRepeatDirty();
+        setModified();
     }
 
     public BeadField getCopy() {
@@ -258,11 +268,13 @@ public class Model implements ColorTable {
     
     public void shiftRight() {
         shift = (shift + 1) % getWidth();
+        setModified();
         fireShiftChanged(shift);
     }
     
     public void shiftLeft() {
         shift = (shift - 1 + getWidth()) % getWidth();
+        setModified();
         fireShiftChanged(shift);
     }
 
@@ -276,7 +288,29 @@ public class Model implements ColorTable {
         zoomIndex = 2;
         scroll = 0;
         file = new File(unnamed);
+        saved = false;
+        modified = false;
         fireModelChanged();
+    }
+
+    public void setSaved() {
+        saved = true;
+    }
+
+    public boolean isSaved() {
+        return saved;
+    }
+    
+    public void setModified() {
+        modified = true;
+    }
+    
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+    
+    public boolean isModified() {
+        return modified;
     }
     
     public void setFile(File file) {
@@ -315,24 +349,26 @@ public class Model implements ColorTable {
         repeatDirty = true;
     }
 
-    public void snapshot(boolean modified) {
+    public void snapshot() {
         undo.snapshot(field, modified);
     }
     
-    public void prepareSnapshot(boolean modified) {
+    public void prepareSnapshot() {
         undo.prepareSnapshot(field, modified);        
     }
 
-    public boolean undo() {
+    public void undo() {
         undo.undo(field);
+        modified = undo.isModified();
+        setRepeatDirty();
         fireModelChanged();
-        return undo.isModified();
     }
 
-    public boolean redo() {
+    public void redo() {
         undo.redo(field);
+        modified = undo.isModified();
+        setRepeatDirty();
         fireModelChanged();
-        return undo.isModified();
     }
 
     public void zoomIn() {
