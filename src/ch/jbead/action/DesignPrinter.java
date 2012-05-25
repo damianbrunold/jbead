@@ -56,40 +56,24 @@ public class DesignPrinter {
     
     public void print(boolean showDialog) {
         try {
-            if (showDialog) {
-                PrinterJob pj = PrinterJob.getPrinterJob();
-                if (pj.printDialog()) {
-                    pj.setPrintable(new Printable() {
-                        @Override
-                        public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-                            if (pageIndex == 0) {
-                                printAll(graphics, pageFormat, pageIndex);
-                                return PAGE_EXISTS;
-                            } else {
-                                return NO_SUCH_PAGE;
-                            }
-                        }
-                    }, pageFormat);
-                    pj.print();
+            PrinterJob pj = PrinterJob.getPrinterJob();
+            if (showDialog && !pj.printDialog()) return;
+            pj.setPrintable(new Printable() {
+                @Override
+                public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+                    if (pageIndex >= getPageCount(graphics, pageFormat)) return NO_SUCH_PAGE;
+                    printAll(graphics, pageFormat, pageIndex);
+                    return PAGE_EXISTS;
                 }
-            } else {
-                PrinterJob pj = PrinterJob.getPrinterJob();
-                pj.setPrintable(new Printable() {
-                    @Override
-                    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-                        if (pageIndex == 0) {
-                            printAll(graphics, pageFormat, pageIndex);
-                            return PAGE_EXISTS;
-                        } else {
-                            return NO_SUCH_PAGE;
-                        }
-                    }
-                }, pageFormat);
-                pj.print();
-            }
+            }, pageFormat);
+            pj.print();
         } catch (PrinterException e) {
             // TODO show error dialog
         }
+    }
+
+    private int getPageCount(Graphics graphics, PageFormat pageFormat) {
+        return 1; // TODO calculate actual page count
     }
 
     private void printAll(Graphics g, PageFormat pageFormat, int pageIndex) {
