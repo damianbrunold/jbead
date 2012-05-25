@@ -137,4 +137,8 @@ public class CopyForm extends JDialog {
         return (Integer) horz.getValue();
     }
 
+    public int getOffset(int width) {
+        return getVertOffset() * width + getHorzOffset();
+    }
+
 }

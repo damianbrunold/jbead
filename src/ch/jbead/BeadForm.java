@@ -1137,38 +1137,11 @@ public class BeadForm extends JFrame implements Localization {
         copyform.setVisible(true);
         if (copyform.isOK()) {
             int copies = copyform.getCopies();
-            int offset = getCopyOffset(copyform);
-            arrangeSelection(copies, offset);
+            int offset = copyform.getOffset(model.getWidth());
+            model.arrangeSelection(selection, copies, offset);
             updateTitle();
             report.repaint();
         }
-    }
-
-    private void arrangeSelection(int copies, int offset) {
-        // TODO move this to model!
-        model.snapshot();
-        BeadField buffer = model.getCopy();
-        for (int i = selection.left(); i <= selection.right(); i++) {
-            for (int j = selection.bottom(); j <= selection.top(); j++) {
-                byte c = buffer.get(new Point(i, j));
-                if (c == 0) continue;
-                int idx = getIndex(i, j);
-                for (int k = 0; k < copies; k++) {
-                    idx += offset;
-                    if (model.isValidIndex(idx)) model.set(idx, c);
-                }
-            }
-        }
-        model.setRepeatDirty();
-        model.setModified();
-    }
-
-    private int getCopyOffset(CopyForm form) {
-        return form.getVertOffset() * model.getWidth() + form.getHorzOffset();
-    }
-
-    private int getIndex(int i, int j) {
-        return j * model.getWidth() + i;
     }
 
     public void editInsertLineClick() {
