@@ -76,3 +76,6 @@ program. Add metadata to the patterns. The server creates on the
 fly a thumbnail, or maybe the uploading program does. The program
 can query the personal document or all published ones according
 to metadata (tags).
+
+Use BeadList to generate further reports, e.g. stats of beads 
+(how many of which color, ...)

@@ -22,11 +22,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-import javax.swing.BorderFactory;
-
-/**
- * 
- */
 public class ReportPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
@@ -63,34 +58,20 @@ public class ReportPanel extends BasePanel {
         drawText(g, x1, x2, y, "report.colorrepeat", model.getColorRepeat() + " " + localization.getString("report.beads"));
         y += dy;
 
-        // Farben
-        // Faedelliste...
         if (model.getColorRepeat() > 0) {
             int height = g.getFontMetrics().getLeading() + g.getFontMetrics().getAscent();
             g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = model.get(model.getColorRepeat() - 1);
-            int count = 1;
-            for (int i = model.getColorRepeat() - 2; i >= 0; i--) {
-                if (model.get(i) == col) {
-                    count++;
-                } else {
-                    drawColorCount(g, x1, y, dx, dy, height, col, count);
-                    y += dy;
-                    col = model.get(i);
-                    count = 1;
-                    if (y >= getHeight() - dy) {
-                        x1 += colwidth;
-                        y = ystart;
-                    }
+            BeadList beads = new BeadList(model);
+            for (BeadRun bead : beads) {
+                drawColorCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
+                y += dy;
+                if (y >= getHeight() - dy) {
+                    x1 += colwidth;
+                    y = ystart;
                 }
             }
-            if (y >= getHeight() - dy) {
-                x1 += colwidth;
-                y = ystart;
-            }
-            drawColorCount(g, x1, y, dx, dy, height, col, count);
         }
     }
 

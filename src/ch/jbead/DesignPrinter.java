@@ -274,34 +274,27 @@ public class DesignPrinter {
         int colorRepeat = model.getColorRepeat();
         // Faedelliste...
         if (colorRepeat > 0) {
-            int page = 1;
+            //int page = 1;
             int column = 0;
             g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
             int ystart = y;
-            byte col = model.get(colorRepeat - 1);
-            int count = 1;
-            for (int i = colorRepeat - 2; i >= 0; i--) {
-                if (model.get(i) == col) {
-                    count++;
+            BeadList beads = new BeadList(model);
+            for (BeadRun bead : beads) {
+                if (bead.getColor() != 0) {
+                    g.setColor(model.getColor(bead.getColor()));
+                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                 } else {
-                    if (col != 0) {
-                        g.setColor(model.getColor(col));
-                        g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                        g.setColor(Color.WHITE);
-                        g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                    } else {
-                        g.setColor(Color.WHITE);
-                        g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                        g.setColor(Color.BLACK);
-                        g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                    }
+                    g.setColor(Color.WHITE);
+                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                     g.setColor(Color.BLACK);
-                    g.drawString(Integer.toString(count), x1 + dx + 3, y);
-                    y += dy;
-                    col = model.get(i);
-                    count = 1;
+                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
                 }
+                g.setColor(Color.BLACK);
+                g.drawString(Integer.toString(bead.getCount()), x1 + dx + 3, y);
+                y += dy;
                 if (y >= (int) pageFormat.getHeight() - mm2py(10)) {
                     x1 += dx + mm2px(8);
                     y = ystart;
@@ -327,21 +320,6 @@ public class DesignPrinter {
                         // ystart = y;
                     }
                 }
-            }
-            if (y < (int) pageFormat.getHeight() - mm2py(10)) {
-                if (col != 0) {
-                    g.setColor(model.getColor(col));
-                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                    g.setColor(Color.WHITE);
-                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                } else {
-                    g.setColor(Color.WHITE);
-                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                    g.setColor(Color.BLACK);
-                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
-                }
-                g.setColor(Color.BLACK);
-                g.drawString(Integer.toString(count), x1 + dx + 3, y);
             }
         }
     }
