@@ -46,27 +46,21 @@ public class ReportPanel extends BasePanel {
 
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        int x1 = 12;
-        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.colorrepeat"));
-        int y = 0;
-        int dx = 15;
+        // TODO extract data in a model object and determine x2 according the the longest string in the locale!
+        int dx = g.getFontMetrics().getHeight() + 2;
         int dy = dx;
+        int x1 = 12;
+        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.colorrepeat")) + dx / 2;
+        int y = dy;
         int colwidth = dx + 2 + g.getFontMetrics().stringWidth("999") + 3;
 
-        // Mustername
-        g.setColor(Color.BLACK);
-        g.drawString(localization.getString("report.pattern"), x1, y);
-        g.drawString(model.getFile().getPath(), x2, y);
+        drawText(g, x1, x2, y, "report.pattern", model.getFile().getPath());
         y += dy;
 
-        // Umfang
-        g.drawString(localization.getString("report.circumference"), x1, y);
-        g.drawString(Integer.toString(model.getWidth()), x2, y);
+        drawText(g, x1, x2, y, "report.circumference", Integer.toString(model.getWidth()));
         y += dy;
 
-        // Farbrapport
-        g.drawString(localization.getString("report.colorrepeat"), x1, y);
-        g.drawString(model.getColorRepeat() + " " + localization.getString("report.beads"), x2, y);
+        drawText(g, x1, x2, y, "report.colorrepeat", model.getColorRepeat() + " " + localization.getString("report.beads"));
         y += dy;
 
         // Farben
@@ -98,6 +92,12 @@ public class ReportPanel extends BasePanel {
             }
             drawColorCount(g, x1, y, dx, dy, height, col, count);
         }
+    }
+
+    private void drawText(Graphics g, int x1, int x2, int y, String key, String value) {
+        g.setColor(Color.BLACK);
+        g.drawString(localization.getString(key), x1, y);
+        g.drawString(value, x2, y);
     }
 
     private void drawColorCount(Graphics g, int x1, int y, int dx, int dy, int height, byte col, int count) {
