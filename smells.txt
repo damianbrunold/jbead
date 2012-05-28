@@ -45,3 +45,34 @@ Use abstracted tool object for the different tools.
 
 Create a RectIterator in analogy to SegmentIterator. It would
 probably make various loops nicer...
+
+Make simulation view editable analogously to the normal
+corrected view.
+
+Decide on the name of the normal/corrected view. Change all
+code accordingly.
+
+Make color choosing very simple. Slider style as in the video
+of Bret Victor.
+
+Add a "surprise me" color mode, where you click a button and
+the colors are randomly changed. Maybe some modes are supported,
+very random, tone-in-tone, contrasting colors, ...
+
+Easily set background color. This maybe is just color0. But
+why not a fill mode that fills not only a line, but like water
+everything reachable downwards. This would be very general.
+
+Create good documentation on the web.
+
+Create screencasts about jbead and post on the web and on youtube.
+
+Push documents to storage on the web. There is a user id and a
+passphrase to be configured and this defines where to store and
+what is visible. Also, on the web there is a manage page, where
+it is possible to publish patterns. These patterns are then
+available for download via the webpage or for querying from the
+program. Add metadata to the patterns. The server creates on the
+fly a thumbnail, or maybe the uploading program does. The program
+can query the personal document or all published ones according
+to metadata (tags).
