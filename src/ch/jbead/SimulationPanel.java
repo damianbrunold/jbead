@@ -20,6 +20,8 @@ package ch.jbead;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SimulationPanel extends BasePanel {
 
@@ -28,9 +30,15 @@ public class SimulationPanel extends BasePanel {
     private Model model;
     private int offsetx;
 
-    public SimulationPanel(Model model) {
+    public SimulationPanel(Model model, final BeadForm form) {
         this.model = model;
         model.addListener(this);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                form.simulationMouseUp(e);
+            }
+        });
     }
 
     @Override
@@ -243,6 +251,44 @@ public class SimulationPanel extends BasePanel {
     @Override
     public void shiftChanged(int scroll) {
         repaint();
+    }
+
+    boolean mouseToField(Point pt) {
+        int w = model.getWidth() / 2;
+        int grid = model.getGrid();
+        int shift = model.getShift();
+        int _i = pt.getX();
+        int _j = pt.getY();
+        int i;
+        int jj = (getHeight() - _j) / grid;
+        if (model.getScroll() % 2 == 0) {
+            if (jj % 2 == 0) {
+                if (_i < offsetx || _i > offsetx + w * grid) return false;
+                i = (_i - offsetx) / grid;
+            } else {
+                if (_i < offsetx - grid / 2 || _i > offsetx + w * grid + grid / 2) return false;
+                i = (_i - offsetx + grid / 2) / grid;
+            }
+        } else {
+            if (jj % 2 == 1) {
+                if (_i < offsetx || _i > offsetx + w * grid) return false;
+                i = (_i - offsetx) / grid;
+            } else {
+                if (_i < offsetx - grid / 2 || _i > offsetx + w * grid + grid / 2) return false;
+                i = (_i - offsetx + grid / 2) / grid;
+            }
+        }
+        i -= shift;
+        if (i >= model.getWidth()) {
+            i -= model.getWidth();
+            jj++;
+        } else if (i < 0) {
+            i += model.getWidth();
+            jj--;
+        }
+        pt.setX(i);
+        pt.setY(jj);
+        return true;
     }
 
 }

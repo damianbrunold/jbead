@@ -128,7 +128,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private DraftPanel draft = new DraftPanel(model, selection, this);
     private NormalPanel normal = new NormalPanel(model, this);
-    private SimulationPanel simulation = new SimulationPanel(model);
+    private SimulationPanel simulation = new SimulationPanel(model, this);
     private ReportPanel report = new ReportPanel(model, this);
 
     private JLabel laDraft = new JLabel("draft");
@@ -1055,6 +1055,30 @@ public class BeadForm extends JFrame implements Localization {
         // TODO move this to the NormalPanel
         Point pt = new Point(event.getX(), event.getY());
         if (event.getButton() == MouseEvent.BUTTON1 && normal.mouseToField(pt)) {
+            // Lineare Koordinaten berechnen
+            int idx = 0;
+            int m1 = model.getWidth();
+            int m2 = m1 + 1;
+            for (int j = 0; j < pt.getY() + scroll; j++) {
+                if (j % 2 == 0)
+                    idx += m1;
+                else
+                    idx += m2;
+            }
+            idx += pt.getX();
+
+            // Feld setzen und Darstellung nachf�hren
+            int j = idx / model.getWidth();
+            int i = idx % model.getWidth();
+            setPoint(new Point(i, j - scroll));
+        }
+    }
+
+    public void simulationMouseUp(MouseEvent event) {
+        int scroll = model.getScroll();
+        // TODO move this to the SimulationPanel
+        Point pt = new Point(event.getX(), event.getY());
+        if (event.getButton() == MouseEvent.BUTTON1 && simulation.mouseToField(pt)) {
             // Lineare Koordinaten berechnen
             int idx = 0;
             int m1 = model.getWidth();
