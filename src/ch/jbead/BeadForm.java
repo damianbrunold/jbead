@@ -82,7 +82,7 @@ import ch.jbead.action.ToolPencilAction;
 import ch.jbead.action.ToolPipetteAction;
 import ch.jbead.action.ToolSelectAction;
 import ch.jbead.action.ViewDraftAction;
-import ch.jbead.action.ViewNormalAction;
+import ch.jbead.action.ViewCorrectedAction;
 import ch.jbead.action.ViewReportAction;
 import ch.jbead.action.ViewSimulationAction;
 import ch.jbead.action.ViewZoomInAction;
@@ -127,17 +127,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
     private DraftPanel draft = new DraftPanel(model, selection, this);
-    private NormalPanel normal = new NormalPanel(model, selection, this);
+    private CorrectedPanel corrected = new CorrectedPanel(model, selection, this);
     private SimulationPanel simulation = new SimulationPanel(model, selection, this);
     private ReportPanel report = new ReportPanel(model, selection, this);
 
     private JLabel laDraft = new JLabel("draft");
-    private JLabel laNormal = new JLabel("normal");
+    private JLabel laCorrected = new JLabel("corrected");
     private JLabel laSimulation = new JLabel("simulation");
     private JLabel laReport = new JLabel("report");
 
     private JMenuItem viewDraft;
-    private JMenuItem viewNormal;
+    private JMenuItem viewCorrected;
     private JMenuItem viewSimulation;
     private JMenuItem viewReport;
 
@@ -187,7 +187,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         // persist settings?
         viewDraft.setSelected(true);
-        viewNormal.setSelected(true);
+        viewCorrected.setSelected(true);
         viewSimulation.setSelected(true);
         viewReport.setSelected(true);
 
@@ -336,7 +336,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JMenu createViewMenu() {
         JMenu menuView = new JMenu(bundle.getString("action.view"));
         menuView.add(viewDraft = new JCheckBoxMenuItem(new ViewDraftAction(this)));
-        menuView.add(viewNormal = new JCheckBoxMenuItem(new ViewNormalAction(this)));
+        menuView.add(viewCorrected = new JCheckBoxMenuItem(new ViewCorrectedAction(this)));
         menuView.add(viewSimulation = new JCheckBoxMenuItem(new ViewSimulationAction(this)));
         menuView.add(viewReport = new JCheckBoxMenuItem(new ViewReportAction(this)));
         menuView.addSeparator();
@@ -478,12 +478,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         c.weightx = 1;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
-        main.add(normal, c);
+        main.add(corrected, c);
 
         c = new GridBagConstraints();
         c.gridx = 1;
         c.gridy = 1;
-        main.add(laNormal, c);
+        main.add(laCorrected, c);
 
         c = new GridBagConstraints();
         c.gridx = 2;
@@ -587,7 +587,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 model.clear();
                 model.load(in);
                 viewDraft.setSelected(in.readBool());
-                viewNormal.setSelected(in.readBool());
+                viewCorrected.setSelected(in.readBool());
                 viewSimulation.setSelected(in.readBool());
                 switch (model.getColorIndex()) {
                 case 0:
@@ -659,7 +659,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                     out.write("DB-BEAD/01:\r\n");
                     model.save(out);
                     out.writeBool(viewDraft.isSelected());
-                    out.writeBool(viewNormal.isSelected());
+                    out.writeBool(viewCorrected.isSelected());
                     out.writeBool(viewSimulation.isSelected());
                     // report flag is not saved?!
                     model.setModified(false);
@@ -698,7 +698,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void filePrintClick(boolean showDialog) {
-        new DesignPrinter(model, this, pageFormat, draft.isVisible(), normal.isVisible(), simulation.isVisible(), report.isVisible()).print(showDialog);
+        new DesignPrinter(model, this, pageFormat, draft.isVisible(), corrected.isVisible(), simulation.isVisible(), report.isVisible()).print(showDialog);
     }
 
     public void filePrintersetupClick() {
@@ -874,9 +874,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         laDraft.setVisible(draft.isVisible());
     }
 
-    public void viewNormalClick() {
-        normal.setVisible(viewNormal.isSelected());
-        laNormal.setVisible(normal.isVisible());
+    public void viewCorrectedClick() {
+        corrected.setVisible(viewCorrected.isSelected());
+        laCorrected.setVisible(corrected.isVisible());
     }
 
     public void viewSimulationClick() {
@@ -1037,10 +1037,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         selection.clear();
     }
 
-    public void normalMouseUp(MouseEvent event) {
+    public void correctedMouseUp(MouseEvent event) {
         if (event.getButton() == MouseEvent.BUTTON1) {
             model.snapshot();
-            normal.togglePoint(new Point(event.getX(), event.getY()));
+            corrected.togglePoint(new Point(event.getX(), event.getY()));
         }
     }
 

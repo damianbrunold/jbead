@@ -31,17 +31,17 @@ public class DesignPrinter {
     private Localization localization;
     private PageFormat pageFormat;
     private boolean withDraft;
-    private boolean withNormal;
+    private boolean withCorrected;
     private boolean withSimulation;
     private boolean withReport;
 
-    public DesignPrinter(Model model, Localization localization, PageFormat pageFormat, boolean withDraft, boolean withNormal,
+    public DesignPrinter(Model model, Localization localization, PageFormat pageFormat, boolean withDraft, boolean withCorrected,
             boolean withSimulation, boolean withReport) {
         this.model = model;
         this.localization = localization;
         this.pageFormat = pageFormat;
         this.withDraft = withDraft;
-        this.withNormal = withNormal;
+        this.withCorrected = withCorrected;
         this.withSimulation = withSimulation;
         this.withReport = withReport;
     }
@@ -82,7 +82,7 @@ public class DesignPrinter {
         // TODO print headers and footers?
 
         int draftleft = 0;
-        int normalleft = 0;
+        int correctedleft = 0;
         int simulationleft = 0;
         int reportleft = 0;
         int reportcols = 0;
@@ -95,8 +95,8 @@ public class DesignPrinter {
             m += mm2px(13) + model.getWidth() * gx + mm2px(7);
         }
 
-        if (withNormal) {
-            normalleft = m;
+        if (withCorrected) {
+            correctedleft = m;
             m += mm2px(7) + (model.getWidth() + 1) * gx;
         }
 
@@ -113,7 +113,7 @@ public class DesignPrinter {
         int h = (int) pageFormat.getHeight() - mm2py(10);
 
         printDraft(g, draftleft, h);
-        printNormal(g, normalleft, h);
+        printCorrected(g, correctedleft, h);
         printSimulation(g, simulationleft, h);
         printReport(g, pageFormat, reportleft, reportcols);
     }
@@ -154,12 +154,12 @@ public class DesignPrinter {
         }
     }
 
-    private void printNormal(Graphics g, int normalleft, int h) {
+    private void printCorrected(Graphics g, int correctedleft, int h) {
         int gx = getGx();
         int gy = getGy();
         // Grid
         g.setColor(Color.BLACK);
-        int left = normalleft + gx / 2;
+        int left = correctedleft + gx / 2;
         if (left < 0) left = gx / 2;
         int maxj = Math.min(model.getHeight(), (h - mm2py(10)) / gy);
         for (int i = 0; i < model.getWidth() + 1; i++) {

@@ -24,23 +24,23 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
 /**
- * 
+ *
  */
-public class ViewNormalAction extends BaseAction {
+public class ViewCorrectedAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "view.normal";
-    
-    public ViewNormalAction(BeadForm form) {
+    private static final String NAME = "view.corrected";
+
+    public ViewCorrectedAction(BeadForm form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Shows the corrected view");
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewNormalClick();
+        form.viewCorrectedClick();
     }
 
 }

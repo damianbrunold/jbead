@@ -23,7 +23,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class NormalPanel extends BasePanel {
+public class CorrectedPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,13 +31,13 @@ public class NormalPanel extends BasePanel {
     private int maxj;
     private int left;
 
-    public NormalPanel(Model model, Selection selection, final BeadForm form) {
+    public CorrectedPanel(Model model, Selection selection, final BeadForm form) {
         super(model, selection);
         model.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                form.normalMouseUp(e);
+                form.correctedMouseUp(e);
             }
         });
     }
