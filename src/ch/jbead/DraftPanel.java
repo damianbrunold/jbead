@@ -69,7 +69,7 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         paintGrid(g);
         paintBeads(g);
         paintMarkers(g);
-        if (selection.isNormal()) { 
+        if (selection.isNormal()) {
             paintSelection(g, Color.RED, selection);
         }
     }
@@ -100,11 +100,11 @@ public class DraftPanel extends BasePanel implements SelectionListener {
     private int x(int i) {
         return offsetx + i * model.getGrid();
     }
-    
+
     private int y(int j) {
         return getHeight() - 1 - (j + 1) * model.getGrid();
     }
-    
+
     private int paintGrid(Graphics g) {
         g.setColor(Color.DARK_GRAY);
         for (int i = 0; i < model.getWidth() + 1; i++) {
@@ -150,14 +150,14 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         paintSelection(g, Color.RED, sel);
         g.dispose();
     }
-    
+
     public void clearSelection(Selection sel) {
         if (!sel.isNormal()) return;
         Graphics g = getGraphics();
         paintSelection(g, Color.DARK_GRAY, sel);
         g.dispose();
     }
-    
+
     private void paintSelection(Graphics g, Color color, Selection sel) {
         g.setColor(color);
         g.drawRect(x(sel.left()), y(sel.top()), sel.width() * model.getGrid(), sel.height() * model.getGrid());
@@ -171,7 +171,7 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         g.fillRect(x(i) + 1, y(j) + 1, model.getGrid() - 1, model.getGrid() - 1);
         g.dispose();
     }
-    
+
     @Override
     public void redraw(Point pt) {
         redraw(pt.getX(), pt.getY() - model.getScroll());

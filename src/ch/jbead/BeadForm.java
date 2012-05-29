@@ -93,17 +93,17 @@ import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternWidthForm;
 
 /**
- * 
+ *
  */
-public class BeadForm extends JFrame implements Localization {
+public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private static final long serialVersionUID = 1L;
 
     private static final int SHIFTING_INTERVAL = 150;
     private static final int UPDATE_INTERVAL = 500;
-    
+
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
-    
+
     private Model model = new Model(this);
     private Selection selection = new Selection();
 
@@ -149,7 +149,7 @@ public class BeadForm extends JFrame implements Localization {
 
     private JButton sbRotateleft;
     private JButton sbRotateright;
-    
+
     private ButtonGroup toolsGroup = new ButtonGroup();
     private JRadioButtonMenuItem toolPencil;
     private JRadioButtonMenuItem toolSelect;
@@ -166,19 +166,19 @@ public class BeadForm extends JFrame implements Localization {
 
     private JPanel main = new JPanel();
     private JLabel statusbar = new JLabel("X");
-    
+
     private Map<String, Action> actions = new HashMap<String, Action>();
-    
+
     private Timer updateTimer;
-    
+
     private Timer shiftTimer;
-    
+
     public BeadForm() {
         super("jbead");
         createGUI();
+        model.addListener(this);
         model.clear();
         selection.clear();
-        updateTitle();
         setColorIcons();
         loadMRU();
         updateMRU();
@@ -190,7 +190,7 @@ public class BeadForm extends JFrame implements Localization {
         viewNormal.setSelected(true);
         viewSimulation.setSelected(true);
         viewReport.setSelected(true);
-        
+
         ActionListener colorActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -205,7 +205,7 @@ public class BeadForm extends JFrame implements Localization {
                     colorDblClick(e.getSource());
                 }
             }
-            
+
         };
         sbColor0.addActionListener(colorActionListener);
         sbColor1.addActionListener(colorActionListener);
@@ -217,7 +217,7 @@ public class BeadForm extends JFrame implements Localization {
         sbColor7.addActionListener(colorActionListener);
         sbColor8.addActionListener(colorActionListener);
         sbColor9.addActionListener(colorActionListener);
-        
+
         sbColor1.addMouseListener(colorMouseAdapter);
         sbColor2.addMouseListener(colorMouseAdapter);
         sbColor3.addMouseListener(colorMouseAdapter);
@@ -227,9 +227,9 @@ public class BeadForm extends JFrame implements Localization {
         sbColor7.addMouseListener(colorMouseAdapter);
         sbColor8.addMouseListener(colorMouseAdapter);
         sbColor9.addMouseListener(colorMouseAdapter);
-        
+
         setIconImage(ImageFactory.getImage("jbead-16"));
-        
+
         // TODO persist location and size in settings
         setSize(1024, 700);
         setLocation(100, 35);
@@ -239,7 +239,7 @@ public class BeadForm extends JFrame implements Localization {
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
 
         selection.addListener(draft);
-        
+
         updateTimer = new Timer("updateTimer", true);
         updateTimer.schedule(new TimerTask() {
             @Override
@@ -260,21 +260,21 @@ public class BeadForm extends JFrame implements Localization {
             }
         });
     }
-    
+
     public void registerAction(String name, Action action) {
         actions.put(name, action);
     }
-    
+
     @Override
     public ResourceBundle getBundle() {
         return bundle;
     }
-    
+
     @Override
     public String getString(String key) {
         return getBundle().getString(key);
     }
-    
+
     public Action getAction(String name) {
         return actions.get(name);
     }
@@ -288,7 +288,7 @@ public class BeadForm extends JFrame implements Localization {
         createToolbar();
         createMainGUI();
     }
-    
+
     private void createMenu() {
         JMenuBar menubar = new JMenuBar();
         menubar.add(createFileMenu());
@@ -320,7 +320,7 @@ public class BeadForm extends JFrame implements Localization {
         menuFile.add(new FileExitAction(this));
         return menuFile;
     }
-    
+
     private JMenu createEditMenu() {
         JMenu menuEdit = new JMenu(bundle.getString("action.edit"));
         menuEdit.add(new EditUndoAction(this));
@@ -415,16 +415,16 @@ public class BeadForm extends JFrame implements Localization {
             }
         });
         toolbar.add(getAction("edit.arrange"));
-        
+
         toolbar.addSeparator();
 
         toolbar.add(sbToolPencil = new JToggleButton(getAction("tool.pencil")));
         toolbar.add(sbToolSelect = new JToggleButton(getAction("tool.select")));
         toolbar.add(sbToolFill = new JToggleButton(getAction("tool.fill")));
         toolbar.add(sbToolPipette = new JToggleButton(getAction("tool.pipette")));
-        
+
         sbToolPencil.setSelected(true);
-        
+
         sbToolsGroup.add(sbToolPencil);
         sbToolsGroup.add(sbToolSelect);
         sbToolsGroup.add(sbToolFill);
@@ -455,10 +455,10 @@ public class BeadForm extends JFrame implements Localization {
         colorsGroup.add(sbColor8);
         colorsGroup.add(sbColor9);
     }
-    
+
     private void createMainGUI() {
         main.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
@@ -466,12 +466,12 @@ public class BeadForm extends JFrame implements Localization {
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         main.add(draft, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 1;
         main.add(laDraft, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 1;
         c.gridy = 0;
@@ -479,12 +479,12 @@ public class BeadForm extends JFrame implements Localization {
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         main.add(normal, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 1;
         c.gridy = 1;
         main.add(laNormal, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 2;
         c.gridy = 0;
@@ -492,12 +492,12 @@ public class BeadForm extends JFrame implements Localization {
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         main.add(simulation, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 2;
         c.gridy = 1;
         main.add(laSimulation, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 3;
         c.gridy = 0;
@@ -505,7 +505,7 @@ public class BeadForm extends JFrame implements Localization {
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         main.add(report, c);
-        
+
         c = new GridBagConstraints();
         c.gridx = 3;
         c.gridy = 1;
@@ -521,7 +521,7 @@ public class BeadForm extends JFrame implements Localization {
 //    private BeadField getField() {
 //        return model.getField();
 //    }
-    
+
     private void setColorIcons() {
         sbColor0.setIcon(new ColorIcon(model, 0));
         sbColor1.setIcon(new ColorIcon(model, 1));
@@ -562,7 +562,6 @@ public class BeadForm extends JFrame implements Localization {
         sbColor1.setSelected(true);
         setColorIcons();
         updateScrollbar();
-        updateTitle();
     }
 
     private void loadFile(File file, boolean addtomru) {
@@ -629,15 +628,14 @@ public class BeadForm extends JFrame implements Localization {
             } finally {
                 in.close();
             }
-        } catch (IOException e) {
-            // xxx
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", e.getMessage()));
             model.clear();
         }
         model.setSaved();
         model.setModified(false);
         model.setRepeatDirty();
         model.setFile(file);
-        updateTitle();
         if (addtomru) addToMRU(file);
     }
 
@@ -664,7 +662,6 @@ public class BeadForm extends JFrame implements Localization {
                     out.writeBool(viewSimulation.isSelected());
                     // report flag is not saved?!
                     model.setModified(false);
-                    updateTitle();
                 } finally {
                     out.close();
                 }
@@ -724,12 +721,12 @@ public class BeadForm extends JFrame implements Localization {
         form.setPatternWidth(model.getWidth());
         form.setVisible(true);
         if (form.isOK()) {
+            // TODO move this to model
             model.snapshot();
             model.setWidth(form.getPatternWidth());
             if (!model.isModified()) {
                 model.setModified(old != model.getWidth());
             }
-            updateTitle();
             model.setRepeatDirty();
         }
     }
@@ -834,29 +831,24 @@ public class BeadForm extends JFrame implements Localization {
     private void drawLine(Point begin, Point end) {
         model.snapshot();
         model.drawLine(begin, end);
-        updateTitle();
     }
 
     private void fillLine(Point pt) {
         model.snapshot();
         model.fillLine(pt);
-        updateTitle();
     }
 
     private void setPoint(Point pt) {
         model.snapshot();
         model.setPoint(pt);
-        updateTitle();
     }
 
     public void editUndoClick() {
         model.undo();
-        updateTitle();
     }
 
     public void editRedoClick() {
         model.redo();
-        updateTitle();
     }
 
     public void viewZoomInClick() {
@@ -948,14 +940,10 @@ public class BeadForm extends JFrame implements Localization {
 
     private void rotateLeft() {
         model.shiftLeft();
-        updateTitle();
-        simulation.repaint();
     }
 
     private void rotateRight() {
         model.shiftRight();
-        updateTitle();
-        simulation.repaint();
     }
 
     // TODO split this for every color toolbar button
@@ -1009,7 +997,6 @@ public class BeadForm extends JFrame implements Localization {
         if (color == null) return;
         model.snapshot();
         model.setColor(c, color);
-        updateTitle();
         setColorIcons();
     }
 
@@ -1052,7 +1039,6 @@ public class BeadForm extends JFrame implements Localization {
         if (event.getButton() == MouseEvent.BUTTON1) {
             model.snapshot();
             normal.togglePoint(new Point(event.getX(), event.getY()));
-            updateTitle();
         }
     }
 
@@ -1060,7 +1046,6 @@ public class BeadForm extends JFrame implements Localization {
         if (event.getButton() == MouseEvent.BUTTON1) {
             model.snapshot();
             simulation.togglePoint(new Point(event.getX(), event.getY()));
-            updateTitle();
         }
     }
 
@@ -1128,20 +1113,17 @@ public class BeadForm extends JFrame implements Localization {
             int copies = copyform.getCopies();
             int offset = copyform.getOffset(model.getWidth());
             model.arrangeSelection(selection, copies, offset);
-            updateTitle();
         }
     }
 
     public void editInsertLineClick() {
         model.snapshot();
         model.insertLine();
-        updateTitle();
     }
 
     public void editDeleteLineClick() {
         model.snapshot();
         model.deleteLine();
-        updateTitle();
     }
 
     public void updateTitle() {
@@ -1196,7 +1178,7 @@ public class BeadForm extends JFrame implements Localization {
         getAction("file.mru6").putValue(Action.NAME, mru[5]);
         // TODO maybe have to set visibility of separator after last mru menu item
     }
-    
+
     public void fileMRU1Click() {
         loadFile(new File(mru[0]), true);
     }
@@ -1245,6 +1227,41 @@ public class BeadForm extends JFrame implements Localization {
 
     public static void main(String[] args) {
         new BeadForm().setVisible(true);
+    }
+
+    @Override
+    public void pointChanged(Point pt) {
+        updateTitle();
+    }
+
+    @Override
+    public void modelChanged() {
+        updateTitle();
+    }
+
+    @Override
+    public void colorChanged(int colorIndex) {
+        updateTitle();
+    }
+
+    @Override
+    public void scrollChanged(int scroll) {
+        updateTitle();
+    }
+
+    @Override
+    public void shiftChanged(int shift) {
+        updateTitle();
+    }
+
+    @Override
+    public void zoomChanged(int gridx, int gridy) {
+        updateTitle();
+    }
+
+    @Override
+    public void repeatChanged(int repeat, int colorRepeat) {
+        updateTitle();
     }
 
 }

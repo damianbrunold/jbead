@@ -308,4 +308,5 @@ public class SimulationPanel extends BasePanel {
         int i = idx % model.getWidth();
         model.setPoint(new Point(i, j - scroll));
     }
+
 }

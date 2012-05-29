@@ -19,7 +19,7 @@ package ch.jbead;
 
 import javax.swing.JComponent;
 
-public abstract class BasePanel extends JComponent implements ModelListener{
+public abstract class BasePanel extends JComponent implements ModelListener {
 
     private static final long serialVersionUID = 1L;
 

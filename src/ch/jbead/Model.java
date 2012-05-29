@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ *
  */
 public class Model implements ColorTable {
 
@@ -44,7 +44,7 @@ public class Model implements ColorTable {
     private String unnamed;
     private boolean saved;
     private boolean modified;
-    
+
     private List<ModelListener> listeners = new ArrayList<ModelListener>();
 
 
@@ -65,11 +65,11 @@ public class Model implements ColorTable {
         unnamed = localization.getString("unnamed");
         file = new File(unnamed);
     }
-    
+
     public void addListener(ModelListener listener) {
         listeners.add(listener);
     }
-    
+
     private void firePointChanged(Point pt) {
         for (ModelListener listener : listeners) {
             listener.pointChanged(pt);
@@ -135,22 +135,22 @@ public class Model implements ColorTable {
     public int getColorCount() {
         return colors.length;
     }
-    
+
     @Override
     public void setColor(int index, Color color) {
         colors[index] = color;
         setModified();
         fireColorChanged(index);
     }
-    
+
     public void setColorIndex(byte colorIndex) {
         this.colorIndex = colorIndex;
     }
-    
+
     public int getHeight() {
         return field.getHeight();
     }
-    
+
     public int getWidth() {
         return field.getWidth();
     }
@@ -159,25 +159,25 @@ public class Model implements ColorTable {
         field.setWidth(width);
         fireModelChanged();
     }
-    
+
     public byte get(Point pt) {
         return field.get(pt);
     }
-    
+
     public void set(Point pt, byte value) {
         field.set(pt, value);
         firePointChanged(pt);
     }
-    
+
     public boolean isValidIndex(int idx) {
         return field.isValidIndex(idx);
     }
-    
+
     public void set(int idx, byte value) {
         field.set(idx, value);
         firePointChanged(field.getPoint(idx));
     }
-    
+
     public byte get(int idx) {
         return field.get(idx);
     }
@@ -188,14 +188,14 @@ public class Model implements ColorTable {
         setModified();
         fireModelChanged();
     }
-    
+
     public void deleteLine() {
         field.deleteLine();
         setRepeatDirty();
         setModified();
         fireModelChanged();
     }
-    
+
     public void drawLine(Point begin, Point end) {
         for (Point pt : new Segment(begin.scrolled(scroll), end.scrolled(scroll))) {
             set(pt.scrolled(scroll), colorIndex);
@@ -203,7 +203,7 @@ public class Model implements ColorTable {
         setRepeatDirty();
         setModified();
     }
-    
+
     public void fillLine(Point pt) {
         pt = pt.scrolled(scroll);
         byte color = colorIndex;
@@ -225,7 +225,7 @@ public class Model implements ColorTable {
         setRepeatDirty();
         setModified();
     }
-    
+
     public void setPoint(Point pt) {
         pt = pt.scrolled(scroll);
         if (get(pt) == colorIndex) {
@@ -264,34 +264,34 @@ public class Model implements ColorTable {
     public File getFile() {
         return file;
     }
-    
+
     public int getColorRepeat() {
         return colorRepeat;
     }
-    
+
     public int getGrid() {
         return grid;
     }
-    
+
     public int getScroll() {
         return scroll;
     }
-    
+
     public void setScroll(int scroll) {
         this.scroll = scroll;
         fireScrollChanged(scroll);
     }
-    
+
     public int getShift() {
         return shift;
     }
-    
+
     public void shiftRight() {
         shift = (shift + 1) % getWidth();
         setModified();
         fireShiftChanged(shift);
     }
-    
+
     public void shiftLeft() {
         shift = (shift - 1 + getWidth()) % getWidth();
         setModified();
@@ -307,6 +307,7 @@ public class Model implements ColorTable {
         defaultColors();
         zoomIndex = 2;
         scroll = 0;
+        shift = 0;
         file = new File(unnamed);
         saved = false;
         modified = false;
@@ -320,36 +321,48 @@ public class Model implements ColorTable {
     public boolean isSaved() {
         return saved;
     }
-    
+
     public void setModified() {
         modified = true;
     }
-    
+
     public void setModified(boolean modified) {
         this.modified = modified;
     }
-    
+
     public boolean isModified() {
         return modified;
     }
-    
+
     public void setFile(File file) {
         this.file = file;
     }
-    
+
     public void load(JBeadInputStream in) throws IOException {
         field.load(in);
         setColor(0, in.readBackgroundColor());
         for (int i = 1; i < getColorCount(); i++) {
             setColor(i, in.readColor());
         }
-        colorIndex = in.read();
-        zoomIndex = in.readInt();
-        shift = in.readInt();
-        scroll = in.readInt();
+        colorIndex = readByte(in, "colorIndex");
+        zoomIndex = readInt(in, "zoomIndex");
+        shift = readInt(in, "shift");
+        scroll = readInt(in, "scroll");
         fireModelChanged();
     }
-    
+
+    private byte readByte(JBeadInputStream in, String name) throws IOException {
+        byte result = in.read();
+        if (result < 0) throw new RuntimeException("file format error: byte " + name + " was negative");
+        return result;
+    }
+
+    private int readInt(JBeadInputStream in, String name) throws IOException {
+        int result = in.readInt();
+        if (result < 0) throw new RuntimeException("file format error: int " + name + " was negative");
+        return result;
+    }
+
     public void save(JBeadOutputStream out) throws IOException {
         field.save(out);
         for (Color color : colors) {
@@ -359,12 +372,13 @@ public class Model implements ColorTable {
         out.writeInt(zoomIndex);
         out.writeInt(shift);
         out.writeInt(scroll);
+        fireModelChanged();
     }
 
     public byte getColorIndex() {
         return colorIndex;
     }
-    
+
     public void setRepeatDirty() {
         repeatDirty = true;
     }
@@ -372,9 +386,9 @@ public class Model implements ColorTable {
     public void snapshot() {
         undo.snapshot(field, modified);
     }
-    
+
     public void prepareSnapshot() {
-        undo.prepareSnapshot(field, modified);        
+        undo.prepareSnapshot(field, modified);
     }
 
     public void undo() {
@@ -397,21 +411,21 @@ public class Model implements ColorTable {
         grid = zoomtable[zoomIndex];
         fireZoomChanged(grid, grid);
     }
-    
+
     public void zoomNormal() {
         if (isNormalZoom()) return;
         zoomIndex = 2;
         grid = zoomtable[zoomIndex];
         fireZoomChanged(grid, grid);
     }
-    
+
     public void zoomOut() {
         if (zoomIndex <= 0) return;
         zoomIndex--;
         grid = zoomtable[zoomIndex];
         fireZoomChanged(grid, grid);
     }
-    
+
     public boolean isNormalZoom() {
         return zoomIndex == 2;
     }
@@ -419,23 +433,23 @@ public class Model implements ColorTable {
     public boolean canUndo() {
         return undo.canUndo();
     }
-    
+
     public boolean canRedo() {
         return undo.canRedo();
     }
-    
+
     public boolean isRepeatDirty() {
         return repeatDirty;
     }
-    
+
     public int getRepeat() {
         return repeat;
     }
-    
+
     public void updateRepeat() {
         int oldRepeat = repeat;
         int oldColorRepeat = colorRepeat;
-        
+
         int last = -1;
         for (int j = 0; j < field.getHeight(); j++) {
             for (int i = 0; i < field.getWidth(); i++) {

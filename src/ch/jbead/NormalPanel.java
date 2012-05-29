@@ -84,11 +84,11 @@ public class NormalPanel extends BasePanel {
     private int x(int i) {
         return left + i * model.getGrid();
     }
-    
+
     private int y(int j) {
         return getHeight() - 1 - (j + 1) * model.getGrid();
     }
-    
+
     private void paintGrid(Graphics g) {
         int grid = model.getGrid();
         g.setColor(Color.DARK_GRAY);

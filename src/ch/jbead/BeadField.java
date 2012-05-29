@@ -20,9 +20,12 @@ package ch.jbead;
 import java.io.IOException;
 
 /**
- * 
+ *
  */
 public class BeadField {
+
+    public static final int DEFAULT_WIDTH = 15;
+
     private static final int SIZE = 25 * 1000;
 
     private byte[] field = new byte[SIZE];
@@ -30,7 +33,7 @@ public class BeadField {
     private int height;
 
     public BeadField() {
-        setWidth(15);
+        setWidth(DEFAULT_WIDTH);
         clear();
     }
 
@@ -57,12 +60,10 @@ public class BeadField {
     }
 
     public void setWidth(int width) {
-        assert width > 0 && width < SIZE / 10;
         this.width = width;
         this.height = SIZE / width;
-        assert this.width > 0 && this.height > 0;
     }
-    
+
     public byte get(Point pt) {
         return get(getIndex(pt));
     }
@@ -78,7 +79,7 @@ public class BeadField {
     public void set(int index, byte value) {
         field[index] = value;
     }
-    
+
     public int getIndex(Point pt) {
         return pt.getX() + width * pt.getY();
     }
