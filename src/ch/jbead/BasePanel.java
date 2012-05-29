@@ -51,7 +51,7 @@ public abstract class BasePanel extends JComponent implements ModelListener {
     }
 
     @Override
-    public void colorChanged(int colorIndex) {
+    public void colorChanged(byte colorIndex) {
         repaint();
     }
 

@@ -17,15 +17,21 @@
 
 package ch.jbead;
 
-import java.awt.Color;
+import javax.swing.JToggleButton;
 
-/**
- *
- */
-public interface ColorTable {
+public class ColorButton extends JToggleButton {
 
-    public Color getColor(byte index);
-    public void setColor(byte index, Color color);
-    public int getColorCount();
+    private static final long serialVersionUID = 1L;
+
+    private byte index;
+
+    public ColorButton(ColorIcon icon) {
+        super(icon);
+        index = icon.getIndex();
+    }
+
+    public byte getColorIndex() {
+        return index;
+    }
 
 }

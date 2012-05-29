@@ -28,9 +28,11 @@ import java.util.List;
  */
 public class Model implements ColorTable {
 
+    public static final int COLOR_COUNT = 10;
+
     private BeadUndo undo = new BeadUndo();
     private BeadField field = new BeadField();
-    private Color colors[] = new Color[10];
+    private Color colors[] = new Color[COLOR_COUNT];
     private byte colorIndex;
     private int gridx;
     private int gridy;
@@ -83,7 +85,7 @@ public class Model implements ColorTable {
         }
     }
 
-    private void fireColorChanged(int colorIndex) {
+    private void fireColorChanged(byte colorIndex) {
         for (ModelListener listener : listeners) {
             listener.colorChanged(colorIndex);
         }
@@ -114,7 +116,7 @@ public class Model implements ColorTable {
     }
 
     private void defaultColors() {
-        colors[0] = new Color(240, 240, 240);
+        colors[0] = Color.WHITE;
         colors[1] = new Color(128, 0, 0); // maroon
         colors[2] = new Color(0, 0, 128); // navy
         colors[3] = Color.GREEN;
@@ -123,12 +125,12 @@ public class Model implements ColorTable {
         colors[6] = Color.BLUE;
         colors[7] = new Color(128, 0, 128); // purple
         colors[8] = Color.BLACK;
-        colors[9] = Color.WHITE;
+        colors[9] = Color.CYAN;
     }
 
 
     @Override
-    public Color getColor(int index) {
+    public Color getColor(byte index) {
         return colors[index];
     }
 
@@ -138,7 +140,7 @@ public class Model implements ColorTable {
     }
 
     @Override
-    public void setColor(int index, Color color) {
+    public void setColor(byte index, Color color) {
         colors[index] = color;
         setModified();
         fireColorChanged(index);
@@ -272,7 +274,7 @@ public class Model implements ColorTable {
             result = file.getParentFile();
         }
         if (result == null) {
-            result = new File(".");
+            result = new File(System.getProperty("user.home")); // TODO maybe set differently on different platforms
         }
         return result;
     }
@@ -356,8 +358,8 @@ public class Model implements ColorTable {
 
     public void load(JBeadInputStream in) throws IOException {
         field.load(in);
-        setColor(0, in.readBackgroundColor());
-        for (int i = 1; i < getColorCount(); i++) {
+        setColor((byte) 0, in.readBackgroundColor());
+        for (byte i = 1; i < getColorCount(); i++) {
             setColor(i, in.readColor());
         }
         colorIndex = readByte(in, "colorIndex");

@@ -22,17 +22,18 @@ import java.awt.Graphics;
 
 import javax.swing.Icon;
 
-/**
- * 
- */
 public class ColorIcon implements Icon {
 
     private ColorTable table;
-    private int index;
+    private byte index;
 
-    public ColorIcon(ColorTable colorTable, int colorIndex) {
+    public ColorIcon(ColorTable colorTable, byte colorIndex) {
         this.table = colorTable;
         this.index = colorIndex;
+    }
+
+    public byte getIndex() {
+        return index;
     }
 
     @Override

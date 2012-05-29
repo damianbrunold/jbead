@@ -111,16 +111,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JToolBar toolbar = new JToolBar();
 
     private ButtonGroup colorsGroup = new ButtonGroup();
-    private JToggleButton sbColor0 = new JToggleButton();
-    private JToggleButton sbColor1 = new JToggleButton();
-    private JToggleButton sbColor2 = new JToggleButton();
-    private JToggleButton sbColor3 = new JToggleButton();
-    private JToggleButton sbColor4 = new JToggleButton();
-    private JToggleButton sbColor5 = new JToggleButton();
-    private JToggleButton sbColor6 = new JToggleButton();
-    private JToggleButton sbColor7 = new JToggleButton();
-    private JToggleButton sbColor8 = new JToggleButton();
-    private JToggleButton sbColor9 = new JToggleButton();
+    private List<ColorButton> colors = new ArrayList<ColorButton>();
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
@@ -171,6 +162,24 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private Timer shiftTimer;
 
+    ActionListener colorActionListener = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            colorClick(e);
+        }
+    };
+
+    MouseAdapter colorMouseAdapter = new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            super.mouseClicked(e);
+            if (e.getClickCount() == 2) {
+                colorDblClick(e.getSource());
+            }
+        }
+
+    };
+
     public BeadForm() {
         super("jbead");
         createGUI();
@@ -188,43 +197,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         viewCorrected.setSelected(true);
         viewSimulation.setSelected(true);
         viewReport.setSelected(true);
-
-        ActionListener colorActionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                colorClick(e);
-            }
-        };
-        MouseAdapter colorMouseAdapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                if (e.getClickCount() == 2) {
-                    colorDblClick(e.getSource());
-                }
-            }
-
-        };
-        sbColor0.addActionListener(colorActionListener);
-        sbColor1.addActionListener(colorActionListener);
-        sbColor2.addActionListener(colorActionListener);
-        sbColor3.addActionListener(colorActionListener);
-        sbColor4.addActionListener(colorActionListener);
-        sbColor5.addActionListener(colorActionListener);
-        sbColor6.addActionListener(colorActionListener);
-        sbColor7.addActionListener(colorActionListener);
-        sbColor8.addActionListener(colorActionListener);
-        sbColor9.addActionListener(colorActionListener);
-
-        sbColor1.addMouseListener(colorMouseAdapter);
-        sbColor2.addMouseListener(colorMouseAdapter);
-        sbColor3.addMouseListener(colorMouseAdapter);
-        sbColor4.addMouseListener(colorMouseAdapter);
-        sbColor5.addMouseListener(colorMouseAdapter);
-        sbColor6.addMouseListener(colorMouseAdapter);
-        sbColor7.addMouseListener(colorMouseAdapter);
-        sbColor8.addMouseListener(colorMouseAdapter);
-        sbColor9.addMouseListener(colorMouseAdapter);
 
         setIconImage(ImageFactory.getImage("jbead-16"));
 
@@ -430,28 +402,19 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         toolbar.addSeparator();
 
-        sbColor1.setSelected(true);
-        toolbar.add(sbColor0);
-        toolbar.add(sbColor1);
-        toolbar.add(sbColor2);
-        toolbar.add(sbColor3);
-        toolbar.add(sbColor4);
-        toolbar.add(sbColor5);
-        toolbar.add(sbColor6);
-        toolbar.add(sbColor7);
-        toolbar.add(sbColor8);
-        toolbar.add(sbColor9);
+        for (int i = 0; i < Model.COLOR_COUNT; i++) {
+            toolbar.add(createColorButton(i));
+        }
+        colors.get(1).setSelected(true);
+    }
 
-        colorsGroup.add(sbColor0);
-        colorsGroup.add(sbColor1);
-        colorsGroup.add(sbColor2);
-        colorsGroup.add(sbColor3);
-        colorsGroup.add(sbColor4);
-        colorsGroup.add(sbColor5);
-        colorsGroup.add(sbColor6);
-        colorsGroup.add(sbColor7);
-        colorsGroup.add(sbColor8);
-        colorsGroup.add(sbColor9);
+    private ColorButton createColorButton(int index) {
+        ColorButton button = new ColorButton(new ColorIcon(model, (byte) index));
+        button.addActionListener(colorActionListener);
+        button.addMouseListener(colorMouseAdapter);
+        colorsGroup.add(button);
+        colors.add(button);
+        return button;
     }
 
     private void createMainGUI() {
@@ -516,21 +479,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         main.add(scrollbar, c);
     }
 
-//    private BeadField getField() {
-//        return model.getField();
-//    }
-
     private void setColorIcons() {
-        sbColor0.setIcon(new ColorIcon(model, 0));
-        sbColor1.setIcon(new ColorIcon(model, 1));
-        sbColor2.setIcon(new ColorIcon(model, 2));
-        sbColor3.setIcon(new ColorIcon(model, 3));
-        sbColor4.setIcon(new ColorIcon(model, 4));
-        sbColor5.setIcon(new ColorIcon(model, 5));
-        sbColor6.setIcon(new ColorIcon(model, 6));
-        sbColor7.setIcon(new ColorIcon(model, 7));
-        sbColor8.setIcon(new ColorIcon(model, 8));
-        sbColor9.setIcon(new ColorIcon(model, 9));
+        for (byte i = 0; i < Model.COLOR_COUNT; i++) {
+            colors.get(i).setIcon(new ColorIcon(model, i));
+        }
     }
 
     private void updateScrollbar() {
@@ -557,7 +509,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         // delete all
         selection.clear();
         model.clear();
-        sbColor1.setSelected(true);
+        colors.get(1).setSelected(true);
         setColorIcons();
         updateScrollbar();
     }
@@ -587,42 +539,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 viewDraft.setSelected(in.readBool());
                 viewCorrected.setSelected(in.readBool());
                 viewSimulation.setSelected(in.readBool());
-                switch (model.getColorIndex()) {
-                case 0:
-                    sbColor0.setSelected(true);
-                    break;
-                case 1:
-                    sbColor1.setSelected(true);
-                    break;
-                case 2:
-                    sbColor2.setSelected(true);
-                    break;
-                case 3:
-                    sbColor3.setSelected(true);
-                    break;
-                case 4:
-                    sbColor4.setSelected(true);
-                    break;
-                case 5:
-                    sbColor5.setSelected(true);
-                    break;
-                case 6:
-                    sbColor6.setSelected(true);
-                    break;
-                case 7:
-                    sbColor7.setSelected(true);
-                    break;
-                case 8:
-                    sbColor8.setSelected(true);
-                    break;
-                case 9:
-                    sbColor9.setSelected(true);
-                    break;
-                default:
-                    assert (false);
-                    break;
-                }
-                //setColorIcons(); TODO not needed anymore, I think, but maybe a refresh/invalidation
+                colors.get(model.getColorIndex()).setSelected(true);
                 updateScrollbar();
             } finally {
                 in.close();
@@ -789,44 +706,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void selectColorFrom(Point pt) {
-        byte colorIndex;
-        colorIndex = model.get(pt.scrolled(model.getScroll()));
-        assert (colorIndex >= 0 && colorIndex < 10);
-        switch (colorIndex) {
-        case 0:
-            sbColor0.setSelected(true);
-            break;
-        case 1:
-            sbColor1.setSelected(true);
-            break;
-        case 2:
-            sbColor2.setSelected(true);
-            break;
-        case 3:
-            sbColor3.setSelected(true);
-            break;
-        case 4:
-            sbColor4.setSelected(true);
-            break;
-        case 5:
-            sbColor5.setSelected(true);
-            break;
-        case 6:
-            sbColor6.setSelected(true);
-            break;
-        case 7:
-            sbColor7.setSelected(true);
-            break;
-        case 8:
-            sbColor8.setSelected(true);
-            break;
-        case 9:
-            sbColor9.setSelected(true);
-            break;
-        default:
-            assert (false);
-            break;
-        }
+        byte colorIndex = model.get(pt.scrolled(model.getScroll()));
+        colors.get(colorIndex).setSelected(true);
     }
 
     private void drawLine(Point begin, Point end) {
@@ -894,41 +775,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             repaint();
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
             model.setColorIndex((byte) (event.getKeyChar() - '0'));
-            switch (model.getColorIndex()) {
-            case 0:
-                sbColor0.setSelected(true);
-                break;
-            case 1:
-                sbColor1.setSelected(true);
-                break;
-            case 2:
-                sbColor2.setSelected(true);
-                break;
-            case 3:
-                sbColor3.setSelected(true);
-                break;
-            case 4:
-                sbColor4.setSelected(true);
-                break;
-            case 5:
-                sbColor5.setSelected(true);
-                break;
-            case 6:
-                sbColor6.setSelected(true);
-                break;
-            case 7:
-                sbColor7.setSelected(true);
-                break;
-            case 8:
-                sbColor8.setSelected(true);
-                break;
-            case 9:
-                sbColor9.setSelected(true);
-                break;
-            default:
-                assert (false);
-                break;
-            }
+            colors.get(model.getColorIndex()).setSelected(true);
         } else if (Key == KeyEvent.VK_SPACE) {
             getAction("tool.pencil").putValue("SELECT", true);
 //            sbToolPoint.setSelected(true);
@@ -949,51 +796,14 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     // TODO split this for every color toolbar button
     public void colorClick(ActionEvent event) {
-        Object sender = event.getSource();
-        if (sender == sbColor0)
-            model.setColorIndex((byte) 0);
-        else if (sender == sbColor1)
-            model.setColorIndex((byte) 1);
-        else if (sender == sbColor2)
-            model.setColorIndex((byte) 2);
-        else if (sender == sbColor3)
-            model.setColorIndex((byte) 3);
-        else if (sender == sbColor4)
-            model.setColorIndex((byte) 4);
-        else if (sender == sbColor5)
-            model.setColorIndex((byte) 5);
-        else if (sender == sbColor6)
-            model.setColorIndex((byte) 6);
-        else if (sender == sbColor7)
-            model.setColorIndex((byte) 7);
-        else if (sender == sbColor8)
-            model.setColorIndex((byte) 8);
-        else if (sender == sbColor9) model.setColorIndex((byte) 9);
+        ColorButton sender = (ColorButton) event.getSource();
+        model.setColorIndex(sender.getColorIndex());
     }
 
     // TODO split this for every color toolbar button
     public void colorDblClick(Object sender) {
-        int c = 0;
-        if (sender == sbColor0)
-            c = 0;
-        else if (sender == sbColor1)
-            c = 1;
-        else if (sender == sbColor2)
-            c = 2;
-        else if (sender == sbColor3)
-            c = 3;
-        else if (sender == sbColor4)
-            c = 4;
-        else if (sender == sbColor5)
-            c = 5;
-        else if (sender == sbColor6)
-            c = 6;
-        else if (sender == sbColor7)
-            c = 7;
-        else if (sender == sbColor8)
-            c = 8;
-        else if (sender == sbColor9) c = 9;
-        if (c == 0) return;
+        ColorButton colorButton = (ColorButton) sender;
+        byte c = colorButton.getColorIndex();
         Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
         if (color == null) return;
         model.snapshot();
@@ -1217,11 +1027,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     @Override
     public void modelChanged() {
+        setColorIcons();
         updateTitle();
     }
 
     @Override
-    public void colorChanged(int colorIndex) {
+    public void colorChanged(byte colorIndex) {
+        colors.get(colorIndex).setIcon(new ColorIcon(model, colorIndex));
         updateTitle();
     }
 
