@@ -79,3 +79,7 @@ to metadata (tags).
 
 Use BeadList to generate further reports, e.g. stats of beads 
 (how many of which color, ...)
+
+Add a keyboard interface to the program analogously to dbweave
+so that it is possible to enter patterns with the keyboard and
+do selections and so on.
