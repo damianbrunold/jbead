@@ -20,9 +20,6 @@ package ch.jbead;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-/**
- * 
- */
 public class Settings {
 
 	private static final String BASE = "Brunold Software/JBEAD";
@@ -34,39 +31,39 @@ public class Settings {
 		category = "General";
 	}
 
-	public void SetCategory(String category) {
+	public void setCategory(String category) {
 		this.category = category;
 	}
 
-	public String Category() {
+	public String category() {
 		return category;
 	}
 
-	public int LoadInt(String name) {
-		return LoadInt(name, 0);
+	public int loadInt(String name) {
+		return loadInt(name, 0);
 	}
 
-	public int LoadInt(String name, int defaultvalue) {
+	public int loadInt(String name, int defaultvalue) {
 		return preferences.node(category).getInt(name, defaultvalue);
 	}
 
-	public String LoadString(String name) {
-		return LoadString(name, "");
+	public String loadString(String name) {
+		return loadString(name, "");
 	}
 
-	public String LoadString(String name, String defaultvalue) {
+	public String loadString(String name, String defaultvalue) {
 		return preferences.node(category).get(name, defaultvalue);
 	}
 
-	public void SaveInt(String name, int value) {
+	public void saveInt(String name, int value) {
 		preferences.node(category).putInt(name, value);
 	}
 
-	public void SaveString(String name, String value) {
+	public void saveString(String name, String value) {
 		preferences.node(category).put(name, value);
 	}
 
-	public void Flush() throws BackingStoreException {
+	public void flush() throws BackingStoreException {
 		preferences.flush();
 	}
 

@@ -996,18 +996,18 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void saveMRU() {
         Settings settings = new Settings();
-        settings.SetCategory("mru");
+        settings.setCategory("mru");
         for (int i = 0; i < mru.size(); i++) {
-            settings.SaveString("mru" + i, mru.get(i).getAbsolutePath());
+            settings.saveString("mru" + i, mru.get(i).getAbsolutePath());
         }
     }
 
     private void loadMRU() {
         Settings settings = new Settings();
-        settings.SetCategory("mru");
+        settings.setCategory("mru");
         mru.clear();
         for (int i = 0; i < 6; i++) {
-            addMRU(settings.LoadString("mru" + i));
+            addMRU(settings.loadString("mru" + i));
         }
     }
 
