@@ -88,34 +88,42 @@ public class CorrectedPanel extends BasePanel {
     }
 
     private void paintGrid(Graphics g) {
+        paintHorizontalLines(g);
+        paintVerticalLines(g);
+    }
+
+    private void paintHorizontalLines(Graphics g) {
         g.setColor(Color.DARK_GRAY);
-        if (scroll % 2 == 0) {
-            for (int i = 0; i < model.getWidth() + 1; i++) {
-                for (int jj = -1; jj < maxj; jj += 2) {
-                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
-                }
-            }
-            for (int i = 0; i <= model.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - gridx / 2, y(jj+1) + 1, x(i) - gridx / 2, y(jj));
-                }
-            }
-            g.drawLine(x(0), y(-1), x(model.getWidth()), y(-1));
-        } else {
-            for (int i = 0; i <= model.getWidth() + 1; i++) {
-                for (int jj = -1; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - gridx / 2, y(jj+1) + 1, x(i) - gridx / 2, y(jj));
-                }
-            }
-            for (int i = 0; i < model.getWidth() + 1; i++) {
-                for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
-                }
-            }
-            g.drawLine(x(0) - gridx / 2, y(-1), x(model.getWidth()) + gridx / 2, y(-1));
+        g.drawLine(x(0), y(-1), x(model.getWidth()), y(-1));
+        for (int j = 0; j < maxj; j++) {
+            g.drawLine(x(0) - gridx / 2, y(j), x(model.getWidth()) + gridx / 2, y(j));
         }
-        for (int jj = 0; jj < maxj; jj++) {
-            g.drawLine(x(0) - gridx / 2, y(jj), x(model.getWidth()) + gridx / 2, y(jj));
+    }
+
+    private int dx(int j) {
+        if ((j + scroll) % 2 == 0) {
+            return 0;
+        } else {
+            return gridx / 2;
+        }
+    }
+
+    private int count(int j) {
+        if ((j + scroll) % 2 == 0) {
+            return model.getWidth();
+        } else {
+            return model.getWidth() + 1;
+        }
+    }
+
+    private void paintVerticalLines(Graphics g) {
+        g.setColor(Color.DARK_GRAY);
+        for (int j = 0; j <= maxj; j++) {
+            int dx = dx(j);
+            int count = count(j);
+            for (int i = 0; i <= count; i++) {
+                g.drawLine(x(i) - dx, y(j), x(i) - dx, y(j - 1));
+            }
         }
     }
 
