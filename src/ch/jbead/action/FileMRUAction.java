@@ -23,19 +23,22 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
 /**
- * 
+ *
  */
-public class FileMRU5Action extends BaseAction {
+public class FileMRUAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    public FileMRU5Action(BeadForm form) {
-        super("file.mru5", form);
+    private int index;
+
+    public FileMRUAction(BeadForm form, int index) {
+        super("file.mru" + index, form);
+        this.index = index;
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileMRU1Click();
+        form.loadMRUFile(index);
     }
 
 }

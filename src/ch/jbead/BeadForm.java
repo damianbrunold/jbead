@@ -65,12 +65,7 @@ import ch.jbead.action.EditInsertLineAction;
 import ch.jbead.action.EditRedoAction;
 import ch.jbead.action.EditUndoAction;
 import ch.jbead.action.FileExitAction;
-import ch.jbead.action.FileMRU1Action;
-import ch.jbead.action.FileMRU2Action;
-import ch.jbead.action.FileMRU3Action;
-import ch.jbead.action.FileMRU4Action;
-import ch.jbead.action.FileMRU5Action;
-import ch.jbead.action.FileMRU6Action;
+import ch.jbead.action.FileMRUAction;
 import ch.jbead.action.FileNewAction;
 import ch.jbead.action.FileOpenAction;
 import ch.jbead.action.FilePrintAction;
@@ -81,8 +76,8 @@ import ch.jbead.action.ToolFillAction;
 import ch.jbead.action.ToolPencilAction;
 import ch.jbead.action.ToolPipetteAction;
 import ch.jbead.action.ToolSelectAction;
-import ch.jbead.action.ViewDraftAction;
 import ch.jbead.action.ViewCorrectedAction;
+import ch.jbead.action.ViewDraftAction;
 import ch.jbead.action.ViewReportAction;
 import ch.jbead.action.ViewSimulationAction;
 import ch.jbead.action.ViewZoomInAction;
@@ -310,12 +305,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuFile.add(new FilePrintAction(this));
         menuFile.add(new FilePrintSetupAction(this));
         menuFile.addSeparator();
-        menuFile.add(new MRUMenuItem(new FileMRU1Action(this)));
-        menuFile.add(new MRUMenuItem(new FileMRU2Action(this)));
-        menuFile.add(new MRUMenuItem(new FileMRU3Action(this)));
-        menuFile.add(new MRUMenuItem(new FileMRU4Action(this)));
-        menuFile.add(new MRUMenuItem(new FileMRU5Action(this)));
-        menuFile.add(new MRUMenuItem(new FileMRU6Action(this)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 0)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 1)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 2)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 3)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 4)));
+        menuFile.add(new MRUMenuItem(new FileMRUAction(this, 5)));
         menuFile.addSeparator(); // TODO what if no mru files are there?
         menuFile.add(new FileExitAction(this));
         return menuFile;
@@ -564,7 +559,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         updateScrollbar();
     }
 
-    private void loadFile(File file, boolean addtomru) {
+    public void loadFile(File file, boolean addtomru) {
+        System.out.println("loading file " + file.getAbsolutePath());
         // ask whether to save modified document
         if (model.isModified()) {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
@@ -1172,37 +1168,21 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void updateMRU() {
         // TODO maybe need to tweak the mru text so that local directory is taken into account
-        getAction("file.mru1").putValue(Action.NAME, mru[0]);
-        getAction("file.mru2").putValue(Action.NAME, mru[1]);
-        getAction("file.mru3").putValue(Action.NAME, mru[2]);
-        getAction("file.mru4").putValue(Action.NAME, mru[3]);
-        getAction("file.mru5").putValue(Action.NAME, mru[4]);
-        getAction("file.mru6").putValue(Action.NAME, mru[5]);
+        getAction("file.mru0").putValue(Action.NAME, mru[0]);
+        getAction("file.mru1").putValue(Action.NAME, mru[1]);
+        getAction("file.mru2").putValue(Action.NAME, mru[2]);
+        getAction("file.mru3").putValue(Action.NAME, mru[3]);
+        getAction("file.mru4").putValue(Action.NAME, mru[4]);
+        getAction("file.mru5").putValue(Action.NAME, mru[5]);
         // TODO maybe have to set visibility of separator after last mru menu item
     }
 
-    public void fileMRU1Click() {
-        loadFile(new File(mru[0]), true);
+    public File getMRU(int index) {
+        return new File(mru[index]);
     }
 
-    public void fileMRU2Click() {
-        loadFile(new File(mru[1]), true);
-    }
-
-    public void fileMRU3Click() {
-        loadFile(new File(mru[2]), true);
-    }
-
-    public void fileMRU4Click() {
-        loadFile(new File(mru[3]), true);
-    }
-
-    public void fileMRU5Click() {
-        loadFile(new File(mru[4]), true);
-    }
-
-    public void fileMRU6Click() {
-        loadFile(new File(mru[5]), true);
+    public void loadMRUFile(int index) {
+        loadFile(getMRU(index), true);
     }
 
     private void saveMRU() {
