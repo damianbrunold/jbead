@@ -49,9 +49,6 @@ probably make various loops nicer...
 Make simulation view editable analogously to the normal
 corrected view.
 
-Decide on the name of the normal/corrected view. Change all
-code accordingly.
-
 Make color choosing very simple. Slider style as in the video
 of Bret Victor.
 
