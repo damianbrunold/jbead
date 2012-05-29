@@ -583,6 +583,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                     JOptionPane.showMessageDialog(this, getString("invalidformat"));
                     return;
                 }
+                selection.clear();
                 model.clear();
                 model.load(in);
                 viewDraft.setSelected(in.readBool());
@@ -721,6 +722,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         form.setPatternWidth(model.getWidth());
         form.setVisible(true);
         if (form.isOK()) {
+            selection.clear();
             // TODO move this to model
             model.snapshot();
             model.setWidth(form.getPatternWidth());
