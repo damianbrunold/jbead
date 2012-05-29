@@ -269,14 +269,12 @@ public class Model implements ColorTable {
     }
 
     public File getCurrentDirectory() {
-        File result = null;
-        if (file != null) {
-            result = file.getParentFile();
+        if (isSaved()) {
+            return file.getParentFile();
+        } else {
+            // TODO maybe use the Documents folder on windows...
+            return new File(System.getProperty("user.home"));
         }
-        if (result == null) {
-            result = new File(System.getProperty("user.home")); // TODO maybe set differently on different platforms
-        }
-        return result;
     }
 
     public int getColorRepeat() {

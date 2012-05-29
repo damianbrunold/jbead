@@ -998,7 +998,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         Settings settings = new Settings();
         settings.SetCategory("mru");
         for (int i = 0; i < mru.size(); i++) {
-            settings.SaveString("mru" + i, getMRUDisplayName(i));
+            settings.SaveString("mru" + i, mru.get(i).getAbsolutePath());
         }
     }
 
