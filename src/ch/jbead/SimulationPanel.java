@@ -27,11 +27,10 @@ public class SimulationPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
-    private Model model;
     private int offsetx;
 
-    public SimulationPanel(Model model, final BeadForm form) {
-        this.model = model;
+    public SimulationPanel(Model model, Selection selection, final BeadForm form) {
+        super(model, selection);
         model.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -43,7 +42,7 @@ public class SimulationPanel extends BasePanel {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension((model.getWidth() / 2 + 1) * model.getGrid(), 3 * model.getGrid());
+        return new Dimension((model.getWidth() / 2 + 1) * gridx, 3 * gridy);
     }
 
     @Override
@@ -60,69 +59,67 @@ public class SimulationPanel extends BasePanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int grid = model.getGrid();
-
         g.setColor(Color.DARK_GRAY);
-        offsetx = (getWidth() - 1 - (model.getWidth() + 1) * grid / 2 + grid / 2) / 2;
+        offsetx = (getWidth() - 1 - (model.getWidth() + 1) * gridx / 2 + gridx / 2) / 2;
         int left = offsetx;
-        if (left < 0) left = grid / 2;
-        int maxj = Math.min(model.getHeight(), getHeight() / grid + 1);
+        if (left < 0) left = gridx / 2;
+        int maxj = Math.min(model.getHeight(), getHeight() / gridy + 1);
         int w = model.getWidth() / 2;
-        if (model.getScroll() % 2 == 0) {
+        if (scroll % 2 == 0) {
             for (int j = 0; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
-                    if (j == 0 && model.getScroll() == 0 && i < model.getShift()) continue;
-                    g.drawLine(left + i * grid, getHeight() - (j + 1) * grid, left + i * grid, getHeight() - j * grid -1);
+                    if (j == 0 && scroll == 0 && i < model.getShift()) continue;
+                    g.drawLine(left + i * gridx, getHeight() - (j + 1) * gridy, left + i * gridx, getHeight() - j * gridy -1);
                 }
-                if (j > 0 || model.getScroll() > 0) {
-                    g.drawLine(left - grid / 2, getHeight() - (j + 1) * grid, left - grid / 2, getHeight() - j * grid - 1);
+                if (j > 0 || scroll > 0) {
+                    g.drawLine(left - gridx / 2, getHeight() - (j + 1) * gridy, left - gridx / 2, getHeight() - j * gridy - 1);
                 }
             }
             for (int j = 1; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(left + i * grid - grid / 2, getHeight() - (j + 1) * grid, left + i * grid - grid / 2, getHeight() - j * grid - 1);
+                    g.drawLine(left + i * gridx - gridx / 2, getHeight() - (j + 1) * gridy, left + i * gridx - gridx / 2, getHeight() - j * gridy - 1);
                 }
-                g.drawLine(left + w * grid, getHeight() - (j + 1) * grid, left + w * grid, getHeight() - j * grid - 1);
+                g.drawLine(left + w * gridx, getHeight() - (j + 1) * gridy, left + w * gridx, getHeight() - j * gridy - 1);
             }
         } else {
             for (int j = 0; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(left + i * grid - grid / 2, getHeight() - (j + 1) * grid, left + i * grid - grid / 2, getHeight() - j * grid - 1);
+                    g.drawLine(left + i * gridx - gridx / 2, getHeight() - (j + 1) * gridy, left + i * gridx - gridx / 2, getHeight() - j * gridy - 1);
                 }
-                g.drawLine(left + w * grid, getHeight() - (j + 1) * grid, left + w * grid, getHeight() - j * grid - 1);
+                g.drawLine(left + w * gridx, getHeight() - (j + 1) * gridy, left + w * gridx, getHeight() - j * gridy - 1);
             }
             for (int j = 1; j < maxj; j += 2) {
                 for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(left + i * grid, getHeight() - (j + 1) * grid, left + i * grid, getHeight() - j * grid - 1);
+                    g.drawLine(left + i * gridx, getHeight() - (j + 1) * gridy, left + i * gridx, getHeight() - j * gridy - 1);
                 }
-                g.drawLine(left - grid / 2, getHeight() - (j + 1) * grid, left - grid / 2, getHeight() - j * grid - 1);
+                g.drawLine(left - gridx / 2, getHeight() - (j + 1) * gridy, left - gridx / 2, getHeight() - j * gridy - 1);
             }
         }
-        if (model.getScroll() % 2 == 0) {
-            if (model.getScroll() == 0) {
-                g.drawLine(left + model.getShift() * grid, getHeight() - 1, left + w * grid, getHeight() - 1);
+        if (scroll % 2 == 0) {
+            if (scroll == 0) {
+                g.drawLine(left + model.getShift() * gridx, getHeight() - 1, left + w * gridy, getHeight() - 1);
                 for (int j = 1; j < maxj; j++) {
-                    g.drawLine(left - grid / 2, getHeight() - 1 - j * grid, left + w * grid, getHeight() - 1 - j * grid);
+                    g.drawLine(left - gridx / 2, getHeight() - 1 - j * gridy, left + w * gridx, getHeight() - 1 - j * gridy);
                 }
-                g.drawLine(left + w * grid, 0, left + w * grid, getHeight() - 1 - grid);
+                g.drawLine(left + w * gridx, 0, left + w * gridx, getHeight() - 1 - gridy);
             } else {
                 for (int j = 0; j < maxj; j++) {
-                    g.drawLine(left - grid / 2, getHeight() - 1 - j * grid, left + w * grid, getHeight() - 1 - j * grid);
+                    g.drawLine(left - gridx / 2, getHeight() - 1 - j * gridy, left + w * gridx, getHeight() - 1 - j * gridy);
                 }
-                g.drawLine(left + w * grid, 0, left + w * grid, getHeight() - 1 - grid);
+                g.drawLine(left + w * gridx, 0, left + w * gridx, getHeight() - 1 - gridy);
             }
         } else {
             for (int j = 0; j < maxj; j++) {
-                g.drawLine(left - grid / 2, getHeight() - 1 - j * grid, left + w * grid, getHeight() - 1 - j * grid);
+                g.drawLine(left - gridx / 2, getHeight() - 1 - j * gridy, left + w * gridx, getHeight() - 1 - j * gridy);
             }
-            g.drawLine(left + w * grid, 0, left + w * grid, getHeight() - 1);
+            g.drawLine(left + w * gridx, 0, left + w * gridx, getHeight() - 1);
         }
 
         // Data
         int width = model.getWidth();
-        int scroll = model.getScroll();
         int shift = model.getShift();
-        int grid1 = grid - 1;
+        int gridx1 = gridx - 1;
+        int gridy1 = gridy - 1;
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < maxj; j++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
@@ -136,27 +133,27 @@ public class SimulationPanel extends BasePanel {
                 if (scroll % 2 == 0) {
                     if (jj % 2 == 0) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                        g.fillRect(left + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
                     } else {
                         if (ii != width && ii != w) {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
                         } else if (ii == width) {
-                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid1);
+                            g.fillRect(left - gridx / 2 + 1, getHeight() - (jj + 2) * gridy, gridx / 2 - 1, gridy1);
                         } else {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid1);
+                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx / 2 - 1, gridy1);
                         }
                     }
                 } else {
                     if (jj % 2 == 1) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                        g.fillRect(left + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
                     } else {
                         if (ii != width && ii != w) {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid1, grid1);
+                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
                         } else if (ii == width) {
-                            g.fillRect(left - grid / 2 + 1, getHeight() - (jj + 2) * grid, grid / 2 - 1, grid1);
+                            g.fillRect(left - gridx / 2 + 1, getHeight() - (jj + 2) * gridy, gridx / 2 - 1, gridy1);
                         } else {
-                            g.fillRect(left - grid / 2 + ii * grid + 1, getHeight() - (jj + 1) * grid, grid / 2 - 1, grid1);
+                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx / 2 - 1, gridy1);
                         }
                     }
                 }
@@ -165,7 +162,7 @@ public class SimulationPanel extends BasePanel {
     }
 
     int correctCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = m1 + 1;
         int k = 0;
@@ -179,7 +176,7 @@ public class SimulationPanel extends BasePanel {
     }
 
     int correctCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = m1 + 1;
         int k = 0;
@@ -189,13 +186,13 @@ public class SimulationPanel extends BasePanel {
             k++;
             m = (k % 2 == 0) ? m1 : m2;
         }
-        return k - model.getScroll();
+        return k - scroll;
     }
 
     public void redraw(int _i, int _j) {
         if (!isVisible()) return;
 
-        byte c = model.get(new Point(_i, _j).scrolled(model.getScroll()));
+        byte c = model.get(new Point(_i, _j).scrolled(scroll));
         assert (c >= 0 && c <= 9);
 
         int ii = _i;
@@ -212,31 +209,30 @@ public class SimulationPanel extends BasePanel {
         int left = offsetx;
         int w = model.getWidth() / 2;
         if (_i > w && _i != model.getWidth()) return;
-        int grid = model.getGrid();
-        if (model.getScroll() % 2 == 0) {
+        if (scroll % 2 == 0) {
             if (_j % 2 == 0) {
                 if (_i == w) return;
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
+                g.fillRect(left + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
             } else {
                 if (_i != model.getWidth() && _i != w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
                 } else if (_i == w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx / 2 - 1, gridy - 1);
                 } else {
-                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2 - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + 1, getHeight() - (_j + 2) * gridy, gridx / 2 - 1, gridy - 1);
                 }
             }
         } else {
             if (_j % 2 == 1) {
                 if (_i == w) return;
-                g.fillRect(left + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
+                g.fillRect(left + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
             } else {
                 if (_i != model.getWidth() && _i != w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
                 } else if (_i == w) {
-                    g.fillRect(left - grid / 2 + _i * grid + 1, getHeight() - (_j + 1) * grid, grid / 2 - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx / 2 - 1, gridy - 1);
                 } else {
-                    g.fillRect(left - grid / 2 + 1, getHeight() - (_j + 2) * grid, grid / 2 - 1, grid - 1);
+                    g.fillRect(left - gridx / 2 + 1, getHeight() - (_j + 2) * gridy, gridx / 2 - 1, gridy - 1);
                 }
             }
         }
@@ -245,7 +241,7 @@ public class SimulationPanel extends BasePanel {
 
     @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY() - model.getScroll());
+        redraw(pt.getX(), pt.getY() - scroll);
     }
 
     @Override
@@ -255,27 +251,26 @@ public class SimulationPanel extends BasePanel {
 
     boolean mouseToField(Point pt) {
         int w = model.getWidth() / 2;
-        int grid = model.getGrid();
         int shift = model.getShift();
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
-        int jj = (getHeight() - _j) / grid;
-        if (model.getScroll() % 2 == 0) {
+        int jj = (getHeight() - _j) / gridy;
+        if (scroll % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + w * grid) return false;
-                i = (_i - offsetx) / grid;
+                if (_i < offsetx || _i > offsetx + w * gridx) return false;
+                i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + w * grid + grid / 2) return false;
-                i = (_i - offsetx + grid / 2) / grid;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return false;
+                i = (_i - offsetx + gridx / 2) / gridx;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + w * grid) return false;
-                i = (_i - offsetx) / grid;
+                if (_i < offsetx || _i > offsetx + w * gridx) return false;
+                i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + w * grid + grid / 2) return false;
-                i = (_i - offsetx + grid / 2) / grid;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return false;
+                i = (_i - offsetx + gridx / 2) / gridx;
             }
         }
         i -= shift;
@@ -293,7 +288,6 @@ public class SimulationPanel extends BasePanel {
 
     public void togglePoint(Point pt) {
         if (!mouseToField(pt)) return;
-        int scroll = model.getScroll();
         int idx = 0;
         int m1 = model.getWidth();
         int m2 = m1 + 1;

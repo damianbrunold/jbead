@@ -26,11 +26,10 @@ public class ReportPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
-    private Model model;
     private Localization localization;
 
-    public ReportPanel(Model model, Localization localization) {
-        this.model = model;
+    public ReportPanel(Model model, Selection selection, Localization localization) {
+        super(model, selection);
         this.localization = localization;
         model.addListener(this);
     }

@@ -27,13 +27,12 @@ public class NormalPanel extends BasePanel {
 
     private static final long serialVersionUID = 1L;
 
-    private Model model;
     private int offsetx;
     private int maxj;
     private int left;
 
-    public NormalPanel(Model model, final BeadForm form) {
-        this.model = model;
+    public NormalPanel(Model model, Selection selection, final BeadForm form) {
+        super(model, selection);
         model.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -45,7 +44,7 @@ public class NormalPanel extends BasePanel {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension((model.getWidth() + 2) * model.getGrid(), 3 * model.getGrid());
+        return new Dimension((model.getWidth() + 2) * gridx, 3 * gridy);
     }
 
     @Override
@@ -69,30 +68,28 @@ public class NormalPanel extends BasePanel {
     }
 
     private int getLeft() {
-        return offsetx < 0 ? model.getGrid() / 2 : offsetx;
+        return offsetx < 0 ? gridx / 2 : offsetx;
     }
 
     private int getMaxJ() {
-        return Math.min(model.getHeight(), getHeight() / model.getGrid() + 1);
+        return Math.min(model.getHeight(), getHeight() / gridy + 1);
     }
 
     private int getOffsetX() {
-        int grid = model.getGrid();
-        return grid / 2 + (getWidth() - 1 - model.getWidth() * grid - grid / 2) / 2;
+        return gridx / 2 + (getWidth() - 1 - model.getWidth() * gridx - gridx / 2) / 2;
     }
 
     private int x(int i) {
-        return left + i * model.getGrid();
+        return left + i * gridx;
     }
 
     private int y(int j) {
-        return getHeight() - 1 - (j + 1) * model.getGrid();
+        return getHeight() - 1 - (j + 1) * gridy;
     }
 
     private void paintGrid(Graphics g) {
-        int grid = model.getGrid();
         g.setColor(Color.DARK_GRAY);
-        if (model.getScroll() % 2 == 0) {
+        if (scroll % 2 == 0) {
             for (int i = 0; i < model.getWidth() + 1; i++) {
                 for (int jj = -1; jj < maxj; jj += 2) {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
@@ -100,14 +97,14 @@ public class NormalPanel extends BasePanel {
             }
             for (int i = 0; i <= model.getWidth() + 1; i++) {
                 for (int jj = 0; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
+                    g.drawLine(x(i) - gridx / 2, y(jj+1) + 1, x(i) - gridx / 2, y(jj));
                 }
             }
             g.drawLine(x(0), y(-1), x(model.getWidth()), y(-1));
         } else {
             for (int i = 0; i <= model.getWidth() + 1; i++) {
                 for (int jj = -1; jj < maxj; jj += 2) {
-                    g.drawLine(x(i) - grid / 2, y(jj+1) + 1, x(i) - grid / 2, y(jj));
+                    g.drawLine(x(i) - gridx / 2, y(jj+1) + 1, x(i) - gridx / 2, y(jj));
                 }
             }
             for (int i = 0; i < model.getWidth() + 1; i++) {
@@ -115,16 +112,14 @@ public class NormalPanel extends BasePanel {
                     g.drawLine(x(i), y(jj+1) + 1, x(i), y(jj));
                 }
             }
-            g.drawLine(x(0) - grid / 2, y(-1), x(model.getWidth()) + grid / 2, y(-1));
+            g.drawLine(x(0) - gridx / 2, y(-1), x(model.getWidth()) + gridx / 2, y(-1));
         }
         for (int jj = 0; jj < maxj; jj++) {
-            g.drawLine(x(0) - grid / 2, y(jj), x(model.getWidth()) + grid / 2, y(jj));
+            g.drawLine(x(0) - gridx / 2, y(jj), x(model.getWidth()) + gridx / 2, y(jj));
         }
     }
 
     private void paintBeads(Graphics g) {
-        int grid = model.getGrid();
-        int scroll = model.getScroll();
         for (int i = 0; i < model.getWidth(); i++) {
             for (int j = 0; j < maxj; j++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
@@ -132,16 +127,16 @@ public class NormalPanel extends BasePanel {
                 int i1 = correctCoordinatesX(i, j);
                 int j1 = correctCoordinatesY(i, j);
                 if ((j1 + scroll) % 2 == 0) {
-                    g.fillRect(x(i1) + 1, y(j1) + 1, grid - 1, grid - 1);
+                    g.fillRect(x(i1) + 1, y(j1) + 1, gridx - 1, gridy - 1);
                 } else {
-                    g.fillRect(x(i1) + 1 - grid / 2, y(j1) + 1, grid - 1, grid - 1);
+                    g.fillRect(x(i1) + 1 - gridx / 2, y(j1) + 1, gridx - 1, gridy - 1);
                 }
             }
         }
     }
 
     int correctCoordinatesX(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = model.getWidth() + 1;
         int k = 0;
@@ -152,12 +147,12 @@ public class NormalPanel extends BasePanel {
             m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k - model.getScroll();
+        _j = k - scroll;
         return _i;
     }
 
     int correctCoordinatesY(int _i, int _j) {
-        int idx = _i + (_j + model.getScroll()) * model.getWidth();
+        int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = model.getWidth() + 1;
         int k = 0;
@@ -168,53 +163,50 @@ public class NormalPanel extends BasePanel {
             m = (k % 2 == 0) ? m1 : m2;
         }
         _i = idx;
-        _j = k - model.getScroll();
+        _j = k - scroll;
         return _j;
     }
 
     public void redraw(int i, int j) {
         if (!isVisible()) return;
-        int grid = model.getGrid();
-        int scroll = model.getScroll();
         byte c = model.get(new Point(i, j).scrolled(scroll));
         int _i = correctCoordinatesX(i, j);
         int _j = correctCoordinatesY(i, j);
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
         if ((scroll + _j) % 2 == 0) {
-            g.fillRect(x(_i) + 1, y(_j) + 1, grid - 1, grid - 1);
+            g.fillRect(x(_i) + 1, y(_j) + 1, gridy - 1, gridy - 1);
         } else {
-            g.fillRect(x(_i) + 1 - grid / 2, y(_j) + 1, grid - 1, grid - 1);
+            g.fillRect(x(_i) + 1 - gridx / 2, y(_j) + 1, gridx - 1, gridy - 1);
         }
         g.dispose();
     }
 
     @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY() - model.getScroll());
+        redraw(pt.getX(), pt.getY() - scroll);
     }
 
     boolean mouseToField(Point pt) {
-        int grid = model.getGrid();
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
-        int jj = (getHeight() - _j) / grid;
-        if (model.getScroll() % 2 == 0) {
+        int jj = (getHeight() - _j) / gridy;
+        if (scroll % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * grid) return false;
-                i = (_i - offsetx) / grid;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return false;
+                i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + model.getWidth() * grid + grid / 2) return false;
-                i = (_i - offsetx + grid / 2) / grid;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return false;
+                i = (_i - offsetx + gridx / 2) / gridx;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * grid) return false;
-                i = (_i - offsetx) / grid;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return false;
+                i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - grid / 2 || _i > offsetx + model.getWidth() * grid + grid / 2) return false;
-                i = (_i - offsetx + grid / 2) / grid;
+                if (_i < offsetx - gridy / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return false;
+                i = (_i - offsetx + gridy / 2) / gridx;
             }
         }
         pt.setX(i);
@@ -224,7 +216,6 @@ public class NormalPanel extends BasePanel {
 
     public void togglePoint(Point pt) {
         if (!mouseToField(pt)) return;
-        int scroll = model.getScroll();
         int idx = 0;
         int m1 = model.getWidth();
         int m2 = m1 + 1;

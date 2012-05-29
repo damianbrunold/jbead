@@ -127,9 +127,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
 
     private DraftPanel draft = new DraftPanel(model, selection, this);
-    private NormalPanel normal = new NormalPanel(model, this);
-    private SimulationPanel simulation = new SimulationPanel(model, this);
-    private ReportPanel report = new ReportPanel(model, this);
+    private NormalPanel normal = new NormalPanel(model, selection, this);
+    private SimulationPanel simulation = new SimulationPanel(model, selection, this);
+    private ReportPanel report = new ReportPanel(model, selection, this);
 
     private JLabel laDraft = new JLabel("draft");
     private JLabel laNormal = new JLabel("normal");

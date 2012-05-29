@@ -23,8 +23,20 @@ public abstract class BasePanel extends JComponent implements ModelListener {
 
     private static final long serialVersionUID = 1L;
 
+    protected Model model;
+    protected Selection selection;
+
+    protected int gridx;
+    protected int gridy;
+    protected int scroll;
+
+    protected BasePanel(Model model, Selection selection) {
+        this.model = model;
+        this.selection = selection;
+    }
+
     public abstract void redraw(Point pt);
-    
+
     @Override
     public void pointChanged(Point pt) {
         redraw(pt);
@@ -32,6 +44,8 @@ public abstract class BasePanel extends JComponent implements ModelListener {
 
     @Override
     public void modelChanged() {
+        this.scroll = model.getScroll();
+        this.gridx = this.gridy = model.getGrid();
         repaint();
     }
 
@@ -42,16 +56,18 @@ public abstract class BasePanel extends JComponent implements ModelListener {
 
     @Override
     public void scrollChanged(int scroll) {
-        // empty
+        this.scroll = scroll;
     }
 
     @Override
-    public void shiftChanged(int scroll) {
+    public void shiftChanged(int shift) {
         // empty
     }
 
     @Override
     public void zoomChanged(int gridx, int gridy) {
+        this.gridx = gridx;
+        this.gridy = gridy;
         repaint();
     }
 
