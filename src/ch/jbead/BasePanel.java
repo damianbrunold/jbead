@@ -45,7 +45,8 @@ public abstract class BasePanel extends JComponent implements ModelListener {
     @Override
     public void modelChanged() {
         this.scroll = model.getScroll();
-        this.gridx = this.gridy = model.getGrid();
+        this.gridx = model.getGridx();
+        this.gridy = model.getGridy();
         repaint();
     }
 

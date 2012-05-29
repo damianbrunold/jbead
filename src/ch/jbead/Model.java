@@ -32,7 +32,8 @@ public class Model implements ColorTable {
     private BeadField field = new BeadField();
     private Color colors[] = new Color[10];
     private byte colorIndex;
-    private int grid;
+    private int gridx;
+    private int gridy;
     private int zoomtable[] = new int[5];
     private int zoomIndex;
     private int scroll;
@@ -60,7 +61,7 @@ public class Model implements ColorTable {
         zoomtable[2] = 10;
         zoomtable[3] = 12;
         zoomtable[4] = 14;
-        grid = zoomtable[zoomIndex];
+        gridx = gridy = zoomtable[zoomIndex];
         defaultColors();
         unnamed = localization.getString("unnamed");
         file = new File(unnamed);
@@ -269,8 +270,12 @@ public class Model implements ColorTable {
         return colorRepeat;
     }
 
-    public int getGrid() {
-        return grid;
+    public int getGridx() {
+        return gridx;
+    }
+
+    public int getGridy() {
+        return gridy;
     }
 
     public int getScroll() {
@@ -408,22 +413,22 @@ public class Model implements ColorTable {
     public void zoomIn() {
         if (zoomIndex >= zoomtable.length - 1) return;
         zoomIndex++;
-        grid = zoomtable[zoomIndex];
-        fireZoomChanged(grid, grid);
+        gridx = gridy = zoomtable[zoomIndex];
+        fireZoomChanged(gridx, gridy);
     }
 
     public void zoomNormal() {
         if (isNormalZoom()) return;
         zoomIndex = 2;
-        grid = zoomtable[zoomIndex];
-        fireZoomChanged(grid, grid);
+        gridx = gridy = zoomtable[zoomIndex];
+        fireZoomChanged(gridx, gridy);
     }
 
     public void zoomOut() {
         if (zoomIndex <= 0) return;
         zoomIndex--;
-        grid = zoomtable[zoomIndex];
-        fireZoomChanged(grid, grid);
+        gridx = gridy = zoomtable[zoomIndex];
+        fireZoomChanged(gridx, gridy);
     }
 
     public boolean isNormalZoom() {

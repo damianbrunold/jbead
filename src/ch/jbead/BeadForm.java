@@ -536,7 +536,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void updateScrollbar() {
-        int h = draft.getHeight() / model.getGrid();
+        int h = draft.getHeight() / model.getGridy();
         assert (h < model.getHeight());
         scrollbar.setMinimum(0);
         scrollbar.setMaximum(model.getHeight() - h);

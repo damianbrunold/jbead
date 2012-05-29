@@ -73,7 +73,7 @@ public class DraftPanel extends BasePanel implements SelectionListener {
 
     @Override
     public Dimension getMinimumSize() {
-        return new Dimension(model.getWidth() * model.getGrid() + MARKER_WIDTH + GAP, 3 * model.getGrid());
+        return new Dimension(model.getWidth() * gridx + MARKER_WIDTH + GAP, 3 * gridy);
     }
 
     @Override
