@@ -1051,50 +1051,20 @@ public class BeadForm extends JFrame implements Localization {
     }
 
     public void normalMouseUp(MouseEvent event) {
-        int scroll = model.getScroll();
-        // TODO move this to the NormalPanel
-        Point pt = new Point(event.getX(), event.getY());
-        if (event.getButton() == MouseEvent.BUTTON1 && normal.mouseToField(pt)) {
-            // Lineare Koordinaten berechnen
-            int idx = 0;
-            int m1 = model.getWidth();
-            int m2 = m1 + 1;
-            for (int j = 0; j < pt.getY() + scroll; j++) {
-                if (j % 2 == 0)
-                    idx += m1;
-                else
-                    idx += m2;
-            }
-            idx += pt.getX();
-
-            // Feld setzen und Darstellung nachf�hren
-            int j = idx / model.getWidth();
-            int i = idx % model.getWidth();
-            setPoint(new Point(i, j - scroll));
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            model.snapshot();
+            normal.togglePoint(new Point(event.getX(), event.getY()));
+            updateTitle();
+            report.repaint();
         }
     }
 
     public void simulationMouseUp(MouseEvent event) {
-        int scroll = model.getScroll();
-        // TODO move this to the SimulationPanel
-        Point pt = new Point(event.getX(), event.getY());
-        if (event.getButton() == MouseEvent.BUTTON1 && simulation.mouseToField(pt)) {
-            // Lineare Koordinaten berechnen
-            int idx = 0;
-            int m1 = model.getWidth();
-            int m2 = m1 + 1;
-            for (int j = 0; j < pt.getY() + scroll; j++) {
-                if (j % 2 == 0)
-                    idx += m1;
-                else
-                    idx += m2;
-            }
-            idx += pt.getX();
-
-            // Feld setzen und Darstellung nachf�hren
-            int j = idx / model.getWidth();
-            int i = idx % model.getWidth();
-            setPoint(new Point(i, j - scroll));
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            model.snapshot();
+            simulation.togglePoint(new Point(event.getX(), event.getY()));
+            updateTitle();
+            report.repaint();
         }
     }
 

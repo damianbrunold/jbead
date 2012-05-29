@@ -291,4 +291,21 @@ public class SimulationPanel extends BasePanel {
         return true;
     }
 
+    public void togglePoint(Point pt) {
+        if (!mouseToField(pt)) return;
+        int scroll = model.getScroll();
+        int idx = 0;
+        int m1 = model.getWidth();
+        int m2 = m1 + 1;
+        for (int j = 0; j < pt.getY() + scroll; j++) {
+            if (j % 2 == 0)
+                idx += m1;
+            else
+                idx += m2;
+        }
+        idx += pt.getX();
+        int j = idx / model.getWidth();
+        int i = idx % model.getWidth();
+        model.setPoint(new Point(i, j - scroll));
+    }
 }
