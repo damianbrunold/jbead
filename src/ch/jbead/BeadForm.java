@@ -183,10 +183,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public BeadForm() {
         super("jbead");
         createGUI();
+        setColorIcons();
         model.addListener(this);
         model.clear();
         selection.clear();
-        setColorIcons();
         loadMRU();
         updateMRU();
         updateScrollbar();
@@ -402,7 +402,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         toolbar.addSeparator();
 
-        for (int i = 0; i < Model.COLOR_COUNT; i++) {
+        for (int i = 0; i < model.getColorCount(); i++) {
             toolbar.add(createColorButton(i));
         }
         colors.get(1).setSelected(true);
@@ -480,7 +480,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void setColorIcons() {
-        for (byte i = 0; i < Model.COLOR_COUNT; i++) {
+        for (byte i = 0; i < model.getColorCount(); i++) {
             colors.get(i).setIcon(new ColorIcon(model, i));
         }
     }
@@ -529,18 +529,14 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             JBeadInputStream in = new JBeadInputStream(new FileInputStream(file));
             try {
                 String strid = in.read(13);
-                if (!strid.equals("DB-BEAD/01:\r\n")) {
+                if (strid.equals("DB-BEAD/01:\r\n")) {
+                    loadData(in, true);
+                } else if (strid.equals("DB-BEAD/02:\r\n")) {
+                    loadData(in, false);
+                } else {
                     JOptionPane.showMessageDialog(this, getString("invalidformat"));
                     return;
                 }
-                selection.clear();
-                model.clear();
-                model.load(in);
-                viewDraft.setSelected(in.readBool());
-                viewCorrected.setSelected(in.readBool());
-                viewSimulation.setSelected(in.readBool());
-                colors.get(model.getColorIndex()).setSelected(true);
-                updateScrollbar();
             } finally {
                 in.close();
             }
@@ -553,6 +549,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         model.setRepeatDirty();
         model.setFile(file);
         if (addtomru) addToMRU(file);
+    }
+
+    private void loadData(JBeadInputStream in, boolean compatible) throws IOException {
+        selection.clear();
+        model.clear();
+        model.load(in, compatible);
+        viewDraft.setSelected(in.readBool());
+        viewCorrected.setSelected(in.readBool());
+        viewSimulation.setSelected(in.readBool());
+        colors.get(model.getColorIndex()).setSelected(true);
+        updateScrollbar();
     }
 
     public void fileOpenClick() {
@@ -571,6 +578,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             try {
                 JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
                 try {
+                    // TODO determine whether to write v2 or v1
                     out.write("DB-BEAD/01:\r\n");
                     model.save(out);
                     out.writeBool(viewDraft.isSelected());

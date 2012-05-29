@@ -28,11 +28,9 @@ import java.util.List;
  */
 public class Model implements ColorTable {
 
-    public static final int COLOR_COUNT = 10;
-
     private BeadUndo undo = new BeadUndo();
     private BeadField field = new BeadField();
-    private Color colors[] = new Color[COLOR_COUNT];
+    private List<Color> colors = new ArrayList<Color>();
     private byte colorIndex;
     private int gridx;
     private int gridy;
@@ -57,16 +55,20 @@ public class Model implements ColorTable {
         field.setWidth(15);
         colorIndex = 1;
         scroll = 0;
+        initZoomTable();
+        gridx = gridy = zoomtable[zoomIndex];
+        defaultColors();
+        unnamed = localization.getString("unnamed");
+        file = new File(unnamed);
+    }
+
+    private void initZoomTable() {
         zoomIndex = 2;
         zoomtable[0] = 6;
         zoomtable[1] = 8;
         zoomtable[2] = 10;
         zoomtable[3] = 12;
         zoomtable[4] = 14;
-        gridx = gridy = zoomtable[zoomIndex];
-        defaultColors();
-        unnamed = localization.getString("unnamed");
-        file = new File(unnamed);
     }
 
     public void addListener(ModelListener listener) {
@@ -114,34 +116,47 @@ public class Model implements ColorTable {
             listener.repeatChanged(repeat, colorRepeat);
         }
     }
+    
+    private static Color WHITE = Color.WHITE;
+    private static Color MAROON = new Color(128, 0, 0);
+    private static Color DKBLUE = new Color(0, 0, 128);
+    private static Color GREEN = Color.GREEN;
+    private static Color YELLOW = Color.YELLOW;
+    private static Color RED = Color.RED;
+    private static Color BLUE = Color.BLUE;
+    private static Color PURPLE = new Color(128, 0, 128);
+    private static Color BLACK = Color.BLACK;
+    private static Color CYAN = Color.CYAN;
+    private static Color SILVER = new Color(192, 192, 192);
 
     private void defaultColors() {
-        colors[0] = Color.WHITE;
-        colors[1] = new Color(128, 0, 0); // maroon
-        colors[2] = new Color(0, 0, 128); // navy
-        colors[3] = Color.GREEN;
-        colors[4] = Color.YELLOW;
-        colors[5] = Color.RED;
-        colors[6] = Color.BLUE;
-        colors[7] = new Color(128, 0, 128); // purple
-        colors[8] = Color.BLACK;
-        colors[9] = Color.CYAN;
+        colors.clear();
+        colors.add(WHITE);
+        colors.add(MAROON);
+        colors.add(DKBLUE);
+        colors.add(GREEN);
+        colors.add(YELLOW);
+        colors.add(RED);
+        colors.add(BLUE);
+        colors.add(PURPLE);
+        colors.add(BLACK);
+        colors.add(CYAN);
+        //colors.add(SILVER);
     }
-
 
     @Override
     public Color getColor(byte index) {
-        return colors[index];
+        return colors.get(index);
     }
 
     @Override
     public int getColorCount() {
-        return colors.length;
+        return colors.size();
     }
 
     @Override
     public void setColor(byte index, Color color) {
-        colors[index] = color;
+        colors.set(index, color);
         setModified();
         fireColorChanged(index);
     }
@@ -354,11 +369,19 @@ public class Model implements ColorTable {
         this.file = file;
     }
 
-    public void load(JBeadInputStream in) throws IOException {
+    public void load(JBeadInputStream in, boolean compatible) throws IOException {
         field.load(in);
-        setColor((byte) 0, in.readBackgroundColor());
-        for (byte i = 1; i < getColorCount(); i++) {
-            setColor(i, in.readColor());
+        colors.clear();
+        if (compatible) {
+            colors.add(in.readBackgroundColor());
+            for (int i = 1; i < 10; i++) {
+                colors.add(in.readColor());
+            }
+        } else {
+            int colorCount = readInt(in, "colorCount");
+            for (int i = 0; i < colorCount; i++) {
+                colors.add(in.readColor());
+            }
         }
         colorIndex = readByte(in, "colorIndex");
         zoomIndex = readInt(in, "zoomIndex");
@@ -381,6 +404,9 @@ public class Model implements ColorTable {
 
     public void save(JBeadOutputStream out) throws IOException {
         field.save(out);
+        if (colors.size() > 10) {
+            out.writeInt(colors.size());
+        }
         for (Color color : colors) {
             out.writeColor(color);
         }
