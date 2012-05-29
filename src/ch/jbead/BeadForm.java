@@ -35,7 +35,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
@@ -103,7 +105,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private Selection selection = new Selection();
 
     private boolean dragging;
-    private String mru[] = new String[6];
+
+    private List<File> mru = new ArrayList<File>();
 
     private JToolBar toolbar = new JToolBar();
 
@@ -560,7 +563,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void loadFile(File file, boolean addtomru) {
-        System.out.println("loading file " + file.getAbsolutePath());
         // ask whether to save modified document
         if (model.isModified()) {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
@@ -638,7 +640,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
-        dialog.setCurrentDirectory(model.getFile().getParentFile());
+        dialog.setCurrentDirectory(model.getCurrentDirectory());
         dialog.setAcceptAllFileFilterUsed(true);
         dialog.setFileFilter(new DbbFileFilter());
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -672,6 +674,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
+        dialog.setCurrentDirectory(model.getCurrentDirectory());
         dialog.setAcceptAllFileFilterUsed(true);
         dialog.setFileFilter(new DbbFileFilter());
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -1139,72 +1142,68 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void addToMRU(File file) {
         if (file.getPath() == "") return;
-
-        // Wenn Datei schon in MRU: Eintrag nach oben schieben
-        for (int i = 0; i < 6; i++) {
-            if (mru[i].equals(file.getPath())) {
-                if (i > 0) {
-                    String temp = mru[i];
-                    for (int j = i; j > 0; j--)
-                        mru[j] = mru[j - 1];
-                    mru[0] = temp;
-                }
-                updateMRU();
-                saveMRU();
-                return;
-            }
+        if (mru.contains(file)) {
+            pullToTop(file);
+        } else {
+            addToTop(file);
         }
-
-        // Ansonsten wird alles um einen Platz nach unten
-        // geschoben und der Dateiname im ersten Eintrag
-        // vermerkt.
-        for (int i = 5; i > 0; i--)
-            mru[i] = mru[i - 1];
-        mru[0] = file.getPath();
-
         updateMRU();
         saveMRU();
     }
 
+    private void pullToTop(File file) {
+        mru.remove(file);
+        mru.add(0, file);
+    }
+
+    private void addToTop(File file) {
+        mru.add(0, file);
+        if (mru.size() > 6) {
+            mru.remove(mru.size() - 1);
+        }
+    }
+
     private void updateMRU() {
-        // TODO maybe need to tweak the mru text so that local directory is taken into account
-        getAction("file.mru0").putValue(Action.NAME, mru[0]);
-        getAction("file.mru1").putValue(Action.NAME, mru[1]);
-        getAction("file.mru2").putValue(Action.NAME, mru[2]);
-        getAction("file.mru3").putValue(Action.NAME, mru[3]);
-        getAction("file.mru4").putValue(Action.NAME, mru[4]);
-        getAction("file.mru5").putValue(Action.NAME, mru[5]);
+        for (int i = 0; i < mru.size(); i++) {
+            getAction("file.mru" + i).putValue(Action.NAME, getMRUDisplayName(i));
+        }
         // TODO maybe have to set visibility of separator after last mru menu item
     }
 
-    public File getMRU(int index) {
-        return new File(mru[index]);
+    private String getMRUDisplayName(int index) {
+        String curdir = model.getCurrentDirectory().getAbsolutePath();
+        String path = mru.get(index).getAbsolutePath();
+        if (path.startsWith(curdir)) {
+            return path.substring(curdir.length() + 1);
+        } else {
+            return path;
+        }
     }
 
     public void loadMRUFile(int index) {
-        loadFile(getMRU(index), true);
+        loadFile(mru.get(index), true);
     }
 
     private void saveMRU() {
         Settings settings = new Settings();
         settings.SetCategory("mru");
-        settings.SaveString("mru0", mru[0]);
-        settings.SaveString("mru1", mru[1]);
-        settings.SaveString("mru2", mru[2]);
-        settings.SaveString("mru3", mru[3]);
-        settings.SaveString("mru4", mru[4]);
-        settings.SaveString("mru5", mru[5]);
+        for (int i = 0; i < mru.size(); i++) {
+            settings.SaveString("mru" + i, getMRUDisplayName(i));
+        }
     }
 
     private void loadMRU() {
         Settings settings = new Settings();
         settings.SetCategory("mru");
-        mru[0] = settings.LoadString("mru0");
-        mru[1] = settings.LoadString("mru1");
-        mru[2] = settings.LoadString("mru2");
-        mru[3] = settings.LoadString("mru3");
-        mru[4] = settings.LoadString("mru4");
-        mru[5] = settings.LoadString("mru5");
+        mru.clear();
+        for (int i = 0; i < 6; i++) {
+            addMRU(settings.LoadString("mru" + i));
+        }
+    }
+
+    private void addMRU(String path) {
+        if (path.isEmpty()) return;
+        mru.add(new File(path));
     }
 
     public static void main(String[] args) {

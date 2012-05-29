@@ -13,18 +13,9 @@ On the other hand, this would double or quadruple the
 size of BeadField and the file format would also change.
 Not exactly a code smell, but a smelly artificial limit.
 
-The FileMRUClick handler are highly repetitive. Remove
-code duplication.
-
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
-
-Analyze whether we need to handle files with absolute
-paths. Right now they are relative. Also: is it possible
-to change the directory? Is this persisted?
-
-Switch MRU stuff to use File instances instead of Strings.
 
 Make the Point class to a value object, thus immutable.
 Right now it is mutable, because the conversion methods

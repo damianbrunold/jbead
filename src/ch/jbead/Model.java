@@ -266,6 +266,17 @@ public class Model implements ColorTable {
         return file;
     }
 
+    public File getCurrentDirectory() {
+        File result = null;
+        if (file != null) {
+            result = file.getParentFile();
+        }
+        if (result == null) {
+            result = new File(".");
+        }
+        return result;
+    }
+
     public int getColorRepeat() {
         return colorRepeat;
     }
