@@ -186,12 +186,14 @@ public class Model implements ColorTable {
         field.insertLine();
         setRepeatDirty();
         setModified();
+        fireModelChanged();
     }
     
     public void deleteLine() {
         field.deleteLine();
         setRepeatDirty();
         setModified();
+        fireModelChanged();
     }
     
     public void drawLine(Point begin, Point end) {

@@ -841,14 +841,12 @@ public class BeadForm extends JFrame implements Localization {
         model.snapshot();
         model.fillLine(pt);
         updateTitle();
-        report.repaint();
     }
 
     private void setPoint(Point pt) {
         model.snapshot();
         model.setPoint(pt);
         updateTitle();
-        report.repaint();
     }
 
     public void editUndoClick() {
@@ -1055,7 +1053,6 @@ public class BeadForm extends JFrame implements Localization {
             model.snapshot();
             normal.togglePoint(new Point(event.getX(), event.getY()));
             updateTitle();
-            report.repaint();
         }
     }
 
@@ -1064,7 +1061,6 @@ public class BeadForm extends JFrame implements Localization {
             model.snapshot();
             simulation.togglePoint(new Point(event.getX(), event.getY()));
             updateTitle();
-            report.repaint();
         }
     }
 
@@ -1133,7 +1129,6 @@ public class BeadForm extends JFrame implements Localization {
             int offset = copyform.getOffset(model.getWidth());
             model.arrangeSelection(selection, copies, offset);
             updateTitle();
-            report.repaint();
         }
     }
 
