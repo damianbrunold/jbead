@@ -71,3 +71,23 @@ Use BeadList to generate further reports, e.g. stats of beads
 Add a keyboard interface to the program analogously to dbweave
 so that it is possible to enter patterns with the keyboard and
 do selections and so on.
+
+Move selection with mouse. Modi: move, copy, copy without
+background (=color0).
+
+Split file formats, dbb = old v1, jbb = new v2. jbead can read/write
+dbb but write only if no new features are used.
+
+Export as PDF/PNG/JPEG.
+
+Export the circling simulation as an animated GIF or an AVI or 
+something.
+
+Split toolbars: edit, tools, colors. This allows to move the
+toolbars around. Would probably be good to persist the toolbar
+placement.
+
+Add in lower right corner a resize widget. Right now it is a pain...
+
+Changing the shift should not trigger setModified (a snapshot is not
+taken!)
