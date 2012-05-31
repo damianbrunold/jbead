@@ -19,6 +19,7 @@ package ch.jbead;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -108,7 +109,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private List<File> mru = new ArrayList<File>();
 
-    private JToolBar toolbar = new JToolBar();
+    private JToolBar toolbar;
+    private JToolBar colorbar;
 
     private ButtonGroup colorsGroup = new ButtonGroup();
     private List<ColorButton> colors = new ArrayList<ColorButton>();
@@ -252,10 +254,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private void createGUI() {
         createMenu();
         setLayout(new BorderLayout());
-        add(toolbar, BorderLayout.NORTH);
+        JPanel toolbars = new JPanel();
+        toolbars.setLayout(new FlowLayout(FlowLayout.LEADING));
+        toolbars.add(toolbar = createToolbar());
+        toolbars.add(colorbar = createColorbar());
+        add(toolbars, BorderLayout.NORTH);
         add(main, BorderLayout.CENTER);
         add(statusbar, BorderLayout.SOUTH);
-        createToolbar();
         createMainGUI();
     }
 
@@ -351,7 +356,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         return menuInfo;
     }
 
-    private void createToolbar() {
+    private JToolBar createToolbar() {
+        JToolBar toolbar = new JToolBar();
         toolbar.add(getAction("file.new"));
         toolbar.add(getAction("file.open"));
         toolbar.add(getAction("file.save"));
@@ -399,13 +405,16 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         sbToolsGroup.add(sbToolSelect);
         sbToolsGroup.add(sbToolFill);
         sbToolsGroup.add(sbToolPipette);
+        return toolbar;
+    }
 
-        toolbar.addSeparator();
-
+    private JToolBar createColorbar() {
+        JToolBar colorbar = new JToolBar();
         for (int i = 0; i < model.getColorCount(); i++) {
-            toolbar.add(createColorButton(i));
+            colorbar.add(createColorButton(i));
         }
         colors.get(1).setSelected(true);
+        return colorbar;
     }
 
     private ColorButton createColorButton(int index) {
