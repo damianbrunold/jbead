@@ -268,15 +268,13 @@ public class Model implements ColorTable {
         snapshot();
         setModified();
         BeadField buffer = getCopy();
-        for (int i = selection.left(); i <= selection.right(); i++) {
-            for (int j = selection.bottom(); j <= selection.top(); j++) {
-                byte c = buffer.get(new Point(i, j));
-                if (c == 0) continue;
-                int idx = field.getIndex(new Point(i, j));
-                for (int k = 0; k < copies; k++) {
-                    idx += offset;
-                    if (isValidIndex(idx)) set(idx, c);
-                }
+        for (Point pt : new Rect(selection.getBegin(), selection.getEnd())) {
+            byte c = buffer.get(pt);
+            if (c == 0) continue;
+            int idx = field.getIndex(pt);
+            for (int k = 0; k < copies; k++) {
+                idx += offset;
+                if (isValidIndex(idx)) set(idx, c);
             }
         }
         setRepeatDirty();
