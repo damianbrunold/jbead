@@ -91,3 +91,11 @@ Add in lower right corner a resize widget. Right now it is a pain...
 
 Changing the shift should not trigger setModified (a snapshot is not
 taken!)
+
+After first save the pattern is still displayed in titlebar as
+modified.
+
+Allow a single line selection.
+
+Add ctrl+c,x,v for selections. This requires that a current input
+point (cursor) is available.
