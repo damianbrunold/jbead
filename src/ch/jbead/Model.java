@@ -498,13 +498,11 @@ public class Model implements ColorTable {
         int oldColorRepeat = colorRepeat;
 
         int last = -1;
-        for (int j = 0; j < field.getHeight(); j++) {
-            for (int i = 0; i < field.getWidth(); i++) {
-                int c = field.get(new Point(i, j));
-                if (c > 0) {
-                    last = j;
-                    break;
-                }
+        for (Point pt : field.getFullRect()) {
+            int c = field.get(pt);
+            if (c > 0) {
+                last = pt.getY();
+                break;
             }
         }
         if (last == -1) {
