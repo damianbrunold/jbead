@@ -222,15 +222,16 @@ public class Model implements ColorTable {
 
     public void drawLine(Point begin, Point end) {
         snapshot();
+        setModified();
         for (Point pt : new Segment(begin.scrolled(scroll), end.scrolled(scroll))) {
             set(pt.scrolled(scroll), colorIndex);
         }
         setRepeatDirty();
-        setModified();
     }
 
     public void fillLine(Point pt) {
         snapshot();
+        setModified();
         pt = pt.scrolled(scroll);
         byte color = colorIndex;
         byte background = get(pt);
@@ -249,11 +250,11 @@ public class Model implements ColorTable {
             }
         }
         setRepeatDirty();
-        setModified();
     }
 
     public void setPoint(Point pt) {
         snapshot();
+        setModified();
         pt = pt.scrolled(scroll);
         if (get(pt) == colorIndex) {
             set(pt, (byte) 0);
@@ -261,11 +262,11 @@ public class Model implements ColorTable {
             set(pt, colorIndex);
         }
         setRepeatDirty();
-        setModified();
     }
 
     public void arrangeSelection(Selection selection, int copies, int offset) {
         snapshot();
+        setModified();
         BeadField buffer = getCopy();
         for (int i = selection.left(); i <= selection.right(); i++) {
             for (int j = selection.bottom(); j <= selection.top(); j++) {
@@ -279,7 +280,6 @@ public class Model implements ColorTable {
             }
         }
         setRepeatDirty();
-        setModified();
     }
 
     public BeadField getCopy() {
