@@ -595,6 +595,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                     out.writeBool(viewSimulation.isSelected());
                     // report flag is not saved?!
                     model.setModified(false);
+                    updateTitle();
                 } finally {
                     out.close();
                 }
