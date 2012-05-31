@@ -109,9 +109,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private List<File> mru = new ArrayList<File>();
 
-    private JToolBar toolbar;
-    private JToolBar colorbar;
-
     private ButtonGroup colorsGroup = new ButtonGroup();
     private List<ColorButton> colors = new ArrayList<ColorButton>();
 
@@ -256,8 +253,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         setLayout(new BorderLayout());
         JPanel toolbars = new JPanel();
         toolbars.setLayout(new FlowLayout(FlowLayout.LEADING));
-        toolbars.add(toolbar = createToolbar());
-        toolbars.add(colorbar = createColorbar());
+        toolbars.add(createToolbar());
+        toolbars.add(createColorbar());
         add(toolbars, BorderLayout.NORTH);
         add(main, BorderLayout.CENTER);
         add(statusbar, BorderLayout.SOUTH);
