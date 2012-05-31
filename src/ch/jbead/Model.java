@@ -156,6 +156,7 @@ public class Model implements ColorTable {
 
     @Override
     public void setColor(byte index, Color color) {
+        snapshot();
         colors.set(index, color);
         setModified();
         fireColorChanged(index);
@@ -174,7 +175,10 @@ public class Model implements ColorTable {
     }
 
     public void setWidth(int width) {
+        snapshot();
         field.setWidth(width);
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 
@@ -201,6 +205,7 @@ public class Model implements ColorTable {
     }
 
     public void insertLine() {
+        snapshot();
         field.insertLine();
         setRepeatDirty();
         setModified();
@@ -208,6 +213,7 @@ public class Model implements ColorTable {
     }
 
     public void deleteLine() {
+        snapshot();
         field.deleteLine();
         setRepeatDirty();
         setModified();
@@ -215,6 +221,7 @@ public class Model implements ColorTable {
     }
 
     public void drawLine(Point begin, Point end) {
+        snapshot();
         for (Point pt : new Segment(begin.scrolled(scroll), end.scrolled(scroll))) {
             set(pt.scrolled(scroll), colorIndex);
         }
@@ -223,6 +230,7 @@ public class Model implements ColorTable {
     }
 
     public void fillLine(Point pt) {
+        snapshot();
         pt = pt.scrolled(scroll);
         byte color = colorIndex;
         byte background = get(pt);
@@ -245,6 +253,7 @@ public class Model implements ColorTable {
     }
 
     public void setPoint(Point pt) {
+        snapshot();
         pt = pt.scrolled(scroll);
         if (get(pt) == colorIndex) {
             set(pt, (byte) 0);
@@ -319,13 +328,11 @@ public class Model implements ColorTable {
 
     public void shiftRight() {
         shift = (shift + 1) % getWidth();
-        setModified();
         fireShiftChanged(shift);
     }
 
     public void shiftLeft() {
         shift = (shift - 1 + getWidth()) % getWidth();
-        setModified();
         fireShiftChanged(shift);
     }
 

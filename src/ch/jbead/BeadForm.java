@@ -650,19 +650,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void patternWidthClick() {
-        int old = model.getWidth();
         PatternWidthForm form = new PatternWidthForm(this);
         form.setPatternWidth(model.getWidth());
         form.setVisible(true);
         if (form.isOK()) {
             selection.clear();
-            // TODO move this to model
-            model.snapshot();
             model.setWidth(form.getPatternWidth());
-            if (!model.isModified()) {
-                model.setModified(old != model.getWidth());
-            }
-            model.setRepeatDirty();
         }
     }
 
@@ -728,17 +721,14 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void drawLine(Point begin, Point end) {
-        model.snapshot();
         model.drawLine(begin, end);
     }
 
     private void fillLine(Point pt) {
-        model.snapshot();
         model.fillLine(pt);
     }
 
     private void setPoint(Point pt) {
-        model.snapshot();
         model.setPoint(pt);
     }
 
@@ -817,15 +807,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         model.setColorIndex(sender.getColorIndex());
     }
 
-    // TODO split this for every color toolbar button
     public void colorDblClick(Object sender) {
         ColorButton colorButton = (ColorButton) sender;
         byte c = colorButton.getColorIndex();
         Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
         if (color == null) return;
-        model.snapshot();
         model.setColor(c, color);
-        setColorIcons();
     }
 
     // TODO handle out parameter
@@ -865,14 +852,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void correctedMouseUp(MouseEvent event) {
         if (event.getButton() == MouseEvent.BUTTON1) {
-            model.snapshot();
             corrected.togglePoint(new Point(event.getX(), event.getY()));
         }
     }
 
     public void simulationMouseUp(MouseEvent event) {
         if (event.getButton() == MouseEvent.BUTTON1) {
-            model.snapshot();
             simulation.togglePoint(new Point(event.getX(), event.getY()));
         }
     }
@@ -945,12 +930,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void editInsertLineClick() {
-        model.snapshot();
         model.insertLine();
     }
 
     public void editDeleteLineClick() {
-        model.snapshot();
         model.deleteLine();
     }
 
