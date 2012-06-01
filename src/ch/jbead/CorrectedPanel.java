@@ -132,7 +132,9 @@ public class CorrectedPanel extends BasePanel {
             byte c = model.get(pt.scrolled(scroll));
             g.setColor(model.getColor(c));
             pt = correct(pt);
-            if (y(pt.getY() - 1) < 0) break;
+            int y = y(pt.getY());
+            if (y > getHeight()) break;
+            if (y < -gridy) break;
             paintBead(g, pt);
         }
     }
