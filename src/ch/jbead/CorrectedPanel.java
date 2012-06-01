@@ -128,22 +128,25 @@ public class CorrectedPanel extends BasePanel {
     }
 
     private void paintBeads(Graphics g) {
-        for (int i = 0; i < model.getWidth(); i++) {
-            for (int j = 0; j < maxj; j++) {
-                byte c = model.get(new Point(i, j).scrolled(scroll));
-                g.setColor(model.getColor(c));
-                int i1 = correctCoordinatesX(i, j);
-                int j1 = correctCoordinatesY(i, j);
-                if ((j1 + scroll) % 2 == 0) {
-                    g.fillRect(x(i1) + 1, y(j1) + 1, gridx - 1, gridy - 1);
-                } else {
-                    g.fillRect(x(i1) + 1 - gridx / 2, y(j1) + 1, gridx - 1, gridy - 1);
-                }
-            }
+        for (Point pt : model.getFullRect()) {
+            byte c = model.get(pt.scrolled(scroll));
+            g.setColor(model.getColor(c));
+            pt = correct(pt);
+            if (y(pt.getY() - 1) < 0) break;
+            paintBead(g, pt);
         }
     }
 
-    int correctCoordinatesX(int _i, int _j) {
+    private void paintBead(Graphics g, Point pt) {
+        g.fillRect(x(pt.getX()) + 1 - dx(pt.getY()), y(pt.getY()) + 1, gridx - 1, gridy - 1);
+    }
+
+    private Point correct(Point pt) {
+        return new Point(correctX(pt.getX(), pt.getY()),
+                          correctY(pt.getX(), pt.getY()));
+    }
+
+    int correctX(int _i, int _j) {
         int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = model.getWidth() + 1;
@@ -154,12 +157,10 @@ public class CorrectedPanel extends BasePanel {
             k++;
             m = (k % 2 == 0) ? m1 : m2;
         }
-        _i = idx;
-        _j = k - scroll;
-        return _i;
+        return idx;
     }
 
-    int correctCoordinatesY(int _i, int _j) {
+    int correctY(int _i, int _j) {
         int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = model.getWidth() + 1;
@@ -170,29 +171,19 @@ public class CorrectedPanel extends BasePanel {
             k++;
             m = (k % 2 == 0) ? m1 : m2;
         }
-        _i = idx;
-        _j = k - scroll;
-        return _j;
-    }
-
-    public void redraw(int i, int j) {
-        if (!isVisible()) return;
-        byte c = model.get(new Point(i, j).scrolled(scroll));
-        int _i = correctCoordinatesX(i, j);
-        int _j = correctCoordinatesY(i, j);
-        Graphics g = getGraphics();
-        g.setColor(model.getColor(c));
-        if ((scroll + _j) % 2 == 0) {
-            g.fillRect(x(_i) + 1, y(_j) + 1, gridy - 1, gridy - 1);
-        } else {
-            g.fillRect(x(_i) + 1 - gridx / 2, y(_j) + 1, gridx - 1, gridy - 1);
-        }
-        g.dispose();
+        return k - scroll;
     }
 
     @Override
     public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY() - scroll);
+        if (!isVisible()) return;
+        Point _pt = pt.unscrolled(scroll);
+        byte c = model.get(pt);
+        _pt = correct(_pt);
+        Graphics g = getGraphics();
+        g.setColor(model.getColor(c));
+        paintBead(g, _pt);
+        g.dispose();
     }
 
     boolean mouseToField(Point pt) {
