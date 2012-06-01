@@ -18,7 +18,7 @@
 package ch.jbead;
 
 /**
- * 
+ *
  */
 public class Point {
 
@@ -66,31 +66,35 @@ public class Point {
     public Point scrolled(int scroll) {
         return new Point(x, y + scroll);
     }
-    
+
+    public Point unscrolled(int scroll) {
+        return new Point(x, y - scroll);
+    }
+
     public Point nextLeft() {
         return new Point(x - 1, y);
     }
-    
+
     public Point nextRight() {
         return new Point(x + 1, y);
     }
-    
+
     public Point nextBelow() {
         return new Point(x, y - 1);
     }
-    
+
     public Point nextAbove() {
         return new Point(x, y + 1);
     }
-    
+
     public Point lastLeft() {
         return new Point(0, y);
     }
-    
+
     public Point lastRight(int width) {
         return new Point(width - 1, y);
     }
-    
+
     @Override
     public String toString() {
         return x + "," + y;
