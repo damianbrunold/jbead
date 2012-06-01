@@ -290,6 +290,10 @@ public class Model implements ColorTable {
         return field.getFullRect();
     }
 
+    public Rect getRect(int starty, int endy) {
+        return field.getRect(starty, endy);
+    }
+
     public File getFile() {
         return file;
     }

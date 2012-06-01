@@ -49,6 +49,10 @@ public class BeadField {
         return new Rect(new Point(0, 0), new Point(width - 1, height - 1));
     }
 
+    public Rect getRect(int starty, int endy) {
+        return new Rect(new Point(0, starty), new Point(width - 1, endy));
+    }
+
     public int getLastIndex() {
         return width * height - 1;
     }

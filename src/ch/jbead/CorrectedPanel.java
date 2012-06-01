@@ -128,15 +128,17 @@ public class CorrectedPanel extends BasePanel {
     }
 
     private void paintBeads(Graphics g) {
-        for (Point pt : model.getFullRect()) {
+        for (Point pt : model.getRect(scroll, model.getHeight())) {
             byte c = model.get(pt.scrolled(scroll));
             g.setColor(model.getColor(c));
             pt = correct(pt);
-            int y = y(pt.getY());
-            if (y > getHeight()) break;
-            if (y < -gridy) break;
+            if (aboveTop(pt)) break;
             paintBead(g, pt);
         }
+    }
+
+    private boolean aboveTop(Point pt) {
+        return y(pt.getY()) < -gridy;
     }
 
     private void paintBead(Graphics g, Point pt) {
