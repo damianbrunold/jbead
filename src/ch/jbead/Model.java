@@ -116,7 +116,7 @@ public class Model implements ColorTable {
             listener.repeatChanged(repeat, colorRepeat);
         }
     }
-    
+
     private static Color WHITE = Color.WHITE;
     private static Color MAROON = new Color(128, 0, 0);
     private static Color DKBLUE = new Color(0, 0, 128);
@@ -284,6 +284,10 @@ public class Model implements ColorTable {
         BeadField copy = new BeadField();
         copy.copyFrom(field);
         return copy;
+    }
+
+    public Rect getFullRect() {
+        return field.getFullRect();
     }
 
     public File getFile() {
