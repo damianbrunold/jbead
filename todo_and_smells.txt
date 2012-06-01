@@ -32,10 +32,10 @@ upper border. Instead it works til maxj and this gets
 corrected, thus there are some lines at the top, that are
 not painted.
 
-Use abstracted tool object for the different tools.
+Handle the scrolled-stuff better, i. e. use physical
+versus logical coordinates or something like that.
 
-Create a RectIterator in analogy to SegmentIterator. It would
-probably make various loops nicer...
+Use abstracted tool object for the different tools.
 
 Make simulation view editable analogously to the normal
 corrected view.
