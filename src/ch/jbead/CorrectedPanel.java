@@ -28,7 +28,6 @@ public class CorrectedPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private int offsetx;
-    private int maxj;
     private int left;
 
     public CorrectedPanel(Model model, Selection selection, final BeadForm form) {
@@ -61,18 +60,12 @@ public class CorrectedPanel extends BasePanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         offsetx = getOffsetX();
-        maxj = getMaxJ();
         left = getLeft();
-        paintGrid(g);
         paintBeads(g);
     }
 
     private int getLeft() {
         return offsetx < 0 ? gridx / 2 : offsetx;
-    }
-
-    private int getMaxJ() {
-        return Math.min(model.getHeight(), getHeight() / gridy + 1);
     }
 
     private int getOffsetX() {
@@ -87,19 +80,6 @@ public class CorrectedPanel extends BasePanel {
         return getHeight() - 1 - (j + 1) * gridy;
     }
 
-    private void paintGrid(Graphics g) {
-        paintHorizontalLines(g);
-        paintVerticalLines(g);
-    }
-
-    private void paintHorizontalLines(Graphics g) {
-        g.setColor(Color.DARK_GRAY);
-        g.drawLine(x(0), y(-1), x(model.getWidth()), y(-1));
-        for (int j = 0; j < maxj; j++) {
-            g.drawLine(x(0) - gridx / 2, y(j), x(model.getWidth()) + gridx / 2, y(j));
-        }
-    }
-
     private int dx(int j) {
         if ((j + scroll) % 2 == 0) {
             return 0;
@@ -108,32 +88,12 @@ public class CorrectedPanel extends BasePanel {
         }
     }
 
-    private int count(int j) {
-        if ((j + scroll) % 2 == 0) {
-            return model.getWidth();
-        } else {
-            return model.getWidth() + 1;
-        }
-    }
-
-    private void paintVerticalLines(Graphics g) {
-        g.setColor(Color.DARK_GRAY);
-        for (int j = 0; j <= maxj; j++) {
-            int dx = dx(j);
-            int count = count(j);
-            for (int i = 0; i <= count; i++) {
-                g.drawLine(x(i) - dx, y(j), x(i) - dx, y(j - 1));
-            }
-        }
-    }
-
     private void paintBeads(Graphics g) {
         for (Point pt : model.getRect(scroll, model.getHeight())) {
             byte c = model.get(pt.scrolled(scroll));
-            g.setColor(model.getColor(c));
             pt = correct(pt);
             if (aboveTop(pt)) break;
-            paintBead(g, pt);
+            paintBead(g, pt, model.getColor(c));
         }
     }
 
@@ -141,8 +101,11 @@ public class CorrectedPanel extends BasePanel {
         return y(pt.getY()) < -gridy;
     }
 
-    private void paintBead(Graphics g, Point pt) {
+    private void paintBead(Graphics g, Point pt, Color color) {
+        g.setColor(color);
         g.fillRect(x(pt.getX()) + 1 - dx(pt.getY()), y(pt.getY()) + 1, gridx - 1, gridy - 1);
+        g.setColor(Color.DARK_GRAY);
+        g.drawRect(x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gridx, gridy);
     }
 
     private Point correct(Point pt) {
@@ -186,7 +149,7 @@ public class CorrectedPanel extends BasePanel {
         _pt = correct(_pt);
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
-        paintBead(g, _pt);
+        paintBead(g, _pt, model.getColor(c));
         g.dispose();
     }
 
