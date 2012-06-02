@@ -29,7 +29,6 @@ public class SimulationPanel extends BasePanel {
 
     private int offsetx;
     private int left;
-    private int maxj;
     private int w;
 
     public SimulationPanel(Model model, Selection selection, final BeadForm form) {
@@ -63,7 +62,6 @@ public class SimulationPanel extends BasePanel {
         super.paintComponent(g);
         offsetx = getOffsetX();
         left = getLeft();
-        maxj = getMaxj();
         w = getVisibleWidth();
         paintBeads(g);
     }
@@ -76,11 +74,6 @@ public class SimulationPanel extends BasePanel {
         int left = offsetx;
         if (left < 0) left = gridx / 2;
         return left;
-    }
-
-    private int getMaxj() {
-        int maxj = Math.min(model.getHeight(), getHeight() / gridy + 1);
-        return maxj;
     }
 
     private int getVisibleWidth() {
@@ -97,42 +90,35 @@ public class SimulationPanel extends BasePanel {
 
     private void paintBeads(Graphics g) {
         int width = model.getWidth();
-        int shift = model.getShift();
-        for (int j = 0; j < model.getHeight(); j++) {
-            for (int i = 0; i < width; i++) {
-                byte c = model.get(new Point(i, j).scrolled(scroll));
-                int idx = i + width * j + shift;
-                int i1 = idx % width;
-                int j1 = idx / width;
-                int ii = correctCoordinatesX(i1, j1);
-                int jj = correctCoordinatesY(i1, j1);
-                if (y(jj) < -gridy) return;
-                if (ii > w && ii != width) continue;
-                if (scroll % 2 == 0) {
-                    if (jj % 2 == 0) {
-                        if (ii == w) continue;
-                        paintBead(g, left + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
-                    } else {
-                        if (ii != width && ii != w) {
-                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
-                        } else if (ii == width) {
-                            paintBead(g, left - gridx / 2, getHeight() - 1 - (jj + 2) * gridy, gridx / 2, gridy, model.getColor(c));
-                        } else {
-                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx / 2, gridy, model.getColor(c));
-                        }
-                    }
+        for (Point pt : model.getRect(scroll, model.getHeight())) {
+            byte c = model.get(pt.scrolled(scroll));
+            pt = correct(pt.shifted(model.getShift(), width));
+            if (y(pt.getY()) < -gridy) return;
+            if (pt.getX() > w && pt.getX() != width) continue;
+            if (scroll % 2 == 0) {
+                if (pt.getY() % 2 == 0) {
+                    if (pt.getX() == w) continue;
+                    paintBead(g, x(pt.getX()), getHeight() - 1 - (pt.getY() + 1) * gridy, gridx, gridy, model.getColor(c));
                 } else {
-                    if (jj % 2 == 1) {
-                        if (ii == w) continue;
-                        paintBead(g, left + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
+                    if (pt.getX() != width && pt.getX() != w) {
+                        paintBead(g, x(pt.getX()) - gridx / 2, getHeight() - 1 - (pt.getY() + 1) * gridy, gridx, gridy, model.getColor(c));
+                    } else if (pt.getX() == width) {
+                        paintBead(g, x(0) - gridx / 2, getHeight() - 1 - (pt.getY() + 2) * gridy, gridx / 2, gridy, model.getColor(c));
                     } else {
-                        if (ii != width && ii != w) {
-                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
-                        } else if (ii == width) {
-                            paintBead(g, left - gridx / 2, getHeight() - 1 - (jj + 2) * gridy, gridx / 2, gridy, model.getColor(c));
-                        } else {
-                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx / 2, gridy, model.getColor(c));
-                        }
+                        paintBead(g, x(pt.getX()) - gridx / 2, getHeight() - 1 - (pt.getY() + 1) * gridy, gridx / 2, gridy, model.getColor(c));
+                    }
+                }
+            } else {
+                if (pt.getY() % 2 == 1) {
+                    if (pt.getX() == w) continue;
+                    paintBead(g, x(pt.getX()), getHeight() - 1 - (pt.getY() + 1) * gridy, gridx, gridy, model.getColor(c));
+                } else {
+                    if (pt.getX() != width && pt.getX() != w) {
+                        paintBead(g, x(pt.getX()) - gridx / 2, getHeight() - 1 - (pt.getY() + 1) * gridy, gridx, gridy, model.getColor(c));
+                    } else if (pt.getX() == width) {
+                        paintBead(g, x(0) - gridx / 2, getHeight() - 1 - (pt.getY() + 2) * gridy, gridx / 2, gridy, model.getColor(c));
+                    } else {
+                        paintBead(g, x(pt.getX()) - gridx / 2, getHeight() - 1 - (pt.getY() + 1) * gridy, gridx / 2, gridy, model.getColor(c));
                     }
                 }
             }
@@ -146,7 +132,21 @@ public class SimulationPanel extends BasePanel {
         g.drawRect(i, j, w, h);
     }
 
-    int correctCoordinatesX(int _i, int _j) {
+    private Point correct(Point pt) {
+        int idx = pt.getX() + (pt.getY() + scroll) * model.getWidth();
+        int m1 = model.getWidth();
+        int m2 = m1 + 1;
+        int k = 0;
+        int m = m1 ;
+        while (idx >= m) {
+            idx -= m;
+            k++;
+            m = (k % 2 == 0) ? m1 : m2;
+        }
+        return new Point(idx, k - scroll);
+    }
+
+    private int correctX(int _i, int _j) {
         int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = m1 + 1;
@@ -160,7 +160,7 @@ public class SimulationPanel extends BasePanel {
         return idx;
     }
 
-    int correctCoordinatesY(int _i, int _j) {
+    private int correctY(int _i, int _j) {
         int idx = _i + (_j + scroll) * model.getWidth();
         int m1 = model.getWidth();
         int m2 = m1 + 1;
@@ -178,7 +178,6 @@ public class SimulationPanel extends BasePanel {
         if (!isVisible()) return;
 
         byte c = model.get(new Point(_i, _j).scrolled(scroll));
-        assert (c >= 0 && c <= 9);
 
         int ii = _i;
         int jj = _j;
@@ -186,38 +185,36 @@ public class SimulationPanel extends BasePanel {
         int idx = ii + model.getWidth() * jj + model.getShift();
         int i1 = idx % model.getWidth();
         int j1 = idx / model.getWidth();
-        _i = correctCoordinatesX(i1, j1);
-        _j = correctCoordinatesY(i1, j1);
+        _i = correctX(i1, j1);
+        _j = correctY(i1, j1);
 
         Graphics g = getGraphics();
-        g.setColor(model.getColor(c));
-        int left = offsetx;
         int w = getVisibleWidth();
         if (_i > w && _i != model.getWidth()) return;
         if (scroll % 2 == 0) {
             if (_j % 2 == 0) {
                 if (_i == w) return;
-                g.fillRect(left + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
+                paintBead(g, x(_i), y(_j), gridx, gridy, model.getColor(c));
             } else {
                 if (_i != model.getWidth() && _i != w) {
-                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
+                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx, gridy, model.getColor(c));
                 } else if (_i == w) {
-                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx / 2 - 1, gridy - 1);
+                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx / 2, gridy, model.getColor(c));
                 } else {
-                    g.fillRect(left - gridx / 2 + 1, getHeight() - (_j + 2) * gridy, gridx / 2 - 1, gridy - 1);
+                    paintBead(g, x(0) - gridx / 2, y(_j + 1), gridx / 2, gridy, model.getColor(c));
                 }
             }
         } else {
             if (_j % 2 == 1) {
                 if (_i == w) return;
-                g.fillRect(left + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
+                paintBead(g, x(_i), y(_j), gridx, gridy, model.getColor(c));
             } else {
                 if (_i != model.getWidth() && _i != w) {
-                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx - 1, gridy - 1);
+                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx, gridy, model.getColor(c));
                 } else if (_i == w) {
-                    g.fillRect(left - gridx / 2 + _i * gridx + 1, getHeight() - (_j + 1) * gridy, gridx / 2 - 1, gridy - 1);
+                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx / 2, gridy, model.getColor(c));
                 } else {
-                    g.fillRect(left - gridx / 2 + 1, getHeight() - (_j + 2) * gridy, gridx / 2 - 1, gridy - 1);
+                    paintBead(g, x(0) - gridx / 2, y(_j + 1), gridx / 2, gridy, model.getColor(c));
                 }
             }
         }

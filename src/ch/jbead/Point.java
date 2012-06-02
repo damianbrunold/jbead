@@ -71,6 +71,10 @@ public class Point {
         return new Point(x, y - scroll);
     }
 
+    public Point shifted(int shift, int width) {
+        return new Point((x + shift) % width, y + (x + shift) / width);
+    }
+
     public Point nextLeft() {
         return new Point(x - 1, y);
     }
