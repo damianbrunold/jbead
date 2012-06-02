@@ -41,7 +41,6 @@ public class Model implements ColorTable {
     private File file;
     private boolean repeatDirty;
     private int repeat;
-    private int colorRepeat;
     private String unnamed;
     private boolean saved;
     private boolean modified;
@@ -111,9 +110,9 @@ public class Model implements ColorTable {
         }
     }
 
-    private void fireRepeatChanged(int repeat, int colorRepeat) {
+    private void fireRepeatChanged(int repeat) {
         for (ModelListener listener : listeners) {
-            listener.repeatChanged(repeat, colorRepeat);
+            listener.repeatChanged(repeat);
         }
     }
 
@@ -307,8 +306,8 @@ public class Model implements ColorTable {
         }
     }
 
-    public int getColorRepeat() {
-        return colorRepeat;
+    public int getRepeat() {
+        return repeat;
     }
 
     public int getGridx() {
@@ -346,7 +345,6 @@ public class Model implements ColorTable {
         undo.clear();
         field.clear();
         repeat = 0;
-        colorRepeat = 0;
         colorIndex = 1;
         defaultColors();
         zoomIndex = 2;
@@ -497,70 +495,66 @@ public class Model implements ColorTable {
         return repeatDirty;
     }
 
-    public int getRepeat() {
-        return repeat;
+    public void updateRepeat() {
+        int usedHeight = getUsedHeight();
+        if (usedHeight == -1) {
+            setRepeat(0);
+        } else {
+            setRepeat(calcRepeat(calcRowRepeat(usedHeight)));
+        }
     }
 
-    public void updateRepeat() {
-        int oldRepeat = repeat;
-        int oldColorRepeat = colorRepeat;
+    private void setRepeat(int repeat) {
+        repeatDirty = false;
+        if (this.repeat == repeat) return;
+        this.repeat = repeat;
+        fireRepeatChanged(repeat);
+    }
 
-        int last = -1;
-        for (Point pt : field.getFullRect()) {
-            int c = field.get(pt);
-            if (c > 0) {
-                last = pt.getY();
-                break;
-            }
-        }
-        if (last == -1) {
-            repeat = 0;
-            colorRepeat = 0;
-            repeatDirty = false;
-            if (oldRepeat != repeat || oldColorRepeat != colorRepeat) {
-                fireRepeatChanged(repeat, colorRepeat);
-            }
-            return;
-        }
-        repeat = last + 1;
-        for (int j = 1; j <= last; j++) {
-            if (equalRows(0, j)) {
-                boolean ok = true;
-                for (int k = j + 1; k <= last; k++) {
-                    if (!equalRows((k - j) % j, k)) {
-                        ok = false;
-                        break;
-                    }
-                }
-                if (ok) {
-                    repeat = j;
-                    break;
-                }
-            }
-        }
-
-        // Farbrapport neu berechnen
-        colorRepeat = repeat * field.getWidth();
-        for (int i = 1; i <= repeat * field.getWidth(); i++) {
+    private int calcRepeat(int rowrepeat) {
+        for (int i = 1; i <= rowrepeat * field.getWidth(); i++) {
             if (field.get(i) == field.get(0)) {
                 boolean ok = true;
-                for (int k = i + 1; k <= repeat * field.getWidth(); k++) {
+                for (int k = i + 1; k <= rowrepeat * field.getWidth(); k++) {
                     if (field.get((k - i) % i) != field.get(k)) {
                         ok = false;
                         break;
                     }
                 }
                 if (ok) {
-                    colorRepeat = i;
-                    break;
+                    return i;
                 }
             }
         }
+        return rowrepeat * field.getWidth();
+    }
 
-        repeatDirty = false;
-        if (oldRepeat != repeat || oldColorRepeat != colorRepeat) {
-            fireRepeatChanged(repeat, colorRepeat);
+    private int calcRowRepeat(int usedHeight) {
+        for (int j = 1; j <= usedHeight; j++) {
+            if (equalRows(0, j)) {
+                boolean ok = true;
+                for (int k = j + 1; k <= usedHeight; k++) {
+                    if (!equalRows((k - j) % j, k)) {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok) {
+                    return j;
+                }
+            }
         }
+        return usedHeight;
+    }
+
+    private int getUsedHeight() {
+        int usedHeight = 0;
+        for (Point pt : field.getFullRect()) {
+            if (field.get(pt) > 0) {
+                usedHeight = pt.getY();
+            }
+        }
+        return usedHeight;
     }
 
     public boolean equalRows(int j, int k) {

@@ -1051,7 +1051,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     @Override
-    public void repeatChanged(int repeat, int colorRepeat) {
+    public void repeatChanged(int repeat) {
         updateTitle();
     }
 

@@ -54,10 +54,10 @@ public class ReportPanel extends BasePanel {
         drawText(g, x1, x2, y, "report.circumference", Integer.toString(model.getWidth()));
         y += dy;
 
-        drawText(g, x1, x2, y, "report.colorrepeat", model.getColorRepeat() + " " + localization.getString("report.beads"));
+        drawText(g, x1, x2, y, "report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
         y += dy;
 
-        if (model.getColorRepeat() > 0) {
+        if (model.getRepeat() > 0) {
             int height = g.getFontMetrics().getLeading() + g.getFontMetrics().getAscent();
             g.drawString(localization.getString("report.listofbeads"), x1, y);
             y += dy;
@@ -95,7 +95,7 @@ public class ReportPanel extends BasePanel {
     }
 
     @Override
-    public void repeatChanged(int repeat, int colorRepeat) {
+    public void repeatChanged(int repeat) {
         repaint();
     }
 

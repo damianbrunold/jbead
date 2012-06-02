@@ -26,9 +26,9 @@ public class BeadList implements Iterable<BeadRun> {
     private List<BeadRun> runs = new ArrayList<BeadRun>();
 
     public BeadList(Model model) {
-        byte color = model.get(model.getColorRepeat() - 1);
+        byte color = model.get(model.getRepeat() - 1);
         int count = 1;
-        for (int i = model.getColorRepeat() - 2; i >= 0; i--) {
+        for (int i = model.getRepeat() - 2; i >= 0; i--) {
             if (model.get(i) == color) {
                 count++;
             } else {

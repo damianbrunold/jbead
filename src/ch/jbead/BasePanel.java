@@ -73,7 +73,7 @@ public abstract class BasePanel extends JComponent implements ModelListener {
     }
 
     @Override
-    public void repeatChanged(int repeat, int colorRepeat) {
+    public void repeatChanged(int repeat) {
         // empty
     }
 

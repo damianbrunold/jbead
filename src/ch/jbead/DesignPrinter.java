@@ -269,11 +269,11 @@ public class DesignPrinter {
         y += dy;
         // Farbrapport
         g.drawString(localization.getString("report.colorrepeat"), x1, y);
-        g.drawString(Integer.toString(model.getColorRepeat()) + " " + localization.getString("report.beads"), x2, y);
+        g.drawString(Integer.toString(model.getRepeat()) + " " + localization.getString("report.beads"), x2, y);
         y += dy;
-        int colorRepeat = model.getColorRepeat();
+        int repeat = model.getRepeat();
         // Faedelliste...
-        if (colorRepeat > 0) {
+        if (repeat > 0) {
             //int page = 1;
             int column = 0;
             g.drawString(localization.getString("report.listofbeads"), x1, y);

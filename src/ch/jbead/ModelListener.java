@@ -28,6 +28,6 @@ public interface ModelListener {
     public void scrollChanged(int scroll);
     public void shiftChanged(int shift);
     public void zoomChanged(int gridx, int gridy);
-    public void repeatChanged(int repeat, int colorRepeat);
+    public void repeatChanged(int repeat);
 
 }
