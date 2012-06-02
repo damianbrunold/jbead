@@ -65,7 +65,6 @@ public class SimulationPanel extends BasePanel {
         left = getLeft();
         maxj = getMaxj();
         w = getVisibleWidth();
-        paintGrid(g);
         paintBeads(g);
     }
 
@@ -96,103 +95,55 @@ public class SimulationPanel extends BasePanel {
         return getHeight() - 1 - (j + 1) * gridy;
     }
 
-    private void paintGrid(Graphics g) {
-        g.setColor(Color.DARK_GRAY);
-        if (scroll % 2 == 0) {
-            for (int j = 0; j < maxj; j += 2) {
-                for (int i = 0; i < w + 1; i++) {
-                    if (j == 0 && scroll == 0 && i < model.getShift()) continue;
-                    g.drawLine(x(i), y(j - 1), x(i), y(j));
-                }
-                if (j > 0 || scroll > 0) {
-                    g.drawLine(x(0) - gridx / 2, y(j - 1), x(0) - gridx / 2, y(j));
-                }
-            }
-            for (int j = 1; j < maxj; j += 2) {
-                for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(x(i) - gridx / 2, y(j - 1), x(i) - gridx / 2, y(j));
-                }
-                g.drawLine(x(w), y(j - 1), x(w), y(j));
-            }
-        } else {
-            for (int j = 0; j < maxj; j += 2) {
-                for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(x(i) - gridx / 2, y(j - 1), x(i) - gridx / 2, y(j));
-                }
-                g.drawLine(x(w), y(j - 1), x(w), y(j));
-            }
-            for (int j = 1; j < maxj; j += 2) {
-                for (int i = 0; i < w + 1; i++) {
-                    g.drawLine(x(i), y(j - 1), x(i), y(j));
-                }
-                g.drawLine(x(0) - gridx / 2, y(j - 1), x(0) - gridx / 2, y(j));
-            }
-        }
-        if (scroll % 2 == 0) {
-            if (scroll == 0) {
-                g.drawLine(x(model.getShift()), y(-1), x(w), y(-1));
-                for (int j = 1; j < maxj; j++) {
-                    g.drawLine(x(0) - gridx / 2, y(j - 1), x(w), y(j - 1));
-                }
-                g.drawLine(x(w), 0, x(w), y(0));
-            } else {
-                for (int j = 0; j < maxj; j++) {
-                    g.drawLine(x(0) - gridx / 2, y(j - 1), x(w), x(j - 1));
-                }
-                g.drawLine(x(w), 0, x(w), y(0));
-            }
-        } else {
-            for (int j = 0; j < maxj; j++) {
-                g.drawLine(x(0) - gridx / 2, y(j - 1), x(w), y(j - 1));
-            }
-            g.drawLine(x(w), 0, x(w), y(-1));
-        }
-    }
-
     private void paintBeads(Graphics g) {
         int width = model.getWidth();
         int shift = model.getShift();
-        int gridx1 = gridx - 1;
-        int gridy1 = gridy - 1;
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < maxj; j++) {
+        for (int j = 0; j < model.getHeight(); j++) {
+            for (int i = 0; i < width; i++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
-                g.setColor(model.getColor(c));
                 int idx = i + width * j + shift;
                 int i1 = idx % width;
                 int j1 = idx / width;
                 int ii = correctCoordinatesX(i1, j1);
                 int jj = correctCoordinatesY(i1, j1);
+                if (y(jj) < -gridy) return;
                 if (ii > w && ii != width) continue;
                 if (scroll % 2 == 0) {
                     if (jj % 2 == 0) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
+                        paintBead(g, left + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
                     } else {
                         if (ii != width && ii != w) {
-                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
+                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
                         } else if (ii == width) {
-                            g.fillRect(left - gridx / 2 + 1, getHeight() - (jj + 2) * gridy, gridx / 2 - 1, gridy1);
+                            paintBead(g, left - gridx / 2, getHeight() - 1 - (jj + 2) * gridy, gridx / 2, gridy, model.getColor(c));
                         } else {
-                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx / 2 - 1, gridy1);
+                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx / 2, gridy, model.getColor(c));
                         }
                     }
                 } else {
                     if (jj % 2 == 1) {
                         if (ii == w) continue;
-                        g.fillRect(left + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
+                        paintBead(g, left + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
                     } else {
                         if (ii != width && ii != w) {
-                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx1, gridy1);
+                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx, gridy, model.getColor(c));
                         } else if (ii == width) {
-                            g.fillRect(left - gridx / 2 + 1, getHeight() - (jj + 2) * gridy, gridx / 2 - 1, gridy1);
+                            paintBead(g, left - gridx / 2, getHeight() - 1 - (jj + 2) * gridy, gridx / 2, gridy, model.getColor(c));
                         } else {
-                            g.fillRect(left - gridx / 2 + ii * gridx + 1, getHeight() - (jj + 1) * gridy, gridx / 2 - 1, gridy1);
+                            paintBead(g, left - gridx / 2 + ii * gridx, getHeight() - 1 - (jj + 1) * gridy, gridx / 2, gridy, model.getColor(c));
                         }
                     }
                 }
             }
         }
+    }
+
+    private void paintBead(Graphics g, int i, int j, int w, int h, Color color) {
+        g.setColor(color);
+        g.fillRect(i + 1, j + 1, w - 1, h - 1);
+        g.setColor(Color.DARK_GRAY);
+        g.drawRect(i, j, w, h);
     }
 
     int correctCoordinatesX(int _i, int _j) {
