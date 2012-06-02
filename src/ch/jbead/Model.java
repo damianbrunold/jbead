@@ -573,4 +573,19 @@ public class Model implements ColorTable {
     public int getZoomIndex() {
         return zoomIndex;
     }
+
+    public Point correct(Point pt) {
+        int idx = pt.getX() + (pt.getY() + scroll) * getWidth();
+        int m1 = getWidth();
+        int m2 = m1 + 1;
+        int k = 0;
+        int m = m1 ;
+        while (idx >= m) {
+            idx -= m;
+            k++;
+            m = (k % 2 == 0) ? m1 : m2;
+        }
+        return new Point(idx, k - scroll);
+    }
+
 }

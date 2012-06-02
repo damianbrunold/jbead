@@ -92,7 +92,7 @@ public class SimulationPanel extends BasePanel {
         int width = model.getWidth();
         for (Point pt : model.getRect(scroll, model.getHeight())) {
             byte c = model.get(pt.scrolled(scroll));
-            pt = correct(pt.shifted(model.getShift(), width));
+            pt = model.correct(pt.shifted(model.getShift(), width));
             if (y(pt.getY()) < -gridy) return;
             if (pt.getX() > w && pt.getX() != width) continue;
             if (scroll % 2 == 0) {
@@ -130,20 +130,6 @@ public class SimulationPanel extends BasePanel {
         g.fillRect(i + 1, j + 1, w - 1, h - 1);
         g.setColor(Color.DARK_GRAY);
         g.drawRect(i, j, w, h);
-    }
-
-    private Point correct(Point pt) {
-        int idx = pt.getX() + (pt.getY() + scroll) * model.getWidth();
-        int m1 = model.getWidth();
-        int m2 = m1 + 1;
-        int k = 0;
-        int m = m1 ;
-        while (idx >= m) {
-            idx -= m;
-            k++;
-            m = (k % 2 == 0) ? m1 : m2;
-        }
-        return new Point(idx, k - scroll);
     }
 
     private int correctX(int _i, int _j) {

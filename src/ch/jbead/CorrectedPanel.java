@@ -91,7 +91,7 @@ public class CorrectedPanel extends BasePanel {
     private void paintBeads(Graphics g) {
         for (Point pt : model.getRect(scroll, model.getHeight())) {
             byte c = model.get(pt.scrolled(scroll));
-            pt = correct(pt);
+            pt = model.correct(pt);
             if (aboveTop(pt)) break;
             paintBead(g, pt, model.getColor(c));
         }
@@ -108,45 +108,12 @@ public class CorrectedPanel extends BasePanel {
         g.drawRect(x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gridx, gridy);
     }
 
-    private Point correct(Point pt) {
-        return new Point(correctX(pt.getX(), pt.getY()),
-                          correctY(pt.getX(), pt.getY()));
-    }
-
-    int correctX(int _i, int _j) {
-        int idx = _i + (_j + scroll) * model.getWidth();
-        int m1 = model.getWidth();
-        int m2 = model.getWidth() + 1;
-        int k = 0;
-        int m = m1;
-        while (idx >= m) {
-            idx -= m;
-            k++;
-            m = (k % 2 == 0) ? m1 : m2;
-        }
-        return idx;
-    }
-
-    int correctY(int _i, int _j) {
-        int idx = _i + (_j + scroll) * model.getWidth();
-        int m1 = model.getWidth();
-        int m2 = model.getWidth() + 1;
-        int k = 0;
-        int m = (k % 2 == 0) ? m1 : m2;
-        while (idx >= m) {
-            idx -= m;
-            k++;
-            m = (k % 2 == 0) ? m1 : m2;
-        }
-        return k - scroll;
-    }
-
     @Override
     public void redraw(Point pt) {
         if (!isVisible()) return;
         Point _pt = pt.unscrolled(scroll);
         byte c = model.get(pt);
-        _pt = correct(_pt);
+        _pt = model.correct(_pt);
         Graphics g = getGraphics();
         g.setColor(model.getColor(c));
         paintBead(g, _pt, model.getColor(c));
