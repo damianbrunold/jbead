@@ -89,6 +89,7 @@ public class SimulationPanel extends BasePanel {
     }
 
     private void paintBeads(Graphics g) {
+        if (scroll > model.getHeight() - 1) return;
         int width = model.getWidth();
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);

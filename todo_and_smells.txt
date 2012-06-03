@@ -103,3 +103,5 @@ Also line drawing: offer a mode to draw lines in free angles.
 Line drawing: why not provide a line mode that draws corrected
 vertical lines. Thus such lines would have a left-tilt in the draft
 but would be quite vertical in the corrected and simulated panel.
+
+Make model height adjustable. Also update the scrollbar, obviously.

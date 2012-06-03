@@ -26,6 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -114,6 +116,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private List<ColorButton> colors = new ArrayList<ColorButton>();
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
+    private boolean updatingScrollbar = false;
 
     private DraftPanel draft = new DraftPanel(model, selection, this);
     private CorrectedPanel corrected = new CorrectedPanel(model, selection, this);
@@ -189,7 +192,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         selection.clear();
         loadMRU();
         updateMRU();
-        updateScrollbar();
         initCloseHandler();
 
         // persist settings?
@@ -210,10 +212,19 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         selection.addListener(draft);
 
+        initScrollbar();
         scrollbar.addAdjustmentListener(new AdjustmentListener() {
             @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
-                model.setScroll(scrollbar.getMaximum() - scrollbar.getVisibleAmount() - e.getValue());
+                if (e.getValueIsAdjusting()) return;
+                updateScrollPos(e.getValue());
+            }
+        });
+
+        draft.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateScrollbar();
             }
         });
 
@@ -376,6 +387,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 super.mousePressed(e);
                 sbRotateleftMouseDown(e);
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
@@ -389,6 +401,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 super.mousePressed(e);
                 sbRotaterightMouseDown(e);
             }
+
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
@@ -497,16 +510,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         for (byte i = 0; i < model.getColorCount(); i++) {
             colors.get(i).setIcon(new ColorIcon(model, i));
         }
-    }
-
-    private void updateScrollbar() {
-        int h = draft.getHeight() / model.getGridy();
-        scrollbar.setMinimum(0);
-        scrollbar.setMaximum(model.getHeight());
-        scrollbar.setUnitIncrement(3);
-        scrollbar.setBlockIncrement(h / 2);
-        scrollbar.setVisibleAmount(h);
-        scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getVisibleAmount() - model.getScroll());
     }
 
     public void fileNewClick() {
@@ -636,7 +639,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void filePrintClick(boolean showDialog) {
-        new DesignPrinter(model, this, pageFormat, draft.isVisible(), corrected.isVisible(), simulation.isVisible(), report.isVisible()).print(showDialog);
+        new DesignPrinter(model, this, pageFormat, draft.isVisible(), corrected.isVisible(), simulation.isVisible(), report.isVisible())
+                .print(showDialog);
     }
 
     public void filePrintersetupClick() {
@@ -796,8 +800,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             colors.get(model.getColorIndex()).setSelected(true);
         } else if (Key == KeyEvent.VK_SPACE) {
             getAction("tool.pencil").putValue("SELECT", true);
-//            sbToolPoint.setSelected(true);
-//            toolPoint.setSelected(true);
+            // sbToolPoint.setSelected(true);
+            // toolPoint.setSelected(true);
         } else if (Key == KeyEvent.VK_ESCAPE && shiftTimer != null) {
             shiftTimer.cancel();
             shiftTimer = null;
@@ -982,7 +986,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         for (int i = 0; i < mru.size(); i++) {
             getAction("file.mru" + i).putValue(Action.NAME, getMRUDisplayName(i));
         }
-        // TODO maybe have to set visibility of separator after last mru menu item
+        // TODO maybe have to set visibility of separator after last mru menu
+        // item
     }
 
     private String getMRUDisplayName(int index) {
@@ -1060,6 +1065,32 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     @Override
     public void repeatChanged(int repeat) {
         updateTitle();
+    }
+
+    private void initScrollbar() {
+        scrollbar.setMinimum(0);
+        scrollbar.setMaximum(model.getHeight() - 1);
+        scrollbar.setUnitIncrement(3);
+    }
+
+    private void updateScrollbar() {
+        updatingScrollbar = true;
+        try {
+            int max = model.getHeight() - 1;
+            int visible = Math.min(max, draft.getHeight() / model.getGridy());
+            scrollbar.setBlockIncrement(visible / 2);
+            scrollbar.setVisibleAmount(visible);
+            int value = scrollbar.getMaximum() - scrollbar.getVisibleAmount() - model.getScroll();
+            scrollbar.setValue(value);
+        } finally {
+            updatingScrollbar = false;
+        }
+    }
+
+    private void updateScrollPos(int scrollpos) {
+        if (updatingScrollbar) return;
+        int scroll = scrollbar.getMaximum() - scrollbar.getVisibleAmount() - scrollpos;
+        model.setScroll(scroll);
     }
 
 }

@@ -497,7 +497,7 @@ public class Model implements ColorTable {
 
     public void updateRepeat() {
         int usedHeight = getUsedHeight();
-        if (usedHeight == -1) {
+        if (usedHeight == 0) {
             setRepeat(0);
         } else {
             setRepeat(calcRepeat(calcRowRepeat(usedHeight)));
@@ -506,16 +506,15 @@ public class Model implements ColorTable {
 
     private void setRepeat(int repeat) {
         repeatDirty = false;
-        if (this.repeat == repeat) return;
         this.repeat = repeat;
         fireRepeatChanged(repeat);
     }
 
     private int calcRepeat(int rowrepeat) {
-        for (int i = 1; i <= rowrepeat * field.getWidth(); i++) {
+        for (int i = 1; i < rowrepeat * field.getWidth(); i++) {
             if (field.get(i) == field.get(0)) {
                 boolean ok = true;
-                for (int k = i + 1; k <= rowrepeat * field.getWidth(); k++) {
+                for (int k = i + 1; k < rowrepeat * field.getWidth(); k++) {
                     if (field.get((k - i) % i) != field.get(k)) {
                         ok = false;
                         break;
@@ -530,10 +529,10 @@ public class Model implements ColorTable {
     }
 
     private int calcRowRepeat(int usedHeight) {
-        for (int j = 1; j <= usedHeight; j++) {
+        for (int j = 1; j < usedHeight; j++) {
             if (equalRows(0, j)) {
                 boolean ok = true;
-                for (int k = j + 1; k <= usedHeight; k++) {
+                for (int k = j + 1; k < usedHeight; k++) {
                     if (!equalRows((k - j) % j, k)) {
                         ok = false;
                         break;
@@ -551,7 +550,7 @@ public class Model implements ColorTable {
         int usedHeight = 0;
         for (Point pt : field.getFullRect()) {
             if (field.get(pt) > 0) {
-                usedHeight = pt.getY();
+                usedHeight = pt.getY() + 1;
             }
         }
         return usedHeight;
@@ -582,4 +581,22 @@ public class Model implements ColorTable {
         return new Point(idx, k - scroll);
     }
 
+    public int getIndex(Point pt) {
+        return field.getIndex(pt);
+    }
+
+    public int getCorrectedIndex(Point pt) {
+        int m1 = getWidth();
+        int m2 = m1 + 1;
+        int j = pt.getY() + scroll;
+        if (j % 2 == 0) {
+            return (j / 2) * (m1 + m2) + pt.getX();
+        } else {
+            return (j / 2 + 1) * m1 + (j / 2) * m2 + pt.getX();
+        }
+    }
+
+    public Point getPoint(int index) {
+        return field.getPoint(index);
+    }
 }

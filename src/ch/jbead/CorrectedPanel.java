@@ -89,6 +89,7 @@ public class CorrectedPanel extends BasePanel {
     }
 
     private void paintBeads(Graphics g) {
+        if (scroll > model.getHeight() - 1) return;
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll));
@@ -148,19 +149,9 @@ public class CorrectedPanel extends BasePanel {
     public void togglePoint(Point pt) {
         pt = mouseToField(pt);
         if (pt == null) return;
-        int idx = 0;
-        int m1 = model.getWidth();
-        int m2 = m1 + 1;
-        for (int j = 0; j < pt.getY() + scroll; j++) {
-            if (j % 2 == 0)
-                idx += m1;
-            else
-                idx += m2;
-        }
-        idx += pt.getX();
-        int j = idx / model.getWidth();
-        int i = idx % model.getWidth();
-        model.setPoint(new Point(i, j - scroll));
+        int idx = model.getCorrectedIndex(pt);
+        pt = model.getPoint(idx);
+        model.setPoint(pt.unscrolled(scroll));
     }
 
 }

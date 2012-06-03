@@ -63,7 +63,6 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         super.paintComponent(g);
         offsetx = getOffsetX();
         maxj = getMaxJ();
-        paintGrid(g);
         paintBeads(g);
         paintMarkers(g);
         if (selection.isNormal()) {
@@ -91,7 +90,7 @@ public class DraftPanel extends BasePanel implements SelectionListener {
     }
 
     private int getMaxJ() {
-        return Math.min(model.getHeight(), getHeight() / gridy + 1);
+        return Math.min(model.getHeight() - scroll, getHeight() / gridy + 1);
     }
 
     private int x(int i) {
@@ -102,23 +101,14 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         return getHeight() - 1 - (j + 1) * gridy;
     }
 
-    private int paintGrid(Graphics g) {
-        g.setColor(Color.DARK_GRAY);
-        for (int i = 0; i < model.getWidth() + 1; i++) {
-            g.drawLine(x(i), 0, x(i), getHeight() - 1);
-        }
-        for (int j = -1; j < maxj; j++) {
-            g.drawLine(x(0), y(j), x(model.getWidth()), y(j));
-        }
-        return maxj;
-    }
-
     private void paintBeads(Graphics g) {
-        for (int i = 0; i < model.getWidth(); i++) {
-            for (int j = 0; j < maxj; j++) {
+        for (int j = 0; j < maxj; j++) {
+            for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
                 g.setColor(model.getColor(c));
                 g.fillRect(x(i) + 1, y(j) + 1, gridx - 1, gridy - 1);
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(x(i), y(j), gridx, gridy);
             }
         }
     }
