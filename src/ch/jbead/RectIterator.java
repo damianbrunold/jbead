@@ -24,13 +24,13 @@ public class RectIterator implements Iterator<Point> {
     private Point begin;
     private Point end;
     private Point next;
-    
+
     public RectIterator(Point begin, Point end) {
         this.begin = new Point(Math.min(begin.getX(), end.getX()), Math.min(begin.getY(), end.getY()));
         this.end = new Point(Math.max(begin.getX(), end.getX()), Math.max(begin.getY(), end.getY()));
         this.next = this.begin;
     }
-    
+
     @Override
     public boolean hasNext() {
         return next != null;
@@ -41,8 +41,7 @@ public class RectIterator implements Iterator<Point> {
         Point result = next;
         next = next.nextRight();
         if (next.getX() > end.getX()) {
-            next.setX(begin.getX());
-            next.setY(next.getY() + 1);
+            next = new Point(begin.getX(), next.getY() + 1);
         }
         if (next.getY() > end.getY()) {
             next = null;

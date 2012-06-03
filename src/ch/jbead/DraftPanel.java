@@ -198,17 +198,15 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         g.dispose();
     }
 
-    boolean mouseToField(Point pt) {
+    public Point mouseToField(Point pt) {
         int _i = pt.getX();
         int _j = pt.getY();
         int i, jj;
-        if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return false;
+        if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return null;
         i = (_i - offsetx) / gridy;
-        if (i >= model.getWidth()) return false;
+        if (i >= model.getWidth()) return null;
         jj = (getHeight() - _j) / gridy;
-        pt.setX(i);
-        pt.setY(jj);
-        return true;
+        return new Point(i, jj);
     }
 
     @Override

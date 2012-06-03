@@ -90,7 +90,7 @@ public class SimulationPanel extends BasePanel {
 
     private void paintBeads(Graphics g) {
         int width = model.getWidth();
-        for (Point pt : model.getRect(scroll, model.getHeight())) {
+        for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll).shifted(model.getShift(), width));
             if (y(pt.getY()) < -gridy) return;
@@ -217,7 +217,7 @@ public class SimulationPanel extends BasePanel {
         repaint();
     }
 
-    boolean mouseToField(Point pt) {
+    public Point mouseToField(Point pt) {
         int w = getVisibleWidth();
         int shift = model.getShift();
         int _i = pt.getX();
@@ -226,18 +226,18 @@ public class SimulationPanel extends BasePanel {
         int jj = (getHeight() - _j) / gridy;
         if (scroll % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + w * gridx) return false;
+                if (_i < offsetx || _i > offsetx + w * gridx) return null;
                 i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return false;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return null;
                 i = (_i - offsetx + gridx / 2) / gridx;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + w * gridx) return false;
+                if (_i < offsetx || _i > offsetx + w * gridx) return null;
                 i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return false;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return null;
                 i = (_i - offsetx + gridx / 2) / gridx;
             }
         }
@@ -249,13 +249,12 @@ public class SimulationPanel extends BasePanel {
             i += model.getWidth();
             jj--;
         }
-        pt.setX(i);
-        pt.setY(jj);
-        return true;
+        return new Point(i, jj);
     }
 
     public void togglePoint(Point pt) {
-        if (!mouseToField(pt)) return;
+        pt = mouseToField(pt);
+        if (pt == null) return;
         int idx = 0;
         int m1 = model.getWidth();
         int m2 = m1 + 1;

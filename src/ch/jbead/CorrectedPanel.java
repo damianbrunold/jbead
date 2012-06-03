@@ -89,7 +89,7 @@ public class CorrectedPanel extends BasePanel {
     }
 
     private void paintBeads(Graphics g) {
-        for (Point pt : model.getRect(scroll, model.getHeight())) {
+        for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll));
             if (aboveTop(pt)) break;
@@ -120,35 +120,34 @@ public class CorrectedPanel extends BasePanel {
         g.dispose();
     }
 
-    boolean mouseToField(Point pt) {
+    public Point mouseToField(Point pt) {
         int _i = pt.getX();
         int _j = pt.getY();
         int i;
         int jj = (getHeight() - _j) / gridy;
         if (scroll % 2 == 0) {
             if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return false;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return null;
                 i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return false;
+                if (_i < offsetx - gridx / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return null;
                 i = (_i - offsetx + gridx / 2) / gridx;
             }
         } else {
             if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return false;
+                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return null;
                 i = (_i - offsetx) / gridx;
             } else {
-                if (_i < offsetx - gridy / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return false;
+                if (_i < offsetx - gridy / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return null;
                 i = (_i - offsetx + gridy / 2) / gridx;
             }
         }
-        pt.setX(i);
-        pt.setY(jj);
-        return true;
+        return new Point(i, jj);
     }
 
     public void togglePoint(Point pt) {
-        if (!mouseToField(pt)) return;
+        pt = mouseToField(pt);
+        if (pt == null) return;
         int idx = 0;
         int m1 = model.getWidth();
         int m2 = m1 + 1;

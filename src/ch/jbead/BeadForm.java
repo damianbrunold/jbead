@@ -679,7 +679,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public void draftMouseDown(MouseEvent event) {
         if (dragging) return;
         Point pt = new Point(event.getX(), event.getY());
-        if (event.getButton() == MouseEvent.BUTTON1 && draft.mouseToField(pt)) {
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            pt = draft.mouseToField(pt);
+            if (pt == null) return;
             dragging = true;
             selection.init(pt);
             drawPrepress();
@@ -689,7 +691,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void draftMouseMove(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
-        if (dragging && draft.mouseToField(pt)) {
+        if (dragging) {
+            pt = draft.mouseToField(pt);
+            if (pt == null) return;
             draftLinePreview();
             selection.update(pt);
             draftLinePreview();
@@ -698,7 +702,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void draftMouseUp(MouseEvent event) {
         Point pt = new Point(event.getX(), event.getY());
-        if (dragging && draft.mouseToField(pt)) {
+        if (dragging) {
+            pt = draft.mouseToField(pt);
+            if (pt == null) return;
             draftLinePreview();
             selection.update(pt);
             dragging = false;

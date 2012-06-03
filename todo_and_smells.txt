@@ -17,11 +17,6 @@ The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
 
-Make the Point class to a value object, thus immutable.
-Right now it is mutable, because the conversion methods
-want to return a boolean that signifies if the conversion
-succeeded. Refactor this.
-
 Handle the UI state better. For example, the copy/arrange
 function should be disabled if no selection exists. This
 was handled using the idleHandler before. Now, this should
@@ -93,3 +88,18 @@ Allow a single line selection.
 
 Add ctrl+c,x,v for selections. This requires that a current input
 point (cursor) is available.
+
+Fix printing code, support multipage printing. Use a layout model
+for laying out the pages and then in a second step, print the
+required page.
+
+Line drawing: use vertical, horizontal or diagonal lines whichever
+is closest to the dragged line. Currently only exact vertical and
+horizontal lines are used in all other cases the diagonal is used.
+This leads to very short inadvertent diagonal lines.
+
+Also line drawing: offer a mode to draw lines in free angles.
+
+Line drawing: why not provide a line mode that draws corrected
+vertical lines. Thus such lines would have a left-tilt in the draft
+but would be quite vertical in the corrected and simulated panel.
