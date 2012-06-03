@@ -25,6 +25,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -208,6 +209,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
 
         selection.addListener(draft);
+
+        scrollbar.addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(AdjustmentEvent e) {
+                model.setScroll(scrollbar.getMaximum() - scrollbar.getVisibleAmount() - e.getValue());
+            }
+        });
 
         updateTimer = new Timer("updateTimer", true);
         updateTimer.schedule(new TimerTask() {
@@ -493,13 +501,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void updateScrollbar() {
         int h = draft.getHeight() / model.getGridy();
-        assert (h < model.getHeight());
         scrollbar.setMinimum(0);
-        scrollbar.setMaximum(model.getHeight() - h);
-        if (scrollbar.getMaximum() < 0) scrollbar.setMaximum(0);
-        scrollbar.setUnitIncrement(h);
-        scrollbar.setBlockIncrement(h);
-        scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - model.getScroll());
+        scrollbar.setMaximum(model.getHeight());
+        scrollbar.setUnitIncrement(3);
+        scrollbar.setBlockIncrement(h / 2);
+        scrollbar.setVisibleAmount(h);
+        scrollbar.setValue(scrollbar.getMaximum() - scrollbar.getVisibleAmount() - model.getScroll());
     }
 
     public void fileNewClick() {
@@ -813,14 +820,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         model.setColor(c, color);
     }
 
-    // TODO handle out parameter
-    private void scrollbarScroll(AdjustmentEvent event) {
-        int oldscroll = model.getScroll();
-        // if (ScrollPos > scrollbar.Max - scrollbar.PageSize) ScrollPos =
-        // scrollbar.Max - scrollbar.PageSize;
-        model.setScroll(scrollbar.getMaximum() - scrollbar.getBlockIncrement() - scrollbar.getValue());
-    }
-
     private void updateHandler() {
         getAction("edit.arrange").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
@@ -830,6 +829,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             model.updateRepeat();
         }
         model.prepareSnapshot();
+
+        statusbar.setText("scroll=" + model.getScroll() + ", shift=" + model.getShift());
     }
 
     public void toolPencilClick() {

@@ -90,8 +90,8 @@ public class CorrectedPanel extends BasePanel {
 
     private void paintBeads(Graphics g) {
         for (Point pt : model.getRect(scroll, model.getHeight())) {
-            byte c = model.get(pt.scrolled(scroll));
-            pt = model.correct(pt);
+            byte c = model.get(pt);
+            pt = model.correct(pt.unscrolled(scroll));
             if (aboveTop(pt)) break;
             paintBead(g, pt, model.getColor(c));
         }

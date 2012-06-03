@@ -58,6 +58,7 @@ public abstract class BasePanel extends JComponent implements ModelListener {
     @Override
     public void scrollChanged(int scroll) {
         this.scroll = scroll;
+        repaint();
     }
 
     @Override

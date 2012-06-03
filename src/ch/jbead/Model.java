@@ -223,7 +223,7 @@ public class Model implements ColorTable {
         snapshot();
         setModified();
         for (Point pt : new Segment(begin.scrolled(scroll), end.scrolled(scroll))) {
-            set(pt.scrolled(scroll), colorIndex);
+            set(pt, colorIndex);
         }
         setRepeatDirty();
     }
