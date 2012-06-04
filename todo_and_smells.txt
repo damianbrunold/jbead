@@ -61,10 +61,6 @@ Export as PDF/PNG/JPEG.
 Export the circling simulation as an animated GIF or an AVI or 
 something.
 
-Split toolbars: edit, tools, colors. This allows to move the
-toolbars around. Would probably be good to persist the toolbar
-placement.
-
 Add in lower right corner a resize widget. Right now it is a pain...
 
 Allow a single line selection.

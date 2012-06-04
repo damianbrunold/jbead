@@ -142,16 +142,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private ToolsGroup toolsGroup = new ToolsGroup();
 
-    private ToolMenuItem toolPencil;
-    private ToolMenuItem toolSelect;
-    private ToolMenuItem toolFill;
-    private ToolMenuItem toolPipette;
-
-    private ToolButton sbToolPencil;
-    private ToolButton sbToolSelect;
-    private ToolButton sbToolFill;
-    private ToolButton sbToolPipette;
-
     private PageFormat pageFormat;
 
     private JPanel main = new JPanel();
@@ -339,10 +329,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JMenu createToolMenu() {
         JMenu menuTool = new JMenu(bundle.getString("action.tool"));
-        menuTool.add(toolPencil = toolsGroup.addTool(new ToolMenuItem(new ToolPencilAction(this))));
-        menuTool.add(toolSelect = toolsGroup.addTool(new ToolMenuItem(new ToolSelectAction(this))));
-        menuTool.add(toolFill = toolsGroup.addTool(new ToolMenuItem(new ToolFillAction(this))));
-        menuTool.add(toolPipette = toolsGroup.addTool(new ToolMenuItem(new ToolPipetteAction(this))));
+        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolPencilAction(this))));
+        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolSelectAction(this))));
+        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolFillAction(this))));
+        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolPipetteAction(this))));
         return menuTool;
     }
 
@@ -370,13 +360,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JToolBar createToolbar() {
         JToolBar toolbar = new JToolBar();
-        toolbar.add(getAction("file.new"));
-        toolbar.add(getAction("file.open"));
-        toolbar.add(getAction("file.save"));
-        toolbar.add(getAction("file.print"));
-        toolbar.add(getAction("edit.undo"));
-        toolbar.add(getAction("edit.redo"));
-        toolbar.add(sbRotateleft = new JButton(ImageFactory.getIcon("sb_prev")));
+        toolbar.add(new ToolButton(getAction("file.new")));
+        toolbar.add(new ToolButton(getAction("file.open")));
+        toolbar.add(new ToolButton(getAction("file.save")));
+        toolbar.add(new ToolButton(getAction("file.print")));
+        toolbar.add(new ToolButton(getAction("edit.undo")));
+        toolbar.add(new ToolButton(getAction("edit.redo")));
+        toolbar.add(sbRotateleft = new JButton(ImageFactory.getIcon("view.rotateleft")));
         sbRotateleft.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -390,7 +380,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 sbRotateleftMouseUp(e);
             }
         });
-        toolbar.add(sbRotateright = new JButton(ImageFactory.getIcon("sb_next")));
+        toolbar.add(sbRotateright = new JButton(ImageFactory.getIcon("view.rotateright")));
         sbRotateright.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -404,14 +394,14 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 sbRotaterightMouseUp(e);
             }
         });
-        toolbar.add(getAction("edit.arrange"));
+        toolbar.add(new ToolButton(getAction("edit.arrange")));
 
         toolbar.addSeparator();
 
-        toolbar.add(sbToolPencil = toolsGroup.addTool(new ToolButton(getAction("tool.pencil"))));
-        toolbar.add(sbToolSelect = toolsGroup.addTool(new ToolButton(getAction("tool.select"))));
-        toolbar.add(sbToolFill = toolsGroup.addTool(new ToolButton(getAction("tool.fill"))));
-        toolbar.add(sbToolPipette = toolsGroup.addTool(new ToolButton(getAction("tool.pipette"))));
+        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.pencil"))));
+        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.select"))));
+        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.fill"))));
+        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.pipette"))));
 
         return toolbar;
     }
@@ -659,13 +649,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void draftLinePreview() {
-        if (!sbToolPencil.isSelected()) return;
+        if (!toolsGroup.isSelected(0)) return;
         if (!selection.isActive()) return;
         draft.linePreview(selection.getOrigin(), selection.getLineDest());
     }
 
     private void drawPrepress() {
-        if (sbToolPencil.isSelected()) {
+        if (toolsGroup.isSelected(0)) {
             draft.drawPrepress(selection.getOrigin());
         }
     }
@@ -702,17 +692,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             draftLinePreview();
             selection.update(pt);
             dragging = false;
-            if (sbToolPencil.isSelected()) {
+            if (toolsGroup.isSelected(0)) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
                 } else {
                     drawLine(selection.getOrigin(), selection.getLineDest());
                 }
-            } else if (sbToolFill.isSelected()) {
+            } else if (toolsGroup.isSelected(2)) {
                 fillLine(selection.getOrigin());
-            } else if (sbToolPipette.isSelected()) {
+            } else if (toolsGroup.isSelected(3)) {
                 selectColorFrom(selection.getOrigin());
-            } else if (sbToolSelect.isSelected()) {
+            } else if (toolsGroup.isSelected(1)) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
                 }

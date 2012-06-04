@@ -27,6 +27,7 @@ public class ColorButton extends JToggleButton {
 
     public ColorButton(ColorIcon icon) {
         super(icon);
+        setFocusable(false);
         index = icon.getIndex();
     }
 

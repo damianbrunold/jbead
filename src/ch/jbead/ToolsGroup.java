@@ -47,4 +47,8 @@ public class ToolsGroup {
         items.get(index).setSelected(true);
     }
 
+    public boolean isSelected(int index) {
+        return buttons.get(index).isSelected();
+    }
+
 }

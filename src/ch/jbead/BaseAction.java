@@ -21,14 +21,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
 /**
- * 
+ *
  */
 public abstract class BaseAction extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
     protected BeadForm form;
-    
+
     public BaseAction(String name, Icon icon, BeadForm form) {
         super(form.getBundle().getString("action." + name), icon);
         init(name, form);
