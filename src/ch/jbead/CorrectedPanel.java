@@ -122,28 +122,10 @@ public class CorrectedPanel extends BasePanel {
     }
 
     public Point mouseToField(Point pt) {
-        int _i = pt.getX();
-        int _j = pt.getY();
-        int i;
-        int jj = (getHeight() - _j) / gridy;
-        if (scroll % 2 == 0) {
-            if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return null;
-                i = (_i - offsetx) / gridx;
-            } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return null;
-                i = (_i - offsetx + gridx / 2) / gridx;
-            }
-        } else {
-            if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + model.getWidth() * gridx) return null;
-                i = (_i - offsetx) / gridx;
-            } else {
-                if (_i < offsetx - gridy / 2 || _i > offsetx + model.getWidth() * gridx + gridx / 2) return null;
-                i = (_i - offsetx + gridy / 2) / gridx;
-            }
-        }
-        return new Point(i, jj);
+        int j = (getHeight() - pt.getY()) / gridy;
+        if (pt.getX() < offsetx - dx(j) || pt.getX() > offsetx + model.getWidth() * gridx + dx(j)) return null;
+        int i = (pt.getX() - offsetx + dx(j)) / gridx;
+        return new Point(i, j);
     }
 
     public void togglePoint(Point pt) {
