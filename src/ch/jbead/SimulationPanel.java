@@ -161,6 +161,16 @@ public class SimulationPanel extends BasePanel {
         return k - scroll;
     }
 
+    private int gw(int i) {
+        if (i != model.getWidth() && i != w) {
+            return gridx;
+        } else if (i == w) {
+            return gridx / 2;
+        } else {
+            return gridx / 2;
+        }
+    }
+
     public void redraw(int _i, int _j) {
         if (!isVisible()) return;
 
@@ -178,33 +188,8 @@ public class SimulationPanel extends BasePanel {
         Graphics g = getGraphics();
         int w = getVisibleWidth();
         if (_i > w && _i != model.getWidth()) return;
-        if (scroll % 2 == 0) {
-            if (_j % 2 == 0) {
-                if (_i == w) return;
-                paintBead(g, x(_i), y(_j), gridx, gridy, model.getColor(c));
-            } else {
-                if (_i != model.getWidth() && _i != w) {
-                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx, gridy, model.getColor(c));
-                } else if (_i == w) {
-                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx / 2, gridy, model.getColor(c));
-                } else {
-                    paintBead(g, x(0) - gridx / 2, y(_j + 1), gridx / 2, gridy, model.getColor(c));
-                }
-            }
-        } else {
-            if (_j % 2 == 1) {
-                if (_i == w) return;
-                paintBead(g, x(_i), y(_j), gridx, gridy, model.getColor(c));
-            } else {
-                if (_i != model.getWidth() && _i != w) {
-                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx, gridy, model.getColor(c));
-                } else if (_i == w) {
-                    paintBead(g, x(_i) - gridx / 2, y(_j), gridx / 2, gridy, model.getColor(c));
-                } else {
-                    paintBead(g, x(0) - gridx / 2, y(_j + 1), gridx / 2, gridy, model.getColor(c));
-                }
-            }
-        }
+        if (_i == w && dx(_j) == 0) return;
+        paintBead(g, x(_i) - dx(_j), y(_j), gw(_i), gridy, model.getColor(c));
         g.dispose();
     }
 
@@ -218,39 +203,27 @@ public class SimulationPanel extends BasePanel {
         repaint();
     }
 
+    private int dx(int j) {
+        if ((j + scroll) % 2 == 0) {
+            return 0;
+        } else {
+            return gridx / 2;
+        }
+    }
+
     public Point mouseToField(Point pt) {
         int w = getVisibleWidth();
-        int shift = model.getShift();
-        int _i = pt.getX();
-        int _j = pt.getY();
-        int i;
-        int jj = (getHeight() - _j) / gridy;
-        if (scroll % 2 == 0) {
-            if (jj % 2 == 0) {
-                if (_i < offsetx || _i > offsetx + w * gridx) return null;
-                i = (_i - offsetx) / gridx;
-            } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return null;
-                i = (_i - offsetx + gridx / 2) / gridx;
-            }
-        } else {
-            if (jj % 2 == 1) {
-                if (_i < offsetx || _i > offsetx + w * gridx) return null;
-                i = (_i - offsetx) / gridx;
-            } else {
-                if (_i < offsetx - gridx / 2 || _i > offsetx + w * gridx + gridx / 2) return null;
-                i = (_i - offsetx + gridx / 2) / gridx;
-            }
-        }
-        i -= shift;
+        int j = (getHeight() - pt.getY()) / gridy;
+        if (pt.getX() < offsetx || pt.getX() > offsetx + w * gridx) return null;
+        int i = (pt.getX() - offsetx + dx(j)) / gridx - model.getShift();
         if (i >= model.getWidth()) {
             i -= model.getWidth();
-            jj++;
+            j++;
         } else if (i < 0) {
             i += model.getWidth();
-            jj--;
+            j--;
         }
-        return new Point(i, jj);
+        return new Point(i, j);
     }
 
     public void togglePoint(Point pt) {
