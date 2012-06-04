@@ -1,18 +1,6 @@
 Code Smells
 -----------
 
-custom define the default colors so that they are exactly
-as in dbbead, use named constants instead of directly
-allocating the colors, do not use predefined, system
-colors.
-
-Now the color (index) is of type byte, thus there are
-only 127 colors possible. In practice the limit is 9.
-But maybe it would pay to extend this to short or int.
-On the other hand, this would double or quadruple the
-size of BeadField and the file format would also change.
-Not exactly a code smell, but a smelly artificial limit.
-
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
@@ -21,11 +9,6 @@ Handle the UI state better. For example, the copy/arrange
 function should be disabled if no selection exists. This
 was handled using the idleHandler before. Now, this should
 probably be done using Actions.
-
-The redraw of normal and simulation does not go up to the
-upper border. Instead it works til maxj and this gets
-corrected, thus there are some lines at the top, that are
-not painted.
 
 Handle the scrolled-stuff better, i. e. use physical
 versus logical coordinates or something like that.
@@ -103,5 +86,11 @@ Also line drawing: offer a mode to draw lines in free angles.
 Line drawing: why not provide a line mode that draws corrected
 vertical lines. Thus such lines would have a left-tilt in the draft
 but would be quite vertical in the corrected and simulated panel.
+
+Line drawing: draw lines in corrected/simulation panels!
+
+Fill: enable usage of fill in corrected/simulation panels
+
+Fill: fill entire bead run, not only one circumference.
 
 Make model height adjustable. Also update the scrollbar, obviously.
