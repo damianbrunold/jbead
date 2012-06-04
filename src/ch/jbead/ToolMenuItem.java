@@ -18,16 +18,15 @@
 package ch.jbead;
 
 import javax.swing.Action;
-import javax.swing.JToggleButton;
+import javax.swing.JRadioButtonMenuItem;
 
-public class ToolButton extends JToggleButton {
+public class ToolMenuItem extends JRadioButtonMenuItem {
 
     private static final long serialVersionUID = 1L;
 
-    public ToolButton(Action action) {
+    public ToolMenuItem(Action action) {
         super(action);
         setFocusable(false);
-        setText(null);
     }
 
 }

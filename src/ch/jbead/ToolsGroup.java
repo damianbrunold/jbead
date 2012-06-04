@@ -17,17 +17,34 @@
 
 package ch.jbead;
 
-import javax.swing.Action;
-import javax.swing.JToggleButton;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ToolButton extends JToggleButton {
+import javax.swing.ButtonGroup;
 
-    private static final long serialVersionUID = 1L;
+public class ToolsGroup {
 
-    public ToolButton(Action action) {
-        super(action);
-        setFocusable(false);
-        setText(null);
+    private ButtonGroup menugroup = new ButtonGroup();
+    private ButtonGroup toolbargroup = new ButtonGroup();
+
+    private List<ToolButton> buttons = new ArrayList<ToolButton>();
+    private List<ToolMenuItem> items = new ArrayList<ToolMenuItem>();
+
+    public ToolButton addTool(ToolButton button) {
+        buttons.add(button);
+        toolbargroup.add(button);
+        return button;
+    }
+
+    public ToolMenuItem addTool(ToolMenuItem item) {
+        items.add(item);
+        menugroup.add(item);
+        return item;
+    }
+
+    public void selectTool(int index) {
+        buttons.get(index).setSelected(true);
+        items.get(index).setSelected(true);
     }
 
 }

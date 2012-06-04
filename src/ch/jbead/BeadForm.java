@@ -60,9 +60,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollBar;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import ch.jbead.action.EditArrangeAction;
@@ -142,17 +140,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JButton sbRotateleft;
     private JButton sbRotateright;
 
-    private ButtonGroup toolsGroup = new ButtonGroup();
-    private JRadioButtonMenuItem toolPencil;
-    private JRadioButtonMenuItem toolSelect;
-    private JRadioButtonMenuItem toolFill;
-    private JRadioButtonMenuItem toolPipette;
+    private ToolsGroup toolsGroup = new ToolsGroup();
 
-    private ButtonGroup sbToolsGroup = new ButtonGroup();
-    private JToggleButton sbToolPencil;
-    private JToggleButton sbToolSelect;
-    private JToggleButton sbToolFill;
-    private JToggleButton sbToolPipette;
+    private ToolMenuItem toolPencil;
+    private ToolMenuItem toolSelect;
+    private ToolMenuItem toolFill;
+    private ToolMenuItem toolPipette;
+
+    private ToolButton sbToolPencil;
+    private ToolButton sbToolSelect;
+    private ToolButton sbToolFill;
+    private ToolButton sbToolPipette;
 
     private PageFormat pageFormat;
 
@@ -205,6 +203,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         // TODO persist location and size in settings
         setSize(1024, 700);
         setLocation(100, 35);
+
+        toolsGroup.selectTool(0);
 
         // TODO persist the pageFormat in Settings?
         pageFormat = PrinterJob.getPrinterJob().defaultPage();
@@ -339,14 +339,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JMenu createToolMenu() {
         JMenu menuTool = new JMenu(bundle.getString("action.tool"));
-        menuTool.add(toolPencil = new JRadioButtonMenuItem(new ToolPencilAction(this)));
-        menuTool.add(toolSelect = new JRadioButtonMenuItem(new ToolSelectAction(this)));
-        menuTool.add(toolFill = new JRadioButtonMenuItem(new ToolFillAction(this)));
-        menuTool.add(toolPipette = new JRadioButtonMenuItem(new ToolPipetteAction(this)));
-        toolsGroup.add(toolPencil);
-        toolsGroup.add(toolSelect);
-        toolsGroup.add(toolFill);
-        toolsGroup.add(toolPipette);
+        menuTool.add(toolPencil = toolsGroup.addTool(new ToolMenuItem(new ToolPencilAction(this))));
+        menuTool.add(toolSelect = toolsGroup.addTool(new ToolMenuItem(new ToolSelectAction(this))));
+        menuTool.add(toolFill = toolsGroup.addTool(new ToolMenuItem(new ToolFillAction(this))));
+        menuTool.add(toolPipette = toolsGroup.addTool(new ToolMenuItem(new ToolPipetteAction(this))));
         return menuTool;
     }
 
@@ -412,12 +408,11 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         toolbar.addSeparator();
 
-        toolbar.add(sbToolPencil = new ToolButton(getAction("tool.pencil"), sbToolsGroup));
-        toolbar.add(sbToolSelect = new ToolButton(getAction("tool.select"), sbToolsGroup));
-        toolbar.add(sbToolFill = new ToolButton(getAction("tool.fill"), sbToolsGroup));
-        toolbar.add(sbToolPipette = new ToolButton(getAction("tool.pipette"), sbToolsGroup));
+        toolbar.add(sbToolPencil = toolsGroup.addTool(new ToolButton(getAction("tool.pencil"))));
+        toolbar.add(sbToolSelect = toolsGroup.addTool(new ToolButton(getAction("tool.select"))));
+        toolbar.add(sbToolFill = toolsGroup.addTool(new ToolButton(getAction("tool.fill"))));
+        toolbar.add(sbToolPipette = toolsGroup.addTool(new ToolButton(getAction("tool.pipette"))));
 
-        sbToolPencil.setSelected(true);
         return toolbar;
     }
 
@@ -840,18 +835,22 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void toolPencilClick() {
         selection.clear();
+        toolsGroup.selectTool(0);
     }
 
     public void toolSelectClick() {
         selection.clear();
+        toolsGroup.selectTool(1);
     }
 
     public void toolFillClick() {
         selection.clear();
+        toolsGroup.selectTool(2);
     }
 
     public void toolPipetteClick() {
         selection.clear();
+        toolsGroup.selectTool(3);
     }
 
     public void correctedMouseUp(MouseEvent event) {
