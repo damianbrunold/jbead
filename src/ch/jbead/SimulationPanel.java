@@ -133,34 +133,6 @@ public class SimulationPanel extends BasePanel {
         g.drawRect(i, j, w, h);
     }
 
-    private int correctX(int _i, int _j) {
-        int idx = _i + (_j + scroll) * model.getWidth();
-        int m1 = model.getWidth();
-        int m2 = m1 + 1;
-        int k = 0;
-        int m = m1 ;
-        while (idx >= m) {
-            idx -= m;
-            k++;
-            m = (k % 2 == 0) ? m1 : m2;
-        }
-        return idx;
-    }
-
-    private int correctY(int _i, int _j) {
-        int idx = _i + (_j + scroll) * model.getWidth();
-        int m1 = model.getWidth();
-        int m2 = m1 + 1;
-        int k = 0;
-        int m = m1;
-        while (idx >= m) {
-            idx -= m;
-            k++;
-            m = (k % 2 == 0) ? m1 : m2;
-        }
-        return k - scroll;
-    }
-
     private int gw(int i) {
         if (i != model.getWidth() && i != w) {
             return gridx;
@@ -171,31 +143,20 @@ public class SimulationPanel extends BasePanel {
         }
     }
 
-    public void redraw(int _i, int _j) {
+    @Override
+    public void redraw(Point pt) {
         if (!isVisible()) return;
-
-        byte c = model.get(new Point(_i, _j).scrolled(scroll));
-
-        int ii = _i;
-        int jj = _j;
-
-        int idx = ii + model.getWidth() * jj + model.getShift();
-        int i1 = idx % model.getWidth();
-        int j1 = idx / model.getWidth();
-        _i = correctX(i1, j1);
-        _j = correctY(i1, j1);
+        byte c = model.get(pt);
+        pt = pt.unscrolled(scroll);
+        int idx = pt.getX() + model.getWidth() * pt.getY() + model.getShift();
+        pt = model.correct(model.getPoint(idx));
 
         Graphics g = getGraphics();
         int w = getVisibleWidth();
-        if (_i > w && _i != model.getWidth()) return;
-        if (_i == w && dx(_j) == 0) return;
-        paintBead(g, x(_i) - dx(_j), y(_j), gw(_i), gridy, model.getColor(c));
+        if (pt.getX() > w && pt.getX() != model.getWidth()) return;
+        if (pt.getX() == w && dx(pt.getY()) == 0) return;
+        paintBead(g, x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gw(pt.getX()), gridy, model.getColor(c));
         g.dispose();
-    }
-
-    @Override
-    public void redraw(Point pt) {
-        redraw(pt.getX(), pt.getY() - scroll);
     }
 
     @Override
