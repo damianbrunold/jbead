@@ -49,7 +49,6 @@ import java.util.TimerTask;
 
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
@@ -136,9 +135,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
-
-    private JButton sbRotateleft;
-    private JButton sbRotateright;
 
     private ToolsGroup toolsGroup = new ToolsGroup();
 
@@ -366,34 +362,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         toolbar.add(new ToolButton(getAction("file.print")));
         toolbar.add(new ToolButton(getAction("edit.undo")));
         toolbar.add(new ToolButton(getAction("edit.redo")));
-        toolbar.add(sbRotateleft = new JButton(ImageFactory.getIcon("view.rotateleft")));
-        sbRotateleft.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                sbRotateleftMouseDown(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                sbRotateleftMouseUp(e);
-            }
-        });
-        toolbar.add(sbRotateright = new JButton(ImageFactory.getIcon("view.rotateright")));
-        sbRotateright.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                sbRotaterightMouseDown(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                sbRotaterightMouseUp(e);
-            }
-        });
+        toolbar.add(new RotateLeftButton(this));
+        toolbar.add(new RotateRightButton(this));
         toolbar.add(new ToolButton(getAction("edit.arrange")));
 
         toolbar.addSeparator();
@@ -859,7 +829,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         new AboutBox(this).setVisible(true);
     }
 
-    private void sbRotaterightMouseDown(MouseEvent event) {
+    public void sbRotaterightMouseDown(MouseEvent event) {
         rotateRight();
         if (shiftTimer != null) shiftTimer.cancel();
         shiftTimer = new Timer("shiftTimer");
@@ -871,12 +841,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }, SHIFTING_INTERVAL, SHIFTING_INTERVAL);
     }
 
-    private void sbRotaterightMouseUp(MouseEvent event) {
+    public void sbRotaterightMouseUp(MouseEvent event) {
         shiftTimer.cancel();
         shiftTimer = null;
     }
 
-    private void sbRotateleftMouseDown(MouseEvent event) {
+    public void sbRotateleftMouseDown(MouseEvent event) {
         rotateLeft();
         if (shiftTimer != null) shiftTimer.cancel();
         shiftTimer = new Timer("shiftTimer");
@@ -888,7 +858,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }, SHIFTING_INTERVAL, SHIFTING_INTERVAL);
     }
 
-    private void sbRotateleftMouseUp(MouseEvent event) {
+    public void sbRotateleftMouseUp(MouseEvent event) {
         shiftTimer.cancel();
         shiftTimer = null;
     }
