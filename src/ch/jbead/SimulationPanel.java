@@ -256,20 +256,10 @@ public class SimulationPanel extends BasePanel {
     public void togglePoint(Point pt) {
         pt = mouseToField(pt);
         if (pt == null) return;
-        int idx = 0;
-        int m1 = model.getWidth();
-        int m2 = m1 + 1;
-        for (int j = 0; j < pt.getY() + scroll; j++) {
-            if (j % 2 == 0)
-                idx += m1;
-            else
-                idx += m2;
-        }
-        idx += pt.getX();
-        int j = idx / model.getWidth();
-        int i = idx % model.getWidth();
+        int idx = model.getCorrectedIndex(pt);
+        pt = model.getPoint(idx);
         selection.clear();
-        model.setPoint(new Point(i, j - scroll));
+        model.setPoint(pt.unscrolled(scroll));
     }
 
 }
