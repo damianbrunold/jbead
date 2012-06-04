@@ -412,17 +412,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         toolbar.addSeparator();
 
-        toolbar.add(sbToolPencil = new JToggleButton(getAction("tool.pencil")));
-        toolbar.add(sbToolSelect = new JToggleButton(getAction("tool.select")));
-        toolbar.add(sbToolFill = new JToggleButton(getAction("tool.fill")));
-        toolbar.add(sbToolPipette = new JToggleButton(getAction("tool.pipette")));
+        toolbar.add(sbToolPencil = new ToolButton(getAction("tool.pencil"), sbToolsGroup));
+        toolbar.add(sbToolSelect = new ToolButton(getAction("tool.select"), sbToolsGroup));
+        toolbar.add(sbToolFill = new ToolButton(getAction("tool.fill"), sbToolsGroup));
+        toolbar.add(sbToolPipette = new ToolButton(getAction("tool.pipette"), sbToolsGroup));
 
         sbToolPencil.setSelected(true);
-
-        sbToolsGroup.add(sbToolPencil);
-        sbToolsGroup.add(sbToolSelect);
-        sbToolsGroup.add(sbToolFill);
-        sbToolsGroup.add(sbToolPipette);
         return toolbar;
     }
 
