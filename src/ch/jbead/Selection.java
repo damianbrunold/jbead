@@ -60,6 +60,7 @@ public class Selection {
     }
 
     public void clear() {
+        if (!selection) return;
         fireSelectionDeleted(snapshot());
         selection = false;
     }

@@ -151,6 +151,7 @@ public class CorrectedPanel extends BasePanel {
         if (pt == null) return;
         int idx = model.getCorrectedIndex(pt);
         pt = model.getPoint(idx);
+        selection.clear();
         model.setPoint(pt.unscrolled(scroll));
     }
 

@@ -268,6 +268,7 @@ public class SimulationPanel extends BasePanel {
         idx += pt.getX();
         int j = idx / model.getWidth();
         int i = idx % model.getWidth();
+        selection.clear();
         model.setPoint(new Point(i, j - scroll));
     }
 
