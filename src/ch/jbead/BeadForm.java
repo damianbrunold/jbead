@@ -75,6 +75,8 @@ import ch.jbead.action.FilePrintAction;
 import ch.jbead.action.FilePrintSetupAction;
 import ch.jbead.action.FileSaveAction;
 import ch.jbead.action.FileSaveAsAction;
+import ch.jbead.action.PatternHeightAction;
+import ch.jbead.action.PatternWidthAction;
 import ch.jbead.action.ToolFillAction;
 import ch.jbead.action.ToolPencilAction;
 import ch.jbead.action.ToolPipetteAction;
@@ -88,6 +90,7 @@ import ch.jbead.action.ViewZoomNormalAction;
 import ch.jbead.action.ViewZoomOutAction;
 import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
+import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
 
 /**
@@ -129,9 +132,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JMenuItem viewCorrected;
     private JMenuItem viewSimulation;
     private JMenuItem viewReport;
-
-    private JMenu menuPattern = new JMenu("pattern");
-    private JMenuItem patternWidth = new JMenuItem("width");
 
     private JMenu menuInfo = new JMenu("?");
     private JMenuItem infoAbout = new JMenuItem("about jbead");
@@ -333,13 +333,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createPatternMenu() {
-        menuPattern.add(patternWidth);
-        patternWidth.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                patternWidthClick();
-            }
-        });
+        JMenu menuPattern = new JMenu(bundle.getString("action.pattern"));
+        menuPattern.add(new PatternWidthAction(this));
+        menuPattern.add(new PatternHeightAction(this));
         return menuPattern;
     }
 
@@ -615,6 +611,16 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         if (form.isOK()) {
             selection.clear();
             model.setWidth(form.getPatternWidth());
+        }
+    }
+
+    public void patternHeightClick() {
+        PatternHeightForm form = new PatternHeightForm(this);
+        form.setPatternHeight(model.getHeight());
+        form.setVisible(true);
+        if (form.isOK()) {
+            selection.clear();
+            model.setHeight(form.getPatternHeight());
         }
     }
 
@@ -992,6 +998,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     @Override
     public void modelChanged() {
         setColorIcons();
+        updateScrollbar();
         updateTitle();
     }
 

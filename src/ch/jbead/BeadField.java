@@ -19,16 +19,12 @@ package ch.jbead;
 
 import java.io.IOException;
 
-/**
- *
- */
 public class BeadField {
 
     public static final int DEFAULT_WIDTH = 15;
+    private static final int DEFAULT_SIZE = 25 * 1000;
 
-    private static final int SIZE = 25 * 1000;
-
-    private byte[] field = new byte[SIZE];
+    private byte[] field = new byte[DEFAULT_SIZE];
     private int width;
     private int height;
 
@@ -62,14 +58,30 @@ public class BeadField {
     }
 
     public void clear() {
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < field.length; i++) {
             field[i] = 0;
         }
     }
 
     public void setWidth(int width) {
         this.width = width;
-        this.height = SIZE / width;
+        this.height = field.length / width;
+    }
+
+    public void setHeight(int height) {
+        if (this.height == height) return;
+        byte[] field = new byte[this.width * this.height];
+        System.arraycopy(this.field, 0, field, 0, height * width);
+        this.height = height;
+        this.field = field;
+    }
+
+    public void copyFrom(BeadField source) {
+        setWidth(source.getWidth());
+        setHeight(source.getHeight());
+        for (int i = 0; i < width * height; i++) {
+            set(i, source.get(i));
+        }
     }
 
     public byte get(Point pt) {
@@ -96,21 +108,15 @@ public class BeadField {
         return new Point(index % width, index / width);
     }
 
-    public void copyFrom(BeadField source) {
-        setWidth(source.getWidth());
-        for (int i = 0; i < width * height; i++) {
-            set(i, source.get(i));
-        }
-    }
-
     public void save(JBeadOutputStream out) throws IOException {
         out.writeInt(width);
-        out.write(field, 0, SIZE);
+        out.write(field, 0, field.length);
     }
 
     public void load(JBeadInputStream in) throws IOException {
         width = in.readInt();
-        in.read(field, 0, SIZE);
+        setHeight(DEFAULT_SIZE / width);
+        in.read(field, 0, field.length);
         setWidth(width);
     }
 

@@ -599,4 +599,9 @@ public class Model implements ColorTable {
     public Point getPoint(int index) {
         return field.getPoint(index);
     }
+
+    public void setHeight(int height) {
+        field.setHeight(height);
+        fireModelChanged();
+    }
 }
