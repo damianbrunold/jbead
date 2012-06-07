@@ -239,6 +239,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         actions.put(name, action);
     }
 
+    public void clearSelection() {
+        selection.clear();
+    }
+
     @Override
     public ResourceBundle getBundle() {
         return bundle;
@@ -458,6 +462,38 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }
     }
 
+    public boolean isDraftVisible() {
+        return viewDraft.isVisible();
+    }
+
+    public boolean isCorrectedVisible() {
+        return viewCorrected.isVisible();
+    }
+
+    public boolean isSimulationVisible() {
+        return viewSimulation.isVisible();
+    }
+
+    public boolean isReportVisible() {
+        return viewReport.isVisible();
+    }
+
+    public void setDraftVisible(boolean visible) {
+        viewDraft.setVisible(visible);
+    }
+
+    public void setCorrectedVisible(boolean visible) {
+        viewCorrected.setVisible(visible);
+    }
+
+    public void setSimulationVisible(boolean visible) {
+        viewSimulation.setVisible(visible);
+    }
+
+    public void setReportVisible(boolean visible) {
+        viewReport.setVisible(visible);
+    }
+
     public void fileNewClick() {
         // ask whether to save modified document
         if (model.isModified()) {
@@ -488,20 +524,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         // Datei laden
         try {
-            JBeadInputStream in = new JBeadInputStream(new FileInputStream(file));
-            try {
-                String strid = in.read(13);
-                if (strid.equals("DB-BEAD/01:\r\n")) {
-                    loadData(in, true);
-                } else if (strid.equals("DB-BEAD/02:\r\n")) {
-                    loadData(in, false);
-                } else {
-                    JOptionPane.showMessageDialog(this, getString("invalidformat"));
-                    return;
-                }
-            } finally {
-                in.close();
-            }
+            new DbbFileFormat().load(model, this, file);
+            colors.get(model.getColorIndex()).setSelected(true);
+            updateScrollbar();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", e.getMessage()));
             model.clear();
@@ -511,17 +536,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         model.setRepeatDirty();
         model.setFile(file);
         if (addtomru) addToMRU(file);
-    }
-
-    private void loadData(JBeadInputStream in, boolean compatible) throws IOException {
-        selection.clear();
-        model.clear();
-        model.load(in, compatible);
-        viewDraft.setSelected(in.readBool());
-        viewCorrected.setSelected(in.readBool());
-        viewSimulation.setSelected(in.readBool());
-        colors.get(model.getColorIndex()).setSelected(true);
-        updateScrollbar();
     }
 
     public void fileOpenClick() {
@@ -538,20 +552,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         if (model.isSaved()) {
             // Einfach abspeichern...
             try {
-                JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
-                try {
-                    // TODO determine whether to write v2 or v1
-                    out.write("DB-BEAD/01:\r\n");
-                    model.save(out);
-                    out.writeBool(viewDraft.isSelected());
-                    out.writeBool(viewCorrected.isSelected());
-                    out.writeBool(viewSimulation.isSelected());
-                    // report flag is not saved?!
-                    model.setModified(false);
-                    updateTitle();
-                } finally {
-                    out.close();
-                }
+                new DbbFileFormat().save(model, this, model.getFile());
+                updateTitle();
             } catch (IOException e) {
                 // xxx
             }
