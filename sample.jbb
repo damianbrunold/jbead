@@ -1,0 +1,31 @@
+# sample file with jbead file format
+
+(jbb
+	(version 1)
+	(author "Damian Brunold")
+	(notes "A sample jbead file for designing and demonstrating the new file format")
+	(colors
+		(rgb 0 0 0)
+		(rgb 0 0 255)
+		(rgb 0 255 0)
+		(rgb 255 0 0)
+		(rgb 0 0 128)
+		(rgb 0 128 0)
+		(rgb 128 0 0)
+		# ...
+		(rgb 128 128 128))
+	(view
+		(draft visible)
+		(corrected visible)
+		(simulation invisible)
+		(report visible)
+		(toolbar visible)
+		(selected-tool pencil)
+		(selected-color 1)
+		(zoom 2)
+		(scroll 23)
+		(shift 0))
+	(model
+		(row 10 0 0 0 0 1 0 1 0 0 0)
+		# ...
+		(row 10 0 0 1 1 0 0 0 0 0 0)))
