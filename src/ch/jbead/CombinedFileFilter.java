@@ -21,16 +21,17 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-public class DbbFileFilter extends FileFilter {
+public class CombinedFileFilter extends FileFilter {
 
     @Override
     public boolean accept(File f) {
-        return f.getName().toLowerCase().endsWith(".dbb");
+        String name = f.getName().toLowerCase();
+        return name.endsWith(".dbb") || name.endsWith(".jbb");
     }
 
     @Override
     public String getDescription() {
-        return "dbbead files (*.dbb)";
+        return "jbead/dbbead files (*.jbb/*.dbb)";
     }
 
 }
