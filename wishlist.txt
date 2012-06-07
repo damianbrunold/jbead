@@ -1,0 +1,57 @@
+whishlist
+
+- Größere Umfänge (wir arbeiten mit bis zu 300 Perlen 
+  Umfang und mehr, z. B. für Handytaschen ).
+  
+- Das bisherige "Stapeln" verbessern, z. B. bestimmte Reihen 
+  markieren und dann oben auf das Muster stapeln.
+  
+- Löschen und Einfügen von (leeren) Reihen mitten im Muster.
+
+- Beim nachträglichen Erhöhen des Umfangs wird das Muster zerstört. 
+  Stattdessen wahlweise links und rechts eine leere Spalte einfügen.
+  
+- Alternative Ausgabe der Fädelliste in Symbol- oder Textform oder 
+  Farbnummern (so dass man keinen Farbdrucker benötigen würde).
+  
+- Spiegeln des fertigen Musters horiz. und vert. (dies ist  
+  notwendig, wenn man Schriftzeichen häkelt).
+  
+- Ein Export des Musters und der Fädelliste als jpg und/oder 
+  pdf (bislang machen wir Snapshots).
+  
+- beim Erstellen des Musters statt Farben Symbole verwenden 
+  (Stickprogramme bieten das an).
+  
+- bei der Fädelliste die Fädel- bzw. Häkelrichtung angeben 
+  (wir malen kleine Pfeile ein, für Anfänger).
+  
+- Perlen jeder Farbe zählen und ausgeben (214 Perlen schwarz, 
+  125 grau, 87 weiß usw. ).
+  
+- Farborientierung an den Perlen der Fa. Toho Rocailles 11/0 
+  und Miyuki Delica 11/0 (vgl. beadtool.net, Seite 6 "Large 
+  assortment of colors").
+  
+- jbead sollte die bisherigen dbb-Datein laden können.
+
+- Version für das ipad (immer mehr Mitglieder haben eines) und mac.
+
+- Viele Frauen sprechen sich die Fädelliste auf Band und lassen sie sich beim Auffädeln vorlesen.
+Daraus entstand dieser Wunsch:
+Fädelliste vorlesen zu lassen. Also zum Beispiel so:
+#  ein Menüpunkt zum Erzeugen von MP3-Dateien fragt mich zuerst 
+nach der Bezeichnung der einzelnen Farben ("Nennen Sie den Namen 
+der Farbe 1"---"Grün"---"Nennen Sie den Namen der  Farbe 2" --- 
+"'Gelb" --- "Nennen Sie den Namen der Farbe 3" --- "Espresso" --- 
+usw.), die Anzahl der verwendeten Farben kennt das Programm ja.
+#   dann klicke ich auf Fädelliste-MP3-Erzeugen und es entsteht 
+eine Audiodatei, die die Fädelliste vorliest, z.B.: Grün - 1 - 
+(keine Pause) - Gelb 1 - (keine Pause) - Espresso 3 - (zwei 
+Sekunden Pause) - Grün 10 - (neun Sekunden Pause) - Espresso 5 
+- (vier Sekunden Pause) usw.
+# evtl. braucht man weniger als eine Sekunde pro Perle? Bei einer 
+Perle braucht man keine Pause, weil das Vorlesen lange genug dauert, 
+um sie aufzunehmen, bei mehreren Perlen braucht man allerdings zu 
+lange, als dass man die Pause weglassen könnte. --> vielleicht kann 
+man die Pausendauer pro Perle selbst konfigurieren?)
