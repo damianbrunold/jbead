@@ -36,11 +36,10 @@ public class DbbFileFormat implements FileFormat {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
         try {
             out.write(MAGIC_FILE_HEADER);
-            model.save(out);
-            out.writeBool(form.isDraftVisible());
-            out.writeBool(form.isCorrectedVisible());
-            out.writeBool(form.isSimulationVisible());
-            // report flag is not saved?!
+            Memento memento = new DbbMemento();
+            model.saveTo(memento);
+            form.saveTo(memento);
+            memento.save(out);
             model.setModified(false);
         } finally {
             out.close();
@@ -57,11 +56,10 @@ public class DbbFileFormat implements FileFormat {
             }
             form.clearSelection();
             model.clear();
-            model.load(in, true);
-            form.setDraftVisible(in.readBool());
-            form.setCorrectedVisible(in.readBool());
-            form.setSimulationVisible(in.readBool());
-            form.setReportVisible(true);
+            Memento memento = new DbbMemento();
+            memento.load(in);
+            model.loadFrom(memento);
+            form.loadFrom(memento);
         } finally {
             in.close();
         }

@@ -17,12 +17,11 @@
 
 package ch.jbead;
 
-import java.io.IOException;
 
 public class BeadField {
 
     public static final int DEFAULT_WIDTH = 15;
-    private static final int DEFAULT_SIZE = 25 * 1000;
+    public static final int DEFAULT_SIZE = 25 * 1000;
 
     private byte[] field = new byte[DEFAULT_SIZE];
     private int width;
@@ -108,18 +107,6 @@ public class BeadField {
         return new Point(index % width, index / width);
     }
 
-    public void save(JBeadOutputStream out) throws IOException {
-        out.writeInt(width);
-        out.write(field, 0, field.length);
-    }
-
-    public void load(JBeadInputStream in) throws IOException {
-        width = in.readInt();
-        setHeight(DEFAULT_SIZE / width);
-        in.read(field, 0, field.length);
-        setWidth(width);
-    }
-
     public void insertLine() {
         for (int j = getHeight() - 1; j > 0; j--) {
             for (int i = 0; i < getWidth(); i++) {
@@ -142,6 +129,19 @@ public class BeadField {
         for (int i = 0; i < getWidth(); i++) {
             set(new Point(i, getHeight() - 1), (byte) 0);
         }
+    }
+
+    public void saveTo(Memento memento) {
+        memento.setWidth(width);
+        memento.setHeight(height);
+        memento.setData(field);
+    }
+
+    public void loadFrom(Memento memento) {
+        width = memento.getWidth();
+        setHeight(DEFAULT_SIZE / width);
+        field = memento.getData();
+        setWidth(width);
     }
 
 }

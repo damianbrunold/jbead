@@ -380,54 +380,6 @@ public class Model implements ColorTable {
         this.file = file;
     }
 
-    public void load(JBeadInputStream in, boolean compatible) throws IOException {
-        field.load(in);
-        colors.clear();
-        if (compatible) {
-            colors.add(in.readBackgroundColor());
-            for (int i = 1; i < 10; i++) {
-                colors.add(in.readColor());
-            }
-        } else {
-            int colorCount = readInt(in, "colorCount");
-            for (int i = 0; i < colorCount; i++) {
-                colors.add(in.readColor());
-            }
-        }
-        colorIndex = readByte(in, "colorIndex");
-        zoomIndex = readInt(in, "zoomIndex");
-        shift = readInt(in, "shift");
-        scroll = readInt(in, "scroll");
-        fireModelChanged();
-    }
-
-    private byte readByte(JBeadInputStream in, String name) throws IOException {
-        byte result = in.read();
-        if (result < 0) throw new RuntimeException("file format error: byte " + name + " was negative");
-        return result;
-    }
-
-    private int readInt(JBeadInputStream in, String name) throws IOException {
-        int result = in.readInt();
-        if (result < 0) throw new RuntimeException("file format error: int " + name + " was negative");
-        return result;
-    }
-
-    public void save(JBeadOutputStream out) throws IOException {
-        field.save(out);
-        if (colors.size() > 10) {
-            out.writeInt(colors.size());
-        }
-        for (Color color : colors) {
-            out.writeColor(color);
-        }
-        out.write(colorIndex);
-        out.writeInt(zoomIndex);
-        out.writeInt(shift);
-        out.writeInt(scroll);
-        fireModelChanged();
-    }
-
     public byte getColorIndex() {
         return colorIndex;
     }
@@ -604,4 +556,24 @@ public class Model implements ColorTable {
         field.setHeight(height);
         fireModelChanged();
     }
+
+    public void saveTo(Memento memento) {
+        field.saveTo(memento);
+        memento.setColors(colors);
+        memento.setColorIndex(colorIndex);
+        memento.setZoomIndex(zoomIndex);
+        memento.setShift(shift);
+        memento.setScroll(scroll);
+    }
+
+    public void loadFrom(Memento memento) {
+        field.loadFrom(memento);
+        colors = memento.getColors();
+        colorIndex = memento.getColorIndex();
+        zoomIndex = memento.getZoomIndex();
+        shift = memento.getShift();
+        scroll = memento.getScroll();
+        fireModelChanged();
+    }
+
 }

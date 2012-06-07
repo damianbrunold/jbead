@@ -1056,4 +1056,18 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         model.setScroll(scroll);
     }
 
+    public void saveTo(Memento memento) {
+        memento.setDraftVisible(isDraftVisible());
+        memento.setCorrectedVisible(isCorrectedVisible());
+        memento.setSimulationVisible(isSimulationVisible());
+        memento.setReportVisible(isReportVisible());
+    }
+
+    public void loadFrom(Memento memento) {
+        setDraftVisible(memento.isDraftVisible());
+        setCorrectedVisible(memento.isCorrectedVisible());
+        setSimulationVisible(memento.isSimulationVisible());
+        setReportVisible(memento.isReportVisible());
+    }
+
 }
