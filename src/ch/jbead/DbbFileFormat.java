@@ -22,9 +22,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.swing.JOptionPane;
-
 public class DbbFileFormat implements FileFormat {
+
+    private static final String MAGIC_FILE_HEADER = "DB-BEAD/01:\r\n";
 
     @Override
     public String getName() {
@@ -35,7 +35,7 @@ public class DbbFileFormat implements FileFormat {
     public void save(Model model, BeadForm form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
         try {
-            out.write("DB-BEAD/01:\r\n");
+            out.write(MAGIC_FILE_HEADER);
             model.save(out);
             out.writeBool(form.isDraftVisible());
             out.writeBool(form.isCorrectedVisible());
@@ -52,7 +52,7 @@ public class DbbFileFormat implements FileFormat {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
             String strid = in.read(13);
-            if (!strid.equals("DB-BEAD/01:\r\n")) {
+            if (!strid.equals(MAGIC_FILE_HEADER)) {
                 throw new IOException(form.getString("invalidformat"));
             }
             form.clearSelection();
