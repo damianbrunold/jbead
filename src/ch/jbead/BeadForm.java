@@ -36,8 +36,6 @@ import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,9 +91,6 @@ import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
 
-/**
- *
- */
 public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private static final long serialVersionUID = 1L;

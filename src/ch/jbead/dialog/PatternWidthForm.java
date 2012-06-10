@@ -36,13 +36,10 @@ import javax.swing.SpinnerNumberModel;
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 
-/**
- * 
- */
 public class PatternWidthForm extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    private SpinnerModel widthModel = new SpinnerNumberModel(10, 5, 35, 1);
+    private SpinnerModel widthModel = new SpinnerNumberModel(10, 5, 500, 1);
     private JSpinner patternwidth = new JSpinner(widthModel);
 
     private boolean isOK = false;
