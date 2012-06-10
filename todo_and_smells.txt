@@ -85,12 +85,6 @@ but would be quite vertical in the corrected and simulated panel.
 
 Line drawing: draw lines in corrected/simulation panels!
 
-Fill: enable usage of fill in corrected/simulation panels
-
-Fill: fill entire bead run, not only one circumference.
-
-Make model height adjustable. Also update the scrollbar, obviously.
-
 Save width AND height in v2 file format so that differing heights
 can be used. Use the default or legacy size for the v1 file format.
 
