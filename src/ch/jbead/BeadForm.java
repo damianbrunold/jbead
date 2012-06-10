@@ -683,6 +683,26 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }
     }
 
+    public void correctedMouseUp(MouseEvent event) {
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            if (toolsGroup.isSelected(2)) {
+                corrected.fillLine(new Point(event.getX(), event.getY()));
+            } else {
+                corrected.togglePoint(new Point(event.getX(), event.getY()));
+            }
+        }
+    }
+
+    public void simulationMouseUp(MouseEvent event) {
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            if (toolsGroup.isSelected(2)) {
+                simulation.fillLine(new Point(event.getX(), event.getY()));
+            } else {
+                simulation.togglePoint(new Point(event.getX(), event.getY()));
+            }
+        }
+    }
+
     private void selectColorFrom(Point pt) {
         byte colorIndex = model.get(pt.scrolled(model.getScroll()));
         colors.get(colorIndex).setSelected(true);
@@ -814,18 +834,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public void toolPipetteClick() {
         selection.clear();
         toolsGroup.selectTool(3);
-    }
-
-    public void correctedMouseUp(MouseEvent event) {
-        if (event.getButton() == MouseEvent.BUTTON1) {
-            corrected.togglePoint(new Point(event.getX(), event.getY()));
-        }
-    }
-
-    public void simulationMouseUp(MouseEvent event) {
-        if (event.getButton() == MouseEvent.BUTTON1) {
-            simulation.togglePoint(new Point(event.getX(), event.getY()));
-        }
     }
 
     public void infoAboutClick() {

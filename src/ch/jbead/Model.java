@@ -234,19 +234,20 @@ public class Model implements ColorTable {
         pt = pt.scrolled(scroll);
         byte color = colorIndex;
         byte background = get(pt);
-        for (Point point : new Segment(pt, pt.lastRight(getWidth()))) {
-            if (get(point) != background) {
+        int startIndex = getIndex(pt);
+        for (int index = startIndex; index >= 0; index--) {
+            pt = getPoint(index);
+            if (get(pt) != background) {
                 break;
             }
-            set(point, color);
+            set(pt, color);
         }
-        if (pt.getX() != 0) {
-            for (Point point : new Segment(pt.nextLeft(), pt.lastLeft())) {
-                if (get(point) != background) {
-                    break;
-                }
-                set(point, color);
+        for (int index = startIndex + 1; index < field.getLastIndex(); index++) {
+            pt = getPoint(index);
+            if (get(pt) != background) {
+                break;
             }
+            set(pt, color);
         }
         setRepeatDirty();
     }

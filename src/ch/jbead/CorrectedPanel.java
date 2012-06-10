@@ -137,4 +137,12 @@ public class CorrectedPanel extends BasePanel {
         model.setPoint(pt.unscrolled(scroll));
     }
 
+    public void fillLine(Point pt) {
+        pt = mouseToField(pt);
+        if (pt == null) return;
+        int idx = model.getCorrectedIndex(pt);
+        pt = model.getPoint(idx);
+        selection.clear();
+        model.fillLine(pt.unscrolled(scroll));
+    }
 }
