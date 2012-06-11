@@ -89,3 +89,8 @@ Save width AND height in v2 file format so that differing heights
 can be used. Use the default or legacy size for the v1 file format.
 
 Move the setWidth and setHeight code from beadform to the actions.
+
+Add/remove Beads at the start of the pattern (or at the current 
+location if this is implemented). This allows to "rotate" the pattern 
+or to add/remove beads in a very fine-grained way. (Currently, only
+whole lines can be inserted and only at the start of the pattern.)
