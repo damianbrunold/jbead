@@ -28,7 +28,8 @@ public class BeadField {
     private int height;
 
     public BeadField() {
-        setWidth(DEFAULT_WIDTH);
+        this.width = DEFAULT_WIDTH;
+        this.height = DEFAULT_SIZE / DEFAULT_WIDTH;
         clear();
     }
 
@@ -63,8 +64,12 @@ public class BeadField {
     }
 
     public void setWidth(int width) {
+        byte[] field = new byte[width * this.height];
+        for (int j = 0; j < this.height; j++) {
+            System.arraycopy(this.field, j * this.width, field, j * width, Math.min(width, this.width));
+        }
+        this.field = field;
         this.width = width;
-        this.height = field.length / width;
     }
 
     public void setHeight(int height) {
