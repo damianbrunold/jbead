@@ -176,6 +176,7 @@ public class Model implements ColorTable {
     public void setWidth(int width) {
         snapshot();
         field.setWidth(width);
+        normalizeShift();
         setModified();
         setRepeatDirty();
         fireModelChanged();
@@ -333,13 +334,20 @@ public class Model implements ColorTable {
     }
 
     public void shiftRight() {
-        shift = (shift + 1) % getWidth();
+        shift++;
+        normalizeShift();
         fireShiftChanged(shift);
     }
 
     public void shiftLeft() {
-        shift = (shift - 1 + getWidth()) % getWidth();
+        shift--;
+        normalizeShift();
         fireShiftChanged(shift);
+    }
+
+    public void normalizeShift() {
+        while (shift < 0) shift += getWidth();
+        while (shift > getWidth()) shift -= getWidth();
     }
 
     public void clear() {
