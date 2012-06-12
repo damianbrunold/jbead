@@ -355,15 +355,15 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JToolBar createToolbar() {
         JToolBar toolbar = new JToolBar();
-        toolbar.add(new ToolButton(getAction("file.new")));
-        toolbar.add(new ToolButton(getAction("file.open")));
-        toolbar.add(new ToolButton(getAction("file.save")));
-        toolbar.add(new ToolButton(getAction("file.print")));
-        toolbar.add(new ToolButton(getAction("edit.undo")));
-        toolbar.add(new ToolButton(getAction("edit.redo")));
+        toolbar.add(new Button(getAction("file.new")));
+        toolbar.add(new Button(getAction("file.open")));
+        toolbar.add(new Button(getAction("file.save")));
+        toolbar.add(new Button(getAction("file.print")));
+        toolbar.add(new Button(getAction("edit.undo")));
+        toolbar.add(new Button(getAction("edit.redo")));
         toolbar.add(new RotateLeftButton(this));
         toolbar.add(new RotateRightButton(this));
-        toolbar.add(new ToolButton(getAction("edit.arrange")));
+        toolbar.add(new Button(getAction("edit.arrange")));
 
         toolbar.addSeparator();
 
