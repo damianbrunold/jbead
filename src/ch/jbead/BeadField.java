@@ -112,6 +112,32 @@ public class BeadField {
         return new Point(index % width, index / width);
     }
 
+    public void swap(Point a, Point b) {
+        byte temp = get(a);
+        set(a, get(b));
+        set(b, temp);
+    }
+
+    public void mirrorHorizontal(Rect rect) {
+        for (int j = rect.bottom(); j <= rect.top(); j++) {
+            for (int i = rect.left(); i <= (rect.left() + rect.right()) / 2; i++) {
+                Point a = new Point(i, j);
+                Point b = new Point(rect.right() - (i - rect.left()), j);
+                swap(a, b);
+            }
+        }
+    }
+
+    public void mirrorVertical(Rect rect) {
+        for (int i = rect.left(); i <= rect.right(); i++) {
+            for (int j = rect.bottom(); j <= (rect.bottom() + rect.top()) / 2; j++) {
+                Point a = new Point(i, j);
+                Point b = new Point(i, rect.top() - (j - rect.bottom()));
+                swap(a, b);
+            }
+        }
+    }
+
     public void insertLine() {
         for (int j = getHeight() - 1; j > 0; j--) {
             for (int i = 0; i < getWidth(); i++) {

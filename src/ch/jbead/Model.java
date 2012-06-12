@@ -577,4 +577,16 @@ public class Model implements ColorTable {
         fireModelChanged();
     }
 
+    public void mirrorHorizontal(Rect rect) {
+        snapshot();
+        field.mirrorHorizontal(rect);
+        fireModelChanged();
+    }
+
+    public void mirrorVertical(Rect rect) {
+        snapshot();
+        field.mirrorVertical(rect);
+        fireModelChanged();
+    }
+
 }

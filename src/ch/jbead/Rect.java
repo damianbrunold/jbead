@@ -21,22 +21,54 @@ import java.util.Iterator;
 
 public class Rect implements Iterable<Point> {
 
-    private Point begin;
-    private Point end;
-    
+    protected Point begin;
+    protected Point end;
+
     public Rect(Point begin, Point end) {
         this.begin = begin;
         this.end = end;
     }
-    
+
     @Override
     public Iterator<Point> iterator() {
         return new RectIterator(begin, end);
     }
-    
+
     @Override
     public String toString() {
         return begin + "-" + end;
+    }
+
+    public int left() {
+        return getBegin().getX();
+    }
+
+    public int right() {
+        return getEnd().getX();
+    }
+
+    public int bottom() {
+        return getBegin().getY();
+    }
+
+    public int top() {
+        return getEnd().getY();
+    }
+
+    public int width() {
+        return right() - left() + 1;
+    }
+
+    public int height() {
+        return top() - bottom() + 1;
+    }
+
+    public Point getBegin() {
+        return new Point(Math.min(begin.getX(), end.getX()), Math.min(begin.getY(), end.getY()));
+    }
+
+    public Point getEnd() {
+        return new Point(Math.max(begin.getX(), end.getX()), Math.max(begin.getY(), end.getY()));
     }
 
 }

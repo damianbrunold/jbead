@@ -23,23 +23,19 @@ import java.util.List;
 /**
  *
  */
-public class Selection {
+public class Selection extends Rect {
 
-    private Point origin;
-    private Point dest;
     private boolean selection;
 
     private List<SelectionListener> listeners = new ArrayList<SelectionListener>();
 
     public Selection() {
-        origin = new Point(0, 0);
-        dest = new Point(0, 0);
+        super(new Point(0, 0), new Point(0, 0));
         selection = false;
     }
 
     public Selection(Selection sel) {
-        origin = sel.origin;
-        dest = sel.dest;
+        super(sel.begin, sel.end);
         selection = sel.selection;
     }
 
@@ -71,15 +67,15 @@ public class Selection {
 
     public void init(Point origin) {
         Selection before = snapshot();
-        this.origin = this.dest = origin;
+        this.begin = this.end = origin;
         selection = false;
         fireSelectionChanged(before, snapshot());
     }
 
     public void update(Point end) {
         Selection before = snapshot();
-        this.dest = end;
-        selection = !origin.equals(dest);
+        this.end = end;
+        selection = !begin.equals(end);
         fireSelectionChanged(before, snapshot());
     }
 
@@ -88,89 +84,57 @@ public class Selection {
     }
 
     public Point getOrigin() {
-        return origin;
+        return begin;
     }
 
     public Point getDestination() {
-        return dest;
-    }
-
-    public Point getBegin() {
-        return new Point(Math.min(origin.getX(), dest.getX()), Math.min(origin.getY(), dest.getY()));
-    }
-
-    public Point getEnd() {
-        return new Point(Math.max(origin.getX(), dest.getX()), Math.max(origin.getY(), dest.getY()));
+        return end;
     }
 
     public boolean isSquare() {
-        return Math.abs(dest.getX() - origin.getX()) == Math.abs(dest.getY() - origin.getY());
+        return Math.abs(end.getX() - begin.getX()) == Math.abs(end.getY() - begin.getY());
     }
 
     public boolean isColumn() {
-        return origin.getX() == dest.getX();
+        return begin.getX() == end.getX();
     }
 
     public boolean isRow() {
-        return origin.getY() == dest.getY();
+        return begin.getY() == end.getY();
     }
 
     public boolean isNormal() {
-        return isActive() && origin.getX() != dest.getX() && origin.getY() != dest.getY();
-    }
-
-    public int left() {
-        return getBegin().getX();
-    }
-
-    public int right() {
-        return getEnd().getX();
-    }
-
-    public int bottom() {
-        return getBegin().getY();
-    }
-
-    public int top() {
-        return getEnd().getY();
-    }
-
-    public int width() {
-        return right() - left() + 1;
-    }
-
-    public int height() {
-        return top() - bottom() + 1;
+        return isActive() && begin.getX() != end.getX() && begin.getY() != end.getY();
     }
 
     public Point getLineDest() {
-        int x = dest.getX();
-        int y = dest.getY();
+        int x = end.getX();
+        int y = end.getY();
         int ax = Math.abs(getDeltaX());
         int ay = Math.abs(getDeltaY());
-        if (ax == 0 || ay == 0) return new Point(dest);
+        if (ax == 0 || ay == 0) return new Point(end);
         if (ax > ay) {
-            x = origin.getX() + ay * getDx();
+            x = begin.getX() + ay * getDx();
         } else {
-            y = origin.getY() + ax * getDy();
+            y = begin.getY() + ax * getDy();
         }
         return new Point(x, y);
     }
 
     public int getDeltaX() {
-        return dest.getX() - origin.getX();
+        return end.getX() - begin.getX();
     }
 
     public int getDeltaY() {
-        return dest.getY() - origin.getY();
+        return end.getY() - begin.getY();
     }
 
     public int getDx() {
-        return origin.getX() < dest.getX() ? 1 : -1;
+        return begin.getX() < end.getX() ? 1 : -1;
     }
 
     public int getDy() {
-        return origin.getY() < dest.getY() ? 1 : -1;
+        return begin.getY() < end.getY() ? 1 : -1;
     }
 
     @Override

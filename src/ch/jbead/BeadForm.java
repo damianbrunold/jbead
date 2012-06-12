@@ -63,6 +63,8 @@ import javax.swing.JToolBar;
 import ch.jbead.action.EditArrangeAction;
 import ch.jbead.action.EditDeleteLineAction;
 import ch.jbead.action.EditInsertLineAction;
+import ch.jbead.action.EditMirrorHorizontalAction;
+import ch.jbead.action.EditMirrorVerticalAction;
 import ch.jbead.action.EditRedoAction;
 import ch.jbead.action.EditUndoAction;
 import ch.jbead.action.FileExitAction;
@@ -302,6 +304,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuEdit.add(new EditUndoAction(this));
         menuEdit.add(new EditRedoAction(this));
         menuEdit.add(new EditArrangeAction(this));
+        menuEdit.add(new EditMirrorHorizontalAction(this));
+        menuEdit.add(new EditMirrorVerticalAction(this));
         JMenu menuEditLine = new JMenu(bundle.getString("action.edit.line"));
         menuEdit.add(menuEditLine);
         menuEditLine.add(new EditInsertLineAction(this));
@@ -805,6 +809,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void updateHandler() {
         getAction("edit.arrange").setEnabled(selection.isActive());
+        getAction("edit.mirrorhorizontal").setEnabled(selection.isActive());
+        getAction("edit.mirrorvertical").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
 
@@ -1071,6 +1077,14 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         setCorrectedVisible(memento.isCorrectedVisible());
         setSimulationVisible(memento.isSimulationVisible());
         setReportVisible(memento.isReportVisible());
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public Selection getSelection() {
+        return selection;
     }
 
 }
