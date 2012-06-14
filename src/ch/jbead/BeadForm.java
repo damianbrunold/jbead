@@ -813,6 +813,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         getAction("edit.arrange").setEnabled(selection.isActive());
         getAction("edit.mirrorhorizontal").setEnabled(selection.isActive());
         getAction("edit.mirrorvertical").setEnabled(selection.isActive());
+        getAction("edit.rotate").setEnabled(selection.isActive() && selection.isSquare());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
 
