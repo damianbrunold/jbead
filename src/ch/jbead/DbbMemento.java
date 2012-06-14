@@ -42,7 +42,12 @@ public class DbbMemento implements Memento {
     @Override
     public void save(JBeadOutputStream out) throws IOException {
         out.writeInt(width);
-        out.write(data);
+        out.write(data, 0, Math.min(BeadField.DEFAULT_SIZE, data.length));
+        if (data.length <= BeadField.DEFAULT_SIZE) {
+            for (int i = data.length; i < BeadField.DEFAULT_SIZE; i++) {
+                out.write(0);
+            }
+        }
         if (colors.size() > 10) {
             throw new RuntimeException("Cannot save pattern with more than 10 colors in DB-BEAD file format");
         }

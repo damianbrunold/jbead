@@ -75,7 +75,7 @@ public class BeadField {
     public void setHeight(int height) {
         if (this.height == height) return;
         byte[] field = new byte[this.width * this.height];
-        System.arraycopy(this.field, 0, field, 0, height * width);
+        System.arraycopy(this.field, 0, field, 0, Math.min(this.field.length, field.length));
         this.height = height;
         this.field = field;
     }
