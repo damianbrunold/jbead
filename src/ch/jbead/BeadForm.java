@@ -66,6 +66,7 @@ import ch.jbead.action.EditInsertLineAction;
 import ch.jbead.action.EditMirrorHorizontalAction;
 import ch.jbead.action.EditMirrorVerticalAction;
 import ch.jbead.action.EditRedoAction;
+import ch.jbead.action.EditRotateAction;
 import ch.jbead.action.EditUndoAction;
 import ch.jbead.action.FileExitAction;
 import ch.jbead.action.FileMRUAction;
@@ -306,6 +307,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuEdit.add(new EditArrangeAction(this));
         menuEdit.add(new EditMirrorHorizontalAction(this));
         menuEdit.add(new EditMirrorVerticalAction(this));
+        menuEdit.add(new EditRotateAction(this));
         JMenu menuEditLine = new JMenu(bundle.getString("action.edit.line"));
         menuEdit.add(menuEditLine);
         menuEditLine.add(new EditInsertLineAction(this));

@@ -71,4 +71,20 @@ public class Rect implements Iterable<Point> {
         return new Point(Math.max(begin.getX(), end.getX()), Math.max(begin.getY(), end.getY()));
     }
 
+    public boolean isSquare() {
+        return Math.abs(end.getX() - begin.getX()) == Math.abs(end.getY() - begin.getY());
+    }
+
+    public boolean isColumn() {
+        return begin.getX() == end.getX();
+    }
+
+    public boolean isRow() {
+        return begin.getY() == end.getY();
+    }
+
+    public int size() {
+        return width() * height();
+    }
+
 }

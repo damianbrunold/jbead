@@ -138,6 +138,28 @@ public class BeadField {
         }
     }
 
+    public byte[] copyOf(Rect rect) {
+        byte[] data = new byte[rect.size()];
+        for (int j = 0; j < rect.height(); j++) {
+            for (int i = 0; i < rect.width(); i++) {
+                data[j * rect.width() + i] = get(new Point(rect.left() + i, rect.bottom() + j));
+            }
+        }
+        return data;
+    }
+
+    public void rotate(Rect rect) {
+        if (!rect.isSquare()) return;
+        byte[] buffer = copyOf(rect);
+        for (int j = 0; j < rect.height(); j++) {
+            for (int i = 0; i < rect.width(); i++) {
+                int x = j;
+                int y = rect.height() - 1 - i;
+                set(new Point(rect.left() + x, rect.bottom() + y), buffer[j * rect.width() + i]);
+            }
+        }
+    }
+
     public void insertLine() {
         for (int j = getHeight() - 1; j > 0; j--) {
             for (int i = 0; i < getWidth(); i++) {

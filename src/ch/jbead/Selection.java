@@ -91,18 +91,6 @@ public class Selection extends Rect {
         return end;
     }
 
-    public boolean isSquare() {
-        return Math.abs(end.getX() - begin.getX()) == Math.abs(end.getY() - begin.getY());
-    }
-
-    public boolean isColumn() {
-        return begin.getX() == end.getX();
-    }
-
-    public boolean isRow() {
-        return begin.getY() == end.getY();
-    }
-
     public boolean isNormal() {
         return isActive() && begin.getX() != end.getX() && begin.getY() != end.getY();
     }

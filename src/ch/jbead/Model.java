@@ -597,4 +597,11 @@ public class Model implements ColorTable {
         fireModelChanged();
     }
 
+    public void rotate(Rect rect) {
+        if (!rect.isSquare()) return;
+        snapshot();
+        field.rotate(rect);
+        fireModelChanged();
+    }
+
 }
