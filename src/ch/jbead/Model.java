@@ -23,9 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- */
 public class Model implements ColorTable {
 
     private BeadUndo undo = new BeadUndo();
@@ -51,7 +48,6 @@ public class Model implements ColorTable {
     public Model(Localization localization) {
         repeatDirty = false;
         field.clear();
-        field.setWidth(15);
         colorIndex = 1;
         scroll = 0;
         initZoomTable();
