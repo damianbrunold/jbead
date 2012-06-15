@@ -68,8 +68,8 @@ public class DbbMemento implements Memento {
     public void load(JBeadInputStream in) throws IOException {
         width = in.readInt();
         height = BeadField.DEFAULT_SIZE / width;
-        data = new byte[BeadField.DEFAULT_SIZE];
-        in.read(data);
+        data = new byte[BeadField.DEFAULT_SIZE + BeadField.DEFAULT_SIZE % width];
+        in.read(data, 0, BeadField.DEFAULT_SIZE);
         colors.clear();
         colors.add(in.readBackgroundColor());
         for (int i = 1; i < 10; i++) {
