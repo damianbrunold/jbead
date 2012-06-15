@@ -24,21 +24,18 @@ import java.io.IOException;
 
 import javax.swing.filechooser.FileFilter;
 
-public class DbbFileFormat implements FileFormat {
-
-    private static final String MAGIC_FILE_HEADER = "DB-BEAD/01:\r\n";
+public class JBeadFileFormat implements FileFormat {
 
     @Override
     public String getName() {
-        return "DB-BEAD";
+        return "jbead";
     }
 
     @Override
     public void save(Model model, BeadForm form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
         try {
-            out.write(MAGIC_FILE_HEADER);
-            Memento memento = new DbbMemento();
+            Memento memento = new JBeadMemento();
             model.saveTo(memento);
             form.saveTo(memento);
             memento.save(out);
@@ -52,14 +49,10 @@ public class DbbFileFormat implements FileFormat {
     public void load(Model model, BeadForm form, File srcfile) throws IOException {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
-            String strid = in.read(13);
-            if (!strid.equals(MAGIC_FILE_HEADER)) {
-                throw new IOException(form.getString("invalidformat"));
-            }
+            Memento memento = new JBeadMemento();
+            memento.load(in);
             form.clearSelection();
             model.clear();
-            Memento memento = new DbbMemento();
-            memento.load(in);
             model.loadFrom(memento);
             form.loadFrom(memento);
         } finally {
@@ -69,12 +62,12 @@ public class DbbFileFormat implements FileFormat {
 
     @Override
     public FileFilter getFileFilter() {
-        return new DbbFileFilter();
+        return new JBeadFileFilter();
     }
 
     @Override
     public String getExtension() {
-        return ".dbb";
+        return ".jbb";
     }
 
 }

@@ -20,10 +20,14 @@ package ch.jbead;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.filechooser.FileFilter;
+
 public interface FileFormat {
 
     String getName();
     void save(Model model, BeadForm form, File destfile) throws IOException;
     void load(Model model, BeadForm form, File srcfile) throws IOException;
+    FileFilter getFileFilter();
+    String getExtension();
 
 }
