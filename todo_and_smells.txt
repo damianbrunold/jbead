@@ -94,3 +94,6 @@ Add/remove Beads at the start of the pattern (or at the current
 location if this is implemented). This allows to "rotate" the pattern 
 or to add/remove beads in a very fine-grained way. (Currently, only
 whole lines can be inserted and only at the start of the pattern.)
+
+There is a redraw bug in the simulation. It is visible in the hearts
+sample file. The partial beads at the left end are not drawn.
