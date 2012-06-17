@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.jbead.storage.ObjectModel;
+
 public class JBeadMemento extends DbbMemento {
+
+    private static final int VERSION = 1;
 
     private int width;
     private int height;
@@ -41,6 +45,11 @@ public class JBeadMemento extends DbbMemento {
 
     @Override
     public void save(JBeadOutputStream out) throws IOException {
+        ObjectModel om = new ObjectModel("jbb");
+        om.add("version", VERSION);
+        for (Color color: colors) {
+            om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue());
+        }
         // TODO
     }
 
