@@ -546,9 +546,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public void fileOpenClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getCurrentDirectory());
-        setFileFilters(dialog);
+        dialog.setMultiSelectionEnabled(false);
+        setOpenFileFilters(dialog);
         if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            updateFileFormat(dialog.getFileFilter());
+            updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
             loadFile(dialog.getSelectedFile(), true);
         }
     }
@@ -573,27 +574,39 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         filters.add(filter.getDescription());
     }
 
-    private void setFileFilters(JFileChooser dialog) {
+    private void setOpenFileFilters(JFileChooser dialog) {
+        dialog.setAcceptAllFileFilterUsed(true);
+        dialog.addChoosableFileFilter(new JbbFileFilter());
+        dialog.addChoosableFileFilter(new DbbFileFilter());
+        dialog.setFileFilter(new JBeadFileFilter());
+    }
+
+    private void setSaveFileFilters(JFileChooser dialog) {
         dialog.setAcceptAllFileFilterUsed(true);
         Set<String> filters = new HashSet<String>();
         filters.add(fileformat.getFileFilter().getDescription());
-        addUniqueFilter(dialog, new JBeadFileFilter(), filters);
+        addUniqueFilter(dialog, new JbbFileFilter(), filters);
         addUniqueFilter(dialog, new DbbFileFilter(), filters);
         dialog.setFileFilter(fileformat.getFileFilter());
     }
 
-    private void updateFileFormat(FileFilter filter) {
-        if (filter instanceof JBeadFileFilter) {
+    private void updateFileFormat(FileFilter filter, File file) {
+        if (file.getName().endsWith(JBeadFileFormat.EXTENSION)) {
             fileformat = new JBeadFileFormat();
-        } else {
+        } else if (file.getName().endsWith(DbbFileFormat.EXTENSION)) {
             fileformat = new DbbFileFormat();
+        } else if (filter instanceof DbbFileFilter) {
+            fileformat = new DbbFileFormat();
+        } else {
+            fileformat = new JBeadFileFormat();
         }
     }
 
     public void fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getCurrentDirectory());
-        setFileFilters(dialog);
+        dialog.setMultiSelectionEnabled(false);
+        setSaveFileFilters(dialog);
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             if (dialog.getSelectedFile().exists()) {
                 String msg = getString("fileexists");
@@ -602,7 +615,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                     return;
                 }
             }
-            updateFileFormat(dialog.getFileFilter());
+            updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
             File file = dialog.getSelectedFile();
             if (file.getName().indexOf('.') == -1) {
                 file = new File(file.getParentFile(), file.getName() + fileformat.getExtension());

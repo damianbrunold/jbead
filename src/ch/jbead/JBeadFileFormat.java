@@ -26,6 +26,8 @@ import javax.swing.filechooser.FileFilter;
 
 public class JBeadFileFormat implements FileFormat {
 
+    public static final String EXTENSION = ".jbb";
+
     @Override
     public String getName() {
         return "jbead";
@@ -62,12 +64,12 @@ public class JBeadFileFormat implements FileFormat {
 
     @Override
     public FileFilter getFileFilter() {
-        return new JBeadFileFilter();
+        return new JbbFileFilter();
     }
 
     @Override
     public String getExtension() {
-        return ".jbb";
+        return EXTENSION;
     }
 
 }

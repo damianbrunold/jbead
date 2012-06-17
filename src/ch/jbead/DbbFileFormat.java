@@ -28,6 +28,8 @@ public class DbbFileFormat implements FileFormat {
 
     private static final String MAGIC_FILE_HEADER = "DB-BEAD/01:\r\n";
 
+    public static final String EXTENSION = ".dbb";
+
     @Override
     public String getName() {
         return "DB-BEAD";
@@ -74,7 +76,7 @@ public class DbbFileFormat implements FileFormat {
 
     @Override
     public String getExtension() {
-        return ".dbb";
+        return EXTENSION;
     }
 
 }
