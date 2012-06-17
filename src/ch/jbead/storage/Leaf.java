@@ -61,7 +61,7 @@ public class Leaf extends Node {
         } else if (value instanceof Calendar) {
             return dateformat.format(((Calendar) value).getTime());
         } else {
-            return value.toString();
+            return String.valueOf(value);
         }
     }
 

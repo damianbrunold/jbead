@@ -93,4 +93,14 @@ public class ObjectModelTest extends TestCase {
                 om.toString());
     }
 
+    public void testSetBoolean() {
+        ObjectModel om = new ObjectModel("jbb");
+        om.add("view/draft-visible", true);
+        assertEquals(
+                "(jbb\n" +
+                "    (view\n" +
+                "        (draft-visible true)))\n",
+                om.toString());
+    }
+
 }

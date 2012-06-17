@@ -18,19 +18,23 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.jbead.storage.ObjectModel;
 
-public class JBeadMemento extends DbbMemento {
+public class JBeadMemento implements Memento {
 
     private static final int VERSION = 1;
 
     private int width;
     private int height;
     private byte[] data;
+
+    private String author;
+    private String notes;
 
     private List<Color> colors = new ArrayList<Color>();
     private byte colorIndex;
@@ -47,10 +51,28 @@ public class JBeadMemento extends DbbMemento {
     public void save(JBeadOutputStream out) throws IOException {
         ObjectModel om = new ObjectModel("jbb");
         om.add("version", VERSION);
+        om.add("author", author);
+        om.add("notes", notes);
         for (Color color: colors) {
             om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue());
         }
-        // TODO
+        om.add("view/draft-visible", draftVisible);
+        om.add("view/corrected-visible", correctedVisible);
+        om.add("view/simulation-visible", simulationVisible);
+        om.add("view/report-visible", reportVisible);
+        om.add("view/selected-tool", "pencil"); // TODO save selected tool from beadform
+        om.add("view/selected-color", colorIndex);
+        om.add("view/zoom", zoomIndex);
+        om.add("view/scroll", scroll);
+        om.add("view/shift", shift);
+        for (int j = 0; j < height; j++) {
+            List<Byte> row = new ArrayList<Byte>();
+            for (int i = 0; i < width; i++) {
+                row.add(data[j * width + i]);
+            }
+            om.add("model/row", row.toArray());
+        }
+        out.write(om.toString());
     }
 
     @Override
@@ -176,6 +198,26 @@ public class JBeadMemento extends DbbMemento {
     @Override
     public void setScroll(int scroll) {
         this.scroll = scroll;
+    }
+
+    @Override
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    @Override
+    public String getNotes() {
+        return notes;
+    }
+
+    @Override
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
 }

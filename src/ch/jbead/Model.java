@@ -41,6 +41,8 @@ public class Model implements ColorTable {
     private String unnamed;
     private boolean saved;
     private boolean modified;
+    private String author = "";
+    private String notes = "";
 
     private List<ModelListener> listeners = new ArrayList<ModelListener>();
 
@@ -569,6 +571,8 @@ public class Model implements ColorTable {
         memento.setZoomIndex(zoomIndex);
         memento.setShift(shift);
         memento.setScroll(scroll);
+        memento.setAuthor(author);
+        memento.setNotes(notes);
     }
 
     public void loadFrom(Memento memento) {
@@ -578,6 +582,8 @@ public class Model implements ColorTable {
         zoomIndex = memento.getZoomIndex();
         shift = memento.getShift();
         scroll = memento.getScroll();
+        author = memento.getAuthor();
+        notes = memento.getNotes();
         fireModelChanged();
     }
 

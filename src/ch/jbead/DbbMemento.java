@@ -24,6 +24,9 @@ import java.util.List;
 
 public class DbbMemento implements Memento {
 
+    private String author = "";
+    private String notes = "";
+
     private int width;
     private int height;
     private byte[] data;
@@ -215,6 +218,26 @@ public class DbbMemento implements Memento {
     @Override
     public void setScroll(int scroll) {
         this.scroll = scroll;
+    }
+
+    @Override
+    public String getAuthor() {
+        return author;
+    }
+
+    @Override
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    @Override
+    public String getNotes() {
+        return notes;
+    }
+
+    @Override
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
 }

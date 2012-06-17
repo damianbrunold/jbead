@@ -23,6 +23,12 @@ import java.util.List;
 
 public interface Memento {
 
+    String getAuthor();
+    void setAuthor(String author);
+
+    String getNotes();
+    void setNotes(String notes);
+
     int getWidth();
     int getHeight();
     byte[] getData();

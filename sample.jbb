@@ -15,11 +15,11 @@
 		# ...
 		(rgb 128 128 128))
 	(view
-		(draft visible)
-		(corrected visible)
-		(simulation invisible)
-		(report visible)
-		(toolbar visible)
+		(draft-visible true)
+		(corrected-visible true)
+		(simulation-visible false)
+		(report-visible true)
+		(toolbar-visible true)
 		(selected-tool pencil)
 		(selected-color 1)
 		(zoom 2)
