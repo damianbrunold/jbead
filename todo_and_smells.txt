@@ -53,9 +53,6 @@ do selections and so on.
 Move selection with mouse. Modi: move, copy, copy without
 background (=color0).
 
-Split file formats, dbb = old v1, jbb = new v2. jbead can read/write
-dbb but write only if no new features are used.
-
 Export as PDF/PNG/JPEG.
 
 Export the circling simulation as an animated GIF or an AVI or 
@@ -97,3 +94,11 @@ whole lines can be inserted and only at the start of the pattern.)
 
 There is a redraw bug in the simulation. It is visible in the hearts
 sample file. The partial beads at the left end are not drawn.
+
+Undo should also undo color changes! Currently this is not part of
+the undo snapshot.
+
+The arrange function should use more sensible defaults. For example
+if the selection is as wide as the pattern, then the horzontal
+displacement should be initialized to 0. Also the vertical displacement
+should be the height of the selection.
