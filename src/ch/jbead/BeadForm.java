@@ -109,7 +109,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private Model model = new Model(this);
     private Selection selection = new Selection();
-    private FileFormat fileformat = new DbbFileFormat();
+    private FileFormat fileformat = new JBeadFileFormat();
 
     private boolean dragging;
 
