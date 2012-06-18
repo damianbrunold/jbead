@@ -30,6 +30,6 @@
 		# as long as varying widths are not supported in the program we
 		# take the width from the first row. The height is equal to the
 		# number of rows, obviously.
-		(row 10 0 0 0 0 1 0 1 0 0 0)
+		(row 0 0 0 0 1 0 1 0 0 0)
 		# ...
-		(row 10 0 0 1 1 0 0 0 0 0 0)))
+		(row 0 0 1 1 0 0 0 0 0 0)))

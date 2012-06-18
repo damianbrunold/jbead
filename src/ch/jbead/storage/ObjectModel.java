@@ -17,6 +17,8 @@
 
 package ch.jbead.storage;
 
+import java.util.List;
+
 public class ObjectModel {
 
     private Node root;
@@ -25,18 +27,70 @@ public class ObjectModel {
         this.root = new Node(root);
     }
 
+    private ObjectModel(Node root) {
+        this.root = root;
+    }
+
     public void add(String path, Object... values) {
         Path path_ = new Path(path);
         Node current = root;
         for (String node : path_) {
-            current = current.getOrAdd(new Node(node));
+            current = current.getOrAdd(node);
         }
         current.add(new Leaf(path_.getLeaf(), values));
+    }
+
+    public Node get(String path) {
+        Path path_ = new Path(path);
+        Node current = root;
+        for (String node : path_) {
+            current = current.get(node);
+        }
+        return current.get(path_.getLeaf());
+    }
+
+    public List<Node> getAll(String path) {
+        Path path_ = new Path(path);
+        Node current = root;
+        for (String node : path_) {
+            current = current.get(node);
+        }
+        return current.getAll(path_.getLeaf());
+    }
+
+    public Object getValue(String path) {
+        Leaf leaf = (Leaf) get(path);
+        return leaf.getValue();
+    }
+
+    public int getIntValue(String path) {
+        Leaf leaf = (Leaf) get(path);
+        return leaf.getIntValue();
+    }
+
+    public String getStringValue(String path) {
+        Leaf leaf = (Leaf) get(path);
+        return leaf.getStringValue();
+    }
+
+    public boolean getBoolValue(String path) {
+        Leaf leaf = (Leaf) get(path);
+        return leaf.getBoolValue();
+    }
+
+    public List<Object> getValues(String path) {
+        Leaf leaf = (Leaf) get(path);
+        return leaf.getValues();
     }
 
     @Override
     public String toString() {
         return root.format("");
+    }
+
+    public static ObjectModel fromData(String data) {
+        Node node = new Parser(new Tokens(data)).parse();
+        return new ObjectModel(node);
     }
 
 }

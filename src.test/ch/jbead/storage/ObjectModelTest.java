@@ -20,6 +20,7 @@ package ch.jbead.storage;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -103,4 +104,16 @@ public class ObjectModelTest extends TestCase {
                 om.toString());
     }
 
+    public void testGet() {
+        ObjectModel om = ObjectModel.fromData("(jbb (author \"Damian Brunold\"))");
+        assertEquals("Damian Brunold", om.getValue("author"));
+    }
+
+    public void testGetAll() {
+        ObjectModel om = ObjectModel.fromData("(jbb (colors (rgb 1 2 3) (rgb 4 5 6)))");
+        List<Node> colors = om.getAll("colors/rgb");
+        assertEquals(2, colors.size());
+        assertEquals("[1, 2, 3]", colors.get(0).asLeaf().getValues().toString());
+        assertEquals("[4, 5, 6]", colors.get(1).asLeaf().getValues().toString());
+    }
 }

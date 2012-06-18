@@ -18,11 +18,11 @@
 package ch.jbead;
 
 import java.awt.Color;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.jbead.storage.Node;
 import ch.jbead.storage.ObjectModel;
 
 public class JBeadMemento implements Memento {
@@ -77,7 +77,34 @@ public class JBeadMemento implements Memento {
 
     @Override
     public void load(JBeadInputStream in) throws IOException {
-        // TODO
+        ObjectModel om = ObjectModel.fromData(in.readAll());
+        author = (String) om.getValue("author");
+        notes = (String) om.getValue("notes");
+        colors.clear();
+        for (Node color : om.getAll("colors/rgb")) {
+            int red = color.asLeaf().getIntValue(0);
+            int green = color.asLeaf().getIntValue(1);
+            int blue = color.asLeaf().getIntValue(2);
+            colors.add(new Color(red, green, blue));
+        }
+        draftVisible = om.getBoolValue("view/draft-visible");
+        correctedVisible = om.getBoolValue("view/corrected-visible");
+        simulationVisible = om.getBoolValue("view/simulation-visible");
+        reportVisible = om.getBoolValue("view/report-visible");
+        colorIndex = (byte) om.getIntValue("view/selected-color");
+        zoomIndex = om.getIntValue("view/zoom");
+        scroll = om.getIntValue("view/scroll");
+        shift = om.getIntValue("view/shift");
+        List<Node> rows = om.getAll("model/row");
+        height = rows.size();
+        width = rows.get(0).size();
+        data = new byte[width * height];
+        int idx = 0;
+        for (Node row : rows) {
+            for (int i = 0; i < width; i++) {
+                data[idx++] = (byte) row.asLeaf().getIntValue(i);
+            }
+        }
     }
 
     @Override

@@ -22,15 +22,23 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * 
- */
 public class JBeadInputStream {
 
     private InputStream in;
 
     public JBeadInputStream(InputStream in) {
         this.in = in;
+    }
+
+    public String readAll() throws IOException {
+        StringBuilder result = new StringBuilder();
+        byte[] buffer = new byte[1024];
+        int read = in.read(buffer);
+        while (read != -1) {
+            result.append(new String(buffer, 0, read, "UTF-8"));
+            read = in.read(buffer);
+        }
+        return result.toString();
     }
 
     public byte read() throws IOException {
@@ -69,7 +77,7 @@ public class JBeadInputStream {
         int alpha = in.read();
         return new Color(red, green, blue);
     }
-    
+
     /**
      * For backwards compatibility with db-bead, we treat the first
      * color, the background color, differently.

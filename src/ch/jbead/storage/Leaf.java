@@ -40,6 +40,11 @@ public class Leaf extends Node {
         return this;
     }
 
+    @Override
+    public int size() {
+        return values.size();
+    }
+
     public String format(String indent) {
         StringBuilder result = new StringBuilder();
         result.append(indent).append("(").append(name);
@@ -62,4 +67,50 @@ public class Leaf extends Node {
         }
     }
 
+    public Object getValue() {
+        return getValue(0);
+    }
+
+    public int getIntValue() {
+        return getIntValue(0);
+    }
+
+    public String getStringValue() {
+        return getStringValue(0);
+    }
+
+    public boolean getBoolValue() {
+        return getBoolValue(0);
+    }
+
+    public Object getValue(int index) {
+        return values.get(index);
+    }
+
+    public int getIntValue(int index) {
+        return (Integer) values.get(index);
+    }
+
+    public String getStringValue(int index) {
+        return (String) values.get(index);
+    }
+
+    public boolean getBoolValue(int index) {
+        return (Boolean) values.get(index);
+    }
+
+    public List<Object> getValues() {
+        return Collections.unmodifiableList(values);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("(").append(name);
+        for (Object value : values) {
+            result.append(" ").append(value);
+        }
+        result.append(")");
+        return result.toString();
+    }
 }

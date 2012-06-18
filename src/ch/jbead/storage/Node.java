@@ -18,9 +18,10 @@
 package ch.jbead.storage;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class Node {
+public class Node implements Iterable<Node> {
 
     public static final String INDENTATION = "    ";
 
@@ -35,17 +36,41 @@ public class Node {
         return name;
     }
 
+    public Leaf asLeaf() {
+        return (Leaf) this;
+    }
+
+    public int size() {
+        return children.size();
+    }
+
     public Node add(Node node) {
         children.add(node);
         return node;
     }
 
-    public Node getOrAdd(Node node) {
+    public Node getOrAdd(String node) {
         for (Node child : children) {
-            if (child.getName().equals(node.getName())) return child;
+            if (child.getName().equals(node)) return child;
         }
-        children.add(node);
-        return node;
+        Node _node = new Node(node);
+        children.add(_node);
+        return _node;
+    }
+
+    public Node get(String node) {
+        for (Node child : children) {
+            if (child.getName().equals(node)) return child;
+        }
+        return null;
+    }
+
+    public List<Node> getAll(String node) {
+        List<Node> result = new ArrayList<Node>();
+        for (Node child : children) {
+            if (child.getName().equals(node)) result.add(child);
+        }
+        return result;
     }
 
     public String format(String indent) {
@@ -66,4 +91,19 @@ public class Node {
         return result;
     }
 
+    @Override
+    public Iterator<Node> iterator() {
+        return children.iterator();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append("(").append(name);
+        for (Node child : children) {
+            result.append(" ").append(child);
+        }
+        result.append(")");
+        return result.toString();
+    }
 }

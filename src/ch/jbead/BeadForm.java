@@ -533,7 +533,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             updateScrollbar();
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", e.getMessage()));
+            String msg = e.getMessage();
+            if (msg == null) msg = e.toString();
+            JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", msg));
             model.clear();
         }
         model.setSaved();
