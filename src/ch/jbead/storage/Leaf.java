@@ -18,18 +18,15 @@
 package ch.jbead.storage;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class Leaf extends Node {
 
-    private static DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", DateFormatSymbols.getInstance(Locale.ENGLISH));
+    private static DateFormat dateformat = new JBeadDateFormat();
 
     private List<Object> values = new ArrayList<Object>();
 
