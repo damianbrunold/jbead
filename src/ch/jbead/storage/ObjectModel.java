@@ -64,16 +64,28 @@ public class ObjectModel {
         return get(path).asLeaf().getValue();
     }
 
-    public int getIntValue(String path) {
-        return get(path).asLeaf().getIntValue();
+    public int getIntValue(String path, int value) {
+        try {
+            return get(path).asLeaf().getIntValue();
+        } catch (JBeadFileFormatException e) {
+            return value;
+        }
     }
 
-    public String getStringValue(String path) {
-        return get(path).asLeaf().getStringValue();
+    public String getStringValue(String path, String value) {
+        try {
+            return get(path).asLeaf().getStringValue();
+        } catch (JBeadFileFormatException e) {
+            return value;
+        }
     }
 
-    public boolean getBoolValue(String path) {
-        return get(path).asLeaf().getBoolValue();
+    public boolean getBoolValue(String path, boolean value) {
+        try {
+            return get(path).asLeaf().getBoolValue();
+        } catch (JBeadFileFormatException e) {
+            return value;
+        }
     }
 
     public List<Object> getValues(String path) {

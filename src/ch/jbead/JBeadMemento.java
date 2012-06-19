@@ -60,21 +60,25 @@ public class JBeadMemento extends Memento {
     @Override
     public void load(JBeadInputStream in) throws IOException {
         ObjectModel om = ObjectModel.fromData(in.readAll());
+        int version = om.getIntValue("version", 1);
+        if (version < VERSION) {
+            upgrade(om, version);
+        }
         author = (String) om.getValue("author");
         notes = (String) om.getValue("notes");
         colors.clear();
         for (Node color : om.getAll("colors/rgb")) {
             colors.add(getColor(color));
         }
-        draftVisible = om.getBoolValue("view/draft-visible");
-        correctedVisible = om.getBoolValue("view/corrected-visible");
-        simulationVisible = om.getBoolValue("view/simulation-visible");
-        reportVisible = om.getBoolValue("view/report-visible");
-        colorIndex = (byte) om.getIntValue("view/selected-color");
-        selectedTool = om.getStringValue("view/selected-tool");
-        zoomIndex = om.getIntValue("view/zoom");
-        scroll = om.getIntValue("view/scroll");
-        shift = om.getIntValue("view/shift");
+        draftVisible = om.getBoolValue("view/draft-visible", true);
+        correctedVisible = om.getBoolValue("view/corrected-visible", true);
+        simulationVisible = om.getBoolValue("view/simulation-visible", true);
+        reportVisible = om.getBoolValue("view/report-visible", true);
+        colorIndex = (byte) om.getIntValue("view/selected-color", 1);
+        selectedTool = om.getStringValue("view/selected-tool", "pencil");
+        zoomIndex = om.getIntValue("view/zoom", 2);
+        scroll = om.getIntValue("view/scroll", 0);
+        shift = om.getIntValue("view/shift", 0);
         List<Node> rows = om.getAll("model/row");
         height = rows.size();
         width = rows.get(0).size();
@@ -85,6 +89,10 @@ public class JBeadMemento extends Memento {
                 data[idx++] = (byte) row.asLeaf().getIntValue(i);
             }
         }
+    }
+
+    private void upgrade(ObjectModel om, int version) {
+        // in the future, here will be conversion code that upgrades from earlier versions
     }
 
     private Color getColor(Node color) {
