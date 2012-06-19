@@ -82,10 +82,7 @@ public class JBeadMemento implements Memento {
         notes = (String) om.getValue("notes");
         colors.clear();
         for (Node color : om.getAll("colors/rgb")) {
-            int red = color.asLeaf().getIntValue(0);
-            int green = color.asLeaf().getIntValue(1);
-            int blue = color.asLeaf().getIntValue(2);
-            colors.add(new Color(red, green, blue));
+            colors.add(getColor(color));
         }
         draftVisible = om.getBoolValue("view/draft-visible");
         correctedVisible = om.getBoolValue("view/corrected-visible");
@@ -105,6 +102,13 @@ public class JBeadMemento implements Memento {
                 data[idx++] = (byte) row.asLeaf().getIntValue(i);
             }
         }
+    }
+
+    private Color getColor(Node color) {
+        int red = color.asLeaf().getIntValue(0);
+        int green = color.asLeaf().getIntValue(1);
+        int blue = color.asLeaf().getIntValue(2);
+        return new Color(red, green, blue);
     }
 
     @Override
