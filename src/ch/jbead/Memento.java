@@ -19,47 +19,142 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public interface Memento {
+public abstract class Memento {
 
-    String getAuthor();
-    void setAuthor(String author);
+    protected String author = "";
+    protected String notes = "";
 
-    String getNotes();
-    void setNotes(String notes);
+    protected int width;
+    protected int height;
+    protected byte[] data;
 
-    int getWidth();
-    int getHeight();
-    byte[] getData();
+    protected List<Color> colors = new ArrayList<Color>();
+    protected byte colorIndex;
+    protected int zoomIndex;
+    protected int scroll;
+    protected int shift;
 
-    List<Color> getColors();
-    byte getColorIndex();
-    int getZoomIndex();
-    int getShift();
-    int getScroll();
+    protected boolean draftVisible;
+    protected boolean correctedVisible;
+    protected boolean simulationVisible;
+    protected boolean reportVisible;
 
-    boolean isDraftVisible();
-    boolean isCorrectedVisible();
-    boolean isSimulationVisible();
-    boolean isReportVisible();
+    public abstract void save(JBeadOutputStream out) throws IOException;
+    public abstract void load(JBeadInputStream in) throws IOException;
 
-    void setWidth(int width);
-    void setHeight(int height);
-    void setData(byte[] data);
+    public int getWidth() {
+        return width;
+    }
 
-    void setColors(List<Color> colors);
-    void setColorIndex(byte colorIndex);
-    void setZoomIndex(int zoomIndex);
-    void setShift(int shift);
-    void setScroll(int scroll);
+    public int getHeight() {
+        return height;
+    }
 
-    void setDraftVisible(boolean visible);
-    void setCorrectedVisible(boolean visible);
-    void setSimulationVisible(boolean visible);
-    void setReportVisible(boolean visible);
+    public byte[] getData() {
+        return data;
+    }
 
-    void save(JBeadOutputStream out) throws IOException;
-    void load(JBeadInputStream in) throws IOException;
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public boolean isDraftVisible() {
+        return draftVisible;
+    }
+
+    public boolean isCorrectedVisible() {
+        return correctedVisible;
+    }
+
+    public boolean isSimulationVisible() {
+        return simulationVisible;
+    }
+
+    public boolean isReportVisible() {
+        return reportVisible;
+    }
+
+    public void setDraftVisible(boolean visible) {
+        draftVisible = visible;
+    }
+
+    public void setCorrectedVisible(boolean visible) {
+        correctedVisible = visible;
+    }
+
+    public void setSimulationVisible(boolean visible) {
+        simulationVisible = visible;
+    }
+
+    public void setReportVisible(boolean visible) {
+        reportVisible = visible;
+    }
+
+    public List<Color> getColors() {
+        return colors;
+    }
+
+    public byte getColorIndex() {
+        return colorIndex;
+    }
+
+    public int getZoomIndex() {
+        return zoomIndex;
+    }
+
+    public int getShift() {
+        return shift;
+    }
+
+    public int getScroll() {
+        return scroll;
+    }
+
+    public void setColors(List<Color> colors) {
+        this.colors = colors;
+    }
+
+    public void setColorIndex(byte colorIndex) {
+        this.colorIndex = colorIndex;
+    }
+
+    public void setZoomIndex(int zoomIndex) {
+        this.zoomIndex = zoomIndex;
+    }
+
+    public void setShift(int shift) {
+        this.shift = shift;
+    }
+
+    public void setScroll(int scroll) {
+        this.scroll = scroll;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
 }
