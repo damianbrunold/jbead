@@ -41,4 +41,8 @@ public class TokensTest extends TestCase {
         assertEquals(Boolean.FALSE, new Tokens("false").iterator().next());
     }
 
+    public void testComment() {
+        assertEquals("(,jbb,(,version,1,),(,author,Damian Brunold,),)", new Tokens("(jbb\n# just some stuff\n    (version 1) # this is the version\n    (author \"Damian Brunold\"))\n").toString());
+    }
+
 }

@@ -56,6 +56,8 @@ public class Tokens implements Iterable<Object> {
                     } else if (ch == '"') {
                         token.append(ch);
                         state = 1;
+                    } else if (ch == '#') {
+                        state = 4;
                     } else {
                         token.append(ch);
                         state = 3;
@@ -93,6 +95,13 @@ public class Tokens implements Iterable<Object> {
                     } else {
                         token.append(ch);
                     }
+                    break;
+
+                case 4: // comment
+                    if (ch == '\n') {
+                        state = 0;
+                    }
+                    break;
                 }
                 c = reader.read();
             }
