@@ -33,31 +33,36 @@ public class Parser {
 
     private Node parseNode(Object token) {
         match("(", token);
-        token = iter.next();
+        token = next();
         String name = (String) token;
-        token = iter.next();
+        token = next();
         if (token.equals(")")) {
             return new Node(name);
         } else if (token.equals("(")) {
             Node node = new Node(name);
             while (!token.equals(")")) {
                 node.add(parseNode(token));
-                token = iter.next();
+                token = next();
             }
             return node;
         } else {
             Leaf leaf = new Leaf(name);
             while (!token.equals(")")) {
                 leaf.addValue(token);
-                token = iter.next();
+                token = next();
             }
             return leaf;
         }
     }
 
+    private Object next() {
+        if (!iter.hasNext()) throw new JBeadFileFormatException("Syntax error, unexpected end of file");
+        return iter.next();
+    }
+
     private void match(String expected, Object actual) {
         if (!actual.toString().equals(expected)) {
-            throw new RuntimeException("expected " + expected + " but got " + actual);
+            throw new JBeadFileFormatException("Syntax error, expected " + expected + " but got " + actual);
         }
     }
 }
