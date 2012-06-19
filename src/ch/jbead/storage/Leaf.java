@@ -88,15 +88,27 @@ public class Leaf extends Node {
     }
 
     public int getIntValue(int index) {
-        return (Integer) values.get(index);
+        try {
+            return (Integer) values.get(index);
+        } catch (ClassCastException e) {
+            throw new JBeadFileFormatException("Expected integer value but got " + values.get(index), e);
+        }
     }
 
     public String getStringValue(int index) {
-        return (String) values.get(index);
+        try {
+            return (String) values.get(index);
+        } catch (ClassCastException e) {
+            throw new JBeadFileFormatException("Expected string value but got " + values.get(index), e);
+        }
     }
 
     public boolean getBoolValue(int index) {
-        return (Boolean) values.get(index);
+        try {
+            return (Boolean) values.get(index);
+        } catch (ClassCastException e) {
+            throw new JBeadFileFormatException("Expected boolean value but got " + values.get(index), e);
+        }
     }
 
     public List<Object> getValues() {

@@ -17,35 +17,16 @@
 
 package ch.jbead.storage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+public class JBeadFileFormatException extends RuntimeException {
 
-public class Path implements Iterable<String> {
+    private static final long serialVersionUID = 1L;
 
-    private List<String> path = new ArrayList<String>();
-    private String leaf;
-
-    public Path(String path) {
-        String[] parts = path.split("/");
-        for (int i = 0; i < parts.length; i++) {
-            this.path.add(parts[i]);
-        }
-        this.leaf = parts[parts.length - 1];
+    public JBeadFileFormatException(String msg) {
+        super(msg);
     }
 
-    public List<String> getNodes() {
-        return Collections.unmodifiableList(path.subList(0, path.size() - 1));
-    }
-
-    public String getLeaf() {
-        return leaf;
-    }
-
-    @Override
-    public Iterator<String> iterator() {
-        return path.iterator();
+    public JBeadFileFormatException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 
 }

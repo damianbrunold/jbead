@@ -31,56 +31,53 @@ public class ObjectModel {
         this.root = root;
     }
 
-    public void add(String path, Object... values) {
-        Path path_ = new Path(path);
+    public void add(String pathstr, Object... values) {
+        Path path = new Path(pathstr);
         Node current = root;
-        for (String node : path_) {
+        for (String node : path.getNodes()) {
             current = current.getOrAdd(node);
         }
-        current.add(new Leaf(path_.getLeaf(), values));
+        current.add(new Leaf(path.getLeaf(), values));
     }
 
-    public Node get(String path) {
-        Path path_ = new Path(path);
+    public Node get(String pathstr) {
+        Path path = new Path(pathstr);
         Node current = root;
-        for (String node : path_) {
+        for (String node : path) {
             current = current.get(node);
+            if (current == null) throw new JBeadFileFormatException("Path " + pathstr + " cannot be resolved, node " + node + " not found");
         }
-        return current.get(path_.getLeaf());
+        return current;
     }
 
-    public List<Node> getAll(String path) {
-        Path path_ = new Path(path);
+    public List<Node> getAll(String pathstr) {
+        Path path = new Path(pathstr);
         Node current = root;
-        for (String node : path_) {
+        for (String node : path.getNodes()) {
             current = current.get(node);
+            if (current == null) throw new JBeadFileFormatException("Path " + pathstr + " cannot be resolved, node " + node + " not found");
         }
-        return current.getAll(path_.getLeaf());
+        return current.getAll(path.getLeaf());
     }
 
     public Object getValue(String path) {
-        Leaf leaf = (Leaf) get(path);
-        return leaf.getValue();
+        return get(path).asLeaf().getValue();
     }
 
     public int getIntValue(String path) {
-        Leaf leaf = (Leaf) get(path);
-        return leaf.getIntValue();
+        return get(path).asLeaf().getIntValue();
     }
 
     public String getStringValue(String path) {
-        Leaf leaf = (Leaf) get(path);
-        return leaf.getStringValue();
+        return get(path).asLeaf().getStringValue();
     }
 
     public boolean getBoolValue(String path) {
-        Leaf leaf = (Leaf) get(path);
-        return leaf.getBoolValue();
+        return get(path).asLeaf().getBoolValue();
     }
 
     public List<Object> getValues(String path) {
-        Leaf leaf = (Leaf) get(path);
-        return leaf.getValues();
+        return get(path).asLeaf().getValues();
     }
 
     @Override

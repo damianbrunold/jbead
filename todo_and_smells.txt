@@ -102,3 +102,7 @@ The arrange function should use more sensible defaults. For example
 if the selection is as wide as the pattern, then the horzontal
 displacement should be initialized to 0. Also the vertical displacement
 should be the height of the selection.
+
+Currently, only the ObjectModel supports path methods. But maybe it
+would be better if the Node itself supports paths. This would allow
+to get a subnode and then handle it as if it were the whole ObjectModel.

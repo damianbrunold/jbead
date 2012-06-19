@@ -116,4 +116,28 @@ public class ObjectModelTest extends TestCase {
         assertEquals("[1, 2, 3]", colors.get(0).asLeaf().getValues().toString());
         assertEquals("[4, 5, 6]", colors.get(1).asLeaf().getValues().toString());
     }
+
+    public void testGetPath() {
+        ObjectModel om = ObjectModel.fromData("(jbb (a (b (c 1 2 3))))");
+        assertEquals(1, om.getValue("a/b/c"));
+    }
+
+    public void testGetInvalidPath() {
+        ObjectModel om = ObjectModel.fromData("(jbb (a (b (c 1 2 3))))");
+        try {
+            om.getValue("a/x/c");
+        } catch (JBeadFileFormatException e) {
+            assertEquals("Path a/x/c cannot be resolved, node x not found", e.getMessage());
+        }
+    }
+
+    public void testGetInvalidLeaf() {
+        ObjectModel om = ObjectModel.fromData("(jbb (a (b (c 1 2 3))))");
+        try {
+            om.getValue("a/b/x");
+        } catch (JBeadFileFormatException e) {
+            assertEquals("Path a/b/x cannot be resolved, node x not found", e.getMessage());
+        }
+    }
+
 }

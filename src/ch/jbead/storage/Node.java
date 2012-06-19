@@ -37,7 +37,11 @@ public class Node implements Iterable<Node> {
     }
 
     public Leaf asLeaf() {
-        return (Leaf) this;
+        try {
+            return (Leaf) this;
+        } catch (ClassCastException e) {
+            throw new JBeadFileFormatException("Expected leaf but got node " + name);
+        }
     }
 
     public int size() {
