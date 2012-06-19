@@ -109,6 +109,26 @@ public class ObjectModelTest extends TestCase {
         assertEquals("Damian Brunold", om.getValue("author"));
     }
 
+    public void testGetString() {
+        ObjectModel om = ObjectModel.fromData("(jbb (author \"Damian Brunold\"))");
+        assertEquals("Damian Brunold", om.getStringValue("author", "joe"));
+    }
+
+    public void testGetStringDefault() {
+        ObjectModel om = ObjectModel.fromData("(jbb)");
+        assertEquals("joe", om.getStringValue("author", "joe"));
+    }
+
+    public void testGetInt() {
+        ObjectModel om = ObjectModel.fromData("(jbb (version 1))");
+        assertEquals(1, om.getIntValue("version", -1));
+    }
+
+    public void testGetBool() {
+        ObjectModel om = ObjectModel.fromData("(jbb (visible true))");
+        assertEquals(true, om.getBoolValue("visible", false));
+    }
+
     public void testGetAll() {
         ObjectModel om = ObjectModel.fromData("(jbb (colors (rgb 1 2 3) (rgb 4 5 6)))");
         List<Node> colors = om.getAll("colors/rgb");
