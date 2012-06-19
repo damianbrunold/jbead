@@ -108,3 +108,6 @@ would be better if the Node itself supports paths. This would allow
 to get a subnode and then handle it as if it were the whole ObjectModel.
 
 Make author and notes fields available per documents (File|Properties).
+
+The toolsGroup is quite smelly, it should work with mnemonics instead
+of the raw integer index.
