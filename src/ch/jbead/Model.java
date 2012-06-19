@@ -19,7 +19,6 @@ package ch.jbead;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,7 +123,7 @@ public class Model implements ColorTable {
     private static Color PURPLE = new Color(128, 0, 128);
     private static Color BLACK = Color.BLACK;
     private static Color CYAN = Color.CYAN;
-    private static Color SILVER = new Color(192, 192, 192);
+    //private static Color SILVER = new Color(192, 192, 192);
 
     private void defaultColors() {
         colors.clear();
