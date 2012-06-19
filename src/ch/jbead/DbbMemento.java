@@ -45,6 +45,7 @@ public class DbbMemento extends Memento {
         out.writeBool(correctedVisible);
         out.writeBool(simulationVisible);
         // report flag is not saved
+        // selected tool is not saved
     }
 
     @Override
@@ -66,6 +67,7 @@ public class DbbMemento extends Memento {
         correctedVisible = in.readBool();
         simulationVisible = in.readBool();
         reportVisible = true;
+        selectedTool = "pencil";
     }
 
     private byte readByte(JBeadInputStream in, String name) throws IOException {

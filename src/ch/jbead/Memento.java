@@ -42,6 +42,8 @@ public abstract class Memento {
     protected boolean simulationVisible;
     protected boolean reportVisible;
 
+    protected String selectedTool;
+
     public abstract void save(JBeadOutputStream out) throws IOException;
     public abstract void load(JBeadInputStream in) throws IOException;
 
@@ -155,6 +157,14 @@ public abstract class Memento {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getSelectedTool() {
+        return selectedTool;
+    }
+
+    public void setSelectedTool(String selectedTool) {
+        this.selectedTool = selectedTool;
     }
 
 }

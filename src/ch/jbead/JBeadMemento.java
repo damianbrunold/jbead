@@ -42,7 +42,7 @@ public class JBeadMemento extends Memento {
         om.add("view/corrected-visible", correctedVisible);
         om.add("view/simulation-visible", simulationVisible);
         om.add("view/report-visible", reportVisible);
-        om.add("view/selected-tool", "pencil"); // TODO save selected tool from beadform
+        om.add("view/selected-tool", selectedTool);
         om.add("view/selected-color", colorIndex);
         om.add("view/zoom", zoomIndex);
         om.add("view/scroll", scroll);
@@ -71,6 +71,7 @@ public class JBeadMemento extends Memento {
         simulationVisible = om.getBoolValue("view/simulation-visible");
         reportVisible = om.getBoolValue("view/report-visible");
         colorIndex = (byte) om.getIntValue("view/selected-color");
+        selectedTool = om.getStringValue("view/selected-tool");
         zoomIndex = om.getIntValue("view/zoom");
         scroll = om.getIntValue("view/scroll");
         shift = om.getIntValue("view/shift");

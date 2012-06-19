@@ -1115,6 +1115,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         memento.setCorrectedVisible(isCorrectedVisible());
         memento.setSimulationVisible(isSimulationVisible());
         memento.setReportVisible(isReportVisible());
+        memento.setSelectedTool(getSelectedTool());
     }
 
     public void loadFrom(Memento memento) {
@@ -1122,6 +1123,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         setCorrectedVisible(memento.isCorrectedVisible());
         setSimulationVisible(memento.isSimulationVisible());
         setReportVisible(memento.isReportVisible());
+        setSelectedTool(memento.getSelectedTool());
     }
 
     public Model getModel() {
@@ -1130,6 +1132,34 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public Selection getSelection() {
         return selection;
+    }
+
+    public String getSelectedTool() {
+        if (toolsGroup.isSelected(0)) {
+            return "pencil";
+        } else if (toolsGroup.isSelected(1)) {
+            return "select";
+        } else if (toolsGroup.isSelected(2)) {
+            return "fill";
+        } else if (toolsGroup.isSelected(3)) {
+            return "pipette";
+        } else {
+            return "pencil";
+        }
+    }
+
+    public void setSelectedTool(String tool) {
+        if (tool.equals("pencil")) {
+            toolsGroup.selectTool(0);
+        } else if (tool.equals("select")) {
+            toolsGroup.selectTool(1);
+        } else if (tool.equals("fill")) {
+            toolsGroup.selectTool(2);
+        } else if (tool.equals("pipette")) {
+            toolsGroup.selectTool(3);
+        } else {
+            toolsGroup.selectTool(0);
+        }
     }
 
 }
