@@ -19,7 +19,6 @@ package ch.jbead;
 
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,7 +29,6 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -49,9 +47,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.Action;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -115,8 +111,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private List<File> mru = new ArrayList<File>();
 
-    private ButtonGroup colorsGroup = new ButtonGroup();
-    private List<ColorButton> colors = new ArrayList<ColorButton>();
+    private ColorsToolbar colors;
 
     private JScrollBar scrollbar = new JScrollBar(JScrollBar.VERTICAL);
     private boolean updatingScrollbar = false;
@@ -152,28 +147,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private Timer shiftTimer;
 
-    ActionListener colorActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            colorClick(e);
-        }
-    };
-
-    MouseAdapter colorMouseAdapter = new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            super.mouseClicked(e);
-            if (e.getClickCount() == 2) {
-                colorDblClick(e.getSource());
-            }
-        }
-
-    };
-
     public BeadForm() {
         super("jbead");
         createGUI();
-        setColorIcons();
+        colors.updateColorIcons();
         model.addListener(this);
         model.clear();
         selection.clear();
@@ -266,7 +243,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         JPanel toolbars = new JPanel();
         toolbars.setLayout(new FlowLayout(FlowLayout.LEADING));
         toolbars.add(createToolbar());
-        toolbars.add(createColorbar());
+        toolbars.add(colors = createColorbar());
         add(toolbars, BorderLayout.NORTH);
         add(main, BorderLayout.CENTER);
         add(statusbar, BorderLayout.SOUTH);
@@ -382,22 +359,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         return toolbar;
     }
 
-    private JToolBar createColorbar() {
-        JToolBar colorbar = new JToolBar();
-        for (int i = 0; i < model.getColorCount(); i++) {
-            colorbar.add(createColorButton(i));
-        }
-        colors.get(1).setSelected(true);
-        return colorbar;
-    }
-
-    private ColorButton createColorButton(int index) {
-        ColorButton button = new ColorButton(new ColorIcon(model, (byte) index));
-        button.addActionListener(colorActionListener);
-        button.addMouseListener(colorMouseAdapter);
-        colorsGroup.add(button);
-        colors.add(button);
-        return button;
+    private ColorsToolbar createColorbar() {
+        return new ColorsToolbar(this, model);
     }
 
     private void createMainGUI() {
@@ -462,12 +425,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         main.add(scrollbar, c);
     }
 
-    private void setColorIcons() {
-        for (byte i = 0; i < model.getColorCount(); i++) {
-            colors.get(i).setIcon(new ColorIcon(model, i));
-        }
-    }
-
     public boolean isDraftVisible() {
         return viewDraft.isVisible();
     }
@@ -513,8 +470,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         // delete all
         selection.clear();
         model.clear();
-        colors.get(1).setSelected(true);
-        setColorIcons();
+        colors.selectDefaultColor();
+        colors.updateColorIcons();
         updateScrollbar();
     }
 
@@ -529,7 +486,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         try {
             fileformat.load(model, this, file);
-            colors.get(model.getColorIndex()).setSelected(true);
+            colors.selectColor(model.getColorIndex());
             updateScrollbar();
         } catch (Exception e) {
             e.printStackTrace();
@@ -753,7 +710,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void selectColorFrom(Point pt) {
         byte colorIndex = model.get(pt.scrolled(model.getScroll()));
-        colors.get(colorIndex).setSelected(true);
+        colors.selectColor(colorIndex);
     }
 
     private void drawLine(Point begin, Point end) {
@@ -818,7 +775,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             repaint();
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
             model.setColorIndex((byte) (event.getKeyChar() - '0'));
-            colors.get(model.getColorIndex()).setSelected(true);
+            colors.selectColor(model.getColorIndex());
         } else if (Key == KeyEvent.VK_SPACE) {
             getAction("tool.pencil").putValue("SELECT", true);
             // sbToolPoint.setSelected(true);
@@ -835,20 +792,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void rotateRight() {
         model.shiftRight();
-    }
-
-    // TODO split this for every color toolbar button
-    public void colorClick(ActionEvent event) {
-        ColorButton sender = (ColorButton) event.getSource();
-        model.setColorIndex(sender.getColorIndex());
-    }
-
-    public void colorDblClick(Object sender) {
-        ColorButton colorButton = (ColorButton) sender;
-        byte c = colorButton.getColorIndex();
-        Color color = JColorChooser.showDialog(this, "choose color", model.getColor(c));
-        if (color == null) return;
-        model.setColor(c, color);
     }
 
     private void updateHandler() {
@@ -1053,14 +996,20 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     @Override
     public void modelChanged() {
-        setColorIcons();
+        colors.updateColorIcons();
         updateScrollbar();
         updateTitle();
     }
 
     @Override
     public void colorChanged(byte colorIndex) {
-        colors.get(colorIndex).setIcon(new ColorIcon(model, colorIndex));
+        colors.updateColorIcon(colorIndex);
+        updateTitle();
+    }
+
+    @Override
+    public void colorsChanged() {
+        colors.updateAll();
         updateTitle();
     }
 

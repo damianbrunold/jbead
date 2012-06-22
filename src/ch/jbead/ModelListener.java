@@ -17,14 +17,12 @@
 
 package ch.jbead;
 
-/**
- *
- */
 public interface ModelListener {
 
     public void pointChanged(Point pt);
     public void modelChanged();
     public void colorChanged(byte colorIndex);
+    public void colorsChanged();
     public void scrollChanged(int scroll);
     public void shiftChanged(int shift);
     public void zoomChanged(int gridx, int gridy);
