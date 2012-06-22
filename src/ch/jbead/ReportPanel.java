@@ -18,6 +18,7 @@
 package ch.jbead;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -44,7 +45,7 @@ public class ReportPanel extends BasePanel {
         int dx = g.getFontMetrics().getHeight() + 2;
         int dy = dx;
         int x1 = 12;
-        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.colorrepeat")) + dx / 2;
+        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.numberofbeads")) + dx / 2;
         int y = dy;
         int colwidth = dx + 2 + g.getFontMetrics().stringWidth("999") + 3;
 
@@ -57,12 +58,55 @@ public class ReportPanel extends BasePanel {
         drawText(g, x1, x2, y, "report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
         y += dy;
 
-        if (model.getRepeat() > 0) {
-            int height = g.getFontMetrics().getLeading() + g.getFontMetrics().getAscent();
-            g.drawString(localization.getString("report.listofbeads"), x1, y);
+        if (model.getRepeat() % model.getWidth() == 0) {
+            drawText(g, x1, x2, y, "report.rowsperrepeat", Integer.toString(model.getRepeat() / model.getWidth()));
             y += dy;
-            int ystart = y;
+        } else {
+            drawText(g, x1, x2, y, "report.rowsperrepeat",
+                    Integer.toString(model.getRepeat() / model.getWidth()) + " " +
+                    localization.getString("report.remainder") + " " +
+                    Integer.toString(model.getRepeat() % model.getWidth()) + " " +
+                    localization.getString("report.beads"));
+            y += dy;
+        }
+
+        drawText(g, x1, x2, y, "report.numberofrows", Integer.toString(model.getUsedHeight()));
+        y += dy;
+
+        drawText(g, x1, x2, y, "report.numberofbeads", Integer.toString(model.getUsedHeight() * model.getWidth()) + " " + localization.getString("report.beads"));
+        y += dy;
+
+        if (model.getRepeat() > 0) {
+            y += dy / 2;
+            FontMetrics fm = g.getFontMetrics();
+
+            BeadCounts counts = new BeadCounts(model);
+            g.setColor(Color.BLACK);
+            int xx = x1;
+            int bx = fm.getAscent();
+            for (byte color = 0; color < model.getColorCount(); color++) {
+                int count = counts.getCount(color);
+                if (count > 0) {
+                    String s = String.format("%d x ", count);
+                    String t = ", ";
+                    g.drawString(s, xx, y);
+                    xx += fm.stringWidth(s);
+                    g.drawRect(xx, y - bx, bx, bx);
+                    g.setColor(model.getColor(color));
+                    g.fillRect(xx + 1, y - bx + 1, bx - 1, bx - 1);
+                    g.setColor(Color.BLACK);
+                    xx += bx + 1;
+                    g.drawString(t, xx, y);
+                    xx += fm.stringWidth(t);
+                }
+            }
+            y += dy * 3 / 2;
+
             BeadList beads = new BeadList(model);
+            int height = fm.getLeading() + g.getFontMetrics().getAscent();
+            g.drawString(localization.getString("report.listofbeads"), x1, y);
+            y += 3;
+            int ystart = y;
             for (BeadRun bead : beads) {
                 drawColorCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
                 y += dy;

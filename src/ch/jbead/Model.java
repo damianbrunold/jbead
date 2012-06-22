@@ -295,6 +295,10 @@ public class Model implements ColorTable {
         return field.getRect(starty, endy);
     }
 
+    public Rect getUsedRect() {
+        return field.getRect(0, getUsedHeight());
+    }
+
     public File getFile() {
         return file;
     }
@@ -507,7 +511,7 @@ public class Model implements ColorTable {
         return usedHeight;
     }
 
-    private int getUsedHeight() {
+    public int getUsedHeight() {
         int usedHeight = 0;
         for (Point pt : field.getFullRect()) {
             if (field.get(pt) > 0) {
