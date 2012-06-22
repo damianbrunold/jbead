@@ -20,7 +20,9 @@ package ch.jbead;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Model implements ColorTable {
 
@@ -603,6 +605,14 @@ public class Model implements ColorTable {
         snapshot();
         field.rotate(rect);
         fireModelChanged();
+    }
+
+    public Set<Byte> getUsedColors() {
+        Set<Byte> usedcolors = new HashSet<Byte>();
+        for (int i = 0; i < field.getLastIndex(); i++) {
+            usedcolors.add(field.get(i));
+        }
+        return usedcolors;
     }
 
 }
