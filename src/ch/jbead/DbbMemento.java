@@ -23,6 +23,16 @@ import java.io.IOException;
 public class DbbMemento extends Memento {
 
     @Override
+    public byte getMaxSupportedColors() {
+        return 10;
+    }
+
+    @Override
+    public boolean compactifyColors() {
+        return true;
+    }
+
+    @Override
     public void save(JBeadOutputStream out) throws IOException {
         out.writeInt(width);
         out.write(data, 0, Math.min(BeadField.DEFAULT_SIZE, data.length));
@@ -31,11 +41,12 @@ public class DbbMemento extends Memento {
                 out.write(0);
             }
         }
-        if (colors.size() > 10) {
-            throw new RuntimeException("Cannot save pattern with more than 10 colors in DB-BEAD file format");
-        }
-        for (Color color : colors) {
-            out.writeColor(color);
+        for (int i = 0; i < 10; i++) {
+            if (i < colors.size()) {
+                out.writeColor(colors.get(i));
+            } else {
+                out.writeColor(Color.WHITE);
+            }
         }
         out.write(colorIndex);
         out.writeInt(zoomIndex);

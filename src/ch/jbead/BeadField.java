@@ -197,4 +197,12 @@ public class BeadField {
         setWidth(width);
     }
 
+    public void replace(byte oldColor, byte newColor) {
+        for (int i = 0; i < field.length; i++) {
+            if (field[i] == oldColor) {
+                field[i] = newColor;
+            }
+        }
+    }
+
 }

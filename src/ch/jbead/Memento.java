@@ -47,6 +47,14 @@ public abstract class Memento {
     public abstract void save(JBeadOutputStream out) throws IOException;
     public abstract void load(JBeadInputStream in) throws IOException;
 
+    public byte getMaxSupportedColors() {
+        return Byte.MAX_VALUE;
+    }
+
+    public boolean compactifyColors() {
+        return false;
+    }
+
     public int getWidth() {
         return width;
     }

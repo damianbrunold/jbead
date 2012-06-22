@@ -20,9 +20,12 @@ package ch.jbead;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import ch.jbead.storage.JBeadFileFormatException;
 
 public class Model implements ColorTable {
 
@@ -91,6 +94,12 @@ public class Model implements ColorTable {
         }
     }
 
+    private void fireColorsChanged() {
+        for (ModelListener listener : listeners) {
+            listener.colorsChanged();
+        }
+    }
+
     private void fireScrollChanged(int scroll) {
         for (ModelListener listener : listeners) {
             listener.scrollChanged(scroll);
@@ -115,31 +124,23 @@ public class Model implements ColorTable {
         }
     }
 
-    private static Color WHITE = Color.WHITE;
-    private static Color MAROON = new Color(128, 0, 0);
-    private static Color DKBLUE = new Color(0, 0, 128);
-    private static Color GREEN = Color.GREEN;
-    private static Color YELLOW = Color.YELLOW;
-    private static Color RED = Color.RED;
-    private static Color BLUE = Color.BLUE;
-    private static Color PURPLE = new Color(128, 0, 128);
-    private static Color BLACK = Color.BLACK;
-    private static Color CYAN = Color.CYAN;
-    //private static Color SILVER = new Color(192, 192, 192);
+    private static Color[] DEFAULT_COLORS = new Color[] {
+        Color.WHITE,
+        new Color(128, 0, 0),
+        new Color(0, 0, 128),
+        Color.GREEN,
+        Color.YELLOW,
+        Color.RED,
+        Color.BLUE,
+        new Color(128, 0, 128),
+        Color.BLACK,
+        Color.CYAN,
+        new Color(192, 192, 192),
+    };
 
     private void defaultColors() {
         colors.clear();
-        colors.add(WHITE);
-        colors.add(MAROON);
-        colors.add(DKBLUE);
-        colors.add(GREEN);
-        colors.add(YELLOW);
-        colors.add(RED);
-        colors.add(BLUE);
-        colors.add(PURPLE);
-        colors.add(BLACK);
-        colors.add(CYAN);
-        //colors.add(SILVER);
+        Collections.addAll(colors, DEFAULT_COLORS);
     }
 
     @Override
@@ -566,6 +567,12 @@ public class Model implements ColorTable {
     }
 
     public void saveTo(Memento memento) {
+        if (getUsedColors().size() > memento.getMaxSupportedColors()) {
+            throw new JBeadFileFormatException("Too many colors, only " + memento.getMaxSupportedColors() + " are supported with this file format.");
+        }
+        if (memento.compactifyColors()) {
+            compactifyColors();
+        }
         field.saveTo(memento);
         memento.setColors(colors);
         memento.setColorIndex(colorIndex);
@@ -579,6 +586,7 @@ public class Model implements ColorTable {
     public void loadFrom(Memento memento) {
         field.loadFrom(memento);
         colors = memento.getColors();
+        fillDefaultColorsUp();
         colorIndex = memento.getColorIndex();
         zoomIndex = memento.getZoomIndex();
         shift = memento.getShift();
@@ -586,6 +594,14 @@ public class Model implements ColorTable {
         author = memento.getAuthor();
         notes = memento.getNotes();
         fireModelChanged();
+    }
+
+    private void fillDefaultColorsUp() {
+        if (colors.size() < DEFAULT_COLORS.length) {
+            for (int i = colors.size(); i < DEFAULT_COLORS.length; i++) {
+                colors.add(DEFAULT_COLORS[i]);
+            }
+        }
     }
 
     public void mirrorHorizontal(Rect rect) {
@@ -616,6 +632,7 @@ public class Model implements ColorTable {
     }
 
     public void compactifyColors() {
+        snapshot();
         Set<Byte> usedcolors = getUsedColors();
         boolean[] colorInUse = new boolean[colors.size()];
         for (byte color : usedcolors) {
@@ -639,10 +656,15 @@ public class Model implements ColorTable {
     }
 
     private void moveColor(byte src, byte dest) {
-        // TODO
-        // replace src with dest in field
-        // switch colors in list
-        // fire colors changed/model changed event
+        field.replace(src, dest);
+        switchColors(src, dest);
+        fireColorsChanged();
+    }
+
+    private void switchColors(byte src, byte dest) {
+        Color temp = colors.get(src);
+        colors.set(src, colors.get(dest));
+        colors.set(dest, temp);
     }
 
 }
