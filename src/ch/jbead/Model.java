@@ -615,4 +615,34 @@ public class Model implements ColorTable {
         return usedcolors;
     }
 
+    public void compactifyColors() {
+        Set<Byte> usedcolors = getUsedColors();
+        boolean[] colorInUse = new boolean[colors.size()];
+        for (byte color : usedcolors) {
+            colorInUse[color] = true;
+        }
+        for (byte color = 0; color < colors.size(); color++) {
+            if (colorInUse[color]) continue;
+            byte used = firstUsedAfter(colorInUse, color);
+            if (used == -1) break;
+            moveColor(used, color);
+            colorInUse[color] = true;
+            colorInUse[used] = false;
+        }
+    }
+
+    private byte firstUsedAfter(boolean[] colorInUse, byte index) {
+        for (byte i = (byte) (index + 1); i < colors.size(); i++) {
+            if (colorInUse[i]) return i;
+        }
+        return -1;
+    }
+
+    private void moveColor(byte src, byte dest) {
+        // TODO
+        // replace src with dest in field
+        // switch colors in list
+        // fire colors changed/model changed event
+    }
+
 }
