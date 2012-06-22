@@ -565,7 +565,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             fileformat = new JBeadFileFormat();
         } else if (file.getName().endsWith(DbbFileFormat.EXTENSION)) {
             fileformat = new DbbFileFormat();
-        } else if (filter instanceof DbbFileFilter) {
+        } else if (filter != null && filter instanceof DbbFileFilter) {
             fileformat = new DbbFileFormat();
         } else {
             fileformat = new JBeadFileFormat();
@@ -978,6 +978,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void loadMRUFile(int index) {
+        updateFileFormat(null, mru.get(index));
         loadFile(mru.get(index), true);
     }
 
