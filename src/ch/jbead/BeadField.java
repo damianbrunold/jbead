@@ -192,9 +192,8 @@ public class BeadField {
 
     public void loadFrom(Memento memento) {
         width = memento.getWidth();
-        setHeight(DEFAULT_SIZE / width);
+        height = memento.getHeight();
         field = memento.getData();
-        setWidth(width);
     }
 
     public void replace(byte oldColor, byte newColor) {
