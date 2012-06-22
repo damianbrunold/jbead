@@ -57,6 +57,7 @@ public class ColorsToolbar extends JToolBar {
     };
 
     public ColorsToolbar(Localization localization, Model model) {
+        this.localization = localization;
         this.model = model;
         addColorButtons();
     }
