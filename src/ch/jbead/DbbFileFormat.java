@@ -37,7 +37,7 @@ public class DbbFileFormat implements FileFormat {
 
     @Override
     public void save(Model model, BeadForm form, File destfile) throws IOException {
-        JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(model.getFile()));
+        JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(destfile));
         try {
             out.write(MAGIC_FILE_HEADER);
             Memento memento = new DbbMemento();

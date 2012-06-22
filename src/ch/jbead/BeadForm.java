@@ -93,6 +93,7 @@ import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
+import ch.jbead.storage.JBeadFileFormatException;
 
 public class BeadForm extends JFrame implements Localization, ModelListener {
 
@@ -514,16 +515,26 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void fileSaveClick() {
-        if (model.isSaved()) {
+        fileSaveClick(model.isSaved(), model.getFile());
+    }
+
+    public boolean fileSaveClick(boolean isSaved, File file) {
+        if (isSaved) {
             try {
-                fileformat.save(model, this, model.getFile());
+                fileformat.save(model, this, file);
                 updateTitle();
+                return true;
+            } catch (JBeadFileFormatException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, getString("save.failed").replace("{1}", file.getPath()).replace("{2}", e.getMessage()));
+                return false;
             } catch (IOException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this, getString("save.failed").replace("{1}", model.getFile().getPath()).replace("{2}", e.getMessage()));
+                JOptionPane.showMessageDialog(this, getString("save.failed").replace("{1}", file.getPath()).replace("{2}", e.getMessage()));
+                return false;
             }
         } else {
-            fileSaveasClick();
+            return fileSaveasClick();
         }
     }
 
@@ -561,7 +572,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }
     }
 
-    public void fileSaveasClick() {
+    public boolean fileSaveasClick() {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getCurrentDirectory());
         dialog.setMultiSelectionEnabled(false);
@@ -571,19 +582,26 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 String msg = getString("fileexists");
                 msg = msg.replace("{1}", dialog.getSelectedFile().getName());
                 if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-                    return;
+                    return false;
                 }
             }
+            FileFormat oldFileFormat = fileformat;
             updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
             File file = dialog.getSelectedFile();
             if (file.getName().indexOf('.') == -1) {
                 file = new File(file.getParentFile(), file.getName() + fileformat.getExtension());
             }
-            model.setFile(file);
-            model.setSaved();
-            fileSaveClick();
-            addToMRU(model.getFile());
+            if (fileSaveClick(true, file)) {
+                model.setFile(file);
+                model.setSaved();
+                addToMRU(model.getFile());
+                updateTitle();
+                return true;
+            } else {
+                fileformat = oldFileFormat;
+            }
         }
+        return false;
     }
 
     public void filePrintClick(boolean showDialog) {
