@@ -21,7 +21,7 @@ package ch.jbead;
 public class BeadField {
 
     public static final int DEFAULT_WIDTH = 15;
-    public static final int DEFAULT_HEIGHT = 2000;
+    public static final int DEFAULT_HEIGHT = 800;
 
     private byte[] field = new byte[DEFAULT_WIDTH * DEFAULT_HEIGHT];
     private int width;
@@ -74,7 +74,7 @@ public class BeadField {
 
     public void setHeight(int height) {
         if (this.height == height) return;
-        byte[] field = new byte[this.width * this.height];
+        byte[] field = new byte[this.width * height];
         System.arraycopy(this.field, 0, field, 0, this.width * Math.min(this.height, height));
         this.height = height;
         this.field = field;
