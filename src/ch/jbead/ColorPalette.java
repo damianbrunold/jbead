@@ -80,6 +80,8 @@ public class ColorPalette extends JComponent {
             if (i == model.getSelectedColor()) {
                 g.setColor(Color.BLACK);
                 g.drawRect(i * d, 0, d - 1, d - 1);
+                g.setColor(Color.WHITE);
+                g.drawRect(i * d + 1, 1, d - 3, d - 3);
             }
         }
         for (byte i = 16; i < 32; i++) {
@@ -88,6 +90,8 @@ public class ColorPalette extends JComponent {
             if (i == model.getSelectedColor()) {
                 g.setColor(Color.BLACK);
                 g.drawRect((i - 16) * d, d, d - 1, d - 1);
+                g.setColor(Color.WHITE);
+                g.drawRect((i - 16) * d + 1, d + 1, d - 3, d - 3);
             }
         }
     }
