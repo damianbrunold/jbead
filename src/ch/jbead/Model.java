@@ -222,18 +222,19 @@ public class Model implements ColorTable {
         byte background = get(pt);
         int startIndex = getIndex(pt);
         for (int index = startIndex; index >= 0; index--) {
-            pt = getPoint(index);
-            if (get(pt) != background) {
+            Point p = getPoint(index);
+            if (get(p) != background) {
                 break;
             }
-            set(pt, color);
+            set(p, color);
         }
-        for (int index = startIndex + 1; index < field.getLastIndex(); index++) {
-            pt = getPoint(index);
-            if (get(pt) != background) {
+        int last = getIndex(new Point(getWidth() - 1, getUsedHeight() - 1));
+        for (int index = startIndex + 1; index <= last; index++) {
+            Point p = getPoint(index);
+            if (get(p) != background) {
                 break;
             }
-            set(pt, color);
+            set(p, color);
         }
         setRepeatDirty();
     }
