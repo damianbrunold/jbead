@@ -125,7 +125,7 @@ public class Model implements ColorTable {
 
     private void defaultColors() {
         colors.clear();
-        colors.addAll(new DefaultColorPalette());
+        colors.addAll(new DefaultColors());
     }
 
     @Override
@@ -586,9 +586,9 @@ public class Model implements ColorTable {
     }
 
     private void fillDefaultColorsUp() {
-        DefaultColorPalette palette = new DefaultColorPalette();
-        if (colors.size() < DefaultColorPalette.NUMBER_OF_COLORS) {
-            for (int i = colors.size(); i < DefaultColorPalette.NUMBER_OF_COLORS; i++) {
+        DefaultColors palette = new DefaultColors();
+        if (colors.size() < DefaultColors.NUMBER_OF_COLORS) {
+            for (int i = colors.size(); i < DefaultColors.NUMBER_OF_COLORS; i++) {
                 colors.add(palette.get(i));
             }
         }
