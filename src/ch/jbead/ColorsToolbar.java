@@ -17,103 +17,35 @@
 
 package ch.jbead;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JColorChooser;
 import javax.swing.JToolBar;
 
 public class ColorsToolbar extends JToolBar {
 
     private static final long serialVersionUID = 1L;
 
-    private Localization localization;
     private Model model;
-    private ButtonGroup colorsGroup = new ButtonGroup();
-    private List<ColorButton> colors = new ArrayList<ColorButton>();
-
-    ActionListener colorActionListener = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            colorClick(e);
-        }
-    };
-
-    MouseAdapter colorMouseAdapter = new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            super.mouseClicked(e);
-            if (e.getClickCount() == 2) {
-                colorDblClick(e.getSource());
-            }
-        }
-
-    };
 
     public ColorsToolbar(Localization localization, Model model) {
-        this.localization = localization;
         this.model = model;
-        addColorButtons();
+        add(new ColorPalette(model, localization));
     }
 
     public void selectDefaultColor() {
-        colors.get(1).setSelected(true);
+        model.setSelectedColor((byte) 1);
+        repaint();
     }
 
     public void selectColor(byte colorindex) {
-        colors.get(colorindex).setSelected(true);
-    }
-
-    public void updateColorIcons() {
-        for (byte i = 0; i < model.getColorCount(); i++) {
-            updateColorIcon(i);
-        }
+        model.setSelectedColor(colorindex);
+        repaint();
     }
 
     public void updateColorIcon(byte colorindex) {
-        colors.get(colorindex).setIcon(new ColorIcon(model, colorindex));
+        repaint();
     }
 
     public void updateAll() {
-        colors.clear();
-        removeAll();
-        colorsGroup = new ButtonGroup();
-        addColorButtons();
-    }
-
-    private void addColorButtons() {
-        for (int i = 0; i < model.getColorCount(); i++) {
-            add(createColorButton(i));
-        }
-        selectColor(model.getColorIndex());
-    }
-
-    private ColorButton createColorButton(int index) {
-        ColorButton button = new ColorButton(new ColorIcon(model, (byte) index));
-        button.addActionListener(colorActionListener);
-        button.addMouseListener(colorMouseAdapter);
-        colorsGroup.add(button);
-        colors.add(button);
-        return button;
-    }
-
-    private void colorClick(ActionEvent event) {
-        ColorButton sender = (ColorButton) event.getSource();
-        model.setColorIndex(sender.getColorIndex());
-    }
-
-    private void colorDblClick(Object sender) {
-        ColorButton colorButton = (ColorButton) sender;
-        byte c = colorButton.getColorIndex();
-        Color color = JColorChooser.showDialog(this, localization.getString("colorchooser.title"), model.getColor(c));
-        if (color == null) return;
-        model.setColor(c, color);
+        repaint();
     }
 
 }

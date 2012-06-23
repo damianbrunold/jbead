@@ -19,13 +19,11 @@ package ch.jbead;
 
 import java.awt.Color;
 
-/**
- *
- */
 public interface ColorTable {
 
     public Color getColor(byte index);
     public void setColor(byte index, Color color);
     public int getColorCount();
+    public byte getSelectedColor();
 
 }

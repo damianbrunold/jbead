@@ -151,7 +151,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public BeadForm() {
         super("jbead");
         createGUI();
-        colors.updateColorIcons();
         model.addListener(this);
         model.clear();
         selection.clear();
@@ -472,7 +471,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         selection.clear();
         model.clear();
         colors.selectDefaultColor();
-        colors.updateColorIcons();
         updateScrollbar();
     }
 
@@ -487,7 +485,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         try {
             fileformat.load(model, this, file);
-            colors.selectColor(model.getColorIndex());
+            colors.selectColor(model.getSelectedColor());
             updateScrollbar();
         } catch (Exception e) {
             e.printStackTrace();
@@ -792,8 +790,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         if (Key == KeyEvent.VK_F5) {
             repaint();
         } else if (event.getKeyChar() >= '0' && event.getKeyChar() <= '9') {
-            model.setColorIndex((byte) (event.getKeyChar() - '0'));
-            colors.selectColor(model.getColorIndex());
+            model.setSelectedColor((byte) (event.getKeyChar() - '0'));
+            colors.selectColor(model.getSelectedColor());
         } else if (Key == KeyEvent.VK_SPACE) {
             getAction("tool.pencil").putValue("SELECT", true);
             // sbToolPoint.setSelected(true);
@@ -1015,7 +1013,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     @Override
     public void modelChanged() {
-        colors.updateColorIcons();
+        colors.updateAll();
         updateScrollbar();
         updateTitle();
     }

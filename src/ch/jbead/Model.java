@@ -146,7 +146,7 @@ public class Model implements ColorTable {
         fireColorChanged(index);
     }
 
-    public void setColorIndex(byte colorIndex) {
+    public void setSelectedColor(byte colorIndex) {
         this.colorIndex = colorIndex;
     }
 
@@ -378,7 +378,8 @@ public class Model implements ColorTable {
         this.file = file;
     }
 
-    public byte getColorIndex() {
+    @Override
+    public byte getSelectedColor() {
         return colorIndex;
     }
 
