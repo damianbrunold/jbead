@@ -22,6 +22,8 @@ import java.io.IOException;
 
 public class DbbMemento extends Memento {
 
+    private static final int DBB_FIELD_SIZE = 25000;
+
     @Override
     public byte getMaxSupportedColors() {
         return 10;
@@ -35,9 +37,9 @@ public class DbbMemento extends Memento {
     @Override
     public void save(JBeadOutputStream out) throws IOException {
         out.writeInt(width);
-        out.write(data, 0, Math.min(BeadField.DEFAULT_SIZE, data.length));
-        if (data.length <= BeadField.DEFAULT_SIZE) {
-            for (int i = data.length; i < BeadField.DEFAULT_SIZE; i++) {
+        out.write(data, 0, Math.min(DBB_FIELD_SIZE, data.length));
+        if (data.length <= DBB_FIELD_SIZE) {
+            for (int i = data.length; i < DBB_FIELD_SIZE; i++) {
                 out.write(0);
             }
         }
@@ -62,9 +64,9 @@ public class DbbMemento extends Memento {
     @Override
     public void load(JBeadInputStream in) throws IOException {
         width = in.readInt();
-        height = BeadField.DEFAULT_SIZE / width;
-        data = new byte[BeadField.DEFAULT_SIZE + BeadField.DEFAULT_SIZE % width];
-        in.read(data, 0, BeadField.DEFAULT_SIZE);
+        height = (DBB_FIELD_SIZE + width - 1) / width;
+        data = new byte[width * height];
+        in.read(data, 0, DBB_FIELD_SIZE);
         colors.clear();
         colors.add(in.readBackgroundColor());
         for (int i = 1; i < 10; i++) {

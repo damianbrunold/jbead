@@ -21,15 +21,15 @@ package ch.jbead;
 public class BeadField {
 
     public static final int DEFAULT_WIDTH = 15;
-    public static final int DEFAULT_SIZE = 25 * 1000;
+    public static final int DEFAULT_HEIGHT = 2000;
 
-    private byte[] field = new byte[DEFAULT_SIZE];
+    private byte[] field = new byte[DEFAULT_WIDTH * DEFAULT_HEIGHT];
     private int width;
     private int height;
 
     public BeadField() {
         this.width = DEFAULT_WIDTH;
-        this.height = DEFAULT_SIZE / DEFAULT_WIDTH;
+        this.height = DEFAULT_HEIGHT;
         clear();
     }
 
