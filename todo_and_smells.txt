@@ -43,9 +43,6 @@ fly a thumbnail, or maybe the uploading program does. The program
 can query the personal document or all published ones according
 to metadata (tags).
 
-Use BeadList to generate further reports, e.g. stats of beads 
-(how many of which color, ...)
-
 Add a keyboard interface to the program analogously to dbweave
 so that it is possible to enter patterns with the keyboard and
 do selections and so on.
@@ -112,3 +109,5 @@ of the raw integer index.
 Improve saving so that first a temporary file is created and only if
 the save is successfull is the destination file replaced with the temporary
 one. If anything goes wrong, just delete the temp file...
+
+Maybe need to load the default colors from a text file, in the resources.
