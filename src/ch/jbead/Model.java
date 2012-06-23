@@ -20,7 +20,6 @@ package ch.jbead;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -124,23 +123,9 @@ public class Model implements ColorTable {
         }
     }
 
-    private static Color[] DEFAULT_COLORS = new Color[] {
-        Color.WHITE,
-        new Color(128, 0, 0),
-        new Color(0, 0, 128),
-        Color.GREEN,
-        Color.YELLOW,
-        Color.RED,
-        Color.BLUE,
-        new Color(128, 0, 128),
-        Color.BLACK,
-        Color.CYAN,
-        new Color(192, 192, 192),
-    };
-
     private void defaultColors() {
         colors.clear();
-        Collections.addAll(colors, DEFAULT_COLORS);
+        colors.addAll(new DefaultColorPalette());
     }
 
     @Override
@@ -601,9 +586,10 @@ public class Model implements ColorTable {
     }
 
     private void fillDefaultColorsUp() {
-        if (colors.size() < DEFAULT_COLORS.length) {
-            for (int i = colors.size(); i < DEFAULT_COLORS.length; i++) {
-                colors.add(DEFAULT_COLORS[i]);
+        DefaultColorPalette palette = new DefaultColorPalette();
+        if (colors.size() < DefaultColorPalette.NUMBER_OF_COLORS) {
+            for (int i = colors.size(); i < DefaultColorPalette.NUMBER_OF_COLORS; i++) {
+                colors.add(palette.get(i));
             }
         }
     }
