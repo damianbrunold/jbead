@@ -62,7 +62,7 @@ public class DraftPrinter extends GridPrinter {
                 g.drawString(Integer.toString(start + j), x, y + (rows - j) * gy);
             }
         }
-        return x + border;
+        return x + getColumnWidth() + border;
     }
 
 }
