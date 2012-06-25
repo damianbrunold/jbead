@@ -17,7 +17,7 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class PageLayout {
         parts.add(part);
     }
 
-    public void printPage(Graphics g, PageFormat pageFormat) {
+    public void printPage(Graphics2D g, PageFormat pageFormat) {
         int x = (int) pageFormat.getImageableX();
         int y = (int) pageFormat.getImageableY();
         for (PagePart part : parts) {

@@ -36,22 +36,20 @@ public abstract class GridPrinter extends PartPrinter {
     public List<Integer> layoutColumns(int height) {
         List<Integer> columns = new ArrayList<Integer>();
         int rows = model.getUsedHeight();
-        int rowsPerColumn = height / gy;
-        int cols = rows / rowsPerColumn;
+        int cols = rows / getRowsPerColumn(height);
         if (cols > 0) {
             int colwidth = getColumnWidth() + 2 * border;
             for (int i = 0; i < cols; i++) {
-                int width = adjustColumn(i, colwidth);
-                columns.add(width);
+                columns.add(colwidth);
             }
         }
         return columns;
     }
 
-    protected abstract int getColumnWidth();
-
-    protected int adjustColumn(int column, int width) {
-        return width;
+    protected int getRowsPerColumn(int height) {
+        return height / gy;
     }
+
+    protected abstract int getColumnWidth();
 
 }

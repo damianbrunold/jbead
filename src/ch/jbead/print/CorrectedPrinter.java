@@ -17,7 +17,7 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
 import ch.jbead.Localization;
@@ -35,7 +35,7 @@ public class CorrectedPrinter extends GridPrinter {
     }
 
     @Override
-    public int print(Graphics g, PageFormat pageFormat, int x, int y, int column) {
+    public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         return 0;
     }
 

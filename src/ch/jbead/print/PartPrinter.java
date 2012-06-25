@@ -17,7 +17,7 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.util.List;
 
@@ -37,6 +37,6 @@ public abstract class PartPrinter {
     }
 
     public abstract List<Integer> layoutColumns(int height);
-    public abstract int print(Graphics g, PageFormat pageFormat, int x, int y, int column);
+    public abstract int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column);
 
 }

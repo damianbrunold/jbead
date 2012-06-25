@@ -18,6 +18,7 @@
 package ch.jbead.print;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -93,7 +94,7 @@ public class DesignPrinter {
                 @Override
                 public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
                     if (pageIndex >= pages.size()) return NO_SUCH_PAGE;
-                    pages.get(pageIndex).printPage(graphics, pageFormat);
+                    pages.get(pageIndex).printPage((Graphics2D) graphics, pageFormat);
                     return PAGE_EXISTS;
                 }
             }, pageFormat);

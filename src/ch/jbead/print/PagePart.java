@@ -17,7 +17,7 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
 
@@ -37,7 +37,7 @@ public class PagePart {
         return columnWidth;
     }
 
-    public int print(Graphics g, PageFormat pageFormat, int x, int y) {
+    public int print(Graphics2D g, PageFormat pageFormat, int x, int y) {
         return printer.print(g, pageFormat, x, y, columnIndex);
     }
 
