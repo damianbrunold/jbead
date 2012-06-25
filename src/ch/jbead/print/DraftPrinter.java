@@ -41,7 +41,7 @@ public class DraftPrinter extends GridPrinter {
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        g.setStroke(new BasicStroke(0.1f));
+        g.setStroke(new BasicStroke(0.0f));
         int height = (int) pageFormat.getImageableHeight();
         x += border;
         int rows = getRowsPerColumn(height);
