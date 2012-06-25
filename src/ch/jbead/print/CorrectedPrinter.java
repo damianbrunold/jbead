@@ -17,7 +17,6 @@
 
 package ch.jbead.print;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
@@ -38,24 +37,33 @@ public class CorrectedPrinter extends GridPrinter {
     }
 
     @Override
+    protected int getRows() {
+        int rows = model.getUsedHeight();
+        Point pt = model.correct(new Point(model.getWidth() - 1, rows - 1));
+        return pt.getY() + 1;
+    }
+
+    @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        g.setStroke(new BasicStroke(0.0f));
+        setStroke(g);
         int height = (int) pageFormat.getImageableHeight();
-        x += border;
+        x += border + gx / 2;
         int rows = getRowsPerColumn(height);
         int start = rows * column;
-        for (int j = 0; j < rows; j++) {
-            int dx = j % 2 == 0 ? 0 : -gx/2;
+        for (int j = 0; j < model.getUsedHeight(); j++) {
             for (int i = 0; i < model.getWidth(); i++) {
-                Point pt = new Point(i, start + j);
-                pt = model.getPoint(model.getCorrectedIndex(pt));
+                Point pt = new Point(i, j);
                 byte c = model.get(pt);
+                pt = model.correct(pt);
+                if (pt.getY() < start) continue;
+                if (pt.getY() >= start + rows) continue;
+                int dx = pt.getY() % 2 == 0 ? 0 : gx / 2;
                 if (c > 0) {
                     g.setColor(model.getColor(c));
-                    g.fillRect(x + dx + i * gx, y + (rows - j - 1) * gy, gx, gy);
+                    g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
                 }
                 g.setColor(Color.BLACK);
-                g.drawRect(x + dx + i * gx, y + (rows - j - 1) * gy, gx, gy);
+                g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
             }
         }
         return x + getColumnWidth() + border;

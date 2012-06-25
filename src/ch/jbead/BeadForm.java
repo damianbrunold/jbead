@@ -33,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
+import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
@@ -176,6 +177,11 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         // TODO persist the pageFormat in Settings?
         pageFormat = PrinterJob.getPrinterJob().defaultPage();
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
+        // Set fix A4 paper, maybe make customizable
+        Paper paper = new Paper();
+        paper.setSize(2100 * 72 / 254, 2970 * 72 / 254);
+        paper.setImageableArea(150 * 72 / 254, 150 * 72 / 254, (2100 - 2 * 150) * 72 / 254, (2970 - 2 * 150) * 72 / 254);
+        pageFormat.setPaper(paper);
 
         selection.addListener(draft);
 
@@ -269,7 +275,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuFile.add(new FileSaveAction(this));
         menuFile.add(new FileSaveAsAction(this));
         menuFile.addSeparator();
-        menuFile.add(new FilePrintAction(this));
+        menuFile.add(new JMenuItem(new FilePrintAction(this)));
         menuFile.add(new FilePrintSetupAction(this));
         menuFile.addSeparator();
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 0)));

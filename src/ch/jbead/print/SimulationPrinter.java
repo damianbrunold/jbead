@@ -17,13 +17,14 @@
 
 package ch.jbead.print;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
 
-public class SimulationPrinter extends GridPrinter {
+public class SimulationPrinter extends CorrectedPrinter {
 
     public SimulationPrinter(Model model, Localization localization) {
         super(model, localization);
@@ -36,7 +37,15 @@ public class SimulationPrinter extends GridPrinter {
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        return 0;
+        int height = (int) pageFormat.getImageableHeight();
+        int rows = getRowsPerColumn(height);
+        int clipx = x + border + gx / 2;
+        g.setClip(clipx, y, getColumnWidth(), y + rows * gy);
+        x = super.print(g, pageFormat, x, y, column);
+        g.setColor(Color.BLACK);
+        g.drawLine(clipx, y, clipx, y + rows * gy);
+        g.drawLine(clipx + getColumnWidth(), y, clipx + getColumnWidth(), y + rows * gy);
+        return x;
     }
 
 }

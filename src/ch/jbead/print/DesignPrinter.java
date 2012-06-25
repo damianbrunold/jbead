@@ -19,6 +19,7 @@ package ch.jbead.print;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.print.Book;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -53,7 +54,6 @@ public class DesignPrinter {
         this.withCorrected = withCorrected;
         this.withSimulation = withSimulation;
         this.withReport = withReport;
-        layoutPages();
     }
 
     private void layoutPages() {
@@ -88,9 +88,9 @@ public class DesignPrinter {
 
     public void print(boolean showDialog) {
         try {
-            PrinterJob pj = PrinterJob.getPrinterJob();
-            if (showDialog && !pj.printDialog()) return;
-            pj.setPrintable(new Printable() {
+            PrinterJob printjob = PrinterJob.getPrinterJob();
+            Book book = new Book();
+            book.append(new Printable() {
                 @Override
                 public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
                     if (pageIndex >= pages.size()) return NO_SUCH_PAGE;
@@ -98,7 +98,16 @@ public class DesignPrinter {
                     return PAGE_EXISTS;
                 }
             }, pageFormat);
-            pj.print();
+            printjob.setPageable(book);
+            if (showDialog && !printjob.printDialog()) return;
+            int scroll = model.getScroll();
+            try {
+                model.setScroll(0);
+                layoutPages();
+                printjob.print();
+            } finally {
+                model.setScroll(scroll);
+            }
         } catch (PrinterException e) {
             // TODO show good and localized error message
             JOptionPane.showMessageDialog(null, "Failed to print document: " + e);

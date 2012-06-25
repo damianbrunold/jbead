@@ -17,6 +17,8 @@
 
 package ch.jbead.print;
 
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ import ch.jbead.Model;
 
 public abstract class GridPrinter extends PartPrinter {
 
-    protected int gx = 12;
+    protected int gx = 30 * 72 / 254;
     protected int gy = gx;
 
     public GridPrinter(Model model, Localization localization) {
@@ -35,8 +37,9 @@ public abstract class GridPrinter extends PartPrinter {
     @Override
     public List<Integer> layoutColumns(int height) {
         List<Integer> columns = new ArrayList<Integer>();
-        int rows = model.getUsedHeight();
-        int cols = rows / getRowsPerColumn(height);
+        int rows = getRows();
+        int rowsPerColumn = getRowsPerColumn(height);
+        int cols = (rows + rowsPerColumn - 1) / rowsPerColumn;
         if (cols > 0) {
             int colwidth = getColumnWidth() + 2 * border;
             for (int i = 0; i < cols; i++) {
@@ -50,6 +53,11 @@ public abstract class GridPrinter extends PartPrinter {
         return height / gy;
     }
 
+    protected abstract int getRows();
     protected abstract int getColumnWidth();
+
+    protected void setStroke(Graphics2D g) {
+        g.setStroke(new BasicStroke(0.3f));
+    }
 
 }

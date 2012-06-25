@@ -17,8 +17,8 @@
 
 package ch.jbead.print;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
@@ -29,7 +29,7 @@ import ch.jbead.Point;
 
 public class DraftPrinter extends GridPrinter {
 
-    private int markerWidth = 72;
+    private int markerWidth = 100 * 72 / 254;
 
     public DraftPrinter(Model model, Localization localization) {
         super(model, localization);
@@ -40,13 +40,20 @@ public class DraftPrinter extends GridPrinter {
     }
 
     @Override
+    protected int getRows() {
+        return model.getUsedHeight();
+    }
+
+    @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        g.setStroke(new BasicStroke(0.0f));
+        setStroke(g);
+        g.setFont(new Font("SansSerif", Font.PLAIN, 8));
         int height = (int) pageFormat.getImageableHeight();
         x += border;
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < rows; j++) {
+            if (start + j >= getRows()) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
                 if (c > 0) {
@@ -59,7 +66,7 @@ public class DraftPrinter extends GridPrinter {
             if ((start + j) % 10 == 0) {
                 g.setColor(Color.BLACK);
                 g.drawLine(x, y + (rows - j) * gy, x + markerWidth - gx, y + (rows -j) * gy);
-                g.drawString(Integer.toString(start + j), x, y + (rows - j) * gy);
+                g.drawString(Integer.toString(start + j), x, y + (rows - j) * gy - gy / 3);
             }
         }
         return x + getColumnWidth() + border;
