@@ -17,11 +17,14 @@
 
 package ch.jbead.print;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.Point;
 
 public class CorrectedPrinter extends GridPrinter {
 
@@ -36,7 +39,26 @@ public class CorrectedPrinter extends GridPrinter {
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        return 0;
+        g.setStroke(new BasicStroke(0.0f));
+        int height = (int) pageFormat.getImageableHeight();
+        x += border;
+        int rows = getRowsPerColumn(height);
+        int start = rows * column;
+        for (int j = 0; j < rows; j++) {
+            int dx = j % 2 == 0 ? 0 : -gx/2;
+            for (int i = 0; i < model.getWidth(); i++) {
+                Point pt = new Point(i, start + j);
+                pt = model.getPoint(model.getCorrectedIndex(pt));
+                byte c = model.get(pt);
+                if (c > 0) {
+                    g.setColor(model.getColor(c));
+                    g.fillRect(x + dx + i * gx, y + (rows - j - 1) * gy, gx, gy);
+                }
+                g.setColor(Color.BLACK);
+                g.drawRect(x + dx + i * gx, y + (rows - j - 1) * gy, gx, gy);
+            }
+        }
+        return x + getColumnWidth() + border;
     }
 
 }
