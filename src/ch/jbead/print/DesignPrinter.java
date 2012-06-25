@@ -15,14 +15,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.jbead;
+package ch.jbead.print;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import ch.jbead.Localization;
+import ch.jbead.Model;
 
 
 public class DesignPrinter {
@@ -35,6 +41,8 @@ public class DesignPrinter {
     private boolean withSimulation;
     private boolean withReport;
 
+    private List<PageLayout> pages = new ArrayList<PageLayout>();
+
     public DesignPrinter(Model model, Localization localization, PageFormat pageFormat, boolean withDraft, boolean withCorrected,
             boolean withSimulation, boolean withReport) {
         this.model = model;
@@ -44,6 +52,37 @@ public class DesignPrinter {
         this.withCorrected = withCorrected;
         this.withSimulation = withSimulation;
         this.withReport = withReport;
+        layoutPages();
+    }
+
+    private void layoutPages() {
+        int pageWidth = (int) pageFormat.getImageableWidth();
+        int pageHeight = (int) pageFormat.getImageableHeight();
+        PageLayout currentPage = new PageLayout(pageWidth);
+        for (PartPrinter printer : getPartPrinters()) {
+            List<Integer> columns = printer.layoutColumns(pageHeight);
+            for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+                int columnWidth = columns.get(columnIndex);
+                if (pageWidth < columnWidth) throw new RuntimeException("Column is wider than page!");
+                if (currentPage.getUnusedWidth() < columnWidth) {
+                    pages.add(currentPage);
+                    currentPage = new PageLayout(pageWidth);
+                }
+                currentPage.addPart(new PagePart(printer, columnIndex, columnWidth));
+            }
+        }
+        if (currentPage.getUnusedWidth() < pageWidth) {
+            pages.add(currentPage);
+        }
+    }
+
+    private List<PartPrinter> getPartPrinters() {
+        List<PartPrinter> printers = new ArrayList<PartPrinter>();
+        if (withDraft) printers.add(new DraftPrinter(model, localization));
+        if (withCorrected) printers.add(new CorrectedPrinter(model, localization));
+        if (withSimulation) printers.add(new SimulationPrinter(model, localization));
+        if (withReport) printers.add(new ReportPrinter(model, localization));
+        return printers;
     }
 
     public void print(boolean showDialog) {
@@ -53,21 +92,19 @@ public class DesignPrinter {
             pj.setPrintable(new Printable() {
                 @Override
                 public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-                    if (pageIndex >= getPageCount(graphics, pageFormat)) return NO_SUCH_PAGE;
-                    printAll(graphics, pageFormat, pageIndex);
+                    if (pageIndex >= pages.size()) return NO_SUCH_PAGE;
+                    pages.get(pageIndex).printPage(graphics, pageFormat);
                     return PAGE_EXISTS;
                 }
             }, pageFormat);
             pj.print();
         } catch (PrinterException e) {
-            // TODO show error dialog
+            // TODO show good and localized error message
+            JOptionPane.showMessageDialog(null, "Failed to print document: " + e);
         }
     }
 
-    private int getPageCount(Graphics graphics, PageFormat pageFormat) {
-        return 1; // TODO calculate actual page count
-    }
-
+/*
     private int getGx() {
         return mm2px(15 + model.getZoomIndex() * 5);
     }
@@ -363,5 +400,5 @@ public class DesignPrinter {
     private int mm2py(int y) {
         return y * 72 / 254;
     }
-
+*/
 }

@@ -93,6 +93,7 @@ import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
+import ch.jbead.print.DesignPrinter;
 import ch.jbead.storage.JBeadFileFormatException;
 
 public class BeadForm extends JFrame implements Localization, ModelListener {
