@@ -23,8 +23,9 @@ import java.awt.print.PageFormat;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.Point;
 
-public class SimulationPrinter extends CorrectedPrinter {
+public class SimulationPrinter extends GridPrinter {
 
     public SimulationPrinter(Model model, Localization localization) {
         super(model, localization);
@@ -32,20 +33,59 @@ public class SimulationPrinter extends CorrectedPrinter {
 
     @Override
     protected int getColumnWidth() {
-        return (model.getWidth() + 1) * gx / 2;
+        return visibleWidth() * gx;
+    }
+
+    @Override
+    protected int getRows() {
+        int rows = model.getUsedHeight();
+        Point pt = model.correct(new Point(model.getWidth() - 1, rows - 1));
+        return pt.getY() + 1;
+    }
+
+    private int visibleWidth() {
+        return model.getWidth() / 2;
     }
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
+        setStroke(g);
         int height = (int) pageFormat.getImageableHeight();
+        x += border;
         int rows = getRowsPerColumn(height);
-        int clipx = x + border + gx / 2;
-        g.setClip(clipx, y, getColumnWidth(), y + rows * gy);
-        x = super.print(g, pageFormat, x, y, column);
-        g.setColor(Color.BLACK);
-        g.drawLine(clipx, y, clipx, y + rows * gy);
-        g.drawLine(clipx + getColumnWidth(), y, clipx + getColumnWidth(), y + rows * gy);
-        return x;
+        int start = rows * column;
+        for (int j = 0; j < model.getUsedHeight(); j++) {
+            for (int i = 0; i < model.getWidth(); i++) {
+                Point pt = new Point(i, j);
+                byte c = model.get(pt);
+                pt = model.correct(pt);
+                if (pt.getY() < start) continue;
+                if (pt.getY() >= start + rows) continue;
+                if (pt.getX() > visibleWidth()) continue;
+                int dx = dx(pt);
+                int w = w(pt);
+                if (c > 0) {
+                    g.setColor(model.getColor(c));
+                    g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
+                }
+                g.setColor(Color.BLACK);
+                g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
+            }
+        }
+        return x + getColumnWidth() + border;
+    }
+
+    private int dx(Point pt) {
+        if (pt.getY() % 2 == 0) return 0;
+        if (pt.getX() == 0) return 0;
+        return gx / 2;
+    }
+
+    private int w(Point pt) {
+        if (pt.getY() % 2 == 0) return gx;
+        if (pt.getX() == 0) return gx / 2;
+        if (pt.getX() == visibleWidth()) return gx / 2;
+        return gx;
     }
 
 }
