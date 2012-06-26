@@ -99,6 +99,7 @@ public class DesignPrinter {
                 }
             }, pageFormat);
             printjob.setPageable(book);
+            printjob.setJobName("jbead " + model.getFile().getName());
             if (showDialog && !printjob.printDialog()) return;
             int scroll = model.getScroll();
             try {
