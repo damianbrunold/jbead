@@ -125,8 +125,9 @@ orientation, ... Store this info in the settings.
 Fix issues with print dialog. Why does it display such a wrong paper
 format and changing it does not influence the printing?
 
-Refactor the SimulationPanel drawing code. Look at SimulationPrinter and
-CorrectedPanel for inspiration.
+Add borders to print page. Configurable.
+
+Add headers with filename, page number, ... best would be configurable.
 
 Currently, the print layout is handled solely using columns. In the
 report, there are kind of columns and rows. The information at the 
