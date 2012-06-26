@@ -111,3 +111,28 @@ the save is successfull is the destination file replaced with the temporary
 one. If anything goes wrong, just delete the temp file...
 
 Maybe need to load the default colors from a text file, in the resources.
+
+Unify Panel drawing and printing code. Currently, e.g. the corrected
+grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
+very similar and core elements have to be exactly the same, otherwise
+the printed display is different from the display on screen.
+
+Add flag for starting a new page when printing the report.
+
+Add a custom dialog for configuring the print page. Paper format, borders,
+orientation, ... Store this info in the settings.
+
+Fix issues with print dialog. Why does it display such a wrong paper
+format and changing it does not influence the printing?
+
+Refactor the SimulationPanel drawing code. Look at SimulationPrinter and
+CorrectedPanel for inspiration.
+
+Currently, the print layout is handled solely using columns. In the
+report, there are kind of columns and rows. The information at the 
+top and the color statistics are kind of a row. The bead list is below
+it in a different row but organized in a sequence of columns. If they
+do not fit on the same page, then on the next page only the remaining
+bead list columns are printed. One way would be to reorganize the report
+display in print so that info plus bead stats are one columns, and the
+bead list is a set of columns.
