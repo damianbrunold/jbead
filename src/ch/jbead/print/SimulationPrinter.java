@@ -82,10 +82,13 @@ public class SimulationPrinter extends GridPrinter {
     }
 
     private int w(Point pt) {
-        if (pt.getY() % 2 == 0) return gx;
-        if (pt.getX() == 0) return gx / 2;
-        if (pt.getX() == visibleWidth()) return gx / 2;
-        return gx;
+        if (pt.getY() % 2 == 0) {
+            if (pt.getX() == visibleWidth()) return gx / 2;
+            else return gx;
+        } else {
+            if (pt.getX() == 0) return gx / 2;
+            else return gx;
+        }
     }
 
 }
