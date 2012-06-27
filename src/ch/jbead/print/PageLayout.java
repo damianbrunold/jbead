@@ -17,13 +17,16 @@
 
 package ch.jbead.print;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class PageLayout {
+public class PageLayout implements Printable {
 
     private int width;
     private List<PagePart> parts = new ArrayList<PagePart>();
@@ -50,5 +53,15 @@ public class PageLayout {
         for (PagePart part : parts) {
             x = part.print(g, pageFormat, x, y);
         }
+    }
+
+    @Override
+    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+        int x = (int) pageFormat.getImageableX();
+        int y = (int) pageFormat.getImageableY();
+        for (PagePart part : parts) {
+            x = part.print((Graphics2D) graphics, pageFormat, x, y);
+        }
+        return PAGE_EXISTS;
     }
 }

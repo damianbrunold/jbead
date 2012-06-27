@@ -17,16 +17,16 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.print.Book;
 import java.awt.print.PageFormat;
-import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttribute;
+import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.JOptionPane;
 
 import ch.jbead.Localization;
@@ -88,24 +88,24 @@ public class DesignPrinter {
 
     public void print(boolean showDialog) {
         try {
-            PrinterJob printjob = PrinterJob.getPrinterJob();
-            Book book = new Book();
-            book.append(new Printable() {
-                @Override
-                public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-                    if (pageIndex >= pages.size()) return NO_SUCH_PAGE;
-                    pages.get(pageIndex).printPage((Graphics2D) graphics, pageFormat);
-                    return PAGE_EXISTS;
-                }
-            }, pageFormat);
-            printjob.setPageable(book);
-            printjob.setJobName("jbead " + model.getFile().getName());
-            if (showDialog && !printjob.printDialog()) return;
             int scroll = model.getScroll();
             try {
                 model.setScroll(0);
                 layoutPages();
-                printjob.print();
+                PrinterJob printjob = PrinterJob.getPrinterJob();
+                PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
+                if (showDialog) {
+                    if (!printjob.printDialog(attrs)) return;
+                    // TODO how to handle changed pageFormat?
+                    //pageFormat.setPaper(paper)
+                }
+                Book book = new Book();
+                for (PageLayout page : pages) {
+                    book.append(page, pageFormat);
+                }
+                printjob.setPageable(book);
+                printjob.setJobName("jbead " + System.currentTimeMillis() + " " + model.getFile().getName());
+                printjob.print(attrs);
             } finally {
                 model.setScroll(scroll);
             }
