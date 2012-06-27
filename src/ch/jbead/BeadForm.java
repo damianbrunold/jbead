@@ -94,6 +94,7 @@ import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
+import ch.jbead.print.Convert;
 import ch.jbead.print.DesignPrinter;
 import ch.jbead.storage.JBeadFileFormatException;
 
@@ -179,8 +180,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         pageFormat.setOrientation(PageFormat.LANDSCAPE);
         // Set fix A4 paper, maybe make customizable
         Paper paper = new Paper();
-        paper.setSize(2100 * 72 / 254, 2970 * 72 / 254);
-        paper.setImageableArea(150 * 72 / 254, 150 * 72 / 254, (2100 - 2 * 150) * 72 / 254, (2970 - 2 * 150) * 72 / 254);
+        paper.setSize(Convert.mm2pt(210), Convert.mm2pt(297));
+        paper.setImageableArea(Convert.mm2pt(15), Convert.mm2pt(15), Convert.mm2pt(210 - 2 * 15), Convert.mm2pt(297 - 2 * 15));
         pageFormat.setPaper(paper);
 
         selection.addListener(draft);

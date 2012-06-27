@@ -29,7 +29,7 @@ import ch.jbead.Point;
 
 public class DraftPrinter extends GridPrinter {
 
-    private int markerWidth = 100 * 72 / 254;
+    private int markerWidth = Convert.mm2pt(10);
 
     public DraftPrinter(Model model, Localization localization) {
         super(model, localization);

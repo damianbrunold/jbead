@@ -17,26 +17,21 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.util.List;
+import junit.framework.TestCase;
 
-import ch.jbead.Localization;
-import ch.jbead.Model;
+public class ConvertTest extends TestCase {
 
-public abstract class PartPrinter {
-
-    protected Model model;
-    protected Localization localization;
-
-    protected int border = Convert.mm2pt(4);
-
-    public PartPrinter(Model model, Localization localization) {
-        this.model = model;
-        this.localization = localization;
+    public void testMm2pt() {
+        assertEquals(0, Convert.mm2pt(0));
+        assertEquals(2, Convert.mm2pt(1));
+        assertEquals(8, Convert.mm2pt(3));
+        assertEquals(11, Convert.mm2pt(4));
+        assertEquals(720, Convert.mm2pt(254));
     }
 
-    public abstract List<Integer> layoutColumns(int height);
-    public abstract int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column);
+    public void testMm2ptFloat() {
+        assertEquals(4, Convert.mm2pt(1.5));
+        assertEquals(9, Convert.mm2pt(3.5));
+    }
 
 }

@@ -27,7 +27,7 @@ import ch.jbead.Model;
 
 public abstract class GridPrinter extends PartPrinter {
 
-    protected int gx = 30 * 72 / 254;
+    protected int gx = Convert.mm2pt(3);
     protected int gy = gx;
 
     public GridPrinter(Model model, Localization localization) {

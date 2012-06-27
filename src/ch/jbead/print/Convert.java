@@ -17,26 +17,14 @@
 
 package ch.jbead.print;
 
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.util.List;
+public class Convert {
 
-import ch.jbead.Localization;
-import ch.jbead.Model;
-
-public abstract class PartPrinter {
-
-    protected Model model;
-    protected Localization localization;
-
-    protected int border = Convert.mm2pt(4);
-
-    public PartPrinter(Model model, Localization localization) {
-        this.model = model;
-        this.localization = localization;
+    public static int mm2pt(int mm) {
+        return mm * 720 / 254;
     }
 
-    public abstract List<Integer> layoutColumns(int height);
-    public abstract int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column);
+    public static int mm2pt(double mm) {
+        return (int) (mm * 720 / 254);
+    }
 
 }
