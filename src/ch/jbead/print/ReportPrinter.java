@@ -41,4 +41,78 @@ public class ReportPrinter extends PartPrinter {
         return 0;
     }
 
+    /*
+    private void printReport(Graphics g, PageFormat pageFormat, int reportleft, int reportcols) {
+        int x1 = reportleft;
+        int x2 = reportleft + mm2px(30);
+        int y = mm2py(10);
+        int dy = mm2py(5);
+        int dx = mm2px(5);
+
+        // Mustername
+        g.setColor(Color.BLACK);
+        g.drawString(localization.getString("report.pattern"), x1, y);
+        g.drawString(model.getFile().getName(), x2, y);
+        y += dy;
+        // Umfang
+        g.drawString(localization.getString("report.circumference"), x1, y);
+        g.drawString(Integer.toString(model.getWidth()), x2, y);
+        y += dy;
+        // Farbrapport
+        g.drawString(localization.getString("report.colorrepeat"), x1, y);
+        g.drawString(Integer.toString(model.getRepeat()) + " " + localization.getString("report.beads"), x2, y);
+        y += dy;
+        int repeat = model.getRepeat();
+        // Faedelliste...
+        if (repeat > 0) {
+            //int page = 1;
+            int column = 0;
+            g.drawString(localization.getString("report.listofbeads"), x1, y);
+            y += dy;
+            int ystart = y;
+            BeadList beads = new BeadList(model);
+            for (BeadRun bead : beads) {
+                if (bead.getColor() != 0) {
+                    g.setColor(model.getColor(bead.getColor()));
+                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
+                    g.setColor(Color.WHITE);
+                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
+                } else {
+                    g.setColor(Color.WHITE);
+                    g.fillRect(x1, y, dx - mm2px(1), dy - mm2py(1));
+                    g.setColor(Color.BLACK);
+                    g.drawRect(x1, y, dx - mm2px(1), dy - mm2py(1));
+                }
+                g.setColor(Color.BLACK);
+                g.drawString(Integer.toString(bead.getCount()), x1 + dx + 3, y);
+                y += dy;
+                if (y >= (int) pageFormat.getHeight() - mm2py(10)) {
+                    x1 += dx + mm2px(8);
+                    y = ystart;
+                    column++;
+                    if (column >= reportcols) { // neue Seite und weiter...
+                        // TODO handle multipage output, sigh...
+                        break;
+                        // Printer().NewPage();
+                        // x1 = draftleft;
+                        // x2 = draftleft + MM2PRx(30);
+                        // y = MM2PRy(10);
+                        // reportcols = (Printer().PageWidth - draftleft - 10) /
+                        // (MM2PRx(5) + MM2PRx(8));
+                        // column = 0;
+                        // page++;
+                        // canvas.Pen.Color = clBlack;
+                        // canvas.TextOut (x1, y,
+                        // String(Language.STR("Pattern ",
+                        // "Muster "))+savedialog.getSelectedFile().getName() +
+                        // " - " + Language.STR("page ", "Seite ") +
+                        // IntToStr(page));
+                        // y += dy;
+                        // ystart = y;
+                    }
+                }
+            }
+        }
+    }
+     */
 }
