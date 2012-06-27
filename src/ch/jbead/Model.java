@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JFileChooser;
+
 import ch.jbead.storage.JBeadFileFormatException;
 
 public class Model implements ColorTable {
@@ -293,8 +295,8 @@ public class Model implements ColorTable {
         if (isSaved()) {
             return file.getParentFile();
         } else {
-            // TODO maybe use the Documents folder on windows...
-            return new File(System.getProperty("user.home"));
+            JFileChooser chooser = new JFileChooser();
+            return chooser.getFileSystemView().getDefaultDirectory();
         }
     }
 
