@@ -33,7 +33,7 @@ public class SimulationPrinter extends GridPrinter {
 
     @Override
     protected int getColumnWidth() {
-        return visibleWidth() * gx;
+        return model.getWidth() * gx / 2;
     }
 
     @Override
