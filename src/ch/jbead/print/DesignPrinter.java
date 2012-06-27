@@ -25,8 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttribute;
 import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.JobName;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
 import javax.swing.JOptionPane;
 
 import ch.jbead.Localization;
@@ -37,7 +40,7 @@ public class DesignPrinter {
 
     private Model model;
     private Localization localization;
-    private PageFormat pageFormat;
+    private PrintSettings settings;
     private boolean withDraft;
     private boolean withCorrected;
     private boolean withSimulation;
@@ -45,11 +48,12 @@ public class DesignPrinter {
 
     private List<PageLayout> pages = new ArrayList<PageLayout>();
 
-    public DesignPrinter(Model model, Localization localization, PageFormat pageFormat, boolean withDraft, boolean withCorrected,
+    public DesignPrinter(Model model, Localization localization, PrintSettings settings,
+            boolean withDraft, boolean withCorrected,
             boolean withSimulation, boolean withReport) {
         this.model = model;
         this.localization = localization;
-        this.pageFormat = pageFormat;
+        this.settings = settings;
         this.withDraft = withDraft;
         this.withCorrected = withCorrected;
         this.withSimulation = withSimulation;
@@ -57,8 +61,8 @@ public class DesignPrinter {
     }
 
     private void layoutPages() {
-        int pageWidth = (int) pageFormat.getImageableWidth();
-        int pageHeight = (int) pageFormat.getImageableHeight();
+        int pageWidth = (int) settings.getFormat().getImageableWidth();
+        int pageHeight = (int) settings.getFormat().getImageableHeight();
         PageLayout currentPage = new PageLayout(pageWidth);
         for (PartPrinter printer : getPartPrinters()) {
             List<Integer> columns = printer.layoutColumns(pageHeight);
@@ -93,18 +97,26 @@ public class DesignPrinter {
                 model.setScroll(0);
                 layoutPages();
                 PrinterJob printjob = PrinterJob.getPrinterJob();
+                if (settings.getService() != null) {
+                    printjob.setPrintService(settings.getService());
+                }
                 PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
+                attrs.add(OrientationRequested.LANDSCAPE);
+                attrs.add(new Copies(1));
+                attrs.add(MediaSizeName.ISO_A4); // TODO configurable
+                attrs.add(new JobName(getJobName(), null));
+                PageFormat jobPageFormat = settings.getFormat();
                 if (showDialog) {
                     if (!printjob.printDialog(attrs)) return;
-                    // TODO how to handle changed pageFormat?
-                    //pageFormat.setPaper(paper)
+                    settings.setService(printjob.getPrintService());
+                    //settings.setFormat(printjob.getPageFormat(attrs));
+                    jobPageFormat = printjob.getPageFormat(attrs);
                 }
                 Book book = new Book();
                 for (PageLayout page : pages) {
-                    book.append(page, pageFormat);
+                    book.append(page, jobPageFormat);
                 }
                 printjob.setPageable(book);
-                printjob.setJobName("jbead " + System.currentTimeMillis() + " " + model.getFile().getName());
                 printjob.print(attrs);
             } finally {
                 model.setScroll(scroll);
@@ -113,6 +125,10 @@ public class DesignPrinter {
             // TODO show good and localized error message
             JOptionPane.showMessageDialog(null, "Failed to print document: " + e);
         }
+    }
+
+    private String getJobName() {
+        return "jbead " + System.currentTimeMillis() + " " + model.getFile().getName();
     }
 
 }

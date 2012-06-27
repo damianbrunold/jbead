@@ -32,8 +32,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
@@ -94,8 +92,8 @@ import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
-import ch.jbead.print.Convert;
 import ch.jbead.print.DesignPrinter;
+import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
 
 public class BeadForm extends JFrame implements Localization, ModelListener {
@@ -140,7 +138,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private ToolsGroup toolsGroup = new ToolsGroup();
 
-    private PageFormat pageFormat;
+    private PrintSettings printSettings = new PrintSettings();
 
     private JPanel main = new JPanel();
     private JLabel statusbar = new JLabel("X");
@@ -174,15 +172,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         setLocation(100, 35);
 
         toolsGroup.selectTool(0);
-
-        // TODO persist the pageFormat in Settings?
-        pageFormat = PrinterJob.getPrinterJob().defaultPage();
-        pageFormat.setOrientation(PageFormat.LANDSCAPE);
-        // Set fix A4 paper, maybe make customizable
-        Paper paper = new Paper();
-        paper.setSize(Convert.mm2pt(210), Convert.mm2pt(297));
-        paper.setImageableArea(Convert.mm2pt(15), Convert.mm2pt(15), Convert.mm2pt(210 - 2 * 15), Convert.mm2pt(297 - 2 * 15));
-        pageFormat.setPaper(paper);
 
         selection.addListener(draft);
 
@@ -611,13 +600,15 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void filePrintClick(boolean showDialog) {
-        new DesignPrinter(model, this, pageFormat, draft.isVisible(), corrected.isVisible(), simulation.isVisible(), report.isVisible())
+        new DesignPrinter(model, this, printSettings,
+                draft.isVisible(), corrected.isVisible(),
+                simulation.isVisible(), report.isVisible())
                 .print(showDialog);
     }
 
     public void filePrintersetupClick() {
-        PrinterJob pj = PrinterJob.getPrinterJob();
-        pageFormat = pj.pageDialog(pj.defaultPage());
+        PrinterJob job = PrinterJob.getPrinterJob();
+        printSettings.setFormat(job.pageDialog(printSettings.getFormat()));
     }
 
     public void fileExitClick() {
