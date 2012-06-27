@@ -36,7 +36,7 @@ public class ReportInfos implements Iterable<String> {
     }
 
     private void addInfos() {
-        addInfo("report.pattern", model.getFile().getPath());
+        addInfo("report.pattern", model.getFile().getName());
         addInfo("report.circumference", model.getWidth());
         addInfo("report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
         if (model.getRepeat() % model.getWidth() == 0) {
@@ -72,6 +72,25 @@ public class ReportInfos implements Iterable<String> {
             maxwidth = Math.max(maxwidth, metrics.stringWidth(label));
         }
         return maxwidth;
+    }
+
+    public int getMaxInfoWidth(Graphics g) {
+        FontMetrics metrics = g.getFontMetrics();
+        int maxwidth = 0;
+        for (String label : infos.keySet()) {
+            maxwidth = Math.max(maxwidth, metrics.stringWidth(infos.get(label)));
+        }
+        return maxwidth;
+    }
+
+    public int getWidth(Graphics g) {
+        FontMetrics metrics = g.getFontMetrics();
+        return getMaxLabelWidth(g) + metrics.stringWidth(" ") + getMaxInfoWidth(g);
+    }
+
+    public int getHeight(Graphics g) {
+        FontMetrics metrics = g.getFontMetrics();
+        return infos.size() * metrics.getHeight();
     }
 
 }

@@ -17,28 +17,67 @@
 
 package ch.jbead.print;
 
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import ch.jbead.BeadCounts;
+import ch.jbead.BeadList;
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.ReportInfos;
 
 public class ReportPrinter extends PartPrinter {
 
+    private ReportInfos infos;
+    private BeadCounts beadcounts;
+    private BeadList beadlist;
+
     public ReportPrinter(Model model, Localization localization) {
         super(model, localization);
+        infos = new ReportInfos(model, localization);
+        beadcounts = new BeadCounts(model);
+        beadlist = new BeadList(model);
     }
 
     @Override
     public List<Integer> layoutColumns(int height) {
-        return Collections.singletonList(500); // FIXME calculate realistic report width
+        List<Integer> columns = new ArrayList<Integer>();
+        columns.add(Convert.mm2pt(120));
+        // TODO add bead counts
+        // TODO fill in bead list and add more columns as appropriate
+        return columns;
     }
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
-        return 0;
+        if (column == 0) {
+            y = drawInfos(g, x, y);
+            // TODO bead counts
+            // TODO start of bead list
+        } else {
+            // TODO rest of bead list
+        }
+        return y;
+    }
+
+    private int drawInfos(Graphics g, int x, int y) {
+        FontMetrics metrics = g.getFontMetrics();
+        int labelx = x;
+        int infox = x + infos.getMaxLabelWidth(g) + metrics.stringWidth(" ");
+        int dy = metrics.getHeight();
+        y += metrics.getLeading() + metrics.getAscent();
+        g.setColor(Color.BLACK);
+        for (String label : infos) {
+            g.drawString(label, labelx, y);
+            g.drawString(infos.getInfo(label), infox, y);
+            y += dy;
+        }
+        return y;
     }
 
     /*

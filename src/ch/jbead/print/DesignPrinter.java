@@ -60,9 +60,9 @@ public class DesignPrinter {
         this.withReport = withReport;
     }
 
-    private void layoutPages() {
-        int pageWidth = (int) settings.getFormat().getImageableWidth();
-        int pageHeight = (int) settings.getFormat().getImageableHeight();
+    private void layoutPages(PageFormat format) {
+        int pageWidth = (int) format.getImageableWidth();
+        int pageHeight = (int) format.getImageableHeight();
         PageLayout currentPage = new PageLayout(pageWidth);
         for (PartPrinter printer : getPartPrinters()) {
             List<Integer> columns = printer.layoutColumns(pageHeight);
@@ -95,7 +95,6 @@ public class DesignPrinter {
             int scroll = model.getScroll();
             try {
                 model.setScroll(0);
-                layoutPages();
                 PrinterJob printjob = PrinterJob.getPrinterJob();
                 if (settings.getService() != null) {
                     printjob.setPrintService(settings.getService());
@@ -109,9 +108,9 @@ public class DesignPrinter {
                 if (showDialog) {
                     if (!printjob.printDialog(attrs)) return;
                     settings.setService(printjob.getPrintService());
-                    //settings.setFormat(printjob.getPageFormat(attrs));
                     jobPageFormat = printjob.getPageFormat(attrs);
                 }
+                layoutPages(jobPageFormat);
                 Book book = new Book();
                 for (PageLayout page : pages) {
                     book.append(page, jobPageFormat);
