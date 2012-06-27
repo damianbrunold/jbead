@@ -41,40 +41,18 @@ public class ReportPanel extends BasePanel {
 
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // TODO extract data in a model object and determine x2 according the the longest string in the locale!
+        ReportInfos infos = new ReportInfos(model, localization);
         int dx = g.getFontMetrics().getHeight() + 2;
         int dy = dx;
         int x1 = 12;
-        int x2 = x1 + g.getFontMetrics().stringWidth(localization.getString("report.numberofbeads")) + dx / 2;
         int y = dy;
         int colwidth = dx + 2 + g.getFontMetrics().stringWidth("999") + 3;
 
-        drawText(g, x1, x2, y, "report.pattern", model.getFile().getPath());
-        y += dy;
-
-        drawText(g, x1, x2, y, "report.circumference", Integer.toString(model.getWidth()));
-        y += dy;
-
-        drawText(g, x1, x2, y, "report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
-        y += dy;
-
-        if (model.getRepeat() % model.getWidth() == 0) {
-            drawText(g, x1, x2, y, "report.rowsperrepeat", Integer.toString(model.getRepeat() / model.getWidth()));
-            y += dy;
-        } else {
-            drawText(g, x1, x2, y, "report.rowsperrepeat",
-                    Integer.toString(model.getRepeat() / model.getWidth()) + " " +
-                    localization.getString("report.remainder") + " " +
-                    Integer.toString(model.getRepeat() % model.getWidth()) + " " +
-                    localization.getString("report.beads"));
+        int x2 = x1 + infos.getMaxLabelWidth(g) + dx / 2;
+        for (String label : infos) {
+            drawText(g, x1, x2, y, label, infos.getInfo(label));
             y += dy;
         }
-
-        drawText(g, x1, x2, y, "report.numberofrows", Integer.toString(model.getUsedHeight()));
-        y += dy;
-
-        drawText(g, x1, x2, y, "report.numberofbeads", Integer.toString(model.getUsedHeight() * model.getWidth()) + " " + localization.getString("report.beads"));
-        y += dy;
 
         if (model.getRepeat() > 0) {
             y += dy / 2;
@@ -118,9 +96,9 @@ public class ReportPanel extends BasePanel {
         }
     }
 
-    private void drawText(Graphics g, int x1, int x2, int y, String key, String value) {
+    private void drawText(Graphics g, int x1, int x2, int y, String label, String value) {
         g.setColor(Color.BLACK);
-        g.drawString(localization.getString(key), x1, y);
+        g.drawString(label, x1, y);
         g.drawString(value, x2, y);
     }
 
