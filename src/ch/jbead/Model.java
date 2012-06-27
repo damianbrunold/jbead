@@ -661,4 +661,12 @@ public class Model implements ColorTable {
         colors.set(dest, temp);
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
 }

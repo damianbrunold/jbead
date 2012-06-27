@@ -37,6 +37,9 @@ public class ReportInfos implements Iterable<String> {
 
     private void addInfos() {
         addInfo("report.pattern", model.getFile().getName());
+        if (!model.getAuthor().isEmpty()) {
+            addInfo("report.author", model.getAuthor());
+        }
         addInfo("report.circumference", model.getWidth());
         addInfo("report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
         if (model.getRepeat() % model.getWidth() == 0) {
