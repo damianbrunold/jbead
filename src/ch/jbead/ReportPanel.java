@@ -38,62 +38,93 @@ public class ReportPanel extends BasePanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        enableAntialiasing(g);
         ReportInfos infos = new ReportInfos(model, localization);
-        int dx = g.getFontMetrics().getHeight() + 2;
-        int dy = dx;
-        int x1 = 12;
+        int dy = dy(g);
         int y = dy;
-        int colwidth = dx + 2 + g.getFontMetrics().stringWidth("999") + 3;
+        y = drawInfos(g, infos, y);
+        if (model.getRepeat() > 0) {
+            y += dy / 2;
+            y = drawBeadCounts(g, y);
+            y += dy / 2;
+            drawBeadList(g, y);
+        }
+    }
 
-        int x2 = x1 + infos.getMaxLabelWidth(g) + dx / 2;
+    private int drawInfos(Graphics g, ReportInfos infos, int y) {
+        int x1 = x1();
+        int x2 = x1 + infos.getMaxLabelWidth(g) + dx(g) / 2;
+        int dy = dy(g);
         for (String label : infos) {
             drawText(g, x1, x2, y, label, infos.getInfo(label));
             y += dy;
         }
+        return y;
+    }
 
-        if (model.getRepeat() > 0) {
-            y += dy / 2;
-            FontMetrics fm = g.getFontMetrics();
-
-            BeadCounts counts = new BeadCounts(model);
+    private int drawBeadCounts(Graphics g, int y) {
+        FontMetrics fm = g.getFontMetrics();
+        BeadCounts counts = new BeadCounts(model);
+        g.setColor(Color.BLACK);
+        int xx = x1();
+        int bx = fm.getAscent();
+        for (byte color = 0; color < model.getColorCount(); color++) {
+            int count = counts.getCount(color);
+            if (count == 0) continue;
+            String s = String.format("%d x ", count);
+            String t = ", ";
+            g.drawString(s, xx, y);
+            xx += fm.stringWidth(s);
+            g.drawRect(xx, y - bx, bx, bx);
+            g.setColor(model.getColor(color));
+            g.fillRect(xx + 1, y - bx + 1, bx - 1, bx - 1);
             g.setColor(Color.BLACK);
-            int xx = x1;
-            int bx = fm.getAscent();
-            for (byte color = 0; color < model.getColorCount(); color++) {
-                int count = counts.getCount(color);
-                if (count > 0) {
-                    String s = String.format("%d x ", count);
-                    String t = ", ";
-                    g.drawString(s, xx, y);
-                    xx += fm.stringWidth(s);
-                    g.drawRect(xx, y - bx, bx, bx);
-                    g.setColor(model.getColor(color));
-                    g.fillRect(xx + 1, y - bx + 1, bx - 1, bx - 1);
-                    g.setColor(Color.BLACK);
-                    xx += bx + 1;
-                    g.drawString(t, xx, y);
-                    xx += fm.stringWidth(t);
-                }
-            }
-            y += dy * 3 / 2;
+            xx += bx + 1;
+            g.drawString(t, xx, y);
+            xx += fm.stringWidth(t);
+        }
+        return y + dy(g);
+    }
 
-            BeadList beads = new BeadList(model);
-            int height = fm.getLeading() + g.getFontMetrics().getAscent();
-            g.drawString(localization.getString("report.listofbeads"), x1, y);
-            y += 3;
-            int ystart = y;
-            for (BeadRun bead : beads) {
-                drawColorCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
-                y += dy;
-                if (y >= getHeight() - dy) {
-                    x1 += colwidth;
-                    y = ystart;
-                }
+    private void drawBeadList(Graphics g, int y) {
+        FontMetrics fm = g.getFontMetrics();
+        BeadList beads = new BeadList(model);
+        int height = fm.getLeading() + g.getFontMetrics().getAscent();
+        g.drawString(localization.getString("report.listofbeads"), x1(), y);
+        y += 3;
+        int ystart = y;
+        int x1 = x1();
+        int dx = dx(g);
+        int dy = dy(g);
+        int colwidth = colwidth(g);
+        for (BeadRun bead : beads) {
+            drawColorCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
+            y += dy;
+            if (y >= getHeight() - dy) {
+                x1 += colwidth;
+                y = ystart;
             }
         }
+    }
+
+    private int colwidth(Graphics g) {
+        return dx(g) + 2 + g.getFontMetrics().stringWidth("999") + 3;
+    }
+
+    private void enableAntialiasing(Graphics g) {
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    }
+
+    private int x1() {
+        return 12;
+    }
+
+    private int dx(Graphics g) {
+        return g.getFontMetrics().getHeight() + 2;
+    }
+
+    private int dy(Graphics g) {
+        return g.getFontMetrics().getHeight() + 2;
     }
 
     private void drawText(Graphics g, int x1, int x2, int y, String label, String value) {
