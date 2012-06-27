@@ -52,8 +52,9 @@ public class ReportPanel extends BasePanel {
     }
 
     private int drawInfos(Graphics g, ReportInfos infos, int y) {
+        FontMetrics metrics = g.getFontMetrics();
         int x1 = x1();
-        int x2 = x1 + infos.getMaxLabelWidth(g) + g.getFontMetrics().stringWidth(" ");
+        int x2 = x1 + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
         int dy = dy(g);
         for (String label : infos) {
             drawText(g, x1, x2, y, label, infos.getInfo(label));

@@ -18,7 +18,6 @@
 package ch.jbead.print;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
@@ -47,7 +46,7 @@ public class DraftPrinter extends GridPrinter {
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
-        g.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        g.setFont(font);
         int height = (int) pageFormat.getImageableHeight();
         x += border;
         int rows = getRowsPerColumn(height);

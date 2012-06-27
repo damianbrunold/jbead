@@ -35,7 +35,7 @@ public abstract class GridPrinter extends PartPrinter {
     }
 
     @Override
-    public List<Integer> layoutColumns(int height) {
+    public List<Integer> layoutColumns(int width, int height) {
         List<Integer> columns = new ArrayList<Integer>();
         int rows = getRows();
         int rowsPerColumn = getRowsPerColumn(height);

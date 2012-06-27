@@ -17,6 +17,7 @@
 
 package ch.jbead.print;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.util.List;
@@ -29,6 +30,7 @@ public abstract class PartPrinter {
     protected Model model;
     protected Localization localization;
 
+    protected Font font = new Font("SansSerif", Font.PLAIN, 8);
     protected int border = Convert.mm2pt(4);
 
     public PartPrinter(Model model, Localization localization) {
@@ -36,7 +38,7 @@ public abstract class PartPrinter {
         this.localization = localization;
     }
 
-    public abstract List<Integer> layoutColumns(int height);
+    public abstract List<Integer> layoutColumns(int width, int height);
     public abstract int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column);
 
 }

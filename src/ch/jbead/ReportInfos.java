@@ -18,7 +18,6 @@
 package ch.jbead;
 
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -68,8 +67,11 @@ public class ReportInfos implements Iterable<String> {
         return infos.get(label);
     }
 
-    public int getMaxLabelWidth(Graphics g) {
-        FontMetrics metrics = g.getFontMetrics();
+    public int getLineCount() {
+        return infos.size();
+    }
+
+    public int getMaxLabelWidth(FontMetrics metrics) {
         int maxwidth = 0;
         for (String label : infos.keySet()) {
             maxwidth = Math.max(maxwidth, metrics.stringWidth(label));
@@ -77,8 +79,7 @@ public class ReportInfos implements Iterable<String> {
         return maxwidth;
     }
 
-    public int getMaxInfoWidth(Graphics g) {
-        FontMetrics metrics = g.getFontMetrics();
+    public int getMaxInfoWidth(FontMetrics metrics) {
         int maxwidth = 0;
         for (String label : infos.keySet()) {
             maxwidth = Math.max(maxwidth, metrics.stringWidth(infos.get(label)));
@@ -86,13 +87,11 @@ public class ReportInfos implements Iterable<String> {
         return maxwidth;
     }
 
-    public int getWidth(Graphics g) {
-        FontMetrics metrics = g.getFontMetrics();
-        return getMaxLabelWidth(g) + metrics.stringWidth(" ") + getMaxInfoWidth(g);
+    public int getWidth(FontMetrics metrics) {
+        return getMaxLabelWidth(metrics) + metrics.stringWidth(" ") + getMaxInfoWidth(metrics);
     }
 
-    public int getHeight(Graphics g) {
-        FontMetrics metrics = g.getFontMetrics();
+    public int getHeight(FontMetrics metrics) {
         return infos.size() * metrics.getHeight();
     }
 

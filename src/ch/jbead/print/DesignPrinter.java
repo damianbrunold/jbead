@@ -65,7 +65,7 @@ public class DesignPrinter {
         int pageHeight = (int) format.getImageableHeight();
         PageLayout currentPage = new PageLayout(pageWidth);
         for (PartPrinter printer : getPartPrinters()) {
-            List<Integer> columns = printer.layoutColumns(pageHeight);
+            List<Integer> columns = printer.layoutColumns(pageWidth, pageHeight);
             for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
                 int columnWidth = columns.get(columnIndex);
                 if (pageWidth < columnWidth) throw new RuntimeException("Column is wider than page!");

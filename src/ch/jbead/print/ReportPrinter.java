@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.font.FontRenderContext;
 import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,8 @@ import ch.jbead.Model;
 import ch.jbead.ReportInfos;
 
 public class ReportPrinter extends PartPrinter {
+
+    private static final int INFOS_WIDTH = 120;
 
     private ReportInfos infos;
     private BeadCounts beadcounts;
@@ -45,19 +48,76 @@ public class ReportPrinter extends PartPrinter {
     }
 
     @Override
-    public List<Integer> layoutColumns(int height) {
+    public List<Integer> layoutColumns(int width, int height) {
         List<Integer> columns = new ArrayList<Integer>();
-        columns.add(Convert.mm2pt(120));
-        // TODO add bead counts
-        // TODO fill in bead list and add more columns as appropriate
+        int infowidth = Convert.mm2pt(INFOS_WIDTH);
+        columns.add(infowidth);
+        int remaining = height - infos.getLineCount() * font.getSize();
+        remaining -= getColorCountRows(infowidth) * font.getSize();
+        addBeadColumns(columns, height, infowidth, remaining);
         return columns;
+    }
+
+    private int getColorCountRows(int infowidth) {
+        FontRenderContext context = new FontRenderContext(null, false, false);
+        int colors = beadcounts.getColorCount();
+        int colorwidth = font.getSize() * 8 / 10 + (int) font.getStringBounds("9999x,", context).getWidth();
+        int colorsPerRow = infowidth / colorwidth;
+        int rows = (colors + colorsPerRow - 1) / colorsPerRow;
+        return rows;
+    }
+
+    private void addBeadColumns(List<Integer> columns, int height, int infowidth, int remaining) {
+        FontRenderContext context = new FontRenderContext(null, false, false);
+        int dx = font.getSize();
+        int beadsPerColumn = remaining / dx;
+        int beadwidth = font.getSize() + (int) font.getStringBounds("9999x ", context).getWidth();
+        int beadColumns = infowidth / beadwidth;
+        int remainingBeads = beadlist.size() - beadsPerColumn * beadColumns;
+        if (remainingBeads > 0) {
+            // we have more bead runs than we can add to this columns, so that we need additional columns
+            int beadsPerPageColumn = height / dx;
+            int cols = (remainingBeads + beadsPerPageColumn - 1) / beadsPerPageColumn;
+            for (int i = 0; i < cols; i++) {
+                columns.add(beadwidth);
+            }
+        }
     }
 
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
+        g.setFont(font);
         if (column == 0) {
             y = drawInfos(g, x, y);
-            // TODO bead counts
+            FontMetrics metrics = g.getFontMetrics();
+            int infowidth = Convert.mm2pt(INFOS_WIDTH);
+            int colorwidth = font.getSize() * 8 / 10 + metrics.stringWidth("999x,");
+            int colorsPerRow = infowidth / colorwidth;
+            int bx = metrics.getAscent();
+            int xx = x;
+            int current = 0;
+            for (byte color = 0; color < model.getColorCount(); color++) {
+                int count = beadcounts.getCount(color);
+                if (count == 0) continue;
+                String s = String.format("%d x ", count);
+                String t = ", ";
+                g.drawString(s, xx, y);
+                xx += metrics.stringWidth(s);
+                g.setColor(model.getColor(color));
+                g.fillRect(xx, y - bx, bx, bx);
+                g.setColor(Color.BLACK);
+                g.drawRect(xx, y - bx, bx, bx);
+                g.setColor(Color.BLACK);
+                xx += bx + 1;
+                g.drawString(t, xx, y);
+                xx += metrics.stringWidth(t);
+                current++;
+                if (current == colorsPerRow) {
+                    xx = x;
+                    current = 0;
+                    y += font.getSize();
+                }
+            }
             // TODO start of bead list
         } else {
             // TODO rest of bead list
@@ -68,7 +128,7 @@ public class ReportPrinter extends PartPrinter {
     private int drawInfos(Graphics g, int x, int y) {
         FontMetrics metrics = g.getFontMetrics();
         int labelx = x;
-        int infox = x + infos.getMaxLabelWidth(g) + metrics.stringWidth(" ");
+        int infox = x + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
         int dy = metrics.getHeight();
         y += metrics.getLeading() + metrics.getAscent();
         g.setColor(Color.BLACK);

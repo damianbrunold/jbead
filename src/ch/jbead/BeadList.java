@@ -40,7 +40,7 @@ public class BeadList implements Iterable<BeadRun> {
         runs.add(new BeadRun(color, count));
     }
 
-    public Object size() {
+    public int size() {
         return runs.size();
     }
 

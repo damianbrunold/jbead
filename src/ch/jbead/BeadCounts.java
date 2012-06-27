@@ -45,4 +45,11 @@ public class BeadCounts {
         return counts.get(color);
     }
 
+    public int getColorCount() {
+        int result = 0;
+        for (Map.Entry<Byte, Integer> entry : counts.entrySet()) {
+            if (entry.getValue().intValue() > 0) result++;
+        }
+        return result;
+    }
 }
