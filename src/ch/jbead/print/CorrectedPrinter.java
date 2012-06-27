@@ -58,10 +58,8 @@ public class CorrectedPrinter extends GridPrinter {
                 if (pt.getY() < start) continue;
                 if (pt.getY() >= start + rows) continue;
                 int dx = pt.getY() % 2 == 0 ? 0 : gx / 2;
-                if (c > 0) {
-                    g.setColor(model.getColor(c));
-                    g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
-                }
+                g.setColor(model.getColor(c));
+                g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
                 g.setColor(Color.BLACK);
                 g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
             }

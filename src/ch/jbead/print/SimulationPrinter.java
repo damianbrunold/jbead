@@ -64,10 +64,8 @@ public class SimulationPrinter extends GridPrinter {
                 if (pt.getX() > visibleWidth()) continue;
                 int dx = dx(pt);
                 int w = w(pt);
-                if (c > 0) {
-                    g.setColor(model.getColor(c));
-                    g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
-                }
+                g.setColor(model.getColor(c));
+                g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
                 g.setColor(Color.BLACK);
                 g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
             }

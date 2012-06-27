@@ -56,10 +56,8 @@ public class DraftPrinter extends GridPrinter {
             if (start + j >= getRows()) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
-                if (c > 0) {
-                    g.setColor(model.getColor(c));
-                    g.fillRect(x + markerWidth + i * gx, y + (rows - j - 1) * gy, gx, gy);
-                }
+                g.setColor(model.getColor(c));
+                g.fillRect(x + markerWidth + i * gx, y + (rows - j - 1) * gy, gx, gy);
                 g.setColor(Color.BLACK);
                 g.drawRect(x + markerWidth + i * gx, y + (rows - j - 1) * gy, gx, gy);
             }
