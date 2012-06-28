@@ -137,3 +137,30 @@ do not fit on the same page, then on the next page only the remaining
 bead list columns are printed. One way would be to reorganize the report
 display in print so that info plus bead stats are one columns, and the
 bead list is a set of columns.
+
+Maybe only print the color repeat, or make this an option, or print
+full columns, but only as many as are needed for the color repeat, so
+typically the color repeat is less than one columns, so one full column
+is printed in draft, corrected and simulation. Then the infos, color counts
+and bead lists comprise the whole design, not only the color repeat, and
+in many cases can be fit on the same page. This makes the prints very
+compact and readable.
+
+I have to think about better, alternative print designs. For example, why
+not start the first page with the infos and the color counts. Then, below,
+fit full columns of draft, corrected, simulation, but only one color repeat.
+Finally, to the right, the bead list, as it currently is. This scheme would
+allow to simplify page layout.
+
+  --------------------------------------------
+  | infos                | bead list columns |
+  |----------------------|                   |
+  | color counts         |                   |
+  |----------------------|                   |
+  |draft | corr | simul  |                   |
+  |      |      |        |                   |
+  |      |      |        |                   |
+  |      |      |        |                   |
+  |      |      |        |                   |
+  --------------------------------------------
+  
