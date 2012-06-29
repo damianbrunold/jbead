@@ -17,7 +17,9 @@
 
 package ch.jbead;
 
+import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.font.FontRenderContext;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -91,8 +93,28 @@ public class ReportInfos implements Iterable<String> {
         return getMaxLabelWidth(metrics) + metrics.stringWidth(" ") + getMaxInfoWidth(metrics);
     }
 
-    public int getHeight(FontMetrics metrics) {
-        return infos.size() * metrics.getHeight();
+    public int getMaxLabelWidth(Font font, FontRenderContext context) {
+        int maxwidth = 0;
+        for (String label : infos.keySet()) {
+            maxwidth = Math.max(maxwidth, (int) font.getStringBounds(label, context).getWidth());
+        }
+        return maxwidth;
+    }
+
+    public int getMaxInfoWidth(Font font, FontRenderContext context) {
+        int maxwidth = 0;
+        for (String label : infos.keySet()) {
+            maxwidth = Math.max(maxwidth, (int) font.getStringBounds(infos.get(label), context).getWidth());
+        }
+        return maxwidth;
+    }
+
+    public int getWidth(Font font, FontRenderContext context) {
+        return getMaxLabelWidth(font, context) + (int) font.getStringBounds(" ", context).getWidth() + getMaxInfoWidth(font, context);
+    }
+
+    public int getHeight(int fontSize) {
+        return infos.size() * fontSize;
     }
 
 }
