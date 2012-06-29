@@ -30,9 +30,6 @@ import javax.swing.JPanel;
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 
-/**
- * 
- */
 public class AboutBox extends JDialog {
     private static final long serialVersionUID = 1L;
 
@@ -57,26 +54,5 @@ public class AboutBox extends JDialog {
             }
         });
     }
-
-//    private void setGermanText() {
-//        String t = "<html><h1>jbead</h1>" + "<p>Dies ist <b>jbead</b>, ein Programm, das Ihnen beim Entwurf von gehäkelten "
-//                + "Perlenketten helfen soll. Die Erstellung solcher Ketten wird beispielsweise "
-//                + "im Buch 'Gehäkelte Glasperlenketten' von Lotti Gygax beschrieben. Die Arbeit ist aufwändig und "
-//                + "langwierig. Das Resultat entschädigt aber für die erlittene Mühsal. " + "<p>&nbsp;</p> "
-//                + "<p>Mit <b>jbead</b> können Sie schon vor Beginn der Arbeit simulieren, wie Ihr "
-//                + "Entwurf als Kette dann aussehen wird. Direkt am Bildschirm können Sie " + "Änderungen vornehmen.\\par " + "<p>&nbsp;</p> "
-//                + "<p>Wenn Sie zufrieden mit dem Entwurf sind, können Sie alle notwendigen "
-//                + "Daten ausdrucken lassen, inklusive einer 'Fädelliste', die hilfreich "
-//                + "für das Auffädeln der Perlen auf das Häkelgarn ist.\\par " + "<p>&nbsp;</p> "
-//                + "<p><b>jbead</b> wurde von Damian Brunold geschrieben. Es steht unter der Lizenz "
-//                + "GPL v3, was bedeutet, dass Sie es kostenlos verwenden, kopieren und ändern "
-//                + "dürfen. Dafür übernimmt Damian Brunold absolut keine " + "Haftung für Fehler und Schäden durch Benutzung des Programmes. "
-//                + "Sie müssen selber entscheiden, ob das Programm für Sie nützlich " + "ist oder nicht.\\par " + "<p>&nbsp;</p> "
-//                + "<p>Weitere Informationen erhalten Sie unter http://www.brunoldsoftware.ch "
-//                + "oder per E-Mail an info@brunoldsoftware.ch. An diese Adresse können "
-//                + "Sie auch Fehler oder Verbesserungsvorschläge melden.\\par " + "<p>&nbsp;</p> " + "<p>Viel Spass mit dem Programm</p>"
-//                + "<p>Damian Brunold</p>";
-//        text.setText(t);
-//    }
 
 }

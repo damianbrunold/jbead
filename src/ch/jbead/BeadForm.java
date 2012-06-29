@@ -22,8 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
@@ -75,6 +73,7 @@ import ch.jbead.action.FilePrintAction;
 import ch.jbead.action.FilePrintSetupAction;
 import ch.jbead.action.FileSaveAction;
 import ch.jbead.action.FileSaveAsAction;
+import ch.jbead.action.InfoAboutAction;
 import ch.jbead.action.PatternHeightAction;
 import ch.jbead.action.PatternWidthAction;
 import ch.jbead.action.ToolFillAction;
@@ -88,7 +87,6 @@ import ch.jbead.action.ViewSimulationAction;
 import ch.jbead.action.ViewZoomInAction;
 import ch.jbead.action.ViewZoomNormalAction;
 import ch.jbead.action.ViewZoomOutAction;
-import ch.jbead.dialog.AboutBox;
 import ch.jbead.dialog.CopyForm;
 import ch.jbead.dialog.PatternHeightForm;
 import ch.jbead.dialog.PatternWidthForm;
@@ -133,9 +131,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private JMenuItem viewSimulation;
     private JMenuItem viewReport;
 
-    private JMenu menuInfo = new JMenu("?");
-    private JMenuItem infoAbout = new JMenuItem("about jbead");
-
     private ToolsGroup toolsGroup = new ToolsGroup();
 
     private PrintSettings printSettings = new PrintSettings();
@@ -146,7 +141,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private Map<String, Action> actions = new HashMap<String, Action>();
 
     private Timer updateTimer;
-
     private Timer shiftTimer;
 
     public BeadForm() {
@@ -324,13 +318,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createInfoMenu() {
-        menuInfo.add(infoAbout);
-        infoAbout.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new AboutBox(BeadForm.this).setVisible(true);
-            }
-        });
+        JMenu menuInfo = new JMenu(bundle.getString("action.info"));
+        menuInfo.add(new InfoAboutAction(this));
         return menuInfo;
     }
 
@@ -843,10 +832,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public void toolPipetteClick() {
         selection.clear();
         toolsGroup.selectTool(3);
-    }
-
-    public void infoAboutClick() {
-        new AboutBox(this).setVisible(true);
     }
 
     public void sbRotaterightMouseDown(MouseEvent event) {
