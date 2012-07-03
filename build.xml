@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+
+<project default="jbead" basedir=".">
+
+	<path id="emma.lib">
+		<pathelement location="lib/emma.jar" />
+		<pathelement location="lib/emma_ant.jar" />
+	</path>
+
+	<path id="run.classpath">
+		<pathelement path="build/classes" />
+	</path>
+
+	<path id="lib.classpath">
+		<pathelement path="lib/junit.jar" />
+		<pathelement path="lib/ant-junit.jar" />
+		<pathelement path="lib/junit-addons-1.4.jar" />
+	</path>
+
+	<taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+
+	<target name="jbead">
+		<delete dir="build" />
+		<delete dir="testreport" />
+		<delete dir="coverage" />
+		<delete file="jbead.jar" />
+
+		<mkdir dir="build/classes" />
+		<mkdir dir="build/classes.coverage" />
+		<mkdir dir="build/classes.test" />
+
+		<copy todir="build/classes">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<copy todir="build/classes.test">
+			<fileset dir="src.test">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+
+		<javac srcdir="src" destdir="build/classes" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
+
+		<javac srcdir="src.test" destdir="build/classes.test" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
+			<classpath>
+				<pathelement path="build/classes" />
+				<pathelement path="lib/junit.jar" />
+				<pathelement path="lib/junit-addons-1.4.jar" />
+				<pathelement path="${java.class.path}" />
+			</classpath>
+		</javac>
+
+		<emma enabled="true">
+			<instr instrpathref="run.classpath" destdir="build/classes.coverage" metadatafile="coverage/metadata.emma" merge="true" />
+		</emma>
+
+		<mkdir dir="testreport" />
+		<junit printsummary="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes">
+			<jvmarg value="-Demma.coverage.out.file=coverage/coverage.emma" />
+			<jvmarg value="-Demma.coverage.out.merge=true" />
+			<classpath>
+				<pathelement path="build/classes.coverage" />
+				<pathelement path="build/classes.test" />
+				<path refid="run.classpath" />
+				<path refid="lib.classpath" />
+				<path refid="emma.lib" />
+				<pathelement path="${java.class.path}" />
+			</classpath>
+			<formatter type="plain" />
+			<batchtest todir="testreport">
+				<fileset dir="src.test">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<emma enabled="yes">
+			<report sourcepath="src">
+				<fileset dir="coverage">
+					<include name="*.emma" />
+				</fileset>
+				<txt outfile="coverage/coverage.txt" />
+				<html outfile="coverage/index.html" />
+			</report>
+		</emma>
+
+		<jar destfile="jbead.jar" basedir="build/classes" >
+		</jar>
+	</target>
+
+</project>
