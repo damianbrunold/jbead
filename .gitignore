@@ -3,4 +3,5 @@ build/
 testreport/
 coverage/
 jbead.jar
-
+setup_win/jbead_v1_setup.exe
+starter_win/jbead.exe
