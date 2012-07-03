@@ -160,6 +160,12 @@ public class BeadField {
         }
     }
 
+    public void delete(Rect rect) {
+        for (Point pt : rect) {
+            set(pt, (byte) 0);
+        }
+    }
+
     public void insertLine() {
         for (int j = getHeight() - 1; j > 0; j--) {
             for (int i = 0; i < getWidth(); i++) {

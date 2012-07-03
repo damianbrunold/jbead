@@ -58,6 +58,7 @@ import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
 import ch.jbead.action.EditArrangeAction;
+import ch.jbead.action.EditDeleteAction;
 import ch.jbead.action.EditDeleteLineAction;
 import ch.jbead.action.EditInsertLineAction;
 import ch.jbead.action.EditMirrorHorizontalAction;
@@ -281,6 +282,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuEdit.add(new EditMirrorHorizontalAction(this));
         menuEdit.add(new EditMirrorVerticalAction(this));
         menuEdit.add(new EditRotateAction(this));
+        menuEdit.add(new EditDeleteAction(this));
         JMenu menuEditLine = new JMenu(bundle.getString("action.edit.line"));
         menuEdit.add(menuEditLine);
         menuEditLine.add(new EditInsertLineAction(this));
@@ -803,6 +805,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         getAction("edit.mirrorhorizontal").setEnabled(selection.isActive());
         getAction("edit.mirrorvertical").setEnabled(selection.isActive());
         getAction("edit.rotate").setEnabled(selection.isActive() && selection.isSquare());
+        getAction("edit.delete").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
 

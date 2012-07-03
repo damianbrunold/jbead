@@ -601,12 +601,16 @@ public class Model implements ColorTable {
     public void mirrorHorizontal(Rect rect) {
         snapshot();
         field.mirrorHorizontal(rect);
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 
     public void mirrorVertical(Rect rect) {
         snapshot();
         field.mirrorVertical(rect);
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 
@@ -614,6 +618,16 @@ public class Model implements ColorTable {
         if (!rect.isSquare()) return;
         snapshot();
         field.rotate(rect);
+        setModified();
+        setRepeatDirty();
+        fireModelChanged();
+    }
+
+    public void delete(Rect rect) {
+        snapshot();
+        field.delete(rect);
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 

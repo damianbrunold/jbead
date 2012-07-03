@@ -25,22 +25,19 @@ import javax.swing.KeyStroke;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class EditInsertLineAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "edit.insertline";
-    
+
     public EditInsertLineAction(BeadForm form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, "Inserts an empty line");
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("insert"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.editInsertLineClick();

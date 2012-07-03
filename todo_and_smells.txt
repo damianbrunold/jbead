@@ -139,3 +139,6 @@ allow to simplify page layout.
   |      |      |        |                   |
   --------------------------------------------
   
+  Add the action descriptions to the resource file, currently, hard coded
+  english texts are used.
+  

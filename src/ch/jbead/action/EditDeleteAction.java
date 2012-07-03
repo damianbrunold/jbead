@@ -20,24 +20,27 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.KeyStroke;
+
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-public class EditDeleteLineAction extends BaseAction {
+public class EditDeleteAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "edit.deleteline";
+    private static final String NAME = "edit.delete";
 
-    public EditDeleteLineAction(BeadForm form) {
+    public EditDeleteAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Deletes a line");
+        putValue(SHORT_DESCRIPTION, "Deletes the selected beads");
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editDeleteLineClick();
+        form.getModel().delete(form.getSelection());
     }
 
 }
