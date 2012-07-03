@@ -46,14 +46,30 @@ public class ReportInfos implements Iterable<String> {
         if (model.getRepeat() % model.getWidth() == 0) {
             addInfo("report.rowsperrepeat", model.getRepeat() / model.getWidth());
         } else {
+            int rows = model.getRepeat() / model.getWidth();
+            int beads = model.getRepeat() % model.getWidth();
             addInfo("report.rowsperrepeat",
-                    Integer.toString(model.getRepeat() / model.getWidth()) + " " +
-                    localization.getString("report.remainder") + " " +
-                    Integer.toString(model.getRepeat() % model.getWidth()) + " " +
-                    localization.getString("report.beads"));
+                    rows + " " + getRowsLabel(rows) + " " +
+                    beads + " " + getBeadsLabel(beads));
         }
         addInfo("report.numberofrows", model.getUsedHeight());
         addInfo("report.numberofbeads", Integer.toString(model.getUsedHeight() * model.getWidth()) + " " + localization.getString("report.beads"));
+    }
+
+    private String getRowsLabel(int rows) {
+        if (rows == 1) {
+            return localization.getString("report.row");
+        } else {
+            return localization.getString("report.rows");
+        }
+    }
+
+    private String getBeadsLabel(int beads) {
+        if (beads == 1) {
+            return localization.getString("report.bead");
+        } else {
+            return localization.getString("report.beads");
+        }
     }
 
     private void addInfo(String labelKey, Object info) {
