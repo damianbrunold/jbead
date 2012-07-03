@@ -5,29 +5,10 @@ The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
 
-Handle the UI state better. For example, the copy/arrange
-function should be disabled if no selection exists. This
-was handled using the idleHandler before. Now, this should
-probably be done using Actions.
-
 Handle the scrolled-stuff better, i. e. use physical
 versus logical coordinates or something like that.
 
 Use abstracted tool object for the different tools.
-
-Make simulation view editable analogously to the normal
-corrected view.
-
-Make color choosing very simple. Slider style as in the video
-of Bret Victor.
-
-Add a "surprise me" color mode, where you click a button and
-the colors are randomly changed. Maybe some modes are supported,
-very random, tone-in-tone, contrasting colors, ...
-
-Easily set background color. This maybe is just color0. But
-why not a fill mode that fills not only a line, but like water
-everything reachable downwards. This would be very general.
 
 Create good documentation on the web.
 
@@ -55,16 +36,10 @@ Export as PDF/PNG/JPEG.
 Export the circling simulation as an animated GIF or an AVI or 
 something.
 
-Add in lower right corner a resize widget. Right now it is a pain...
-
 Allow a single line selection.
 
 Add ctrl+c,x,v for selections. This requires that a current input
 point (cursor) is available.
-
-Fix printing code, support multipage printing. Use a layout model
-for laying out the pages and then in a second step, print the
-required page.
 
 Line drawing: use vertical, horizontal or diagonal lines whichever
 is closest to the dragged line. Currently only exact vertical and
