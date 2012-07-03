@@ -888,7 +888,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void editArrangeClick() {
-        CopyForm copyform = new CopyForm(this);
+        CopyForm copyform = new CopyForm(this, selection, model);
         copyform.setVisible(true);
         if (copyform.isOK()) {
             int copies = copyform.getCopies();
