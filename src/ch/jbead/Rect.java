@@ -87,4 +87,8 @@ public class Rect implements Iterable<Point> {
         return width() * height();
     }
 
+    public Rect scrolled(int scroll) {
+        return new Rect(begin.scrolled(scroll), end.scrolled(scroll));
+    }
+
 }
