@@ -17,7 +17,6 @@
 
 package ch.jbead;
 
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 import junit.framework.TestCase;
@@ -36,7 +35,7 @@ public class ReportInfosTest extends TestCase {
             }
             @Override
             public ResourceBundle getBundle() {
-                return ResourceBundle.getBundle("jbead", Locale.ENGLISH);
+                return ResourceBundle.getBundle("jbead_test");
             }
         };
         model = new Model(localization);
