@@ -20,7 +20,7 @@ Section "jbead"
   SectionIn RO
   
   SetOutPath $INSTDIR
-  File jbead.exe
+  File ..\starter_win\jbead.exe
   File ..\jbead.jar
   File ..\LICENSE.txt
   
