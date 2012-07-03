@@ -85,7 +85,11 @@
 			</report>
 		</emma>
 
-		<jar destfile="jbead.jar" basedir="build/classes" >
+		<jar destfile="jbead.jar" basedir="build/classes">
+			<manifest>
+				<attribute name="Built-By" value="Damian Brunold" />
+				<attribute name="Main-Class" value="ch.jbead.BeadForm" />
+			</manifest>
 		</jar>
 	</target>
 
