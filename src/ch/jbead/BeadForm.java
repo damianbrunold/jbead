@@ -59,8 +59,8 @@ import javax.swing.filechooser.FileFilter;
 
 import ch.jbead.action.EditArrangeAction;
 import ch.jbead.action.EditDeleteAction;
-import ch.jbead.action.EditDeleteLineAction;
-import ch.jbead.action.EditInsertLineAction;
+import ch.jbead.action.EditDeleteRowAction;
+import ch.jbead.action.EditInsertRowAction;
 import ch.jbead.action.EditMirrorHorizontalAction;
 import ch.jbead.action.EditMirrorVerticalAction;
 import ch.jbead.action.EditRedoAction;
@@ -283,10 +283,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuEdit.add(new EditMirrorVerticalAction(this));
         menuEdit.add(new EditRotateAction(this));
         menuEdit.add(new EditDeleteAction(this));
-        JMenu menuEditLine = new JMenu(bundle.getString("action.edit.line"));
-        menuEdit.add(menuEditLine);
-        menuEditLine.add(new EditInsertLineAction(this));
-        menuEditLine.add(new EditDeleteLineAction(this));
+        JMenu menuEditRow = new JMenu(bundle.getString("action.edit.row"));
+        menuEdit.add(menuEditRow);
+        menuEditRow.add(new EditInsertRowAction(this));
+        menuEditRow.add(new EditDeleteRowAction(this));
         return menuEdit;
     }
 
@@ -900,12 +900,12 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }
     }
 
-    public void editInsertLineClick() {
-        model.insertLine();
+    public void editInsertRowClick() {
+        model.insertRow();
     }
 
-    public void editDeleteLineClick() {
-        model.deleteLine();
+    public void editDeleteRowClick() {
+        model.deleteRow();
     }
 
     public void updateTitle() {

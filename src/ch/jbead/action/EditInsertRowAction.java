@@ -23,21 +23,21 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-public class EditDeleteLineAction extends BaseAction {
+public class EditInsertRowAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "edit.deleteline";
+    private static final String NAME = "edit.insertrow";
 
-    public EditDeleteLineAction(BeadForm form) {
+    public EditInsertRowAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.deleteline.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_D);
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.insertrow.description"));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_I);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editDeleteLineClick();
+        form.editInsertRowClick();
     }
 
 }

@@ -142,6 +142,3 @@ allow to simplify page layout.
 
 Rename fileprintsetupaction to filepagesetupaction and change resources
 accordingly.
-  
-Rename deleteline/insertline to deleterow/insertrow etc.
-  

@@ -191,17 +191,17 @@ public class Model implements ColorTable {
         return field.get(idx);
     }
 
-    public void insertLine() {
+    public void insertRow() {
         snapshot();
-        field.insertLine();
+        field.insertRow();
         setRepeatDirty();
         setModified();
         fireModelChanged();
     }
 
-    public void deleteLine() {
+    public void deleteRow() {
         snapshot();
-        field.deleteLine();
+        field.deleteRow();
         setRepeatDirty();
         setModified();
         fireModelChanged();
