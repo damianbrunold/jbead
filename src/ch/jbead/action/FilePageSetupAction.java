@@ -19,25 +19,29 @@ package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.print.PrinterJob;
 
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
+import ch.jbead.print.PrintSettings;
 
-public class FilePrintSetupAction extends BaseAction {
+public class FilePageSetupAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "file.printsetup";
+    private static final String NAME = "file.pagesetup";
 
-    public FilePrintSetupAction(BeadForm form) {
+    public FilePageSetupAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.printsetup.description"));
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.pagesetup.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.filePrintersetupClick();
+        PrinterJob job = PrinterJob.getPrinterJob();
+        PrintSettings settings = form.getPrintSettings();
+        settings.setFormat(job.pageDialog(settings.getFormat()));
     }
 
 }

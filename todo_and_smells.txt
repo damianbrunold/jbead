@@ -138,7 +138,3 @@ allow to simplify page layout.
   |      |      |        |                   |
   |      |      |        |                   |
   --------------------------------------------
-  
-
-Rename fileprintsetupaction to filepagesetupaction and change resources
-accordingly.

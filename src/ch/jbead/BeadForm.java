@@ -30,7 +30,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,8 +69,8 @@ import ch.jbead.action.FileExitAction;
 import ch.jbead.action.FileMRUAction;
 import ch.jbead.action.FileNewAction;
 import ch.jbead.action.FileOpenAction;
+import ch.jbead.action.FilePageSetupAction;
 import ch.jbead.action.FilePrintAction;
-import ch.jbead.action.FilePrintSetupAction;
 import ch.jbead.action.FileSaveAction;
 import ch.jbead.action.FileSaveAsAction;
 import ch.jbead.action.InfoAboutAction;
@@ -215,6 +214,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         selection.clear();
     }
 
+    public PrintSettings getPrintSettings() {
+        return printSettings;
+    }
+
     @Override
     public ResourceBundle getBundle() {
         return bundle;
@@ -261,7 +264,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         menuFile.add(new FileSaveAsAction(this));
         menuFile.addSeparator();
         menuFile.add(new JMenuItem(new FilePrintAction(this)));
-        menuFile.add(new FilePrintSetupAction(this));
+        menuFile.add(new FilePageSetupAction(this));
         menuFile.addSeparator();
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 0)));
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 1)));
@@ -595,11 +598,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 draft.isVisible(), corrected.isVisible(),
                 simulation.isVisible(), report.isVisible())
                 .print(showDialog);
-    }
-
-    public void filePrintersetupClick() {
-        PrinterJob job = PrinterJob.getPrinterJob();
-        printSettings.setFormat(job.pageDialog(printSettings.getFormat()));
     }
 
     public void fileExitClick() {
