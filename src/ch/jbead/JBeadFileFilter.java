@@ -25,6 +25,7 @@ public class JBeadFileFilter extends FileFilter {
 
     @Override
     public boolean accept(File f) {
+        if (f.isDirectory()) return true;
         String filename = f.getName().toLowerCase();
         return filename.endsWith(".jbb") || filename.endsWith(".dbb");
     }

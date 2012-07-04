@@ -13,7 +13,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 package ch.jbead;
 
@@ -25,7 +25,7 @@ public class DbbFileFilter extends FileFilter {
 
     @Override
     public boolean accept(File f) {
-        return f.getName().toLowerCase().endsWith(".dbb");
+        return f.isDirectory() || f.getName().toLowerCase().endsWith(".dbb");
     }
 
     @Override
