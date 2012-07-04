@@ -54,7 +54,7 @@ public class ColorPalette extends JComponent {
 
     private void chooseColor(int x, int y) {
         byte c = getColorIndex(x, y);
-        Color color = JColorChooser.showDialog(this, localization.getString("colorchooser.title"), model.getColor(c));
+        Color color = JColorChooser.showDialog(null, localization.getString("colorchooser.title"), model.getColor(c));
         if (color == null) return;
         model.setColor(c, color);
         repaint();
