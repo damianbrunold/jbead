@@ -41,7 +41,8 @@ public class ViewZoomOutAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomOutClick();
+        form.getModel().zoomOut();
+        form.updateScrollbar();
     }
 
 }

@@ -41,7 +41,8 @@ public class ViewZoomInAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomInClick();
+        form.getModel().zoomIn();
+        form.updateScrollbar();
     }
 
 }

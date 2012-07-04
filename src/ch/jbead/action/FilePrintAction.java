@@ -26,6 +26,7 @@ import javax.swing.KeyStroke;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
+import ch.jbead.print.DesignPrinter;
 
 public class FilePrintAction extends BaseAction {
 
@@ -42,7 +43,11 @@ public class FilePrintAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.filePrintClick(e.getSource() instanceof JMenuItem);
+        boolean showDialog = e.getSource() instanceof JMenuItem;
+        new DesignPrinter(form.getModel(), form, form.getPrintSettings(),
+                form.isDraftVisible(), form.isCorrectedVisible(),
+                form.isSimulationVisible(), form.isReportVisible())
+                .print(showDialog);
     }
 
 }

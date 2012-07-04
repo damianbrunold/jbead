@@ -88,9 +88,6 @@ import ch.jbead.action.ViewZoomInAction;
 import ch.jbead.action.ViewZoomNormalAction;
 import ch.jbead.action.ViewZoomOutAction;
 import ch.jbead.dialog.CopyForm;
-import ch.jbead.dialog.PatternHeightForm;
-import ch.jbead.dialog.PatternWidthForm;
-import ch.jbead.print.DesignPrinter;
 import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
 
@@ -593,43 +590,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         return false;
     }
 
-    public void filePrintClick(boolean showDialog) {
-        new DesignPrinter(model, this, printSettings,
-                draft.isVisible(), corrected.isVisible(),
-                simulation.isVisible(), report.isVisible())
-                .print(showDialog);
-    }
-
-    public void fileExitClick() {
-        if (model.isModified()) {
-            int r = JOptionPane.showConfirmDialog(this, getString("savechanges"));
-            if (r == JOptionPane.CANCEL_OPTION) return;
-            if (r == JOptionPane.OK_OPTION) fileSaveClick();
-        }
-        // TODO maybe need to save settings?
-        System.exit(0);
-    }
-
-    public void patternWidthClick() {
-        PatternWidthForm form = new PatternWidthForm(this);
-        form.setPatternWidth(model.getWidth());
-        form.setVisible(true);
-        if (form.isOK()) {
-            selection.clear();
-            model.setWidth(form.getPatternWidth());
-        }
-    }
-
-    public void patternHeightClick() {
-        PatternHeightForm form = new PatternHeightForm(this);
-        form.setPatternHeight(model.getHeight());
-        form.setVisible(true);
-        if (form.isOK()) {
-            selection.clear();
-            model.setHeight(form.getPatternHeight());
-        }
-    }
-
     private void draftLinePreview() {
         if (!toolsGroup.isSelected(0)) return;
         if (!selection.isActive()) return;
@@ -727,30 +687,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private void setPoint(Point pt) {
         model.setPoint(pt);
-    }
-
-    public void editUndoClick() {
-        model.undo();
-    }
-
-    public void editRedoClick() {
-        model.redo();
-    }
-
-    public void viewZoomInClick() {
-        model.zoomIn();
-        updateScrollbar();
-    }
-
-    public void viewZoomNormalClick() {
-        if (model.isNormalZoom()) return;
-        model.zoomNormal();
-        updateScrollbar();
-    }
-
-    public void viewZoomOutClick() {
-        model.zoomOut();
-        updateScrollbar();
     }
 
     public void viewDraftClick() {
@@ -1041,7 +977,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         scrollbar.setUnitIncrement(1);
     }
 
-    private void updateScrollbar() {
+    public void updateScrollbar() {
         updatingScrollbar = true;
         try {
             int max = model.getHeight() - 1;

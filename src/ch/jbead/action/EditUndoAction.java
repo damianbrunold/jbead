@@ -41,7 +41,7 @@ public class EditUndoAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editUndoClick();
+        form.getModel().undo();
     }
 
 }

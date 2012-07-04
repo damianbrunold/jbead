@@ -22,6 +22,8 @@ import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
+import ch.jbead.Model;
+import ch.jbead.dialog.PatternHeightForm;
 
 public class PatternHeightAction extends BaseAction {
 
@@ -37,7 +39,14 @@ public class PatternHeightAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.patternHeightClick();
+        Model model = form.getModel();
+        PatternHeightForm dialog = new PatternHeightForm(form);
+        dialog.setPatternHeight(model.getHeight());
+        dialog.setVisible(true);
+        if (dialog.isOK()) {
+            form.clearSelection();
+            model.setHeight(dialog.getPatternHeight());
+        }
     }
 
 }

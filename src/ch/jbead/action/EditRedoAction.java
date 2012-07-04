@@ -41,7 +41,7 @@ public class EditRedoAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editRedoClick();
+        form.getModel().redo();
     }
 
 }

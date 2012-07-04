@@ -37,7 +37,9 @@ public class ViewZoomNormalAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomNormalClick();
+        if (form.getModel().isNormalZoom()) return;
+        form.getModel().zoomNormal();
+        form.updateScrollbar();
     }
 
 }
