@@ -379,6 +379,7 @@ public class Model implements ColorTable {
 
     public void setFile(File file) {
         this.file = file;
+        fireModelChanged();
     }
 
     @Override
