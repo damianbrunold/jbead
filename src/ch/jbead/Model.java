@@ -296,7 +296,13 @@ public class Model implements ColorTable {
             return file.getParentFile();
         } else {
             JFileChooser chooser = new JFileChooser();
-            return chooser.getFileSystemView().getDefaultDirectory();
+            File dir = chooser.getFileSystemView().getDefaultDirectory();
+            File documents = new File(dir, "Documents");
+            if (documents.exists()) {
+                return documents;
+            } else {
+                return dir;
+            }
         }
     }
 
