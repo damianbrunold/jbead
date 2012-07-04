@@ -33,7 +33,7 @@ public class EditInsertLineAction extends BaseAction {
 
     public EditInsertLineAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Inserts an empty line");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.insertline.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("insert"));
     }

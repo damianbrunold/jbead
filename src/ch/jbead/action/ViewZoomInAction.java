@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ViewZoomInAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "view.zoomin";
-    
+
     public ViewZoomInAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Increases the zoom level");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomin.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_Z);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control I"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.viewZoomInClick();

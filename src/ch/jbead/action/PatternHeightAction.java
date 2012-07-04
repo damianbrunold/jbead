@@ -31,7 +31,7 @@ public class PatternHeightAction extends BaseAction {
 
     public PatternHeightAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Sets the maximal height of the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.pattern.height.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 

@@ -31,7 +31,7 @@ public class EditDeleteLineAction extends BaseAction {
 
     public EditDeleteLineAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Deletes a line");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.deleteline.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 

@@ -31,6 +31,7 @@ public class InfoAboutAction extends BaseAction {
 
     public InfoAboutAction(BeadForm form) {
         super(NAME, form);
+        putValue(SHORT_DESCRIPTION, form.getString("action.info.about.description"));
     }
 
     @Override

@@ -31,7 +31,7 @@ public class PatternWidthAction extends BaseAction {
 
     public PatternWidthAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Sets the width of the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.pattern.width.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_W);
     }
 

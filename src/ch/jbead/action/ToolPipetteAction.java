@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ToolPipetteAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "tool.pipette";
-    
+
     public ToolPipetteAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Activates the selected color");
+        putValue(SHORT_DESCRIPTION, form.getString("action.tool.pipette.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 4"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.toolPipetteClick();

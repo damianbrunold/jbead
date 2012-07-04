@@ -23,21 +23,18 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class ViewReportAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "view.report";
-    
+
     public ViewReportAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Shows the report view");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.report.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.viewReportClick();

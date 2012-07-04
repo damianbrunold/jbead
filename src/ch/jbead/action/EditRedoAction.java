@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class EditRedoAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "edit.redo";
-    
+
     public EditRedoAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Redoes the last undone change");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.redo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Y"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.editRedoClick();

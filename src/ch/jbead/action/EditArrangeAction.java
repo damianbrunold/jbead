@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class EditArrangeAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "edit.arrange";
-    
+
     public EditArrangeAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Arranges copies of the selected part");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.arrange.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("F8"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.editArrangeClick();

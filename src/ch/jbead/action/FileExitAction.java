@@ -25,22 +25,19 @@ import javax.swing.KeyStroke;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class FileExitAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "file.exit";
-    
+
     public FileExitAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Exits the program");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.exit.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.fileExitClick();

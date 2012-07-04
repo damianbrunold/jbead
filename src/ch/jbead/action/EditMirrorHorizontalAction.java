@@ -31,7 +31,7 @@ public class EditMirrorHorizontalAction extends BaseAction {
 
     public EditMirrorHorizontalAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Mirror the selection horizontally");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.mirrorhorizontal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 

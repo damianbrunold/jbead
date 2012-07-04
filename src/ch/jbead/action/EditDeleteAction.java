@@ -33,7 +33,7 @@ public class EditDeleteAction extends BaseAction {
 
     public EditDeleteAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Deletes the selected beads");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.delete.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
     }

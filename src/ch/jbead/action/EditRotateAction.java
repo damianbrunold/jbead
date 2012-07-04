@@ -31,7 +31,7 @@ public class EditRotateAction extends BaseAction {
 
     public EditRotateAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Rotate the selection 90° clockwise");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.rotate.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);
     }
 

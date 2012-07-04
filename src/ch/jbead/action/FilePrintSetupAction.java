@@ -23,9 +23,6 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class FilePrintSetupAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
@@ -34,10 +31,10 @@ public class FilePrintSetupAction extends BaseAction {
 
     public FilePrintSetupAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Configures the printer");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.printsetup.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.filePrintersetupClick();

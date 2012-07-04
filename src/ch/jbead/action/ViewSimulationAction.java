@@ -23,21 +23,18 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class ViewSimulationAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "view.simulation";
-    
+
     public ViewSimulationAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Shows the simulation view");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.simulation.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.viewSimulationClick();

@@ -22,9 +22,6 @@ import java.awt.event.ActionEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- *
- */
 public class FileMRUAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
