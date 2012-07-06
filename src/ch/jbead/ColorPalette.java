@@ -20,11 +20,14 @@ package ch.jbead;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 
 public class ColorPalette extends JComponent {
 
@@ -37,19 +40,59 @@ public class ColorPalette extends JComponent {
     private Model model;
     private Localization localization;
 
-    public ColorPalette(Model model, Localization localization) {
+    public ColorPalette(Model model, final Localization localization) {
         this.model = model;
         this.localization = localization;
         addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mousePressed(final MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPopupMenu(e.getX(), e.getY());
+                }
+            }
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showPopupMenu(e.getX(), e.getY());
+                }
+            }
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                if (e.isPopupTrigger()) return;
                 if (e.getClickCount() == 2) {
                     chooseColor(e.getX(), e.getY());
                 } else {
                     selectColor(e.getX(), e.getY());
                 }
             }
+
         });
+    }
+
+    private void showPopupMenu(final int x, final int y) {
+        JPopupMenu menu = new JPopupMenu();
+        menu.add(new AbstractAction(localization.getString("colorpalette.popup.select")) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectColor(x, y);
+            }
+        });
+        menu.add(new AbstractAction(localization.getString("colorpalette.popup.edit")) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e2) {
+                chooseColor(x, y);
+            }
+        });
+        menu.add(new AbstractAction(localization.getString("colorpalette.popup.asbackground")) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e2) {
+                asBackground(x, y);
+            }
+        });
+        menu.show(ColorPalette.this, x - 20, y - 10);
     }
 
     private void chooseColor(int x, int y) {
@@ -62,6 +105,12 @@ public class ColorPalette extends JComponent {
 
     private void selectColor(int x, int y) {
         model.setSelectedColor(getColorIndex(x, y));
+        repaint();
+    }
+
+    private void asBackground(int x, int y) {
+        Color color = model.getColor(getColorIndex(x, y));
+        model.setColor((byte) 0, color);
         repaint();
     }
 

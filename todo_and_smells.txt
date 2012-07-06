@@ -129,15 +129,6 @@ allow to simplify page layout.
   |      |      |        |                   |
   --------------------------------------------
 
-Better way to set the background color. Right now, this is done by double
-clicking the first color and selecting a new one. Better would be if there
-was a way to select the background colors from the colors in the palette.
-For example, if colors in the palette could be reordered by drag&dropping
-them, then it would be easy to drop one of the colors onto the first color
-position, thus setting it as the background color. Or, maybe the pipette
-tool could be used to select a color (from the pattern or the palette)
-and setting it as the background color.
-
 It would be useful if selections could be non-rectangular. Like in gimp,
 where it is possible to select all pixels of one color, or where an existing
 selection can be extended or reduced. On the other hand, this makes the
