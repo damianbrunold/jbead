@@ -162,7 +162,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         setSize(1024, 700);
         setLocation(100, 35);
 
-        toolsGroup.selectTool(0);
+        toolsGroup.selectTool("pencil");
 
         selection.addListener(draft);
 
@@ -305,10 +305,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private JMenu createToolMenu() {
         JMenu menuTool = new JMenu(bundle.getString("action.tool"));
-        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolPencilAction(this))));
-        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolSelectAction(this))));
-        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolFillAction(this))));
-        menuTool.add(toolsGroup.addTool(new ToolMenuItem(new ToolPipetteAction(this))));
+        menuTool.add(toolsGroup.addTool("pencil", new ToolMenuItem(new ToolPencilAction(this))));
+        menuTool.add(toolsGroup.addTool("select", new ToolMenuItem(new ToolSelectAction(this))));
+        menuTool.add(toolsGroup.addTool("fill", new ToolMenuItem(new ToolFillAction(this))));
+        menuTool.add(toolsGroup.addTool("pipette", new ToolMenuItem(new ToolPipetteAction(this))));
         return menuTool;
     }
 
@@ -339,10 +339,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         toolbar.addSeparator();
 
-        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.pencil"))));
-        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.select"))));
-        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.fill"))));
-        toolbar.add(toolsGroup.addTool(new ToolButton(getAction("tool.pipette"))));
+        toolbar.add(toolsGroup.addTool("pencil", new ToolButton(getAction("tool.pencil"))));
+        toolbar.add(toolsGroup.addTool("select", new ToolButton(getAction("tool.select"))));
+        toolbar.add(toolsGroup.addTool("fill", new ToolButton(getAction("tool.fill"))));
+        toolbar.add(toolsGroup.addTool("pipette", new ToolButton(getAction("tool.pipette"))));
 
         return toolbar;
     }
@@ -591,13 +591,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void draftLinePreview() {
-        if (!toolsGroup.isSelected(0)) return;
+        if (!toolsGroup.isSelected("pencil")) return;
         if (!selection.isActive()) return;
         draft.linePreview(selection.getOrigin(), selection.getLineDest());
     }
 
     private void drawPrepress() {
-        if (toolsGroup.isSelected(0)) {
+        if (toolsGroup.isSelected("pencil")) {
             draft.drawPrepress(selection.getOrigin());
         }
     }
@@ -634,17 +634,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             draftLinePreview();
             selection.update(pt);
             dragging = false;
-            if (toolsGroup.isSelected(0)) {
+            if (toolsGroup.isSelected("pencil")) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
                 } else {
                     drawLine(selection.getOrigin(), selection.getLineDest());
                 }
-            } else if (toolsGroup.isSelected(2)) {
+            } else if (toolsGroup.isSelected("fill")) {
                 fillLine(selection.getOrigin());
-            } else if (toolsGroup.isSelected(3)) {
+            } else if (toolsGroup.isSelected("pipette")) {
                 selectColorFrom(selection.getOrigin());
-            } else if (toolsGroup.isSelected(1)) {
+            } else if (toolsGroup.isSelected("select")) {
                 if (!selection.isActive()) {
                     setPoint(selection.getOrigin());
                 }
@@ -654,7 +654,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void correctedMouseUp(MouseEvent event) {
         if (event.getButton() == MouseEvent.BUTTON1) {
-            if (toolsGroup.isSelected(2)) {
+            if (toolsGroup.isSelected("fill")) {
                 corrected.fillLine(new Point(event.getX(), event.getY()));
             } else {
                 corrected.togglePoint(new Point(event.getX(), event.getY()));
@@ -664,7 +664,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void simulationMouseUp(MouseEvent event) {
         if (event.getButton() == MouseEvent.BUTTON1) {
-            if (toolsGroup.isSelected(2)) {
+            if (toolsGroup.isSelected("fill")) {
                 simulation.fillLine(new Point(event.getX(), event.getY()));
             } else {
                 simulation.togglePoint(new Point(event.getX(), event.getY()));
@@ -753,22 +753,22 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     public void toolPencilClick() {
         selection.clear();
-        toolsGroup.selectTool(0);
+        toolsGroup.selectTool("pencil");
     }
 
     public void toolSelectClick() {
         selection.clear();
-        toolsGroup.selectTool(1);
+        toolsGroup.selectTool("select");
     }
 
     public void toolFillClick() {
         selection.clear();
-        toolsGroup.selectTool(2);
+        toolsGroup.selectTool("fill");
     }
 
     public void toolPipetteClick() {
         selection.clear();
-        toolsGroup.selectTool(3);
+        toolsGroup.selectTool("pipette");
     }
 
     public void sbRotaterightMouseDown(MouseEvent event) {
@@ -1027,31 +1027,11 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public String getSelectedTool() {
-        if (toolsGroup.isSelected(0)) {
-            return "pencil";
-        } else if (toolsGroup.isSelected(1)) {
-            return "select";
-        } else if (toolsGroup.isSelected(2)) {
-            return "fill";
-        } else if (toolsGroup.isSelected(3)) {
-            return "pipette";
-        } else {
-            return "pencil";
-        }
+        return toolsGroup.getSelectedTool();
     }
 
     public void setSelectedTool(String tool) {
-        if (tool.equals("pencil")) {
-            toolsGroup.selectTool(0);
-        } else if (tool.equals("select")) {
-            toolsGroup.selectTool(1);
-        } else if (tool.equals("fill")) {
-            toolsGroup.selectTool(2);
-        } else if (tool.equals("pipette")) {
-            toolsGroup.selectTool(3);
-        } else {
-            toolsGroup.selectTool(0);
-        }
+        toolsGroup.selectTool(tool);
     }
 
 }

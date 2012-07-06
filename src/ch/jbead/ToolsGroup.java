@@ -17,8 +17,8 @@
 
 package ch.jbead;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 
@@ -27,28 +27,36 @@ public class ToolsGroup {
     private ButtonGroup menugroup = new ButtonGroup();
     private ButtonGroup toolbargroup = new ButtonGroup();
 
-    private List<ToolButton> buttons = new ArrayList<ToolButton>();
-    private List<ToolMenuItem> items = new ArrayList<ToolMenuItem>();
+    private Map<String, ToolButton> buttons = new HashMap<String, ToolButton>();
+    private Map<String, ToolMenuItem> items = new HashMap<String, ToolMenuItem>();
 
-    public ToolButton addTool(ToolButton button) {
-        buttons.add(button);
+    public ToolButton addTool(String tool, ToolButton button) {
+        buttons.put(tool, button);
         toolbargroup.add(button);
         return button;
     }
 
-    public ToolMenuItem addTool(ToolMenuItem item) {
-        items.add(item);
+    public ToolMenuItem addTool(String tool, ToolMenuItem item) {
+        items.put(tool, item);
         menugroup.add(item);
         return item;
     }
 
-    public void selectTool(int index) {
-        buttons.get(index).setSelected(true);
-        items.get(index).setSelected(true);
+    public void selectTool(String tool) {
+        if (!buttons.containsKey(tool)) tool = "pencil";
+        buttons.get(tool).setSelected(true);
+        items.get(tool).setSelected(true);
     }
 
-    public boolean isSelected(int index) {
-        return buttons.get(index).isSelected();
+    public boolean isSelected(String tool) {
+        return buttons.get(tool).isSelected();
+    }
+
+    public String getSelectedTool() {
+        for (Map.Entry<String, ToolButton> entry : buttons.entrySet()) {
+            if (entry.getValue().isSelected()) return entry.getKey();
+        }
+        return "pencil";
     }
 
 }

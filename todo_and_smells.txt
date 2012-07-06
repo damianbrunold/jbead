@@ -71,9 +71,6 @@ to get a subnode and then handle it as if it were the whole ObjectModel.
 
 Make author and notes fields available per documents (File|Properties).
 
-The toolsGroup is quite smelly, it should work with mnemonics instead
-of the raw integer index.
-
 Improve saving so that first a temporary file is created and only if
 the save is successfull is the destination file replaced with the temporary
 one. If anything goes wrong, just delete the temp file...
