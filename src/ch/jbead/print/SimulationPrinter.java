@@ -38,7 +38,7 @@ public class SimulationPrinter extends GridPrinter {
 
     @Override
     protected int getRows(int height) {
-        int rows = model.getUsedHeight();
+        int rows = getPrintableRows(height);
         Point pt = model.correct(new Point(model.getWidth() - 1, rows - 1));
         return pt.getY() + 1;
     }

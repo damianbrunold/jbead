@@ -38,26 +38,8 @@ public class DraftPrinter extends GridPrinter {
         return model.getWidth() * gx + markerWidth;
     }
 
-    @Override
     protected int getRows(int height) {
-        if (getUsedRows() <= getRowsPerColumn(height)) {
-            return getUsedRows();
-        } else {
-            return Math.min(getRepeatRowsFullColumn(height), getUsedRows());
-        }
-    }
-
-    private int getRepeatRowsFullColumn(int height) {
-        return ((getRepeatRows() + getRowsPerColumn(height) - 1) / getRowsPerColumn(height)) * getRowsPerColumn(height);
-    }
-
-    private int getRepeatRows() {
-        return model.getPoint(model.getRepeat()).getY() + 1;
-    }
-
-
-    private int getUsedRows() {
-        return model.getUsedHeight();
+        return getPrintableRows(height);
     }
 
     @Override

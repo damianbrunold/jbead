@@ -56,6 +56,26 @@ public abstract class GridPrinter extends PartPrinter {
     protected abstract int getRows(int height);
     protected abstract int getColumnWidth();
 
+    protected int getPrintableRows(int height) {
+        if (getUsedRows() <= getRowsPerColumn(height)) {
+            return getUsedRows();
+        } else {
+            return Math.min(getRepeatRowsFullColumn(height), getUsedRows());
+        }
+    }
+
+    protected int getRepeatRowsFullColumn(int height) {
+        return ((getRepeatRows() + getRowsPerColumn(height) - 1) / getRowsPerColumn(height)) * getRowsPerColumn(height);
+    }
+
+    protected int getRepeatRows() {
+        return model.getPoint(model.getRepeat()).getY() + 1;
+    }
+
+    protected int getUsedRows() {
+        return model.getUsedHeight();
+    }
+
     protected void setStroke(Graphics2D g) {
         g.setStroke(new BasicStroke(0.3f));
     }
