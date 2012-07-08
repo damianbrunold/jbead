@@ -37,7 +37,7 @@ public abstract class GridPrinter extends PartPrinter {
     @Override
     public List<Integer> layoutColumns(int width, int height) {
         List<Integer> columns = new ArrayList<Integer>();
-        int rows = getRows();
+        int rows = getRows(height);
         int rowsPerColumn = getRowsPerColumn(height);
         int cols = (rows + rowsPerColumn - 1) / rowsPerColumn;
         if (cols > 0) {
@@ -53,7 +53,7 @@ public abstract class GridPrinter extends PartPrinter {
         return height / gy;
     }
 
-    protected abstract int getRows();
+    protected abstract int getRows(int height);
     protected abstract int getColumnWidth();
 
     protected void setStroke(Graphics2D g) {

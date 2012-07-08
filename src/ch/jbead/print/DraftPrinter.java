@@ -39,7 +39,24 @@ public class DraftPrinter extends GridPrinter {
     }
 
     @Override
-    protected int getRows() {
+    protected int getRows(int height) {
+        if (getUsedRows() <= getRowsPerColumn(height)) {
+            return getUsedRows();
+        } else {
+            return Math.min(getRepeatRowsFullColumn(height), getUsedRows());
+        }
+    }
+
+    private int getRepeatRowsFullColumn(int height) {
+        return ((getRepeatRows() + getRowsPerColumn(height) - 1) / getRowsPerColumn(height)) * getRowsPerColumn(height);
+    }
+
+    private int getRepeatRows() {
+        return model.getPoint(model.getRepeat()).getY() + 1;
+    }
+
+
+    private int getUsedRows() {
         return model.getUsedHeight();
     }
 
@@ -52,7 +69,7 @@ public class DraftPrinter extends GridPrinter {
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < rows; j++) {
-            if (start + j >= getRows()) break;
+            if (start + j >= getRows(height)) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
                 g.setColor(model.getColor(c));

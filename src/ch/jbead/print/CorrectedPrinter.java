@@ -37,7 +37,7 @@ public class CorrectedPrinter extends GridPrinter {
     }
 
     @Override
-    protected int getRows() {
+    protected int getRows(int height) {
         int rows = model.getUsedHeight();
         Point pt = model.correct(new Point(model.getWidth() - 1, rows - 1));
         return pt.getY() + 1;
