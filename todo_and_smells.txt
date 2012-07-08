@@ -94,23 +94,6 @@ Add borders to print page. Configurable.
 
 Add headers with filename, page number, ... best would be configurable.
 
-Currently, the print layout is handled solely using columns. In the
-report, there are kind of columns and rows. The information at the 
-top and the color statistics are kind of a row. The bead list is below
-it in a different row but organized in a sequence of columns. If they
-do not fit on the same page, then on the next page only the remaining
-bead list columns are printed. One way would be to reorganize the report
-display in print so that info plus bead stats are one columns, and the
-bead list is a set of columns.
-
-Maybe only print the color repeat, or make this an option, or print
-full columns, but only as many as are needed for the color repeat, so
-typically the color repeat is less than one columns, so one full column
-is printed in draft, corrected and simulation. Then the infos, color counts
-and bead lists comprise the whole design, not only the color repeat, and
-in many cases can be fit on the same page. This makes the prints very
-compact and readable.
-
 I have to think about better, alternative print designs. For example, why
 not start the first page with the infos and the color counts. Then, below,
 fit full columns of draft, corrected, simulation, but only one color repeat.
