@@ -27,8 +27,8 @@ import ch.jbead.Point;
 
 public class SimulationPrinter extends GridPrinter {
 
-    public SimulationPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public SimulationPrinter(Model model, Localization localization, boolean fullPattern) {
+        super(model, localization, fullPattern);
     }
 
     @Override

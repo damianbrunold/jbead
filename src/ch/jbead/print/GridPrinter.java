@@ -29,9 +29,11 @@ public abstract class GridPrinter extends PartPrinter {
 
     protected int gx = Convert.mm2pt(3);
     protected int gy = gx;
+    protected boolean fullPattern;
 
-    public GridPrinter(Model model, Localization localization) {
+    public GridPrinter(Model model, Localization localization, boolean fullPattern) {
         super(model, localization);
+        this.fullPattern = fullPattern;
     }
 
     @Override
@@ -57,7 +59,7 @@ public abstract class GridPrinter extends PartPrinter {
     protected abstract int getColumnWidth();
 
     protected int getPrintableRows(int height) {
-        if (getUsedRows() <= getRowsPerColumn(height)) {
+        if (getUsedRows() <= getRowsPerColumn(height) || fullPattern) {
             return getUsedRows();
         } else {
             return Math.min(getRepeatRowsFullColumn(height), getUsedRows());

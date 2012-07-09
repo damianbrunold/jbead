@@ -27,8 +27,8 @@ import ch.jbead.Point;
 
 public class CorrectedPrinter extends GridPrinter {
 
-    public CorrectedPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public CorrectedPrinter(Model model, Localization localization, boolean fullPattern) {
+        super(model, localization, fullPattern);
     }
 
     @Override

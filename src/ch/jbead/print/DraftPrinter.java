@@ -30,8 +30,8 @@ public class DraftPrinter extends GridPrinter {
 
     private int markerWidth = Convert.mm2pt(10);
 
-    public DraftPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public DraftPrinter(Model model, Localization localization, boolean fullPattern) {
+        super(model, localization, fullPattern);
     }
 
     protected int getColumnWidth() {
