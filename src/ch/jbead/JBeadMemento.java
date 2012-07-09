@@ -27,7 +27,7 @@ import ch.jbead.storage.ObjectModel;
 
 public class JBeadMemento extends Memento {
 
-    private static final int VERSION = 1;
+    public static final int VERSION = 1;
 
     @Override
     public void save(JBeadOutputStream out) throws IOException {
