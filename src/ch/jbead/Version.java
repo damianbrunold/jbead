@@ -18,10 +18,8 @@
 package ch.jbead;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
+import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
 public class Version {
@@ -29,34 +27,31 @@ public class Version {
     private int major = -1;
     private int minor = -1;
     private int build = -1;
-    private Date date;
 
     private static final Version INSTANCE = new Version();
 
     private Version() {
         try {
-            File versionfile = new File(Version.class.getResource("/version.txt").toURI().getPath());
-            readVersionFile(versionfile);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Version.class.getResourceAsStream("/version.txt"), "UTF-8"));
+            try {
+                readVersionFile(reader);
+            } finally {
+              reader.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void readVersionFile(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        try {
-            String data = reader.readLine();
-            if (data == null) return;
-            String[] parts = data.split(Pattern.quote("."));
-            if (parts == null) return;
-            if (parts.length < 3) return;
-            major = Integer.parseInt(parts[0]);
-            minor = Integer.parseInt(parts[1]);
-            build = Integer.parseInt(parts[2]);
-            date = new Date(file.lastModified());
-        } finally {
-            reader.close();
-        }
+    private void readVersionFile(BufferedReader reader) throws IOException {
+        String data = reader.readLine();
+        if (data == null) return;
+        String[] parts = data.split(Pattern.quote("."));
+        if (parts == null) return;
+        if (parts.length < 3) return;
+        major = Integer.parseInt(parts[0]);
+        minor = Integer.parseInt(parts[1]);
+        build = Integer.parseInt(parts[2]);
     }
 
     public static Version getInstance() {
@@ -77,10 +72,6 @@ public class Version {
 
     public String getVersionString() {
         return String.format("%d.%d.%d", major, minor, build);
-    }
-
-    public Date getBuildDate() {
-        return date;
     }
 
 }

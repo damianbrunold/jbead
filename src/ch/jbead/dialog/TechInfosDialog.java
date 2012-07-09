@@ -66,7 +66,6 @@ public class TechInfosDialog extends JDialog {
         StringBuilder infos = new StringBuilder();
         addInfo(infos, localization.getString("techinfos.version"), Version.getInstance().getVersionString());
         addInfo(infos, localization.getString("techinfos.fileformat"), JBeadMemento.VERSION);
-        addInfo(infos, localization.getString("techinfos.builddate"), Version.getInstance().getBuildDate());
         addInfo(infos, localization.getString("techinfos.javaversion"), System.getProperty("java.version"));
         addInfo(infos, localization.getString("techinfos.javavendor"), System.getProperty("java.vendor"));
         addInfo(infos, localization.getString("techinfos.javahome"), System.getProperty("java.home"));
