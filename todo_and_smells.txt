@@ -82,8 +82,6 @@ grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
 very similar and core elements have to be exactly the same, otherwise
 the printed display is different from the display on screen.
 
-Add flag for starting a new page when printing the report.
-
 Add a custom dialog for configuring the print page. Paper format, borders,
 orientation, ... Store this info in the settings.
 

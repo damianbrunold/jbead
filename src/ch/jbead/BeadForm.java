@@ -506,7 +506,18 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     public boolean fileSaveClick(boolean isSaved, File file) {
         if (isSaved) {
             try {
-                fileformat.save(model, this, file);
+                File tempfile = File.createTempFile("temp", ".jbb", file.getParentFile());
+                try {
+                    fileformat.save(model, this, tempfile);
+                    if (file.exists()) file.delete();
+                    tempfile.renameTo(file);
+                } catch (IOException e) {
+                    tempfile.delete();
+                    throw e;
+                } catch (JBeadFileFormatException e) {
+                    tempfile.delete();
+                    throw e;
+                }
                 updateTitle();
                 return true;
             } catch (JBeadFileFormatException e) {
