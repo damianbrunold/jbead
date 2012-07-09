@@ -26,10 +26,8 @@ import javax.swing.KeyStroke;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
+import ch.jbead.print.DesignPrinter;
 
-/**
- * 
- */
 public class FilePrintAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
@@ -38,14 +36,18 @@ public class FilePrintAction extends BaseAction {
 
     public FilePrintAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Prints the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.print.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.filePrintClick(e.getSource() instanceof JMenuItem);
+        boolean showDialog = e.getSource() instanceof JMenuItem;
+        new DesignPrinter(form.getModel(), form, form.getPrintSettings(),
+                form.isDraftVisible(), form.isCorrectedVisible(),
+                form.isSimulationVisible(), form.isReportVisible())
+                .print(showDialog);
     }
 
 }

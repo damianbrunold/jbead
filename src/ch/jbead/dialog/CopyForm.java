@@ -35,14 +35,16 @@ import javax.swing.SpinnerNumberModel;
 
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
+import ch.jbead.Model;
+import ch.jbead.Selection;
 
-/**
- * 
- */
 public class CopyForm extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private boolean isOK = false;
+
+    private Selection selection;
+    private Model model;
 
     private SpinnerModel horzModel = new SpinnerNumberModel(5, 0, 100, 1);
     private SpinnerModel vertModel = new SpinnerNumberModel(5, 0, 100, 1);
@@ -54,7 +56,9 @@ public class CopyForm extends JDialog {
     private JButton bOK;
     private JButton bCancel;
 
-    public CopyForm(Localization localization) {
+    public CopyForm(Localization localization, Selection selection, Model model) {
+        this.selection = selection;
+        this.model = model;
         setTitle(localization.getString("copyform.title"));
         getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setLayout(new BorderLayout());
@@ -100,6 +104,8 @@ public class CopyForm extends JDialog {
         buttons.add(bCancel  = new JButton(localization.getString("cancel")));
         add(buttons, BorderLayout.SOUTH);
 
+        initDefaultValues();
+
         setIconImage(ImageFactory.getImage("jbead-16"));
         setModal(true);
         pack();
@@ -119,6 +125,23 @@ public class CopyForm extends JDialog {
                 dispose();
             }
         });
+    }
+
+    private void initDefaultValues() {
+        horzModel.setValue(getDefaultHorzDisplacement());
+        vertModel.setValue(getDefaultVertDisplacement());
+    }
+
+    private int getDefaultHorzDisplacement() {
+        if (selection.width() == model.getWidth()) {
+            return 0;
+        } else {
+            return selection.width();
+        }
+    }
+
+    private int getDefaultVertDisplacement() {
+        return selection.height();
     }
 
     public boolean isOK() {

@@ -23,9 +23,6 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- *
- */
 public class ViewCorrectedAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
@@ -34,7 +31,7 @@ public class ViewCorrectedAction extends BaseAction {
 
     public ViewCorrectedAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Shows the corrected view");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.corrected.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
 

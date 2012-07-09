@@ -23,21 +23,18 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class ViewDraftAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
-    
+
     private static final String NAME = "view.draft";
 
     public ViewDraftAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Shows the draft view");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.draft.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.viewDraftClick();

@@ -15,23 +15,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package ch.jbead;
+package ch.jbead.action;
 
-import java.io.File;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
-import javax.swing.filechooser.FileFilter;
+import ch.jbead.BaseAction;
+import ch.jbead.BeadForm;
 
-public class CombinedFileFilter extends FileFilter {
+public class EditDeleteRowAction extends BaseAction {
 
-    @Override
-    public boolean accept(File f) {
-        String name = f.getName().toLowerCase();
-        return name.endsWith(".dbb") || name.endsWith(".jbb");
+    private static final long serialVersionUID = 1L;
+
+    private static final String NAME = "edit.deleterow";
+
+    public EditDeleteRowAction(BeadForm form) {
+        super(NAME, form);
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.deleterow.description"));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 
     @Override
-    public String getDescription() {
-        return "jbead/dbbead files (*.jbb/*.dbb)";
+    public void actionPerformed(ActionEvent e) {
+        form.editDeleteRowClick();
     }
 
 }

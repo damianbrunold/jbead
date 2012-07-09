@@ -20,30 +20,34 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class FileExitAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "file.exit";
-    
+
     public FileExitAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Exits the program");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.exit.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileExitClick();
+        if (form.getModel().isModified()) {
+            int r = JOptionPane.showConfirmDialog(form, form.getString("savechanges"));
+            if (r == JOptionPane.CANCEL_OPTION) return;
+            if (r == JOptionPane.OK_OPTION) form.fileSaveClick();
+        }
+        // TODO maybe need to save settings?
+        System.exit(0);
     }
 
 }

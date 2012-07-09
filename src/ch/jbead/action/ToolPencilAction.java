@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ToolPencilAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "tool.pencil";
-    
+
     public ToolPencilAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Draw on the pattern using a pencil");
+        putValue(SHORT_DESCRIPTION, form.getString("action.tool.pencil.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 1"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.toolPencilClick();

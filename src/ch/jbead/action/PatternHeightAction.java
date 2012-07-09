@@ -22,6 +22,8 @@ import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
+import ch.jbead.Model;
+import ch.jbead.dialog.PatternHeightForm;
 
 public class PatternHeightAction extends BaseAction {
 
@@ -31,13 +33,20 @@ public class PatternHeightAction extends BaseAction {
 
     public PatternHeightAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Sets the maximal height of the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.pattern.height.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.patternHeightClick();
+        Model model = form.getModel();
+        PatternHeightForm dialog = new PatternHeightForm(form);
+        dialog.setPatternHeight(model.getHeight());
+        dialog.setVisible(true);
+        if (dialog.isOK()) {
+            form.clearSelection();
+            model.setHeight(dialog.getPatternHeight());
+        }
     }
 
 }

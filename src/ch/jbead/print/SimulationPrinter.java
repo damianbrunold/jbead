@@ -27,8 +27,8 @@ import ch.jbead.Point;
 
 public class SimulationPrinter extends GridPrinter {
 
-    public SimulationPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public SimulationPrinter(Model model, Localization localization, boolean fullPattern) {
+        super(model, localization, fullPattern);
     }
 
     @Override
@@ -37,8 +37,8 @@ public class SimulationPrinter extends GridPrinter {
     }
 
     @Override
-    protected int getRows() {
-        int rows = model.getUsedHeight();
+    protected int getRows(int height) {
+        int rows = getPrintableRows(height);
         Point pt = model.correct(new Point(model.getWidth() - 1, rows - 1));
         return pt.getY() + 1;
     }

@@ -26,25 +26,23 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ViewZoomOutAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "view.zoomout";
-    
+
     public ViewZoomOutAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Decreases the zoom level");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomout.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_M);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control U"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomOutClick();
+        form.getModel().zoomOut();
+        form.updateScrollbar();
     }
 
 }

@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ToolSelectAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "tool.select";
-    
+
     public ToolSelectAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Selects a part of the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.tool.select.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.toolSelectClick();

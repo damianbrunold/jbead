@@ -30,17 +30,16 @@ public class DraftPrinter extends GridPrinter {
 
     private int markerWidth = Convert.mm2pt(10);
 
-    public DraftPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public DraftPrinter(Model model, Localization localization, boolean fullPattern) {
+        super(model, localization, fullPattern);
     }
 
     protected int getColumnWidth() {
         return model.getWidth() * gx + markerWidth;
     }
 
-    @Override
-    protected int getRows() {
-        return model.getUsedHeight();
+    protected int getRows(int height) {
+        return getPrintableRows(height);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class DraftPrinter extends GridPrinter {
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < rows; j++) {
-            if (start + j >= getRows()) break;
+            if (start + j >= getRows(height)) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
                 g.setColor(model.getColor(c));

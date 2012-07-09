@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class FileNewAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "file.new";
-    
+
     public FileNewAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Creates a new pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.new.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.fileNewClick();

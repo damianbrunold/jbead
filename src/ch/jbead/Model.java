@@ -191,17 +191,17 @@ public class Model implements ColorTable {
         return field.get(idx);
     }
 
-    public void insertLine() {
+    public void insertRow() {
         snapshot();
-        field.insertLine();
+        field.insertRow();
         setRepeatDirty();
         setModified();
         fireModelChanged();
     }
 
-    public void deleteLine() {
+    public void deleteRow() {
         snapshot();
-        field.deleteLine();
+        field.deleteRow();
         setRepeatDirty();
         setModified();
         fireModelChanged();
@@ -296,7 +296,13 @@ public class Model implements ColorTable {
             return file.getParentFile();
         } else {
             JFileChooser chooser = new JFileChooser();
-            return chooser.getFileSystemView().getDefaultDirectory();
+            File dir = chooser.getFileSystemView().getDefaultDirectory();
+            File documents = new File(dir, "Documents");
+            if (documents.exists()) {
+                return documents;
+            } else {
+                return dir;
+            }
         }
     }
 
@@ -379,6 +385,7 @@ public class Model implements ColorTable {
 
     public void setFile(File file) {
         this.file = file;
+        fireModelChanged();
     }
 
     @Override
@@ -600,20 +607,34 @@ public class Model implements ColorTable {
 
     public void mirrorHorizontal(Rect rect) {
         snapshot();
-        field.mirrorHorizontal(rect);
+        field.mirrorHorizontal(rect.scrolled(scroll));
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 
     public void mirrorVertical(Rect rect) {
         snapshot();
-        field.mirrorVertical(rect);
+        field.mirrorVertical(rect.scrolled(scroll));
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 
     public void rotate(Rect rect) {
         if (!rect.isSquare()) return;
         snapshot();
-        field.rotate(rect);
+        field.rotate(rect.scrolled(scroll));
+        setModified();
+        setRepeatDirty();
+        fireModelChanged();
+    }
+
+    public void delete(Rect rect) {
+        snapshot();
+        field.delete(rect.scrolled(scroll));
+        setModified();
+        setRepeatDirty();
         fireModelChanged();
     }
 

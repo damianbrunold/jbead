@@ -160,7 +160,13 @@ public class BeadField {
         }
     }
 
-    public void insertLine() {
+    public void delete(Rect rect) {
+        for (Point pt : rect) {
+            set(pt, (byte) 0);
+        }
+    }
+
+    public void insertRow() {
         for (int j = getHeight() - 1; j > 0; j--) {
             for (int i = 0; i < getWidth(); i++) {
                 Point pt = new Point(i, j);
@@ -172,7 +178,7 @@ public class BeadField {
         }
     }
 
-    public void deleteLine() {
+    public void deleteRow() {
         for (int j = 0; j < getHeight() - 1; j++) {
             for (int i = 0; i < getWidth(); i++) {
                 Point pt = new Point(i, j);

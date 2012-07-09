@@ -25,25 +25,22 @@ import javax.swing.KeyStroke;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
-public class EditDeleteLineAction extends BaseAction {
+public class EditDeleteAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NAME = "edit.deleteline";
-    
-    public EditDeleteLineAction(BeadForm form) {
+    private static final String NAME = "edit.delete";
+
+    public EditDeleteAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Deletes a line");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.delete.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editDeleteLineClick();
+        form.getModel().delete(form.getSelection());
     }
 
 }

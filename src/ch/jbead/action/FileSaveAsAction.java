@@ -23,9 +23,6 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class FileSaveAsAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
@@ -34,10 +31,10 @@ public class FileSaveAsAction extends BaseAction {
 
     public FileSaveAsAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Saves a pattern to a new file");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.saveas.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.fileSaveasClick();

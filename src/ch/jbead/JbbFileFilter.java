@@ -25,7 +25,7 @@ public class JbbFileFilter extends FileFilter {
 
     @Override
     public boolean accept(File f) {
-        return f.getName().toLowerCase().endsWith(".jbb");
+        return f.isDirectory() || f.getName().toLowerCase().endsWith(".jbb");
     }
 
     @Override

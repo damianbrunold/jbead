@@ -26,25 +26,22 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class EditUndoAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "edit.undo";
-    
+
     public EditUndoAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Undoes the last change");
+        putValue(SHORT_DESCRIPTION, form.getString("action.edit.undo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editUndoClick();
+        form.getModel().undo();
     }
 
 }

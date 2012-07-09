@@ -45,6 +45,7 @@ public class DesignPrinter {
     private boolean withCorrected;
     private boolean withSimulation;
     private boolean withReport;
+    private boolean fullPattern = false;
 
     private List<PageLayout> pages = new ArrayList<PageLayout>();
 
@@ -58,6 +59,10 @@ public class DesignPrinter {
         this.withCorrected = withCorrected;
         this.withSimulation = withSimulation;
         this.withReport = withReport;
+    }
+
+    public void setFullPattern(boolean fullPattern) {
+        this.fullPattern = fullPattern;
     }
 
     private void layoutPages(PageFormat format) {
@@ -84,9 +89,9 @@ public class DesignPrinter {
     private List<PartPrinter> getPartPrinters() {
         List<PartPrinter> printers = new ArrayList<PartPrinter>();
         if (withReport) printers.add(new ReportInfosPrinter(model, localization));
-        if (withDraft) printers.add(new DraftPrinter(model, localization));
-        if (withCorrected) printers.add(new CorrectedPrinter(model, localization));
-        if (withSimulation) printers.add(new SimulationPrinter(model, localization));
+        if (withDraft) printers.add(new DraftPrinter(model, localization, fullPattern));
+        if (withCorrected) printers.add(new CorrectedPrinter(model, localization, fullPattern));
+        if (withSimulation) printers.add(new SimulationPrinter(model, localization, fullPattern));
         if (withReport) printers.add(new BeadListPrinter(model, localization));
         return printers;
     }

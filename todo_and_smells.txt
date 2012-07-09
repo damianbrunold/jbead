@@ -1,33 +1,14 @@
-Code Smells
------------
+Todo and Smells
+---------------
 
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
 
-Handle the UI state better. For example, the copy/arrange
-function should be disabled if no selection exists. This
-was handled using the idleHandler before. Now, this should
-probably be done using Actions.
-
 Handle the scrolled-stuff better, i. e. use physical
 versus logical coordinates or something like that.
 
 Use abstracted tool object for the different tools.
-
-Make simulation view editable analogously to the normal
-corrected view.
-
-Make color choosing very simple. Slider style as in the video
-of Bret Victor.
-
-Add a "surprise me" color mode, where you click a button and
-the colors are randomly changed. Maybe some modes are supported,
-very random, tone-in-tone, contrasting colors, ...
-
-Easily set background color. This maybe is just color0. But
-why not a fill mode that fills not only a line, but like water
-everything reachable downwards. This would be very general.
 
 Create good documentation on the web.
 
@@ -55,16 +36,10 @@ Export as PDF/PNG/JPEG.
 Export the circling simulation as an animated GIF or an AVI or 
 something.
 
-Add in lower right corner a resize widget. Right now it is a pain...
-
 Allow a single line selection.
 
 Add ctrl+c,x,v for selections. This requires that a current input
 point (cursor) is available.
-
-Fix printing code, support multipage printing. Use a layout model
-for laying out the pages and then in a second step, print the
-required page.
 
 Line drawing: use vertical, horizontal or diagonal lines whichever
 is closest to the dragged line. Currently only exact vertical and
@@ -79,8 +54,6 @@ but would be quite vertical in the corrected and simulated panel.
 
 Line drawing: draw lines in corrected/simulation panels!
 
-Move the setWidth and setHeight code from beadform to the actions.
-
 Add/remove Beads at the start of the pattern (or at the current 
 location if this is implemented). This allows to "rotate" the pattern 
 or to add/remove beads in a very fine-grained way. (Currently, only
@@ -92,19 +65,11 @@ sample file. The partial beads at the left end are not drawn.
 Undo should also undo color changes! Currently this is not part of
 the undo snapshot.
 
-The arrange function should use more sensible defaults. For example
-if the selection is as wide as the pattern, then the horzontal
-displacement should be initialized to 0. Also the vertical displacement
-should be the height of the selection.
-
 Currently, only the ObjectModel supports path methods. But maybe it
 would be better if the Node itself supports paths. This would allow
 to get a subnode and then handle it as if it were the whole ObjectModel.
 
 Make author and notes fields available per documents (File|Properties).
-
-The toolsGroup is quite smelly, it should work with mnemonics instead
-of the raw integer index.
 
 Improve saving so that first a temporary file is created and only if
 the save is successfull is the destination file replaced with the temporary
@@ -117,8 +82,6 @@ grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
 very similar and core elements have to be exactly the same, otherwise
 the printed display is different from the display on screen.
 
-Add flag for starting a new page when printing the report.
-
 Add a custom dialog for configuring the print page. Paper format, borders,
 orientation, ... Store this info in the settings.
 
@@ -128,23 +91,6 @@ format and changing it does not influence the printing?
 Add borders to print page. Configurable.
 
 Add headers with filename, page number, ... best would be configurable.
-
-Currently, the print layout is handled solely using columns. In the
-report, there are kind of columns and rows. The information at the 
-top and the color statistics are kind of a row. The bead list is below
-it in a different row but organized in a sequence of columns. If they
-do not fit on the same page, then on the next page only the remaining
-bead list columns are printed. One way would be to reorganize the report
-display in print so that info plus bead stats are one columns, and the
-bead list is a set of columns.
-
-Maybe only print the color repeat, or make this an option, or print
-full columns, but only as many as are needed for the color repeat, so
-typically the color repeat is less than one columns, so one full column
-is printed in draft, corrected and simulation. Then the infos, color counts
-and bead lists comprise the whole design, not only the color repeat, and
-in many cases can be fit on the same page. This makes the prints very
-compact and readable.
 
 I have to think about better, alternative print designs. For example, why
 not start the first page with the infos and the color counts. Then, below,
@@ -163,4 +109,8 @@ allow to simplify page layout.
   |      |      |        |                   |
   |      |      |        |                   |
   --------------------------------------------
-  
+
+It would be useful if selections could be non-rectangular. Like in gimp,
+where it is possible to select all pixels of one color, or where an existing
+selection can be extended or reduced. On the other hand, this makes the
+usage rather difficult.

@@ -23,24 +23,23 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 
-/**
- * 
- */
 public class ViewZoomNormalAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "view.zoomnormal";
-    
+
     public ViewZoomNormalAction(BeadForm form) {
         super(NAME, form);
-        putValue(SHORT_DESCRIPTION, "Restores the default zoom level");
+        putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomnormal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewZoomNormalClick();
+        if (form.getModel().isNormalZoom()) return;
+        form.getModel().zoomNormal();
+        form.updateScrollbar();
     }
 
 }

@@ -29,15 +29,17 @@ public abstract class GridPrinter extends PartPrinter {
 
     protected int gx = Convert.mm2pt(3);
     protected int gy = gx;
+    protected boolean fullPattern;
 
-    public GridPrinter(Model model, Localization localization) {
+    public GridPrinter(Model model, Localization localization, boolean fullPattern) {
         super(model, localization);
+        this.fullPattern = fullPattern;
     }
 
     @Override
     public List<Integer> layoutColumns(int width, int height) {
         List<Integer> columns = new ArrayList<Integer>();
-        int rows = getRows();
+        int rows = getRows(height);
         int rowsPerColumn = getRowsPerColumn(height);
         int cols = (rows + rowsPerColumn - 1) / rowsPerColumn;
         if (cols > 0) {
@@ -53,8 +55,28 @@ public abstract class GridPrinter extends PartPrinter {
         return height / gy;
     }
 
-    protected abstract int getRows();
+    protected abstract int getRows(int height);
     protected abstract int getColumnWidth();
+
+    protected int getPrintableRows(int height) {
+        if (getUsedRows() <= getRowsPerColumn(height) || fullPattern) {
+            return getUsedRows();
+        } else {
+            return Math.min(getRepeatRowsFullColumn(height), getUsedRows());
+        }
+    }
+
+    protected int getRepeatRowsFullColumn(int height) {
+        return ((getRepeatRows() + getRowsPerColumn(height) - 1) / getRowsPerColumn(height)) * getRowsPerColumn(height);
+    }
+
+    protected int getRepeatRows() {
+        return model.getPoint(model.getRepeat()).getY() + 1;
+    }
+
+    protected int getUsedRows() {
+        return model.getUsedHeight();
+    }
 
     protected void setStroke(Graphics2D g) {
         g.setStroke(new BasicStroke(0.3f));

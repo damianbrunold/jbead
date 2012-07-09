@@ -26,9 +26,6 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class FileSaveAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
@@ -37,11 +34,11 @@ public class FileSaveAction extends BaseAction {
 
     public FileSaveAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Saves the pattern");
+        putValue(SHORT_DESCRIPTION, form.getString("action.file.save.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.fileSaveClick();

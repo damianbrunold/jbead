@@ -26,22 +26,19 @@ import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.ImageFactory;
 
-/**
- * 
- */
 public class ToolFillAction extends BaseAction {
 
     private static final long serialVersionUID = 1L;
 
     private static final String NAME = "tool.fill";
-    
+
     public ToolFillAction(BeadForm form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, "Fill a part of the pattern with the current color");
+        putValue(SHORT_DESCRIPTION, form.getString("action.tool.fill.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_F);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         form.toolFillClick();
