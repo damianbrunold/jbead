@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>jbead.jar</jar>
-  <outfile>F:\p\jbead\starter_win\jbead.exe</outfile>
+  <outfile>jbead.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>F:\p\jbead\dbbead.ico</icon>
+  <icon>..\dbbead.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.6.0</minVersion>
