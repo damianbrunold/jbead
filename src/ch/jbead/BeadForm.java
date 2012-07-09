@@ -475,18 +475,17 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
             fileformat.load(model, this, file);
             colors.selectColor(model.getSelectedColor());
             updateScrollbar();
+            model.setSaved();
+            model.setModified(false);
+            model.setRepeatDirty();
+            model.setFile(file);
+            if (addtomru) addToMRU(file);
         } catch (Exception e) {
             e.printStackTrace();
             String msg = e.getMessage();
             if (msg == null) msg = e.toString();
             JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", msg));
-            model.clear();
         }
-        model.setSaved();
-        model.setModified(false);
-        model.setRepeatDirty();
-        model.setFile(file);
-        if (addtomru) addToMRU(file);
     }
 
     public void fileOpenClick() {
