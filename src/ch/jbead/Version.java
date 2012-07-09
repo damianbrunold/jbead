@@ -43,6 +43,12 @@ public class Version {
         }
     }
 
+    private Version(int major, int minor, int build) {
+        this.major = major;
+        this.minor = minor;
+        this.build = build;
+    }
+
     private void readVersionFile(BufferedReader reader) throws IOException {
         String data = reader.readLine();
         if (data == null) return;
@@ -72,6 +78,26 @@ public class Version {
 
     public String getVersionString() {
         return String.format("%d.%d.%d", major, minor, build);
+    }
+
+    public String getWinVersionString() {
+        return String.format("%d.%d.0.%d", major, minor, build);
+    }
+
+    public String getShortVersionString() {
+        return String.format("%d.%d", major, minor);
+    }
+
+    public Version bump() {
+        return new Version(major, minor, build + 1);
+    }
+
+    public Version bumpMinor() {
+        return new Version(major, minor + 1, 0);
+    }
+
+    public Version bumpMajor() {
+        return new Version(major + 1, 0, 0);
     }
 
 }
