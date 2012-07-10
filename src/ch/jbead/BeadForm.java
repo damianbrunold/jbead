@@ -22,6 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentAdapter;
@@ -141,7 +142,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private Timer updateTimer;
     private Timer shiftTimer;
 
-    public BeadForm() {
+    public BeadForm(String[] args) {
         super("jbead");
         createGUI();
         model.addListener(this);
@@ -190,6 +191,22 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
                 updateHandler();
             }
         }, UPDATE_INTERVAL, UPDATE_INTERVAL);
+
+        handleCommandLineArgs(args);
+    }
+
+    private void handleCommandLineArgs(String[] args) {
+        if (args.length == 0) return;
+        if (args[0].equals("/p") || args[0].equals("-p")) {
+            if (args.length < 2) return;
+            File file = new File(args[1]);
+            loadFile(file, false);
+            getAction("file.print").actionPerformed(new ActionEvent(this, 0, null));
+        } else {
+            File file = new File(args[0]);
+            if (!file.exists()) return;
+            loadFile(file, true);
+        }
     }
 
     private void initCloseHandler() {
@@ -933,10 +950,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private void addMRU(String path) {
         if (path.isEmpty()) return;
         mru.add(new File(path));
-    }
-
-    public static void main(String[] args) {
-        new BeadForm().setVisible(true);
     }
 
     @Override

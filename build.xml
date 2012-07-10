@@ -90,7 +90,7 @@
 		<jar destfile="jbead.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Built-By" value="Damian Brunold" />
-				<attribute name="Main-Class" value="ch.jbead.BeadForm" />
+				<attribute name="Main-Class" value="ch.jbead.JBeadApp" />
 			</manifest>
 		</jar>
 	</target>
