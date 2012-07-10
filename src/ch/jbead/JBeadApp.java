@@ -17,9 +17,13 @@
 
 package ch.jbead;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 public class JBeadApp {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedLookAndFeelException {
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
         new BeadForm(args).setVisible(true);
     }
 

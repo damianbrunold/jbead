@@ -120,10 +120,10 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private SimulationPanel simulation = new SimulationPanel(model, selection, this);
     private ReportPanel report = new ReportPanel(model, selection, this);
 
-    private JLabel laDraft = new JLabel("draft");
-    private JLabel laCorrected = new JLabel("corrected");
-    private JLabel laSimulation = new JLabel("simulation");
-    private JLabel laReport = new JLabel("report");
+    private JLabel laDraft = new JLabel(getString("draft"));
+    private JLabel laCorrected = new JLabel(getString("corrected"));
+    private JLabel laSimulation = new JLabel(getString("simulation"));
+    private JLabel laReport = new JLabel(getString("report"));
 
     private JMenuItem viewDraft;
     private JMenuItem viewCorrected;
