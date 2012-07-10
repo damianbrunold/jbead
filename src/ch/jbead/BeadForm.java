@@ -132,7 +132,9 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private ToolsGroup toolsGroup = new ToolsGroup();
 
-    private PrintSettings printSettings = new PrintSettings();
+    private Settings settings = new Settings();
+
+    private PrintSettings printSettings = new PrintSettings(settings);
 
     private JPanel main = new JPanel();
     private JLabel statusbar = new JLabel("X");
@@ -935,7 +937,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void saveMRU() {
-        Settings settings = new Settings();
         settings.setCategory("mru");
         for (int i = 0; i < mru.size(); i++) {
             settings.saveString("mru" + i, mru.get(i).getAbsolutePath());
@@ -943,7 +944,6 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     private void loadMRU() {
-        Settings settings = new Settings();
         settings.setCategory("mru");
         mru.clear();
         for (int i = 0; i < 6; i++) {

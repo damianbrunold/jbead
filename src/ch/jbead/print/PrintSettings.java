@@ -27,15 +27,17 @@ import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.MediaSizeName;
 import javax.print.attribute.standard.OrientationRequested;
 
+import ch.jbead.Settings;
+
 public class PrintSettings {
 
     private PrintService service;
     private PrintRequestAttributeSet attributes;
 
-    public PrintSettings() {
+    public PrintSettings(Settings settings) {
         service = null;
         attributes = new HashPrintRequestAttributeSet();
-        initDefaultFormat();
+        initDefaultFormat(settings);
     }
 
     public PrintService getService() {
@@ -54,16 +56,75 @@ public class PrintSettings {
         this.attributes = attributes;
     }
 
-    private void initDefaultFormat() {
-        attributes.add(OrientationRequested.LANDSCAPE);
-        attributes.add(new Copies(1));
-        Paper paper = PrinterJob.getPrinterJob().defaultPage().getPaper();
-        if (isLetter(paper)) {
-            attributes.add(MediaSizeName.NA_LETTER);
-        } else if (isLegal(paper)) {
-            attributes.add(MediaSizeName.NA_LEGAL);
+    private void initDefaultFormat(Settings settings) {
+        settings.setCategory("print");
+        String paperorient = settings.loadString("orientation");
+        if (paperorient.equalsIgnoreCase("portrait")) {
+            attributes.add(OrientationRequested.PORTRAIT);
+        } else if (paperorient.equalsIgnoreCase("reverse_portrait")) {
+            attributes.add(OrientationRequested.REVERSE_PORTRAIT);
+        } else if (paperorient.equalsIgnoreCase("reverse_landscape")) {
+            attributes.add(OrientationRequested.REVERSE_LANDSCAPE);
         } else {
-            attributes.add(MediaSizeName.ISO_A4); // TODO make this default configurable
+            attributes.add(OrientationRequested.LANDSCAPE);
+        }
+        attributes.add(new Copies(1));
+        String papername = settings.loadString("paper");
+        if (!papername.isEmpty()) {
+            attributes.add(getMedia(papername));
+        } else {
+            Paper paper = PrinterJob.getPrinterJob().defaultPage().getPaper();
+            if (isLetter(paper)) {
+                attributes.add(MediaSizeName.NA_LETTER);
+            } else if (isLegal(paper)) {
+                attributes.add(MediaSizeName.NA_LEGAL);
+            } else {
+                attributes.add(getMedia("a4"));
+            }
+        }
+    }
+
+    private MediaSizeName getMedia(String paper) {
+        if (paper.equalsIgnoreCase("a0")) {
+            return MediaSizeName.ISO_A0;
+        } else if (paper.equalsIgnoreCase("a1")) {
+            return MediaSizeName.ISO_A1;
+        } else if (paper.equalsIgnoreCase("a2")) {
+            return MediaSizeName.ISO_A2;
+        } else if (paper.equalsIgnoreCase("a3")) {
+            return MediaSizeName.ISO_A3;
+        } else if (paper.equalsIgnoreCase("a4")) {
+            return MediaSizeName.ISO_A4;
+        } else if (paper.equalsIgnoreCase("a5")) {
+            return MediaSizeName.ISO_A5;
+        } else if (paper.equalsIgnoreCase("a6")) {
+            return MediaSizeName.ISO_A6;
+        } else if (paper.equalsIgnoreCase("a7")) {
+            return MediaSizeName.ISO_A7;
+        } else if (paper.equalsIgnoreCase("a8")) {
+            return MediaSizeName.ISO_A8;
+        } else if (paper.equalsIgnoreCase("a9")) {
+            return MediaSizeName.ISO_A9;
+        } else if (paper.equalsIgnoreCase("a10")) {
+            return MediaSizeName.ISO_A10;
+        } else if (paper.equalsIgnoreCase("letter")) {
+            return MediaSizeName.NA_LETTER;
+        } else if (paper.equalsIgnoreCase("legal")) {
+            return MediaSizeName.NA_LEGAL;
+        } else if (paper.equalsIgnoreCase("executive")) {
+            return MediaSizeName.EXECUTIVE;
+        } else if (paper.equalsIgnoreCase("ledger")) {
+            return MediaSizeName.LEDGER;
+        } else if (paper.equalsIgnoreCase("tabloid")) {
+            return MediaSizeName.TABLOID;
+        } else if (paper.equalsIgnoreCase("invoice")) {
+            return MediaSizeName.INVOICE;
+        } else if (paper.equalsIgnoreCase("folio")) {
+            return MediaSizeName.FOLIO;
+        } else if (paper.equalsIgnoreCase("quarto")) {
+            return MediaSizeName.QUARTO;
+        } else {
+            return MediaSizeName.ISO_A4;
         }
     }
 

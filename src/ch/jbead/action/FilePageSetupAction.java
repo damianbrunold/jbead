@@ -21,8 +21,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.print.PrinterJob;
 
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Media;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
+
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
+import ch.jbead.Settings;
 import ch.jbead.print.PrintSettings;
 
 public class FilePageSetupAction extends BaseAction {
@@ -41,7 +47,64 @@ public class FilePageSetupAction extends BaseAction {
     public void actionPerformed(ActionEvent e) {
         PrinterJob job = PrinterJob.getPrinterJob();
         PrintSettings settings = form.getPrintSettings();
-        job.pageDialog(settings.getAttributes());
+        if (job.pageDialog(settings.getAttributes()) != null) {
+            saveConfig(settings.getAttributes());
+        }
+    }
+
+    private void saveConfig(PrintRequestAttributeSet attributes) {
+        Settings settings = new Settings();
+        settings.setCategory("print");
+        Media media = (Media) attributes.get(Media.class);
+        if (media == MediaSizeName.ISO_A0) {
+            settings.saveString("paper", "A0");
+        } else if (media == MediaSizeName.ISO_A1) {
+            settings.saveString("paper", "A1");
+        } else if (media == MediaSizeName.ISO_A2) {
+            settings.saveString("paper", "A2");
+        } else if (media == MediaSizeName.ISO_A3) {
+            settings.saveString("paper", "A3");
+        } else if (media == MediaSizeName.ISO_A4) {
+            settings.saveString("paper", "A4");
+        } else if (media == MediaSizeName.ISO_A5) {
+            settings.saveString("paper", "A5");
+        } else if (media == MediaSizeName.ISO_A6) {
+            settings.saveString("paper", "A6");
+        } else if (media == MediaSizeName.ISO_A7) {
+            settings.saveString("paper", "A7");
+        } else if (media == MediaSizeName.ISO_A8) {
+            settings.saveString("paper", "A8");
+        } else if (media == MediaSizeName.ISO_A9) {
+            settings.saveString("paper", "A9");
+        } else if (media == MediaSizeName.ISO_A10) {
+            settings.saveString("paper", "A10");
+        } else if (media == MediaSizeName.NA_LETTER) {
+            settings.saveString("paper", "Letter");
+        } else if (media == MediaSizeName.NA_LEGAL) {
+            settings.saveString("paper", "Legal");
+        } else if (media == MediaSizeName.EXECUTIVE) {
+            settings.saveString("paper", "Executive");
+        } else if (media == MediaSizeName.LEDGER) {
+            settings.saveString("paper", "Ledger");
+        } else if (media == MediaSizeName.TABLOID) {
+            settings.saveString("paper", "Tabloid");
+        } else if (media == MediaSizeName.INVOICE) {
+            settings.saveString("paper", "Invoice");
+        } else if (media == MediaSizeName.FOLIO) {
+            settings.saveString("paper", "Folio");
+        } else if (media == MediaSizeName.QUARTO) {
+            settings.saveString("paper", "Quarto");
+        }
+        OrientationRequested orientation = (OrientationRequested) attributes.get(OrientationRequested.class);
+        if (orientation == OrientationRequested.LANDSCAPE) {
+            settings.saveString("orientation", "Landscape");
+        } else if (orientation == OrientationRequested.PORTRAIT) {
+            settings.saveString("orientation", "Portrait");
+        } else if (orientation == OrientationRequested.REVERSE_LANDSCAPE) {
+            settings.saveString("orientation", "Reverse_Landscape");
+        } else if (orientation == OrientationRequested.REVERSE_PORTRAIT) {
+            settings.saveString("orientation", "Reverse_Portrait");
+        }
     }
 
 }

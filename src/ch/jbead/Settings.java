@@ -25,10 +25,10 @@ public class Settings {
 	private static final String BASE = "Brunold Software/JBEAD";
 
 	private Preferences preferences = Preferences.userRoot().node(BASE);
-	private String category = "General";
+	private String category = "general";
 
 	public Settings() {
-		category = "General";
+		category = "general";
 	}
 
 	public void setCategory(String category) {
