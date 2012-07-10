@@ -86,6 +86,7 @@
 		</emma>
 
 		<java classname="ch.jbead.util.BuildVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+		<copy file="src/version.txt" todir="build/classes" />
 
 		<jar destfile="jbead.jar" basedir="build/classes">
 			<manifest>
