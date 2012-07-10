@@ -2,29 +2,29 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>jbead.jar</jar>
-  <outfile>jbead.exe</outfile>
-  <errTitle/>
-  <cmdLine/>
-  <chdir/>
+  <outfile>..\jbead.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
-  <supportUrl/>
+  <supportUrl></supportUrl>
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
-  <manifest/>
+  <manifest></manifest>
   <icon>..\dbbead.ico</icon>
   <jre>
-    <path/>
+    <path></path>
     <minVersion>1.6.0</minVersion>
-    <maxVersion/>
+    <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>1.0.0.4</fileVersion>
+    <fileVersion>1.0.0.5</fileVersion>
     <txtFileVersion>1.0</txtFileVersion>
     <fileDescription>jbead</fileDescription>
     <copyright>(c) 2012 Brunold Software</copyright>
-    <productVersion>1.0.0.4</productVersion>
+    <productVersion>1.0.0.5</productVersion>
     <txtProductVersion>1.0</txtProductVersion>
     <productName>jbead</productName>
     <companyName>brunold software</companyName>
