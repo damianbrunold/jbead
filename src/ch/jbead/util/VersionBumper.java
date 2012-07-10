@@ -17,10 +17,14 @@
 
 package ch.jbead.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -42,6 +46,7 @@ public class VersionBumper {
         try {
             writeVersionFile(newversion);
             patchLaunch4jConfig(newversion);
+            patchSetupConfig(newversion);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,7 +70,7 @@ public class VersionBumper {
     private static Document readConfigFile() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        return builder.parse(getConfigFile());
+        return builder.parse(getLaunchConfigFile());
     }
 
     private static void patchConfig(Document doc, Version version) {
@@ -97,12 +102,56 @@ public class VersionBumper {
         serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         DOMSource source = new DOMSource(doc);
-        StreamResult result = new StreamResult(getConfigFile());
+        StreamResult result = new StreamResult(getLaunchConfigFile());
         serializer.transform(source, result);
     }
 
-    private static File getConfigFile() {
+    private static File getLaunchConfigFile() {
         return new File("starter_win/jbead_launch4j.xml");
+    }
+
+    private static void patchSetupConfig(Version version) throws IOException {
+        List<String> lines = readSetupConfig();
+        patchSetupConfig(lines, version);
+        writeSetupConfig(lines);
+    }
+
+    private static List<String> readSetupConfig() throws IOException {
+        List<String> lines = new ArrayList<String>();
+        BufferedReader reader = new BufferedReader(new FileReader(getSetupConfigFile()));
+        try {
+            String line = reader.readLine();
+            while (line != null) {
+                lines.add(line);
+                line = reader.readLine();
+            }
+        } finally {
+            reader.close();
+        }
+        return lines;
+    }
+
+    private static void patchSetupConfig(List<String> lines, Version version) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("OutFile ")) {
+                lines.set(i, "OutFile \"jbead_" + version.getVersionString() + "_setup.exe\"");
+            }
+        }
+    }
+
+    private static void writeSetupConfig(List<String> lines) throws IOException {
+        Writer writer = new FileWriter(getSetupConfigFile());
+        try {
+            for (String line : lines) {
+                writer.write(line + "\r\n");
+            }
+        } finally {
+            writer.close();
+        }
+    }
+
+    private static File getSetupConfigFile() {
+        return new File("setup_win/jbead.nsi");
     }
 
 }
