@@ -775,7 +775,13 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }
         model.prepareSnapshot();
 
-        statusbar.setText("scroll=" + model.getScroll() + ", shift=" + model.getShift());
+        String status = "";
+        if (selection.isActive()) {
+            status = "sel " + selection;
+        } else {
+            status = "pat " + model.getUsedRect();
+        }
+        statusbar.setText(status);
     }
 
     public void toolPencilClick() {
