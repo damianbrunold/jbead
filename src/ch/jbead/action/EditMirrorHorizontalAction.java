@@ -37,7 +37,11 @@ public class EditMirrorHorizontalAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().mirrorHorizontal(form.getSelection());
+        if (form.getSelection().isActive()) {
+            form.getModel().mirrorHorizontal(form.getSelection());
+        } else {
+            form.getModel().mirrorHorizontal(form.getModel().getUsedRect());
+        }
     }
 
 }

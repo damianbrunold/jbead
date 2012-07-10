@@ -37,7 +37,11 @@ public class EditMirrorVerticalAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().mirrorVertical(form.getSelection());
+        if (form.getSelection().isActive()) {
+            form.getModel().mirrorVertical(form.getSelection());
+        } else {
+            form.getModel().mirrorVertical(form.getModel().getUsedRect());
+        }
     }
 
 }

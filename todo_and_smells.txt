@@ -109,7 +109,4 @@ where it is possible to select all pixels of one color, or where an existing
 selection can be extended or reduced. On the other hand, this makes the
 usage rather difficult.
 
-Allow mirroring (horz and vert) even if no selection exists, use the
-whole pattern in this case.
-
 Add context menu providing convenient access to mirror, rotate, etc.
