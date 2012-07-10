@@ -41,7 +41,7 @@ public class FilePageSetupAction extends BaseAction {
     public void actionPerformed(ActionEvent e) {
         PrinterJob job = PrinterJob.getPrinterJob();
         PrintSettings settings = form.getPrintSettings();
-        settings.setFormat(job.pageDialog(settings.getFormat()));
+        job.pageDialog(settings.getAttributes());
     }
 
 }

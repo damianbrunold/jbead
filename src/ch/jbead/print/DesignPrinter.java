@@ -26,10 +26,7 @@ import java.util.List;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobName;
-import javax.print.attribute.standard.MediaSizeName;
-import javax.print.attribute.standard.OrientationRequested;
 import javax.swing.JOptionPane;
 
 import ch.jbead.Localization;
@@ -105,21 +102,17 @@ public class DesignPrinter {
                 if (settings.getService() != null) {
                     printjob.setPrintService(settings.getService());
                 }
-                PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-                attrs.add(OrientationRequested.LANDSCAPE);
-                attrs.add(new Copies(1));
-                attrs.add(MediaSizeName.ISO_A4); // TODO configurable
+                PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet(settings.getAttributes());
                 attrs.add(new JobName(getJobName(), null));
-                PageFormat jobPageFormat = settings.getFormat();
                 if (showDialog) {
                     if (!printjob.printDialog(attrs)) return;
                     settings.setService(printjob.getPrintService());
-                    jobPageFormat = printjob.getPageFormat(attrs);
                 }
-                layoutPages(jobPageFormat);
+                PageFormat pageformat = printjob.getPageFormat(attrs);
+                layoutPages(pageformat);
                 Book book = new Book();
                 for (PageLayout page : pages) {
-                    book.append(page, jobPageFormat);
+                    book.append(page, pageformat);
                 }
                 printjob.setPageable(book);
                 printjob.print(attrs);
@@ -127,8 +120,9 @@ public class DesignPrinter {
                 model.setScroll(scroll);
             }
         } catch (PrinterException e) {
-            // TODO show good and localized error message
-            JOptionPane.showMessageDialog(null, "Failed to print document: " + e);
+            String msg = e.getMessage();
+            if (msg == null) msg = e.toString();
+            JOptionPane.showMessageDialog(null, localization.getString("print.failure") + ": " + msg);
         }
     }
 

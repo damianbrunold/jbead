@@ -76,14 +76,6 @@ grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
 very similar and core elements have to be exactly the same, otherwise
 the printed display is different from the display on screen.
 
-Add a custom dialog for configuring the print page. Paper format, borders,
-orientation, ... Store this info in the settings.
-
-Fix issues with print dialog. Why does it display such a wrong paper
-format and changing it does not influence the printing?
-
-Add borders to print page. Configurable.
-
 Add headers with filename, page number, ... best would be configurable.
 
 I have to think about better, alternative print designs. For example, why

@@ -17,47 +17,62 @@
 
 package ch.jbead.print;
 
-import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
 
 import javax.print.PrintService;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
 
 public class PrintSettings {
 
     private PrintService service;
-    private PageFormat format;
+    private PrintRequestAttributeSet attributes;
 
     public PrintSettings() {
         service = null;
-        format = getDefaultFormat();
+        attributes = new HashPrintRequestAttributeSet();
+        initDefaultFormat();
     }
 
     public PrintService getService() {
         return service;
     }
 
-    public PageFormat getFormat() {
-        return format;
+    public PrintRequestAttributeSet getAttributes() {
+        return attributes;
     }
 
     public void setService(PrintService service) {
         this.service = service;
     }
 
-    public void setFormat(PageFormat format) {
-        this.format = format;
+    public void setAttributes(PrintRequestAttributeSet attributes) {
+        this.attributes = attributes;
     }
 
-    private PageFormat getDefaultFormat() {
-        PageFormat format = PrinterJob.getPrinterJob().defaultPage();
-        format.setOrientation(PageFormat.LANDSCAPE);
-        // Set fix A4 paper, maybe make customizable
-        Paper paper = new Paper();
-        paper.setSize(Convert.mm2pt(210), Convert.mm2pt(297));
-        paper.setImageableArea(Convert.mm2pt(15), Convert.mm2pt(15), Convert.mm2pt(210 - 2 * 15), Convert.mm2pt(297 - 2 * 15));
-        format.setPaper(paper);
-        return format;
+    private void initDefaultFormat() {
+        attributes.add(OrientationRequested.LANDSCAPE);
+        attributes.add(new Copies(1));
+        Paper paper = PrinterJob.getPrinterJob().defaultPage().getPaper();
+        if (isLetter(paper)) {
+            attributes.add(MediaSizeName.NA_LETTER);
+        } else if (isLegal(paper)) {
+            attributes.add(MediaSizeName.NA_LEGAL);
+        } else {
+            attributes.add(MediaSizeName.ISO_A4); // TODO make this default configurable
+        }
+    }
+
+    private boolean isLetter(Paper paper) {
+        return paper.getWidth() == 612.0 && paper.getHeight() == 792.0;
+    }
+
+    private boolean isLegal(Paper paper) {
+        return paper.getWidth() == 612.0 && paper.getHeight() == 1008.0;
     }
 
 }
