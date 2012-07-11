@@ -29,6 +29,7 @@ public class JBeadApp {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
         final BeadForm beadform = new BeadForm(args);
         beadform.setMaximizedBounds(beadform.getMaxBounds());
+        beadform.setExtendedState(beadform.getExtendedState() | Frame.MAXIMIZED_BOTH);
         beadform.setVisible(true);
         if (beadform.isConfigMaximized()) {
             SwingUtilities.invokeLater(new Runnable() {
