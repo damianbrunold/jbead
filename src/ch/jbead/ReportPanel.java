@@ -69,20 +69,23 @@ public class ReportPanel extends BasePanel {
         g.setColor(Color.BLACK);
         int xx = x1();
         int bx = fm.getAscent();
+        int countw = fm.stringWidth("999 x");
+        int w = countw + 3 + bx + 1 + bx;
         for (byte color = 0; color < model.getColorCount(); color++) {
             int count = counts.getCount(color);
             if (count == 0) continue;
             String s = String.format("%d x ", count);
-            String t = ", ";
-            g.drawString(s, xx, y);
-            xx += fm.stringWidth(s);
+            g.drawString(s, xx + countw - fm.stringWidth(s), y);
+            xx += countw + 3;
             g.drawRect(xx, y - bx, bx, bx);
             g.setColor(model.getColor(color));
             g.fillRect(xx + 1, y - bx + 1, bx - 1, bx - 1);
             g.setColor(Color.BLACK);
-            xx += bx + 1;
-            g.drawString(t, xx, y);
-            xx += fm.stringWidth(t);
+            xx += bx + 1 + bx;
+            if (xx + w > getWidth()) {
+                xx = x1();
+                y += dy(g);
+            }
         }
         return y + dy(g);
     }
