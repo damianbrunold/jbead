@@ -17,6 +17,7 @@
 
 package ch.jbead.print;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -75,33 +76,32 @@ public class ReportInfosPrinter extends PartPrinter {
     }
 
     private int drawBeadColors(Graphics2D g, int x, int y) {
+        g.setStroke(new BasicStroke(0.3f));
         FontMetrics metrics = g.getFontMetrics();
-        int infowidth = infos.getWidth(metrics);
-        int colorwidth = font.getSize() * 8 / 10 + metrics.stringWidth("999x,");
-        int colorsPerRow = infowidth / colorwidth;
         int bx = metrics.getAscent();
+        int countwidth = metrics.stringWidth("999 x");
+        int colorwidth = countwidth + 3 + bx + 5;
+        int infowidth = infos.getWidth(metrics);
+        int colorsPerRow = infowidth / colorwidth;
         int xx = x;
         int current = 0;
         for (byte color = 0; color < model.getColorCount(); color++) {
             int count = beadcounts.getCount(color);
             if (count == 0) continue;
-            String s = String.format("%d x ", count);
-            String t = ", ";
-            g.drawString(s, xx, y);
-            xx += metrics.stringWidth(s);
+            String s = String.format("%d x", count);
+            g.drawString(s, xx + countwidth - metrics.stringWidth(s), y);
+            xx += countwidth + 3;
             g.setColor(model.getColor(color));
             g.fillRect(xx, y - bx, bx, bx);
             g.setColor(Color.BLACK);
             g.drawRect(xx, y - bx, bx, bx);
             g.setColor(Color.BLACK);
-            xx += bx + 1;
-            g.drawString(t, xx, y);
-            xx += metrics.stringWidth(t);
+            xx += bx + 5;
             current++;
             if (current == colorsPerRow) {
                 xx = x;
                 current = 0;
-                y += font.getSize();
+                y += font.getSize() + 3;
             }
         }
         if (current > 0) {
