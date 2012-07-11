@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
+import ch.jbead.Version;
 
 public class AboutBox extends JDialog {
     private static final long serialVersionUID = 1L;
@@ -41,7 +42,8 @@ public class AboutBox extends JDialog {
         setContentPane(main);
         setModal(true);
         setLayout(new BorderLayout());
-        add(new JLabel(localization.getString("aboutbox.text")), BorderLayout.CENTER);
+        String version = Version.getInstance().getVersionString();
+        add(new JLabel(localization.getString("aboutbox.text").replace("VERSION", version)), BorderLayout.CENTER);
         JPanel buttons = new JPanel();
         JButton ok = new JButton(localization.getString("ok"));
         buttons.add(ok);
