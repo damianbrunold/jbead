@@ -5,7 +5,7 @@ Name "jbead"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\German.nlf"
 
-OutFile "jbead_1.0.11_setup.exe"
+OutFile "jbead_1.0.12_setup.exe"
 InstallDir $PROGRAMFILES\jbead
 InstallDirRegKey HKLM "Software\bsoft\jbead" "Install_Dir"
 
@@ -20,7 +20,7 @@ Section "jbead"
   SectionIn RO
   
   SetOutPath $INSTDIR
-  File ..\starter_win\jbead.exe
+  File ..\jbead.exe
   File ..\jbead.jar
   File ..\LICENSE.txt
   
