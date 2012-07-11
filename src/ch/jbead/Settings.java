@@ -39,6 +39,10 @@ public class Settings {
 		return category;
 	}
 
+	public boolean hasSetting(String name) {
+	    return preferences.node(category).get(name, null) != null;
+	}
+
 	public int loadInt(String name) {
 		return loadInt(name, 0);
 	}
@@ -46,6 +50,14 @@ public class Settings {
 	public int loadInt(String name, int defaultvalue) {
 		return preferences.node(category).getInt(name, defaultvalue);
 	}
+
+    public boolean loadBoolean(String name) {
+        return loadBoolean(name, false);
+    }
+
+    public boolean loadBoolean(String name, boolean defaultvalue) {
+        return preferences.node(category).getBoolean(name, defaultvalue);
+    }
 
 	public String loadString(String name) {
 		return loadString(name, "");
@@ -58,6 +70,10 @@ public class Settings {
 	public void saveInt(String name, int value) {
 		preferences.node(category).putInt(name, value);
 	}
+
+    public void saveBoolean(String name, boolean value) {
+        preferences.node(category).putBoolean(name, value);
+    }
 
 	public void saveString(String name, String value) {
 		preferences.node(category).put(name, value);

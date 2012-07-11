@@ -20,8 +20,14 @@ package ch.jbead;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -134,6 +140,8 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
     private Settings settings = new Settings();
 
+    private boolean ignoreSizeChanges = false;
+
     private PrintSettings printSettings = new PrintSettings(settings);
 
     private JPanel main = new JPanel();
@@ -162,9 +170,24 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
 
         setIconImage(ImageFactory.getImage("jbead-16"));
 
-        // TODO persist location and size in settings
-        setSize(1024, 700);
-        setLocation(100, 35);
+        restoreScreenBounds();
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                persistScreenBounds();
+            }
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                persistScreenBounds();
+            }
+        });
+        addWindowStateListener(new WindowAdapter() {
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                persistScreenBounds();
+            }
+        });
 
         toolsGroup.selectTool("pencil");
 
@@ -195,6 +218,65 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
         }, UPDATE_INTERVAL, UPDATE_INTERVAL);
 
         handleCommandLineArgs(args);
+    }
+
+    public boolean isConfigMaximized() {
+        settings.setCategory("screen");
+        return settings.loadBoolean("maximized");
+    }
+
+    public Rectangle getMaxBounds() {
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsConfiguration graphicsConfig = e.getDefaultScreenDevice().getDefaultConfiguration();
+        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfig);
+        Rectangle bounds = graphicsConfig.getBounds();
+        bounds.x += insets.left;
+        bounds.y += insets.top;
+        bounds.width -= (insets.left + insets.right);
+        bounds.height -= (insets.top + insets.bottom);
+        return bounds;
+    }
+
+    private void restoreScreenBounds() {
+        ignoreSizeChanges = true;
+        try {
+            Rectangle maxsize = getMaxBounds();
+            settings.setCategory("screen");
+            if (settings.hasSetting("x")) {
+                int x = settings.loadInt("x", 0);
+                int y = settings.loadInt("y", 0);
+                int width = settings.loadInt("width", 1024);
+                int height = settings.loadInt("height", 1024);
+                if (x >= maxsize.x && y >= maxsize.y && width <= maxsize.width && height <= maxsize.height) {
+                    setSize(width, height);
+                    setLocation(x, y);
+                } else {
+                    setSize(maxsize.width, maxsize.height);
+                    setLocation(maxsize.x, maxsize.y);
+                }
+            } else if (maxsize.width > 1024) {
+                setSize(1024, 768);
+                setLocationRelativeTo(null);
+            } else {
+                setSize(maxsize.width, maxsize.height);
+                setLocationRelativeTo(null);
+            }
+        } finally {
+            ignoreSizeChanges = false;
+        }
+    }
+
+    private void persistScreenBounds() {
+        if (ignoreSizeChanges) return;
+        settings.setCategory("screen");
+        if (getExtendedState() == Frame.NORMAL) {
+            Rectangle bounds = getBounds();
+            settings.saveInt("x", bounds.x);
+            settings.saveInt("y", bounds.y);
+            settings.saveInt("width", bounds.width);
+            settings.saveInt("height", bounds.height);
+        }
+        settings.saveBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
     }
 
     private void handleCommandLineArgs(String[] args) {
