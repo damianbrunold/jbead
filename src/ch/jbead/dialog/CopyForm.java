@@ -60,7 +60,9 @@ public class CopyForm extends JDialog {
         this.selection = selection;
         this.model = model;
         setTitle(localization.getString("copyform.title"));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        setContentPane(main);
         setLayout(new BorderLayout());
 
         JPanel form = new JPanel();

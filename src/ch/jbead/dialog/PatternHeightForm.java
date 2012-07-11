@@ -46,7 +46,9 @@ public class PatternHeightForm extends JDialog {
 
     public PatternHeightForm(Localization localization) {
         setTitle(localization.getString("patternheightform.title"));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        setContentPane(main);
         setLayout(new BorderLayout());
 
         JPanel form = new JPanel();

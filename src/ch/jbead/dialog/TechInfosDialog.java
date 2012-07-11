@@ -18,6 +18,9 @@
 package ch.jbead.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -35,10 +38,12 @@ import ch.jbead.Version;
 public class TechInfosDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public TechInfosDialog(Localization localization) {
+    public TechInfosDialog(final Localization localization) {
         setTitle(localization.getString("techinfos.title"));
         setIconImage(ImageFactory.getImage("jbead-16"));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        setContentPane(main);
         setModal(true);
         setLayout(new BorderLayout());
         JTextArea text = new JTextArea();
@@ -46,8 +51,11 @@ public class TechInfosDialog extends JDialog {
         text.setFocusable(true);
         text.setEditable(false);
         text.setTabSize(15);
+        text.setOpaque(false);
         add(text, BorderLayout.CENTER);
         JPanel buttons = new JPanel();
+        JButton copy = new JButton(localization.getString("copyinfos"));
+        buttons.add(copy);
         JButton ok = new JButton(localization.getString("ok"));
         buttons.add(ok);
         add(buttons, BorderLayout.SOUTH);
@@ -57,6 +65,15 @@ public class TechInfosDialog extends JDialog {
         ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                TechInfosDialog.this.dispose();
+            }
+        });
+        copy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                StringSelection text = new StringSelection(getTechInfos(localization));
+                clipboard.setContents(text, null);
                 TechInfosDialog.this.dispose();
             }
         });

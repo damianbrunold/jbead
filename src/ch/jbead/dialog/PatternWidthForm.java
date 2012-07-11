@@ -46,7 +46,9 @@ public class PatternWidthForm extends JDialog {
 
     public PatternWidthForm(Localization localization) {
         setTitle(localization.getString("patternwidthform.title"));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        setContentPane(main);
         setLayout(new BorderLayout());
 
         JPanel form = new JPanel();

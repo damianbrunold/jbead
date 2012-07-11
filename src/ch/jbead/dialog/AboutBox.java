@@ -36,7 +36,9 @@ public class AboutBox extends JDialog {
     public AboutBox(Localization localization) {
         setTitle(localization.getString("aboutbox.title"));
         setIconImage(ImageFactory.getImage("jbead-16"));
-        getRootPane().setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        JPanel main = new JPanel();
+        main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        setContentPane(main);
         setModal(true);
         setLayout(new BorderLayout());
         add(new JLabel(localization.getString("aboutbox.text")), BorderLayout.CENTER);
@@ -54,5 +56,6 @@ public class AboutBox extends JDialog {
             }
         });
     }
+
 
 }
