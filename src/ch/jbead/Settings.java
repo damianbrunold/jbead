@@ -22,7 +22,7 @@ import java.util.prefs.Preferences;
 
 public class Settings {
 
-	private static final String BASE = "Brunold Software/JBEAD";
+	private static final String BASE = "brunoldsoft/jbead";
 
 	private Preferences preferences = Preferences.userRoot().node(BASE);
 	private String category = "general";

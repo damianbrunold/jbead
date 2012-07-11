@@ -34,7 +34,7 @@ public class JBeadApp {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    beadform.setExtendedState(Frame.MAXIMIZED_BOTH);
+                    beadform.setExtendedState(beadform.getExtendedState() | Frame.MAXIMIZED_BOTH);
                 }
             });
         }
