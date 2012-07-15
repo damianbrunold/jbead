@@ -61,11 +61,11 @@ public class ReportInfosPrinter extends PartPrinter {
     }
 
     private int drawInfos(Graphics g, int x, int y) {
-        FontMetrics metrics = g.getFontMetrics();
-        int labelx = x;
-        int infox = x + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
-        int dy = metrics.getHeight();
-        y += metrics.getLeading() + metrics.getAscent();
+        FontMetrics metrics = g.getFontMetrics(font);
+        int labelx = x + 1;
+        int infox = x + 1 + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
+        int dy = font.getSize() + 1;
+        y += dy;
         g.setColor(Color.BLACK);
         for (String label : infos) {
             g.drawString(label, labelx, y);
@@ -77,8 +77,8 @@ public class ReportInfosPrinter extends PartPrinter {
 
     private int drawBeadColors(Graphics2D g, int x, int y) {
         g.setStroke(new BasicStroke(0.3f));
-        FontMetrics metrics = g.getFontMetrics();
-        int bx = metrics.getAscent();
+        FontMetrics metrics = g.getFontMetrics(font);
+        int bx = font.getSize();
         int countwidth = metrics.stringWidth("9999 x");
         int colorwidth = countwidth + 3 + bx + 5;
         int infowidth = infos.getWidth(metrics);
