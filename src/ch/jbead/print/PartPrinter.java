@@ -30,7 +30,7 @@ public abstract class PartPrinter {
     protected Model model;
     protected Localization localization;
 
-    protected Font font = new Font("SansSerif", Font.PLAIN, 8);
+    protected Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 8);
     protected int border = Convert.mm2pt(4);
 
     public PartPrinter(Model model, Localization localization) {
