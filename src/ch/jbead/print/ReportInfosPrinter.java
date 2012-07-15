@@ -79,7 +79,7 @@ public class ReportInfosPrinter extends PartPrinter {
         g.setStroke(new BasicStroke(0.3f));
         FontMetrics metrics = g.getFontMetrics();
         int bx = metrics.getAscent();
-        int countwidth = metrics.stringWidth("999 x");
+        int countwidth = metrics.stringWidth("9999 x");
         int colorwidth = countwidth + 3 + bx + 5;
         int infowidth = infos.getWidth(metrics);
         int colorsPerRow = infowidth / colorwidth;

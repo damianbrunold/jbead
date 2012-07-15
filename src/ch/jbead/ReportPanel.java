@@ -69,7 +69,7 @@ public class ReportPanel extends BasePanel {
         g.setColor(Color.BLACK);
         int xx = x1();
         int bx = fm.getAscent();
-        int countw = fm.stringWidth("999 x");
+        int countw = fm.stringWidth("9999 x");
         int w = countw + 3 + bx + 1 + bx;
         for (byte color = 0; color < model.getColorCount(); color++) {
             int count = counts.getCount(color);
