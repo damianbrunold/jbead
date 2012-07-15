@@ -85,9 +85,6 @@
 			</report>
 		</emma>
 
-		<java classname="ch.jbead.util.BuildVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
-		<copy file="src/version.txt" todir="build/classes" />
-
 		<jar destfile="jbead.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Built-By" value="Damian Brunold" />
@@ -96,12 +93,19 @@
 		</jar>
 	</target>
 
-	<target name="bumpminor">
-        <java classname="ch.jbead.util.MinorVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+	<target name="release">
+        <java classname="ch.jbead.util.BuildVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+		<copy file="src/version.txt" todir="build/classes" />
 	</target>
 
-    <target name="bumpmajor">
+	<target name="releaseminor">
+        <java classname="ch.jbead.util.MinorVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+		<copy file="src/version.txt" todir="build/classes" />
+	</target>
+
+    <target name="releasemajor">
         <java classname="ch.jbead.util.MajorVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+		<copy file="src/version.txt" todir="build/classes" />
     </target>
 
 </project>
