@@ -31,7 +31,7 @@ public class FileSaveAsAction extends BaseAction {
 
     public FileSaveAsAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.saveas.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.saveas.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
     }
 

@@ -31,13 +31,13 @@ public class ViewReportAction extends BaseAction {
 
     public ViewReportAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.report.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.report.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.viewReportClick();
+        frame.updateVisibility();
     }
 
 }

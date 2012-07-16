@@ -34,14 +34,15 @@ public class ToolFillAction extends BaseAction {
 
     public ToolFillAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.fill.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.tool.fill.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_F);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.toolFillClick();
+        selection.clear();
+        frame.selectTool("fill");
     }
 
 }

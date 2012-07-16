@@ -31,13 +31,13 @@ public class ViewDraftAction extends BaseAction {
 
     public ViewDraftAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.draft.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.draft.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.viewDraftClick();
+        frame.updateVisibility();
     }
 
 }

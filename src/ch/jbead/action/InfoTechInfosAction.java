@@ -31,7 +31,7 @@ public class InfoTechInfosAction extends BaseAction {
 
     public InfoTechInfosAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.info.techinfos.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.info.techinfos.description"));
     }
 
     @Override

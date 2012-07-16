@@ -22,7 +22,6 @@ import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
-import ch.jbead.Model;
 import ch.jbead.dialog.PatternHeightDialog;
 
 public class PatternHeightAction extends BaseAction {
@@ -33,18 +32,17 @@ public class PatternHeightAction extends BaseAction {
 
     public PatternHeightAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.pattern.height.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.pattern.height.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Model model = frame.getModel();
         PatternHeightDialog dialog = new PatternHeightDialog(frame);
         dialog.setPatternHeight(model.getHeight());
         dialog.setVisible(true);
         if (dialog.isOK()) {
-            frame.clearSelection();
+            selection.clear();
             model.setHeight(dialog.getPatternHeight());
         }
     }

@@ -20,6 +20,7 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
@@ -34,14 +35,24 @@ public class FileNewAction extends BaseAction {
 
     public FileNewAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.new.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.new.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.fileNewClick();
+        if (model.isModified()) {
+            int answer = JOptionPane.showConfirmDialog(frame, localization.getString("savechanges"));
+            if (answer == JOptionPane.CANCEL_OPTION) return;
+            if (answer == JOptionPane.YES_OPTION) {
+                frame.getAction("file.save").actionPerformed(e);
+            }
+        }
+        selection.clear();
+        model.clear();
+        frame.selectDefaultColor();
+        frame.updateScrollbar();
     }
 
 }

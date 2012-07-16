@@ -34,14 +34,15 @@ public class ToolPencilAction extends BaseAction {
 
     public ToolPencilAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.pencil.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.tool.pencil.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 1"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.toolPencilClick();
+        selection.clear();
+        frame.selectTool("pencil");
     }
 
 }

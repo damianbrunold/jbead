@@ -33,14 +33,14 @@ public class EditDeleteAction extends BaseAction {
 
     public EditDeleteAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.delete.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.delete.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().delete(frame.getSelection());
+        model.delete(selection);
     }
 
 }

@@ -25,6 +25,9 @@ public abstract class BaseAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
     protected JBeadFrame frame;
+    protected Localization localization;
+    protected Model model;
+    protected Selection selection;
 
     public BaseAction(String name, Icon icon, JBeadFrame frame) {
         super(frame.getString("action." + name), icon);
@@ -38,6 +41,9 @@ public abstract class BaseAction extends AbstractAction {
 
     private void init(String name, JBeadFrame frame) {
         this.frame = frame;
+        this.localization = frame;
+        this.model = frame.getModel();
+        this.selection = frame.getSelection();
         frame.registerAction(name, this);
     }
 

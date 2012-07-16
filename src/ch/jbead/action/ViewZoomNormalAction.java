@@ -31,14 +31,14 @@ public class ViewZoomNormalAction extends BaseAction {
 
     public ViewZoomNormalAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.zoomnormal.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.zoomnormal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (frame.getModel().isNormalZoom()) return;
-        frame.getModel().zoomNormal();
+        if (model.isNormalZoom()) return;
+        model.zoomNormal();
         frame.updateScrollbar();
     }
 

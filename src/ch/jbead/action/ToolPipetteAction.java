@@ -34,14 +34,15 @@ public class ToolPipetteAction extends BaseAction {
 
     public ToolPipetteAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.pipette.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.tool.pipette.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 4"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.toolPipetteClick();
+        selection.clear();
+        frame.selectTool("pipette");
     }
 
 }

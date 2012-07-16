@@ -36,7 +36,7 @@ public class FilePrintAction extends BaseAction {
 
     public FilePrintAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.print.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.print.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));
     }
@@ -44,7 +44,7 @@ public class FilePrintAction extends BaseAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         boolean showDialog = e.getSource() instanceof JMenuItem;
-        new DesignPrinter(frame.getModel(), frame, frame.getPrintSettings(),
+        new DesignPrinter(model, localization, frame.getPrintSettings(),
                 frame.isDraftVisible(), frame.isCorrectedVisible(),
                 frame.isSimulationVisible(), frame.isReportVisible())
                 .print(showDialog);

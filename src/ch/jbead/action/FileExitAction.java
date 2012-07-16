@@ -34,19 +34,18 @@ public class FileExitAction extends BaseAction {
 
     public FileExitAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.exit.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.exit.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (frame.getModel().isModified()) {
-            int r = JOptionPane.showConfirmDialog(frame, frame.getString("savechanges"));
+        if (model.isModified()) {
+            int r = JOptionPane.showConfirmDialog(frame, localization.getString("savechanges"));
             if (r == JOptionPane.CANCEL_OPTION) return;
-            if (r == JOptionPane.OK_OPTION) frame.fileSaveClick();
+            if (r == JOptionPane.OK_OPTION) frame.getAction("file.save").actionPerformed(e);
         }
-        // TODO maybe need to save settings?
         System.exit(0);
     }
 

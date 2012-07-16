@@ -34,14 +34,14 @@ public class ViewZoomInAction extends BaseAction {
 
     public ViewZoomInAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.zoomin.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.zoomin.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_Z);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control I"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().zoomIn();
+        model.zoomIn();
         frame.updateScrollbar();
     }
 

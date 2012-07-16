@@ -34,14 +34,14 @@ public class EditRedoAction extends BaseAction {
 
     public EditRedoAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.redo.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.redo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Y"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().redo();
+        model.redo();
     }
 
 }

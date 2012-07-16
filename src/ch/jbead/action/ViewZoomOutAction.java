@@ -34,14 +34,14 @@ public class ViewZoomOutAction extends BaseAction {
 
     public ViewZoomOutAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.zoomout.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.zoomout.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_M);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control U"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().zoomOut();
+        model.zoomOut();
         frame.updateScrollbar();
     }
 

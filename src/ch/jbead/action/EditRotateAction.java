@@ -31,13 +31,13 @@ public class EditRotateAction extends BaseAction {
 
     public EditRotateAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.rotate.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.rotate.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().rotate(frame.getSelection());
+        model.rotate(selection);
     }
 
 }

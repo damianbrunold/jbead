@@ -31,13 +31,13 @@ public class EditInsertRowAction extends BaseAction {
 
     public EditInsertRowAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.insertrow.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.insertrow.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.editInsertRowClick();
+        model.insertRow();
     }
 
 }

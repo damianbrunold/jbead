@@ -31,16 +31,16 @@ public class EditMirrorVerticalAction extends BaseAction {
 
     public EditMirrorVerticalAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.mirrorvertical.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.mirrorvertical.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (frame.getSelection().isActive()) {
-            frame.getModel().mirrorVertical(frame.getSelection());
+        if (selection.isActive()) {
+            model.mirrorVertical(selection);
         } else {
-            frame.getModel().mirrorVertical(frame.getModel().getUsedRect());
+            model.mirrorVertical(model.getUsedRect());
         }
     }
 

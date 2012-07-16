@@ -18,6 +18,7 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
@@ -35,7 +36,9 @@ public class FileMRUAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.loadMRUFile(index);
+        File file = frame.getMRU(index);
+        frame.updateFileFormat(null, file);
+        frame.loadFile(file, true);
     }
 
 }

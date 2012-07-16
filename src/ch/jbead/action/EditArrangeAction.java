@@ -23,8 +23,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
+import ch.jbead.dialog.ArrangeDialog;
 
 public class EditArrangeAction extends BaseAction {
 
@@ -34,14 +35,20 @@ public class EditArrangeAction extends BaseAction {
 
     public EditArrangeAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.arrange.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.arrange.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("F8"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.editArrangeClick();
+        ArrangeDialog copyform = new ArrangeDialog(localization, selection, model);
+        copyform.setVisible(true);
+        if (copyform.isOK()) {
+            int copies = copyform.getCopies();
+            int offset = copyform.getOffset(model.getWidth());
+            model.arrangeSelection(selection, copies, offset);
+        }
     }
 
 }

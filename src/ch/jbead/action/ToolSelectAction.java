@@ -34,14 +34,15 @@ public class ToolSelectAction extends BaseAction {
 
     public ToolSelectAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.select.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.tool.select.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.toolSelectClick();
+        selection.clear();
+        frame.selectTool("select");
     }
 
 }

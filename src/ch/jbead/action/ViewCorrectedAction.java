@@ -31,13 +31,13 @@ public class ViewCorrectedAction extends BaseAction {
 
     public ViewCorrectedAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.corrected.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.corrected.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.viewCorrectedClick();
+        frame.updateVisibility();
     }
 
 }

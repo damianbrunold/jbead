@@ -22,7 +22,6 @@ import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
-import ch.jbead.Model;
 import ch.jbead.dialog.PatternWidthDialog;
 
 public class PatternWidthAction extends BaseAction {
@@ -33,18 +32,17 @@ public class PatternWidthAction extends BaseAction {
 
     public PatternWidthAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.pattern.width.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.pattern.width.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_W);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Model model = frame.getModel();
         PatternWidthDialog dialog = new PatternWidthDialog(frame);
         dialog.setPatternWidth(model.getWidth());
         dialog.setVisible(true);
         if (dialog.isOK()) {
-            frame.clearSelection();
+            selection.clear();
             model.setWidth(dialog.getPatternWidth());
         }
     }

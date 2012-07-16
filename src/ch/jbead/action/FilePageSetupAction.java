@@ -39,7 +39,7 @@ public class FilePageSetupAction extends BaseAction {
 
     public FilePageSetupAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.pagesetup.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.pagesetup.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
     }
 

@@ -31,16 +31,16 @@ public class EditMirrorHorizontalAction extends BaseAction {
 
     public EditMirrorHorizontalAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.mirrorhorizontal.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.mirrorhorizontal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (frame.getSelection().isActive()) {
-            frame.getModel().mirrorHorizontal(frame.getSelection());
+        if (selection.isActive()) {
+            model.mirrorHorizontal(selection);
         } else {
-            frame.getModel().mirrorHorizontal(frame.getModel().getUsedRect());
+            model.mirrorHorizontal(model.getUsedRect());
         }
     }
 

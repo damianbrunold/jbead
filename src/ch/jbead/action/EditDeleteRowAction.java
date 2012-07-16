@@ -31,13 +31,13 @@ public class EditDeleteRowAction extends BaseAction {
 
     public EditDeleteRowAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.deleterow.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.deleterow.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.editDeleteRowClick();
+        model.deleteRow();
     }
 
 }

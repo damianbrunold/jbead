@@ -34,14 +34,14 @@ public class FileSaveAction extends BaseAction {
 
     public FileSaveAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.save.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.save.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.fileSaveClick();
+        frame.fileSaveClick(model.isSaved(), model.getFile());
     }
 
 }

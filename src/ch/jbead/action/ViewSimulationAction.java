@@ -31,13 +31,13 @@ public class ViewSimulationAction extends BaseAction {
 
     public ViewSimulationAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.view.simulation.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.view.simulation.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.viewSimulationClick();
+        frame.updateVisibility();
     }
 
 }

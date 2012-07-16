@@ -20,6 +20,7 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
@@ -34,14 +35,21 @@ public class FileOpenAction extends BaseAction {
 
     public FileOpenAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.file.open.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.file.open.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_O);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.fileOpenClick();
+        JFileChooser dialog = new JFileChooser();
+        dialog.setCurrentDirectory(model.getCurrentDirectory());
+        dialog.setMultiSelectionEnabled(false);
+        frame.setOpenFileFilters(dialog);
+        if (dialog.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
+            frame.updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
+            frame.loadFile(dialog.getSelectedFile(), true);
+        }
     }
 
 }

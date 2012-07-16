@@ -546,21 +546,8 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         viewReport.setVisible(visible);
     }
 
-    public void fileNewClick() {
-        // ask whether to save modified document
-        if (model.isModified()) {
-            int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
-            if (answer == JOptionPane.CANCEL_OPTION) return;
-            if (answer == JOptionPane.YES_OPTION) {
-                fileSaveClick();
-            }
-        }
-
-        // delete all
-        selection.clear();
-        model.clear();
+    public void selectDefaultColor() {
         colors.selectDefaultColor();
-        updateScrollbar();
     }
 
     public void loadFile(File file, boolean addtomru) {
@@ -568,7 +555,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
             int answer = JOptionPane.showConfirmDialog(this, getString("savechanges"));
             if (answer == JOptionPane.CANCEL_OPTION) return;
             if (answer == JOptionPane.YES_OPTION) {
-                fileSaveClick();
+                fileSaveClick(model.isSaved(), model.getFile());
             }
         }
 
@@ -587,21 +574,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
             if (msg == null) msg = e.toString();
             JOptionPane.showMessageDialog(this, getString("load.failed").replace("{1}", file.getPath()).replace("{2}", msg));
         }
-    }
-
-    public void fileOpenClick() {
-        JFileChooser dialog = new JFileChooser();
-        dialog.setCurrentDirectory(model.getCurrentDirectory());
-        dialog.setMultiSelectionEnabled(false);
-        setOpenFileFilters(dialog);
-        if (dialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
-            loadFile(dialog.getSelectedFile(), true);
-        }
-    }
-
-    public void fileSaveClick() {
-        fileSaveClick(model.isSaved(), model.getFile());
     }
 
     public boolean fileSaveClick(boolean isSaved, File file) {
@@ -641,7 +613,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         filters.add(filter.getDescription());
     }
 
-    private void setOpenFileFilters(JFileChooser dialog) {
+    public void setOpenFileFilters(JFileChooser dialog) {
         dialog.setAcceptAllFileFilterUsed(true);
         dialog.addChoosableFileFilter(new JbbFileFilter());
         dialog.addChoosableFileFilter(new DbbFileFilter());
@@ -657,7 +629,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         dialog.setFileFilter(fileformat.getFileFilter());
     }
 
-    private void updateFileFormat(FileFilter filter, File file) {
+    public void updateFileFormat(FileFilter filter, File file) {
         if (file.getName().endsWith(JBeadFileFormat.EXTENSION)) {
             fileformat = new JBeadFileFormat();
         } else if (file.getName().endsWith(DbbFileFormat.EXTENSION)) {
@@ -800,22 +772,13 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         model.setPoint(pt);
     }
 
-    public void viewDraftClick() {
+    public void updateVisibility() {
         draft.setVisible(viewDraft.isSelected());
         laDraft.setVisible(draft.isVisible());
-    }
-
-    public void viewCorrectedClick() {
         corrected.setVisible(viewCorrected.isSelected());
         laCorrected.setVisible(corrected.isVisible());
-    }
-
-    public void viewSimulationClick() {
         simulation.setVisible(viewSimulation.isSelected());
         laSimulation.setVisible(simulation.isVisible());
-    }
-
-    public void viewReportClick() {
         report.setVisible(viewReport.isSelected());
         laReport.setVisible(report.isVisible());
     }
@@ -857,24 +820,8 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         model.prepareSnapshot();
     }
 
-    public void toolPencilClick() {
-        selection.clear();
-        toolsGroup.selectTool("pencil");
-    }
-
-    public void toolSelectClick() {
-        selection.clear();
-        toolsGroup.selectTool("select");
-    }
-
-    public void toolFillClick() {
-        selection.clear();
-        toolsGroup.selectTool("fill");
-    }
-
-    public void toolPipetteClick() {
-        selection.clear();
-        toolsGroup.selectTool("pipette");
+    public void selectTool(String tool) {
+        toolsGroup.selectTool(tool);
     }
 
     public void sbRotaterightMouseDown(MouseEvent event) {
@@ -925,7 +872,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
             if (r == JOptionPane.CANCEL_OPTION) {
                 return false;
             }
-            if (r == JOptionPane.OK_OPTION) fileSaveClick();
+            if (r == JOptionPane.OK_OPTION) fileSaveClick(model.isSaved(), model.getFile());
         }
         return true;
     }
@@ -938,14 +885,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
             int offset = copyform.getOffset(model.getWidth());
             model.arrangeSelection(selection, copies, offset);
         }
-    }
-
-    public void editInsertRowClick() {
-        model.insertRow();
-    }
-
-    public void editDeleteRowClick() {
-        model.deleteRow();
     }
 
     public void updateTitle() {
@@ -1002,9 +941,8 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         }
     }
 
-    public void loadMRUFile(int index) {
-        updateFileFormat(null, mru.get(index));
-        loadFile(mru.get(index), true);
+    public File getMRU(int index) {
+        return mru.get(index);
     }
 
     private void saveMRU() {

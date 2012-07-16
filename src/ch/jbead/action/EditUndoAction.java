@@ -34,14 +34,14 @@ public class EditUndoAction extends BaseAction {
 
     public EditUndoAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.undo.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.edit.undo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        frame.getModel().undo();
+        model.undo();
     }
 
 }

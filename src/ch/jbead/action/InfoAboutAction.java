@@ -31,7 +31,7 @@ public class InfoAboutAction extends BaseAction {
 
     public InfoAboutAction(JBeadFrame frame) {
         super(NAME, frame);
-        putValue(SHORT_DESCRIPTION, frame.getString("action.info.about.description"));
+        putValue(SHORT_DESCRIPTION, localization.getString("action.info.about.description"));
     }
 
     @Override
