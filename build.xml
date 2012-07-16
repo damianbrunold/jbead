@@ -20,42 +20,69 @@
 	<taskdef resource="emma_ant.properties" classpathref="emma.lib" />
 
 	<target name="jbead">
+		<antcall target="clean" />
+		<antcall target="compile" />
+		<antcall target="test" />
+		<antcall target="jar" />
+		<antcall target="package_linux" />
+		<!-- TODO package mac osx -->
+		<!-- TODO create win starter exe -->
+		<!-- TODO is is possible to run NSIS on linux? -->
+	</target>
+
+	<target name="clean">
 		<delete dir="build" />
 		<delete dir="dist" />
 		<delete dir="testreport" />
 		<delete dir="coverage" />
 		<delete file="jbead.jar" />
+	</target>
 
+	<target name="compile">
+		<antcall target="compile_src" />
+		<antcall target="compile_src.test" />
+	</target>
+
+	<target name="compile_src">
 		<mkdir dir="build/classes" />
-		<mkdir dir="build/classes.coverage" />
-		<mkdir dir="build/classes.test" />
-
 		<copy todir="build/classes">
 			<fileset dir="src">
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+		<javac srcdir="src" destdir="build/classes" source="5" target="6" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
+	</target>
+
+	<target name="compile_src.test">
+		<mkdir dir="build/classes.test" />
 		<copy todir="build/classes.test">
 			<fileset dir="src.test">
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-
-		<javac srcdir="src" destdir="build/classes" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
-
-		<javac srcdir="src.test" destdir="build/classes.test" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
+		<javac srcdir="src.test" destdir="build/classes.test" source="5" target="6" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
 			<classpath>
 				<pathelement path="build/classes" />
 				<pathelement path="lib/junit.jar" />
 				<pathelement path="lib/junit-addons-1.4.jar" />
-				<pathelement path="${java.class.path}" />
 			</classpath>
 		</javac>
+	</target>
 
+	<target name="test">
+		<antcall target="test_coverage_prepare" />
+		<antcall target="test_run" />
+		<antcall target="test_coverage_report" />
+	</target>
+	
+	<target name="test_coverage_prepare">
+		<mkdir dir="build/classes.coverage" />
 		<emma enabled="true">
 			<instr instrpathref="run.classpath" destdir="build/classes.coverage" metadatafile="coverage/metadata.emma" merge="true" />
 		</emma>
-
+	</target>
+		
+	<target name="test_run">
 		<mkdir dir="testreport" />
 		<junit printsummary="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes">
 			<jvmarg value="-Demma.coverage.out.file=coverage/coverage.emma" />
@@ -75,7 +102,9 @@
 				</fileset>
 			</batchtest>
 		</junit>
-
+	</target>
+		
+	<target name="test_coverage_report">
 		<emma enabled="yes">
 			<report sourcepath="src">
 				<fileset dir="coverage">
@@ -85,14 +114,18 @@
 				<html outfile="coverage/index.html" />
 			</report>
 		</emma>
-
+	</target>
+			
+	<target name="jar">
 		<jar destfile="jbead.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Built-By" value="Damian Brunold" />
 				<attribute name="Main-Class" value="ch.jbead.JBeadApp" />
 			</manifest>
 		</jar>
-		
+	</target>
+			
+	<target name="package_linux">
 		<property file="build.properties" />
 		<mkdir dir="dist" />
 		<mkdir dir="jbead_${version}" />
