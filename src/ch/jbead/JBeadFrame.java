@@ -814,6 +814,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         getAction("edit.delete").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
+        getAction("file.print").setEnabled(model.getUsedHeight() > 0);
         if (model.isRepeatDirty()) {
             model.updateRepeat();
         }
