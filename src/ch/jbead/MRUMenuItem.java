@@ -1,4 +1,4 @@
-/** jbead - http://www.brunoldsoftware.ch
+/** jbead - http://www.jbead.ch
     Copyright (C) 2001-2012  Damian Brunold
 
     This program is free software: you can redistribute it and/or modify
