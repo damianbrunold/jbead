@@ -48,6 +48,7 @@ public class VersionBumper {
             writeBuildProperties(newversion);
             patchLaunch4jConfig(newversion);
             patchSetupConfig(newversion);
+            patchInfoPlist(newversion);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,14 +122,47 @@ public class VersionBumper {
     }
 
     private static void patchSetupConfig(Version version) throws IOException {
-        List<String> lines = readSetupConfig();
+        List<String> lines = readTextFile(getSetupConfigFile());
         patchSetupConfig(lines, version);
-        writeSetupConfig(lines);
+        writeTextFile(getSetupConfigFile(), lines);
     }
 
-    private static List<String> readSetupConfig() throws IOException {
+    private static void patchSetupConfig(List<String> lines, Version version) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("OutFile ")) {
+                lines.set(i, "OutFile \"jbead_" + version.getVersionString() + "_setup.exe\"");
+            }
+        }
+    }
+
+    private static File getSetupConfigFile() {
+        return new File("setup_win/jbead.nsi");
+    }
+
+    private static void patchInfoPlist(Version version) throws IOException {
+        List<String> lines = readTextFile(getInfoPlistFile());
+        patchInfoPlist(lines, version);
+        writeTextFile(getInfoPlistFile(), lines);
+    }
+
+    private static void patchInfoPlist(List<String> lines, Version version) {
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).trim().equals("<key>CFBundleShortVersionString</key>")) {
+                lines.set(i + 1, "\t<string>" + version.getShortVersionString() + "</string>");
+            } else if (lines.get(i).trim().equals("<key>CFBundleVersion</key>")) {
+                lines.set(i + 1, "\t<string>" + version.getVersionString() + "</string>");
+            }
+        }
+    }
+
+    private static File getInfoPlistFile() {
+        return new File("starter_macosx/Info.plist");
+    }
+
+
+    private static List<String> readTextFile(File file) throws IOException {
         List<String> lines = new ArrayList<String>();
-        BufferedReader reader = new BufferedReader(new FileReader(getSetupConfigFile()));
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         try {
             String line = reader.readLine();
             while (line != null) {
@@ -141,16 +175,8 @@ public class VersionBumper {
         return lines;
     }
 
-    private static void patchSetupConfig(List<String> lines, Version version) {
-        for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).startsWith("OutFile ")) {
-                lines.set(i, "OutFile \"jbead_" + version.getVersionString() + "_setup.exe\"");
-            }
-        }
-    }
-
-    private static void writeSetupConfig(List<String> lines) throws IOException {
-        Writer writer = new FileWriter(getSetupConfigFile());
+    private static void writeTextFile(File file, List<String> lines) throws IOException {
+        Writer writer = new FileWriter(file);
         try {
             for (String line : lines) {
                 writer.write(line + "\r\n");
@@ -158,10 +184,6 @@ public class VersionBumper {
         } finally {
             writer.close();
         }
-    }
-
-    private static File getSetupConfigFile() {
-        return new File("setup_win/jbead.nsi");
     }
 
 }

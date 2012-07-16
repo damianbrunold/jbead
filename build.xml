@@ -25,9 +25,7 @@
 		<antcall target="test" />
 		<antcall target="jar" />
 		<antcall target="package_linux" />
-		<!-- TODO package mac osx -->
-		<!-- TODO create win starter exe -->
-		<!-- TODO is is possible to run NSIS on linux? -->
+        <antcall target="package_macosx" />
 	</target>
 
 	<target name="clean">
@@ -138,7 +136,25 @@
 			<fileset dir="samples"/>
 		</copy>	
 		<mkdir dir="setup_linux" />
-		<tar destfile="setup_linux/jbead_${version}.tar.gz" compression="gzip" basedir="dist" />
+		<tar destfile="setup_linux/jbead_${version}_linux.tar.gz" compression="gzip" basedir="dist" />
+		<delete dir="dist" />
+	</target>
+	
+	<target name="package_macosx">
+        <property file="build.properties" />
+		<mkdir dir="dist" />
+		<mkdir dir="dist/jbead.app" />
+		<mkdir dir="dist/jbead.app/Contents" />
+        <mkdir dir="dist/jbead.app/Contents/MacOS" />
+        <mkdir dir="dist/jbead.app/Contents/Resources" />
+        <mkdir dir="dist/jbead.app/Contents/Resources/Java" />
+		<copy file="jbead.jar" todir="dist/jbead.app/Contents/Resources/Java" />
+		<copy file="starter_macosx/Info.plist" todir="dist/jbead.app/Contents" />
+        <copy file="starter_macosx/JavaApplicationStub" todir="dist/jbead.app/Contents/MacOS" />
+        <copy file="starter_macosx/PkgInfo" todir="dist/jbead.app/Contents" />
+        <copy file="starter_macosx/jbead.icns" todir="dist/jbead.app/Contents/Resources" />
+        <mkdir dir="setup_macosx" />
+        <tar destfile="setup_macosx/jbead_${version}_macosx.tar.gz" compression="gzip" basedir="dist" />
 		<delete dir="dist" />
 	</target>
 
