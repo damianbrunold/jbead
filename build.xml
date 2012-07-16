@@ -136,7 +136,15 @@
 			<fileset dir="samples"/>
 		</copy>	
 		<mkdir dir="setup_linux" />
-		<tar destfile="setup_linux/jbead_${version}_linux.tar.gz" compression="gzip" basedir="dist" />
+		<tar destfile="setup_linux/jbead_${version}_linux.tar.gz" compression="gzip">
+		  <tarfileset dir="dist/jbead_${version}" prefix="jbead_${version}" filemode="755">
+		    <include name="jbead"/>
+		  </tarfileset>
+		  <tarfileset dir="dist/jbead_${version}" prefix="jbead_${version}">
+		    <include name="**"/>
+		    <exclude name="jbead"/>
+		  </tarfileset>
+		</tar>
 		<delete dir="dist" />
 	</target>
 	
