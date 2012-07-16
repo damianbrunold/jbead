@@ -45,6 +45,7 @@ public class VersionBumper {
         System.out.println("bump version from " + oldversion.getVersionString() + " to " + newversion.getVersionString());
         try {
             writeVersionFile(newversion);
+            writeBuildProperties(newversion);
             patchLaunch4jConfig(newversion);
             patchSetupConfig(newversion);
         } catch (Exception e) {
@@ -56,6 +57,15 @@ public class VersionBumper {
         Writer writer = new FileWriter("src/version.txt");
         try {
             writer.write(version.getVersionString() + "\n");
+        } finally {
+            writer.close();
+        }
+    }
+
+    private static void writeBuildProperties(Version version) throws IOException {
+        Writer writer = new FileWriter("build.properties");
+        try {
+            writer.write("version=" + version.getVersionString() + "\n");
         } finally {
             writer.close();
         }

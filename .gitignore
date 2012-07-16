@@ -1,8 +1,10 @@
 bin/
 build/
+dist/
 testreport/
 coverage/
 jbead.jar
 jbead.exe
+setup_linux/jbead_*
 setup_win/jbead_*
 

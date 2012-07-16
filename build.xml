@@ -21,6 +21,7 @@
 
 	<target name="jbead">
 		<delete dir="build" />
+		<delete dir="dist" />
 		<delete dir="testreport" />
 		<delete dir="coverage" />
 		<delete file="jbead.jar" />
@@ -91,6 +92,21 @@
 				<attribute name="Main-Class" value="ch.jbead.JBeadApp" />
 			</manifest>
 		</jar>
+		
+		<property file="build.properties" />
+		<mkdir dir="dist" />
+		<mkdir dir="jbead_${version}" />
+		<copy file="jbead.jar" todir="dist/jbead_${version}" />
+		<copy file="LICENSE.txt" todir="dist/jbead_${version}" />
+		<copy file="starter_linux/jbead" todir="dist/jbead_${version}" />
+		<chmod file="dist/jbead_${version}/jbead" perm="755" />
+		<mkdir dir="jbead_${version}/samples" />
+		<copy todir="dist/jbead_${version}/samples">
+			<fileset dir="samples"/>
+		</copy>	
+		<mkdir dir="setup_linux" />
+		<tar destfile="setup_linux/jbead_${version}.tar.gz" compression="gzip" basedir="dist" />
+		<delete dir="dist" />
 	</target>
 
 	<target name="release">
