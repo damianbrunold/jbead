@@ -32,16 +32,16 @@ public class ToolSelectAction extends BaseAction {
 
     private static final String NAME = "tool.select";
 
-    public ToolSelectAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.tool.select.description"));
+    public ToolSelectAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.select.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.toolSelectClick();
+        frame.toolSelectClick();
     }
 
 }

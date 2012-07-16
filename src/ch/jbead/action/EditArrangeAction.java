@@ -32,16 +32,16 @@ public class EditArrangeAction extends BaseAction {
 
     private static final String NAME = "edit.arrange";
 
-    public EditArrangeAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.arrange.description"));
+    public EditArrangeAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.arrange.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("F8"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editArrangeClick();
+        frame.editArrangeClick();
     }
 
 }

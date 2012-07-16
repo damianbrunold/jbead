@@ -29,15 +29,15 @@ public class EditInsertRowAction extends BaseAction {
 
     private static final String NAME = "edit.insertrow";
 
-    public EditInsertRowAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.insertrow.description"));
+    public EditInsertRowAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.insertrow.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editInsertRowClick();
+        frame.editInsertRowClick();
     }
 
 }

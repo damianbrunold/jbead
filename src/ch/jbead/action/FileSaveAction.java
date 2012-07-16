@@ -32,16 +32,16 @@ public class FileSaveAction extends BaseAction {
 
     private static final String NAME = "file.save";
 
-    public FileSaveAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.save.description"));
+    public FileSaveAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.file.save.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control S"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileSaveClick();
+        frame.fileSaveClick();
     }
 
 }

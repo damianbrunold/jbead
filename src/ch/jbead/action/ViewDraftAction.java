@@ -29,15 +29,15 @@ public class ViewDraftAction extends BaseAction {
 
     private static final String NAME = "view.draft";
 
-    public ViewDraftAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.view.draft.description"));
+    public ViewDraftAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.view.draft.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewDraftClick();
+        frame.viewDraftClick();
     }
 
 }

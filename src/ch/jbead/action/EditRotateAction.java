@@ -29,15 +29,15 @@ public class EditRotateAction extends BaseAction {
 
     private static final String NAME = "edit.rotate";
 
-    public EditRotateAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.rotate.description"));
+    public EditRotateAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.rotate.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().rotate(form.getSelection());
+        frame.getModel().rotate(frame.getSelection());
     }
 
 }

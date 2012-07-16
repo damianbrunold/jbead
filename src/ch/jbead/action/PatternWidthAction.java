@@ -31,20 +31,20 @@ public class PatternWidthAction extends BaseAction {
 
     private static final String NAME = "pattern.width";
 
-    public PatternWidthAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.pattern.width.description"));
+    public PatternWidthAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.pattern.width.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_W);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Model model = form.getModel();
-        PatternWidthDialog dialog = new PatternWidthDialog(form);
+        Model model = frame.getModel();
+        PatternWidthDialog dialog = new PatternWidthDialog(frame);
         dialog.setPatternWidth(model.getWidth());
         dialog.setVisible(true);
         if (dialog.isOK()) {
-            form.clearSelection();
+            frame.clearSelection();
             model.setWidth(dialog.getPatternWidth());
         }
     }

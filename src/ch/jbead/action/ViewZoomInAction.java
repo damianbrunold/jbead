@@ -32,17 +32,17 @@ public class ViewZoomInAction extends BaseAction {
 
     private static final String NAME = "view.zoomin";
 
-    public ViewZoomInAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomin.description"));
+    public ViewZoomInAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.view.zoomin.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_Z);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control I"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().zoomIn();
-        form.updateScrollbar();
+        frame.getModel().zoomIn();
+        frame.updateScrollbar();
     }
 
 }

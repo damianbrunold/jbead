@@ -37,16 +37,16 @@ public class FilePageSetupAction extends BaseAction {
 
     private static final String NAME = "file.pagesetup";
 
-    public FilePageSetupAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.pagesetup.description"));
+    public FilePageSetupAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.file.pagesetup.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         PrinterJob job = PrinterJob.getPrinterJob();
-        PrintSettings settings = form.getPrintSettings();
+        PrintSettings settings = frame.getPrintSettings();
         if (job.pageDialog(settings.getAttributes()) != null) {
             saveConfig(settings.getAttributes());
         }

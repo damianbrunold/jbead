@@ -29,17 +29,17 @@ public class ViewZoomNormalAction extends BaseAction {
 
     private static final String NAME = "view.zoomnormal";
 
-    public ViewZoomNormalAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomnormal.description"));
+    public ViewZoomNormalAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.view.zoomnormal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (form.getModel().isNormalZoom()) return;
-        form.getModel().zoomNormal();
-        form.updateScrollbar();
+        if (frame.getModel().isNormalZoom()) return;
+        frame.getModel().zoomNormal();
+        frame.updateScrollbar();
     }
 
 }

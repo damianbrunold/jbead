@@ -29,15 +29,15 @@ public class FileSaveAsAction extends BaseAction {
 
     private static final String NAME = "file.saveas";
 
-    public FileSaveAsAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.saveas.description"));
+    public FileSaveAsAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.file.saveas.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileSaveasClick();
+        frame.fileSaveasClick();
     }
 
 }

@@ -32,16 +32,16 @@ public class FileOpenAction extends BaseAction {
 
     private static final String NAME = "file.open";
 
-    public FileOpenAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.open.description"));
+    public FileOpenAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.file.open.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_O);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileOpenClick();
+        frame.fileOpenClick();
     }
 
 }

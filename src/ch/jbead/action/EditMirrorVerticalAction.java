@@ -29,18 +29,18 @@ public class EditMirrorVerticalAction extends BaseAction {
 
     private static final String NAME = "edit.mirrorvertical";
 
-    public EditMirrorVerticalAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.mirrorvertical.description"));
+    public EditMirrorVerticalAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.mirrorvertical.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (form.getSelection().isActive()) {
-            form.getModel().mirrorVertical(form.getSelection());
+        if (frame.getSelection().isActive()) {
+            frame.getModel().mirrorVertical(frame.getSelection());
         } else {
-            form.getModel().mirrorVertical(form.getModel().getUsedRect());
+            frame.getModel().mirrorVertical(frame.getModel().getUsedRect());
         }
     }
 

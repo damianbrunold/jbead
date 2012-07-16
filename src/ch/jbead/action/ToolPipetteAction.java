@@ -32,16 +32,16 @@ public class ToolPipetteAction extends BaseAction {
 
     private static final String NAME = "tool.pipette";
 
-    public ToolPipetteAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.tool.pipette.description"));
+    public ToolPipetteAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.pipette.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 4"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.toolPipetteClick();
+        frame.toolPipetteClick();
     }
 
 }

@@ -32,16 +32,16 @@ public class FileNewAction extends BaseAction {
 
     private static final String NAME = "file.new";
 
-    public FileNewAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.file.new.description"));
+    public FileNewAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.file.new.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.fileNewClick();
+        frame.fileNewClick();
     }
 
 }

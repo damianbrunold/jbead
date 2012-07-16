@@ -29,15 +29,15 @@ public class EditDeleteRowAction extends BaseAction {
 
     private static final String NAME = "edit.deleterow";
 
-    public EditDeleteRowAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.deleterow.description"));
+    public EditDeleteRowAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.deleterow.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.editDeleteRowClick();
+        frame.editDeleteRowClick();
     }
 
 }

@@ -31,20 +31,20 @@ public class PatternHeightAction extends BaseAction {
 
     private static final String NAME = "pattern.height";
 
-    public PatternHeightAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.pattern.height.description"));
+    public PatternHeightAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.pattern.height.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Model model = form.getModel();
-        PatternHeightDialog dialog = new PatternHeightDialog(form);
+        Model model = frame.getModel();
+        PatternHeightDialog dialog = new PatternHeightDialog(frame);
         dialog.setPatternHeight(model.getHeight());
         dialog.setVisible(true);
         if (dialog.isOK()) {
-            form.clearSelection();
+            frame.clearSelection();
             model.setHeight(dialog.getPatternHeight());
         }
     }

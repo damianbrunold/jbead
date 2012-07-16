@@ -20,28 +20,25 @@ package ch.jbead;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
-/**
- *
- */
 public abstract class BaseAction extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
-    protected JBeadFrame form;
+    protected JBeadFrame frame;
 
-    public BaseAction(String name, Icon icon, JBeadFrame form) {
-        super(form.getBundle().getString("action." + name), icon);
-        init(name, form);
+    public BaseAction(String name, Icon icon, JBeadFrame frame) {
+        super(frame.getString("action." + name), icon);
+        init(name, frame);
     }
 
-    public BaseAction(String name, JBeadFrame form) {
-        super(form.getBundle().getString("action." + name));
-        init(name, form);
+    public BaseAction(String name, JBeadFrame frame) {
+        super(frame.getString("action." + name));
+        init(name, frame);
     }
 
-    private void init(String name, JBeadFrame form) {
-        this.form = form;
-        form.registerAction(name, this);
+    private void init(String name, JBeadFrame frame) {
+        this.frame = frame;
+        frame.registerAction(name, this);
     }
 
 }

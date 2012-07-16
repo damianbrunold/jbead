@@ -29,15 +29,15 @@ public class ViewCorrectedAction extends BaseAction {
 
     private static final String NAME = "view.corrected";
 
-    public ViewCorrectedAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.view.corrected.description"));
+    public ViewCorrectedAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.view.corrected.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewCorrectedClick();
+        frame.viewCorrectedClick();
     }
 
 }

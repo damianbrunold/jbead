@@ -32,16 +32,16 @@ public class ToolFillAction extends BaseAction {
 
     private static final String NAME = "tool.fill";
 
-    public ToolFillAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.tool.fill.description"));
+    public ToolFillAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.tool.fill.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_F);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 2"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.toolFillClick();
+        frame.toolFillClick();
     }
 
 }

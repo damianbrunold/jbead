@@ -29,15 +29,15 @@ public class ViewReportAction extends BaseAction {
 
     private static final String NAME = "view.report";
 
-    public ViewReportAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.view.report.description"));
+    public ViewReportAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.view.report.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.viewReportClick();
+        frame.viewReportClick();
     }
 
 }

@@ -31,16 +31,16 @@ public class EditDeleteAction extends BaseAction {
 
     private static final String NAME = "edit.delete";
 
-    public EditDeleteAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.delete.description"));
+    public EditDeleteAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.delete.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().delete(form.getSelection());
+        frame.getModel().delete(frame.getSelection());
     }
 
 }

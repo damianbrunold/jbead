@@ -29,14 +29,14 @@ public class InfoTechInfosAction extends BaseAction {
 
     private static final String NAME = "info.techinfos";
 
-    public InfoTechInfosAction(JBeadFrame form) {
-        super(NAME, form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.info.techinfos.description"));
+    public InfoTechInfosAction(JBeadFrame frame) {
+        super(NAME, frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.info.techinfos.description"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        new TechInfosDialog(form).setVisible(true);
+        new TechInfosDialog(frame).setVisible(true);
     }
 
 }

@@ -28,14 +28,14 @@ public class FileMRUAction extends BaseAction {
 
     private int index;
 
-    public FileMRUAction(JBeadFrame form, int index) {
-        super("file.mru" + index, form);
+    public FileMRUAction(JBeadFrame frame, int index) {
+        super("file.mru" + index, frame);
         this.index = index;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.loadMRUFile(index);
+        frame.loadMRUFile(index);
     }
 
 }

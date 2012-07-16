@@ -32,16 +32,16 @@ public class EditUndoAction extends BaseAction {
 
     private static final String NAME = "edit.undo";
 
-    public EditUndoAction(JBeadFrame form) {
-        super(NAME, ImageFactory.getIcon(NAME), form);
-        putValue(SHORT_DESCRIPTION, form.getString("action.edit.undo.description"));
+    public EditUndoAction(JBeadFrame frame) {
+        super(NAME, ImageFactory.getIcon(NAME), frame);
+        putValue(SHORT_DESCRIPTION, frame.getString("action.edit.undo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        form.getModel().undo();
+        frame.getModel().undo();
     }
 
 }
