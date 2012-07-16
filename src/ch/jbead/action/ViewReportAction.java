@@ -18,7 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
@@ -32,7 +31,7 @@ public class ViewReportAction extends BaseAction {
     public ViewReportAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.view.report.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_R);
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.report.mnemonic"));
     }
 
     @Override

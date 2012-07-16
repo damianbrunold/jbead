@@ -19,6 +19,8 @@ package ch.jbead;
 
 import java.util.ResourceBundle;
 
+import javax.swing.KeyStroke;
+
 import junit.framework.TestCase;
 
 public class BeadListTest extends TestCase implements Localization {
@@ -57,6 +59,16 @@ public class BeadListTest extends TestCase implements Localization {
     @Override
     public String getString(String key) {
         return bundle.getString(key);
+    }
+
+    @Override
+    public int getMnemonic(String key) {
+        return bundle.getString(key).charAt(0);
+    }
+
+    @Override
+    public KeyStroke getKeyStroke(String key) {
+        return KeyStroke.getKeyStroke(bundle.getString(key));
     }
 
 }

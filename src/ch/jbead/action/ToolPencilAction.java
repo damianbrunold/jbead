@@ -18,13 +18,10 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class ToolPencilAction extends BaseAction {
 
@@ -35,8 +32,8 @@ public class ToolPencilAction extends BaseAction {
     public ToolPencilAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.tool.pencil.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_P);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 1"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.tool.pencil.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.pencil.keystroke"));
     }
 
     @Override

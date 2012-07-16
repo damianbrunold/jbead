@@ -32,6 +32,7 @@ public class InfoTechInfosAction extends BaseAction {
     public InfoTechInfosAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.info.techinfos.description"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.info.techinfos.mnemonic"));
     }
 
     @Override

@@ -18,14 +18,12 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 import ch.jbead.print.DesignPrinter;
 
 public class FilePrintAction extends BaseAction {
@@ -37,8 +35,8 @@ public class FilePrintAction extends BaseAction {
     public FilePrintAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.file.print.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_P);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control P"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.print.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.print.keystroke"));
     }
 
     @Override

@@ -18,9 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
@@ -34,8 +31,7 @@ public class EditDeleteAction extends BaseAction {
     public EditDeleteAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.edit.delete.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_D);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("delete"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.delete.mnemonic"));
     }
 
     @Override

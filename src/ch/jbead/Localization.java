@@ -19,12 +19,13 @@ package ch.jbead;
 
 import java.util.ResourceBundle;
 
-/**
- * 
- */
+import javax.swing.KeyStroke;
+
 public interface Localization {
-    
+
     public ResourceBundle getBundle();
     public String getString(String key);
+    public int getMnemonic(String key);
+    public KeyStroke getKeyStroke(String key);
 
 }

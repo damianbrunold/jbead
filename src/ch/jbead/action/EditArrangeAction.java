@@ -18,9 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
 import ch.jbead.ImageFactory;
@@ -36,8 +33,8 @@ public class EditArrangeAction extends BaseAction {
     public EditArrangeAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.edit.arrange.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_A);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("F8"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.arrange.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.edit.arrange.keystroke"));
     }
 
     @Override

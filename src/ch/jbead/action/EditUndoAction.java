@@ -18,13 +18,10 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class EditUndoAction extends BaseAction {
 
@@ -35,8 +32,8 @@ public class EditUndoAction extends BaseAction {
     public EditUndoAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.edit.undo.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control Z"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.undo.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.edit.undo.keystroke"));
     }
 
     @Override

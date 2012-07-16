@@ -32,6 +32,7 @@ public class InfoAboutAction extends BaseAction {
     public InfoAboutAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.info.about.description"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.info.about.mnemonic"));
     }
 
     @Override

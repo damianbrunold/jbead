@@ -18,13 +18,10 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class ToolFillAction extends BaseAction {
 
@@ -35,8 +32,8 @@ public class ToolFillAction extends BaseAction {
     public ToolFillAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.tool.fill.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_F);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control 3"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.tool.fill.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.fill.keystroke"));
     }
 
     @Override

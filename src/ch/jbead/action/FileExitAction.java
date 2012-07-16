@@ -18,10 +18,8 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
@@ -35,8 +33,8 @@ public class FileExitAction extends BaseAction {
     public FileExitAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.file.exit.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_X);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.exit.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.exit.keystroke"));
     }
 
     @Override

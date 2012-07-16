@@ -18,13 +18,10 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class ViewZoomInAction extends BaseAction {
 
@@ -35,8 +32,8 @@ public class ViewZoomInAction extends BaseAction {
     public ViewZoomInAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.view.zoomin.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_Z);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control I"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.zoomin.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.view.zoomin.keystroke"));
     }
 
     @Override

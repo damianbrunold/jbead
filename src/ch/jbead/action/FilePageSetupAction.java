@@ -18,7 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.print.PrinterJob;
 
 import javax.print.attribute.PrintRequestAttributeSet;
@@ -40,7 +39,7 @@ public class FilePageSetupAction extends BaseAction {
     public FilePageSetupAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.file.pagesetup.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.pagesetup.mnemonic"));
     }
 
     @Override

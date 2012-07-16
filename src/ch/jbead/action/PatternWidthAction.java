@@ -18,7 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
@@ -33,7 +32,7 @@ public class PatternWidthAction extends BaseAction {
     public PatternWidthAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.pattern.width.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_W);
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.pattern.width.mnemonic"));
     }
 
     @Override

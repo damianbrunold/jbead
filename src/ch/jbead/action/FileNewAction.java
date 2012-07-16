@@ -18,14 +18,12 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class FileNewAction extends BaseAction {
 
@@ -36,8 +34,8 @@ public class FileNewAction extends BaseAction {
     public FileNewAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.file.new.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_N);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control N"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.new.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.new.keystroke"));
     }
 
     @Override

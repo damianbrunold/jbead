@@ -18,14 +18,12 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JFileChooser;
-import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
+import ch.jbead.JBeadFrame;
 
 public class FileOpenAction extends BaseAction {
 
@@ -36,8 +34,8 @@ public class FileOpenAction extends BaseAction {
     public FileOpenAction(JBeadFrame frame) {
         super(NAME, ImageFactory.getIcon(NAME), frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.file.open.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke("control O"));
+        putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.open.mnemonic"));
+        putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.open.keystroke"));
     }
 
     @Override
