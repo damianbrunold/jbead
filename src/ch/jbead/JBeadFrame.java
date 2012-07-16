@@ -365,8 +365,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createFileMenu() {
-        JMenu menuFile = new JMenu(getString("action.file"));
-        menuFile.setMnemonic(getMnemonic("action.file.mnemonic"));
+        JMenu menuFile = createMenu("action.file");
         menuFile.add(new FileNewAction(this));
         menuFile.add(new FileOpenAction(this));
         menuFile.add(new FileSaveAction(this));
@@ -387,8 +386,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createEditMenu() {
-        JMenu menuEdit = new JMenu(getString("action.edit"));
-        menuEdit.setMnemonic(getMnemonic("action.edit.mnemonic"));
+        JMenu menuEdit = createMenu("action.edit");
         menuEdit.add(new EditUndoAction(this));
         menuEdit.add(new EditRedoAction(this));
         menuEdit.add(new EditArrangeAction(this));
@@ -396,8 +394,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         menuEdit.add(new EditMirrorVerticalAction(this));
         menuEdit.add(new EditRotateAction(this));
         menuEdit.add(new EditDeleteAction(this));
-        JMenu menuEditRow = new JMenu(getString("action.edit.row"));
-        menuEditRow.setMnemonic(getMnemonic("action.edit.row.mnemonic"));
+        JMenu menuEditRow = createMenu("action.edit.row");
         menuEdit.add(menuEditRow);
         menuEditRow.add(new EditInsertRowAction(this));
         menuEditRow.add(new EditDeleteRowAction(this));
@@ -405,8 +402,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createViewMenu() {
-        JMenu menuView = new JMenu(getString("action.view"));
-        menuView.setMnemonic(getMnemonic("action.view.mnemonic"));
+        JMenu menuView = createMenu("action.view");
         menuView.add(viewDraft = new JCheckBoxMenuItem(new ViewDraftAction(this)));
         menuView.add(viewCorrected = new JCheckBoxMenuItem(new ViewCorrectedAction(this)));
         menuView.add(viewSimulation = new JCheckBoxMenuItem(new ViewSimulationAction(this)));
@@ -419,8 +415,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createToolMenu() {
-        JMenu menuTool = new JMenu(getString("action.tool"));
-        menuTool.setMnemonic(getMnemonic("action.tool.mnemonic"));
+        JMenu menuTool = createMenu("action.tool");
         menuTool.add(toolsGroup.addTool("pencil", new ToolMenuItem(new ToolPencilAction(this))));
         menuTool.add(toolsGroup.addTool("select", new ToolMenuItem(new ToolSelectAction(this))));
         menuTool.add(toolsGroup.addTool("fill", new ToolMenuItem(new ToolFillAction(this))));
@@ -429,19 +424,23 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private JMenu createPatternMenu() {
-        JMenu menuPattern = new JMenu(getString("action.pattern"));
-        menuPattern.setMnemonic(getMnemonic("action.pattern.mnemonic"));
+        JMenu menuPattern = createMenu("action.pattern");
         menuPattern.add(new PatternWidthAction(this));
         menuPattern.add(new PatternHeightAction(this));
         return menuPattern;
     }
 
     private JMenu createInfoMenu() {
-        JMenu menuInfo = new JMenu(getString("action.info"));
-        menuInfo.setMnemonic(getMnemonic("action.info.mnemonic"));
+        JMenu menuInfo = createMenu("action.info");
         menuInfo.add(new InfoTechInfosAction(this));
         menuInfo.add(new InfoAboutAction(this));
         return menuInfo;
+    }
+
+    private JMenu createMenu(String key) {
+        JMenu menu = new JMenu(getString(key));
+        menu.setMnemonic(getMnemonic(key + ".mnemonic"));
+        return menu;
     }
 
     private JToolBar createToolbar() {
@@ -455,14 +454,11 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         toolbar.add(new RotateLeftButton(this));
         toolbar.add(new RotateRightButton(this));
         toolbar.add(new Button(getAction("edit.arrange")));
-
         toolbar.addSeparator();
-
         toolbar.add(toolsGroup.addTool("pencil", new ToolButton(getAction("tool.pencil"))));
         toolbar.add(toolsGroup.addTool("select", new ToolButton(getAction("tool.select"))));
         toolbar.add(toolsGroup.addTool("fill", new ToolButton(getAction("tool.fill"))));
         toolbar.add(toolsGroup.addTool("pipette", new ToolButton(getAction("tool.pipette"))));
-
         return toolbar;
     }
 
