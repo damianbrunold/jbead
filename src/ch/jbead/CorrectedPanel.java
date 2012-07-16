@@ -30,7 +30,7 @@ public class CorrectedPanel extends BasePanel {
     private int offsetx;
     private int left;
 
-    public CorrectedPanel(Model model, Selection selection, final BeadForm form) {
+    public CorrectedPanel(Model model, Selection selection, final JBeadFrame form) {
         super(model, selection);
         model.addListener(this);
         addMouseListener(new MouseAdapter() {

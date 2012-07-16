@@ -25,8 +25,8 @@ import javax.swing.filechooser.FileFilter;
 public interface FileFormat {
 
     String getName();
-    void save(Model model, BeadForm form, File destfile) throws IOException;
-    void load(Model model, BeadForm form, File srcfile) throws IOException;
+    void save(Model model, JBeadFrame form, File destfile) throws IOException;
+    void load(Model model, JBeadFrame form, File srcfile) throws IOException;
     FileFilter getFileFilter();
     String getExtension();
 

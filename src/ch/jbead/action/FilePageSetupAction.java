@@ -27,7 +27,7 @@ import javax.print.attribute.standard.MediaSizeName;
 import javax.print.attribute.standard.OrientationRequested;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.Settings;
 import ch.jbead.print.PrintSettings;
 
@@ -37,7 +37,7 @@ public class FilePageSetupAction extends BaseAction {
 
     private static final String NAME = "file.pagesetup";
 
-    public FilePageSetupAction(BeadForm form) {
+    public FilePageSetupAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.file.pagesetup.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);

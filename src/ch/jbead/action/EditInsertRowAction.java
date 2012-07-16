@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class EditInsertRowAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class EditInsertRowAction extends BaseAction {
 
     private static final String NAME = "edit.insertrow";
 
-    public EditInsertRowAction(BeadForm form) {
+    public EditInsertRowAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.insertrow.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_I);

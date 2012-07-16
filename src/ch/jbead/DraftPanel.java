@@ -35,7 +35,7 @@ public class DraftPanel extends BasePanel implements SelectionListener {
     private int offsetx;
     private int maxj;
 
-    public DraftPanel(Model model, Selection selection, final BeadForm form) {
+    public DraftPanel(Model model, Selection selection, final JBeadFrame form) {
         super(model, selection);
         model.addListener(this);
         setBackground(Color.LIGHT_GRAY);

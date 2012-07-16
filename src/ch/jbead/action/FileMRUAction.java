@@ -20,7 +20,7 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class FileMRUAction extends BaseAction {
 
@@ -28,7 +28,7 @@ public class FileMRUAction extends BaseAction {
 
     private int index;
 
-    public FileMRUAction(BeadForm form, int index) {
+    public FileMRUAction(JBeadFrame form, int index) {
         super("file.mru" + index, form);
         this.index = index;
     }

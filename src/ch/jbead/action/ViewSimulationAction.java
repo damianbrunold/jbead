@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class ViewSimulationAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class ViewSimulationAction extends BaseAction {
 
     private static final String NAME = "view.simulation";
 
-    public ViewSimulationAction(BeadForm form) {
+    public ViewSimulationAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.view.simulation.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_S);

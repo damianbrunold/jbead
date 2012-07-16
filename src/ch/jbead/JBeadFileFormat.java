@@ -34,7 +34,7 @@ public class JBeadFileFormat implements FileFormat {
     }
 
     @Override
-    public void save(Model model, BeadForm form, File destfile) throws IOException {
+    public void save(Model model, JBeadFrame form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(destfile));
         try {
             Memento memento = new JBeadMemento();
@@ -48,7 +48,7 @@ public class JBeadFileFormat implements FileFormat {
     }
 
     @Override
-    public void load(Model model, BeadForm form, File srcfile) throws IOException {
+    public void load(Model model, JBeadFrame form, File srcfile) throws IOException {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
             Memento memento = new JBeadMemento();

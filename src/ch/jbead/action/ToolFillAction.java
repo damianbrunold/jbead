@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 
 public class ToolFillAction extends BaseAction {
@@ -32,7 +32,7 @@ public class ToolFillAction extends BaseAction {
 
     private static final String NAME = "tool.fill";
 
-    public ToolFillAction(BeadForm form) {
+    public ToolFillAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.tool.fill.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_F);

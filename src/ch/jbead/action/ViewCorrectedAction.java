@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class ViewCorrectedAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class ViewCorrectedAction extends BaseAction {
 
     private static final String NAME = "view.corrected";
 
-    public ViewCorrectedAction(BeadForm form) {
+    public ViewCorrectedAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.view.corrected.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);

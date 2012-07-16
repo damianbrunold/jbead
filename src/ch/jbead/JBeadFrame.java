@@ -99,7 +99,7 @@ import ch.jbead.dialog.ArrangeDialog;
 import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
 
-public class BeadForm extends JFrame implements Localization, ModelListener {
+public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -152,7 +152,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     private Timer updateTimer;
     private Timer shiftTimer;
 
-    public BeadForm(String[] args) {
+    public JBeadFrame(String[] args) {
         super("jbead");
         createGUI();
         model.addListener(this);

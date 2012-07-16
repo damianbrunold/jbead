@@ -26,7 +26,7 @@ public class RotateLeftButton extends JButton {
 
     private static final long serialVersionUID = 1L;
 
-    public RotateLeftButton(final BeadForm form) {
+    public RotateLeftButton(final JBeadFrame form) {
         super(ImageFactory.getIcon("view.rotateleft"));
         setFocusable(false);
         addMouseListener(new MouseAdapter() {

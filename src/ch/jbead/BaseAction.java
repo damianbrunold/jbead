@@ -27,19 +27,19 @@ public abstract class BaseAction extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
-    protected BeadForm form;
+    protected JBeadFrame form;
 
-    public BaseAction(String name, Icon icon, BeadForm form) {
+    public BaseAction(String name, Icon icon, JBeadFrame form) {
         super(form.getBundle().getString("action." + name), icon);
         init(name, form);
     }
 
-    public BaseAction(String name, BeadForm form) {
+    public BaseAction(String name, JBeadFrame form) {
         super(form.getBundle().getString("action." + name));
         init(name, form);
     }
 
-    private void init(String name, BeadForm form) {
+    private void init(String name, JBeadFrame form) {
         this.form = form;
         form.registerAction(name, this);
     }

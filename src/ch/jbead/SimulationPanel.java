@@ -31,7 +31,7 @@ public class SimulationPanel extends BasePanel {
     private int left;
     private int w;
 
-    public SimulationPanel(Model model, Selection selection, final BeadForm form) {
+    public SimulationPanel(Model model, Selection selection, final JBeadFrame form) {
         super(model, selection);
         model.addListener(this);
         addMouseListener(new MouseAdapter() {

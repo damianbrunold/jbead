@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 
 public class EditRedoAction extends BaseAction {
@@ -32,7 +32,7 @@ public class EditRedoAction extends BaseAction {
 
     private static final String NAME = "edit.redo";
 
-    public EditRedoAction(BeadForm form) {
+    public EditRedoAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.redo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_R);

@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class EditMirrorHorizontalAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class EditMirrorHorizontalAction extends BaseAction {
 
     private static final String NAME = "edit.mirrorhorizontal";
 
-    public EditMirrorHorizontalAction(BeadForm form) {
+    public EditMirrorHorizontalAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.mirrorhorizontal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);

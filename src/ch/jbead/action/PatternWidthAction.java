@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.dialog.PatternWidthDialog;
 
@@ -31,7 +31,7 @@ public class PatternWidthAction extends BaseAction {
 
     private static final String NAME = "pattern.width";
 
-    public PatternWidthAction(BeadForm form) {
+    public PatternWidthAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.pattern.width.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_W);

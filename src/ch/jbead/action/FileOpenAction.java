@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 
 public class FileOpenAction extends BaseAction {
@@ -32,7 +32,7 @@ public class FileOpenAction extends BaseAction {
 
     private static final String NAME = "file.open";
 
-    public FileOpenAction(BeadForm form) {
+    public FileOpenAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.file.open.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_O);

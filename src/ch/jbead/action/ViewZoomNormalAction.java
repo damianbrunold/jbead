@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class ViewZoomNormalAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class ViewZoomNormalAction extends BaseAction {
 
     private static final String NAME = "view.zoomnormal";
 
-    public ViewZoomNormalAction(BeadForm form) {
+    public ViewZoomNormalAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomnormal.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_N);

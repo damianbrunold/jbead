@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 
 public class ViewZoomOutAction extends BaseAction {
@@ -32,7 +32,7 @@ public class ViewZoomOutAction extends BaseAction {
 
     private static final String NAME = "view.zoomout";
 
-    public ViewZoomOutAction(BeadForm form) {
+    public ViewZoomOutAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.view.zoomout.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_M);

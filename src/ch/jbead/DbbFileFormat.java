@@ -36,7 +36,7 @@ public class DbbFileFormat implements FileFormat {
     }
 
     @Override
-    public void save(Model model, BeadForm form, File destfile) throws IOException {
+    public void save(Model model, JBeadFrame form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(destfile));
         try {
             out.write(MAGIC_FILE_HEADER);
@@ -51,7 +51,7 @@ public class DbbFileFormat implements FileFormat {
     }
 
     @Override
-    public void load(Model model, BeadForm form, File srcfile) throws IOException {
+    public void load(Model model, JBeadFrame form, File srcfile) throws IOException {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
             String strid = in.read(13);

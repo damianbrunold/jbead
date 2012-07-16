@@ -24,7 +24,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 import ch.jbead.print.DesignPrinter;
 
@@ -34,7 +34,7 @@ public class FilePrintAction extends BaseAction {
 
     private static final String NAME = "file.print";
 
-    public FilePrintAction(BeadForm form) {
+    public FilePrintAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.file.print.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_P);

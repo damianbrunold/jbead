@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class FileExitAction extends BaseAction {
 
@@ -32,7 +32,7 @@ public class FileExitAction extends BaseAction {
 
     private static final String NAME = "file.exit";
 
-    public FileExitAction(BeadForm form) {
+    public FileExitAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.file.exit.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);

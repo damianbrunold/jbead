@@ -20,7 +20,7 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.dialog.TechInfosDialog;
 
 public class InfoTechInfosAction extends BaseAction {
@@ -29,7 +29,7 @@ public class InfoTechInfosAction extends BaseAction {
 
     private static final String NAME = "info.techinfos";
 
-    public InfoTechInfosAction(BeadForm form) {
+    public InfoTechInfosAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.info.techinfos.description"));
     }

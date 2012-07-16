@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class FileSaveAsAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class FileSaveAsAction extends BaseAction {
 
     private static final String NAME = "file.saveas";
 
-    public FileSaveAsAction(BeadForm form) {
+    public FileSaveAsAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.file.saveas.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_A);

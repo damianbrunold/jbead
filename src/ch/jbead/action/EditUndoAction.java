@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.ImageFactory;
 
 public class EditUndoAction extends BaseAction {
@@ -32,7 +32,7 @@ public class EditUndoAction extends BaseAction {
 
     private static final String NAME = "edit.undo";
 
-    public EditUndoAction(BeadForm form) {
+    public EditUndoAction(JBeadFrame form) {
         super(NAME, ImageFactory.getIcon(NAME), form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.undo.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);

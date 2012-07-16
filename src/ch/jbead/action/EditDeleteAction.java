@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class EditDeleteAction extends BaseAction {
 
@@ -31,7 +31,7 @@ public class EditDeleteAction extends BaseAction {
 
     private static final String NAME = "edit.delete";
 
-    public EditDeleteAction(BeadForm form) {
+    public EditDeleteAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.delete.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_D);

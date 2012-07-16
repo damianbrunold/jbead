@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 
 public class EditRotateAction extends BaseAction {
 
@@ -29,7 +29,7 @@ public class EditRotateAction extends BaseAction {
 
     private static final String NAME = "edit.rotate";
 
-    public EditRotateAction(BeadForm form) {
+    public EditRotateAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.edit.rotate.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_V);

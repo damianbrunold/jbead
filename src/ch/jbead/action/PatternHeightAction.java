@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import ch.jbead.BaseAction;
-import ch.jbead.BeadForm;
+import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.dialog.PatternHeightDialog;
 
@@ -31,7 +31,7 @@ public class PatternHeightAction extends BaseAction {
 
     private static final String NAME = "pattern.height";
 
-    public PatternHeightAction(BeadForm form) {
+    public PatternHeightAction(JBeadFrame form) {
         super(NAME, form);
         putValue(SHORT_DESCRIPTION, form.getString("action.pattern.height.description"));
         putValue(MNEMONIC_KEY, KeyEvent.VK_H);

@@ -27,7 +27,7 @@ public class JBeadApp {
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
         UIManager.put("swing.boldMetal", Boolean.FALSE);
-        final BeadForm beadform = new BeadForm(args);
+        final JBeadFrame beadform = new JBeadFrame(args);
         beadform.setMaximizedBounds(beadform.getMaxBounds());
         if (beadform.isConfigMaximized()) {
             beadform.setExtendedState(beadform.getExtendedState() | Frame.MAXIMIZED_BOTH);
