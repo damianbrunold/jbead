@@ -145,7 +145,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     private PrintSettings printSettings = new PrintSettings(settings);
 
     private JPanel main = new JPanel();
-    private JLabel statusbar = new JLabel("X");
 
     private Map<String, Action> actions = new HashMap<String, Action>();
 
@@ -340,7 +339,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         toolbars.add(colors = createColorbar());
         add(toolbars, BorderLayout.NORTH);
         add(main, BorderLayout.CENTER);
-        add(statusbar, BorderLayout.SOUTH);
         createMainGUI();
     }
 
@@ -853,19 +851,10 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         getAction("edit.delete").setEnabled(selection.isActive());
         getAction("edit.undo").setEnabled(model.canUndo());
         getAction("edit.redo").setEnabled(model.canRedo());
-
         if (model.isRepeatDirty()) {
             model.updateRepeat();
         }
         model.prepareSnapshot();
-
-        String status = "";
-        if (selection.isActive()) {
-            status = "sel " + selection;
-        } else {
-            status = "pat " + model.getUsedRect();
-        }
-        statusbar.setText(status);
     }
 
     public void toolPencilClick() {
