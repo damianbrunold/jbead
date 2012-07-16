@@ -36,7 +36,7 @@ import javax.swing.SpinnerNumberModel;
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 
-public class PatternHeightForm extends JDialog {
+public class PatternHeightDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private SpinnerModel heightModel = new SpinnerNumberModel(1000, 5, 10000, 1);
@@ -44,8 +44,8 @@ public class PatternHeightForm extends JDialog {
 
     private boolean isOK = false;
 
-    public PatternHeightForm(Localization localization) {
-        setTitle(localization.getString("patternheightform.title"));
+    public PatternHeightDialog(Localization localization) {
+        setTitle(localization.getString("patternheightdialog.title"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
@@ -57,7 +57,7 @@ public class PatternHeightForm extends JDialog {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
-        form.add(new JLabel(localization.getString("patternheightform.height")), constraints);
+        form.add(new JLabel(localization.getString("patternheightdialog.height")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;

@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
-import ch.jbead.dialog.AboutBox;
+import ch.jbead.dialog.InfoAboutDialog;
 
 public class InfoAboutAction extends BaseAction {
 
@@ -36,7 +36,7 @@ public class InfoAboutAction extends BaseAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        new AboutBox(form).setVisible(true);
+        new InfoAboutDialog(form).setVisible(true);
     }
 
 }

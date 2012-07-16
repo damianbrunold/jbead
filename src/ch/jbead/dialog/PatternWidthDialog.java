@@ -36,7 +36,7 @@ import javax.swing.SpinnerNumberModel;
 import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 
-public class PatternWidthForm extends JDialog {
+public class PatternWidthDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private SpinnerModel widthModel = new SpinnerNumberModel(10, 5, 500, 1);
@@ -44,8 +44,8 @@ public class PatternWidthForm extends JDialog {
 
     private boolean isOK = false;
 
-    public PatternWidthForm(Localization localization) {
-        setTitle(localization.getString("patternwidthform.title"));
+    public PatternWidthDialog(Localization localization) {
+        setTitle(localization.getString("patternwidthdialog.title"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
@@ -58,12 +58,12 @@ public class PatternWidthForm extends JDialog {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
-        form.add(new JLabel(localization.getString("patternwidthform.description")), constraints);
+        form.add(new JLabel(localization.getString("patternwidthdialog.description")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        form.add(new JLabel(localization.getString("patternwidthform.width")), constraints);
+        form.add(new JLabel(localization.getString("patternwidthdialog.width")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;

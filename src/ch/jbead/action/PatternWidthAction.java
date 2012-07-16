@@ -23,7 +23,7 @@ import java.awt.event.KeyEvent;
 import ch.jbead.BaseAction;
 import ch.jbead.BeadForm;
 import ch.jbead.Model;
-import ch.jbead.dialog.PatternWidthForm;
+import ch.jbead.dialog.PatternWidthDialog;
 
 public class PatternWidthAction extends BaseAction {
 
@@ -40,7 +40,7 @@ public class PatternWidthAction extends BaseAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         Model model = form.getModel();
-        PatternWidthForm dialog = new PatternWidthForm(form);
+        PatternWidthDialog dialog = new PatternWidthDialog(form);
         dialog.setPatternWidth(model.getWidth());
         dialog.setVisible(true);
         if (dialog.isOK()) {

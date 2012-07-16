@@ -95,7 +95,7 @@ import ch.jbead.action.ViewSimulationAction;
 import ch.jbead.action.ViewZoomInAction;
 import ch.jbead.action.ViewZoomNormalAction;
 import ch.jbead.action.ViewZoomOutAction;
-import ch.jbead.dialog.CopyForm;
+import ch.jbead.dialog.ArrangeDialog;
 import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
 
@@ -942,7 +942,7 @@ public class BeadForm extends JFrame implements Localization, ModelListener {
     }
 
     public void editArrangeClick() {
-        CopyForm copyform = new CopyForm(this, selection, model);
+        ArrangeDialog copyform = new ArrangeDialog(this, selection, model);
         copyform.setVisible(true);
         if (copyform.isOK()) {
             int copies = copyform.getCopies();

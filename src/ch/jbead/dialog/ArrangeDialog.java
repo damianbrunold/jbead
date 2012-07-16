@@ -38,7 +38,7 @@ import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Selection;
 
-public class CopyForm extends JDialog {
+public class ArrangeDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private boolean isOK = false;
@@ -56,10 +56,10 @@ public class CopyForm extends JDialog {
     private JButton bOK;
     private JButton bCancel;
 
-    public CopyForm(Localization localization, Selection selection, Model model) {
+    public ArrangeDialog(Localization localization, Selection selection, Model model) {
         this.selection = selection;
         this.model = model;
-        setTitle(localization.getString("copyform.title"));
+        setTitle(localization.getString("arrangedialog.title"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
@@ -71,7 +71,7 @@ public class CopyForm extends JDialog {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
-        form.add(new JLabel(localization.getString("copyform.horz")), constraints);
+        form.add(new JLabel(localization.getString("arrangedialog.horz")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -81,7 +81,7 @@ public class CopyForm extends JDialog {
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 1;
-        form.add(new JLabel(localization.getString("copyform.vert")), constraints);
+        form.add(new JLabel(localization.getString("arrangedialog.vert")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;
@@ -91,7 +91,7 @@ public class CopyForm extends JDialog {
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 2;
-        form.add(new JLabel(localization.getString("copyform.copies")), constraints);
+        form.add(new JLabel(localization.getString("arrangedialog.copies")), constraints);
 
         constraints = new GridBagConstraints();
         constraints.gridx = 1;

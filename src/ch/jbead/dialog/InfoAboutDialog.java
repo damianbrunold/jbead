@@ -31,11 +31,11 @@ import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 import ch.jbead.Version;
 
-public class AboutBox extends JDialog {
+public class InfoAboutDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    public AboutBox(Localization localization) {
-        setTitle(localization.getString("aboutbox.title"));
+    public InfoAboutDialog(Localization localization) {
+        setTitle(localization.getString("infoaboutdialog.title"));
         setIconImage(ImageFactory.getImage("jbead-16"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
@@ -43,7 +43,7 @@ public class AboutBox extends JDialog {
         setModal(true);
         setLayout(new BorderLayout());
         String version = Version.getInstance().getVersionString();
-        add(new JLabel(localization.getString("aboutbox.text").replace("VERSION", version)), BorderLayout.CENTER);
+        add(new JLabel(localization.getString("infoaboutdialog.text").replace("VERSION", version)), BorderLayout.CENTER);
         JPanel buttons = new JPanel();
         JButton ok = new JButton(localization.getString("ok"));
         buttons.add(ok);
@@ -54,7 +54,7 @@ public class AboutBox extends JDialog {
         ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                AboutBox.this.dispose();
+                InfoAboutDialog.this.dispose();
             }
         });
     }
