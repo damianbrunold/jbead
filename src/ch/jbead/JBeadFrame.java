@@ -355,6 +355,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createFileMenu() {
         JMenu menuFile = new JMenu(bundle.getString("action.file"));
+        menuFile.setMnemonic(bundle.getString("action.file.mnemonic").charAt(0));
         menuFile.add(new FileNewAction(this));
         menuFile.add(new FileOpenAction(this));
         menuFile.add(new FileSaveAction(this));
@@ -376,6 +377,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createEditMenu() {
         JMenu menuEdit = new JMenu(bundle.getString("action.edit"));
+        menuEdit.setMnemonic(bundle.getString("action.edit.mnemonic").charAt(0));
         menuEdit.add(new EditUndoAction(this));
         menuEdit.add(new EditRedoAction(this));
         menuEdit.add(new EditArrangeAction(this));
@@ -392,6 +394,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createViewMenu() {
         JMenu menuView = new JMenu(bundle.getString("action.view"));
+        menuView.setMnemonic(bundle.getString("action.view.mnemonic").charAt(0));
         menuView.add(viewDraft = new JCheckBoxMenuItem(new ViewDraftAction(this)));
         menuView.add(viewCorrected = new JCheckBoxMenuItem(new ViewCorrectedAction(this)));
         menuView.add(viewSimulation = new JCheckBoxMenuItem(new ViewSimulationAction(this)));
@@ -405,6 +408,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createToolMenu() {
         JMenu menuTool = new JMenu(bundle.getString("action.tool"));
+        menuTool.setMnemonic(bundle.getString("action.tool.mnemonic").charAt(0));
         menuTool.add(toolsGroup.addTool("pencil", new ToolMenuItem(new ToolPencilAction(this))));
         menuTool.add(toolsGroup.addTool("select", new ToolMenuItem(new ToolSelectAction(this))));
         menuTool.add(toolsGroup.addTool("fill", new ToolMenuItem(new ToolFillAction(this))));
@@ -414,6 +418,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createPatternMenu() {
         JMenu menuPattern = new JMenu(bundle.getString("action.pattern"));
+        menuPattern.setMnemonic(bundle.getString("action.pattern.mnemonic").charAt(0));
         menuPattern.add(new PatternWidthAction(this));
         menuPattern.add(new PatternHeightAction(this));
         return menuPattern;
@@ -421,6 +426,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     private JMenu createInfoMenu() {
         JMenu menuInfo = new JMenu(bundle.getString("action.info"));
+        menuInfo.setMnemonic(bundle.getString("action.info.mnemonic").charAt(0));
         menuInfo.add(new InfoTechInfosAction(this));
         menuInfo.add(new InfoAboutAction(this));
         return menuInfo;

@@ -32,7 +32,7 @@ public class ViewCorrectedAction extends BaseAction {
     public ViewCorrectedAction(JBeadFrame frame) {
         super(NAME, frame);
         putValue(SHORT_DESCRIPTION, localization.getString("action.view.corrected.description"));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_N);
+        putValue(MNEMONIC_KEY, KeyEvent.VK_C);
     }
 
     @Override
