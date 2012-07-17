@@ -36,7 +36,6 @@ public class ToolFillAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.fill.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         selection.clear();
         frame.selectTool("fill");

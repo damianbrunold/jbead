@@ -30,7 +30,6 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import ch.jbead.ImageFactory;
 import ch.jbead.JBeadMemento;
 import ch.jbead.Localization;
 import ch.jbead.Version;
@@ -40,7 +39,6 @@ public class TechInfosDialog extends JDialog {
 
     public TechInfosDialog(final Localization localization) {
         setTitle(localization.getString("techinfos.title"));
-        setIconImage(ImageFactory.getImage("jbead-16"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
@@ -63,13 +61,11 @@ public class TechInfosDialog extends JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         ok.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 TechInfosDialog.this.dispose();
             }
         });
         copy.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 StringSelection text = new StringSelection(getTechInfos(localization));

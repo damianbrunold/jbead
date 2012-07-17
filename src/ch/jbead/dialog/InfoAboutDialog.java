@@ -27,7 +27,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 import ch.jbead.Version;
 
@@ -36,7 +35,6 @@ public class InfoAboutDialog extends JDialog {
 
     public InfoAboutDialog(Localization localization) {
         setTitle(localization.getString("infoaboutdialog.title"));
-        setIconImage(ImageFactory.getImage("jbead-16"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
         setContentPane(main);
@@ -52,7 +50,6 @@ public class InfoAboutDialog extends JDialog {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         ok.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 InfoAboutDialog.this.dispose();
             }

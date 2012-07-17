@@ -43,7 +43,6 @@ public class Path implements Iterable<String> {
         return leaf;
     }
 
-    @Override
     public Iterator<String> iterator() {
         return path.iterator();
     }

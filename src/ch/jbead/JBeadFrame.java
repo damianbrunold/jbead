@@ -195,7 +195,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
         initScrollbar();
         scrollbar.addAdjustmentListener(new AdjustmentListener() {
-            @Override
             public void adjustmentValueChanged(AdjustmentEvent e) {
                 if (e.getValueIsAdjusting()) return;
                 updateScrollPos(e.getValue());
@@ -317,22 +316,18 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         return printSettings;
     }
 
-    @Override
     public ResourceBundle getBundle() {
         return bundle;
     }
 
-    @Override
     public String getString(String key) {
         return getBundle().getString(key);
     }
 
-    @Override
     public int getMnemonic(String key) {
         return getBundle().getString(key).charAt(0);
     }
 
-    @Override
     public KeyStroke getKeyStroke(String key) {
         return KeyStroke.getKeyStroke(getBundle().getString(key));
     }
@@ -976,50 +971,42 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     }
 
     private void addMRU(String path) {
-        if (path.isEmpty()) return;
+        if (path.length() == 0) return;
         mru.add(new File(path));
     }
 
-    @Override
     public void pointChanged(Point pt) {
         updateTitle();
     }
 
-    @Override
     public void modelChanged() {
         colors.updateAll();
         updateScrollbar();
         updateTitle();
     }
 
-    @Override
     public void colorChanged(byte colorIndex) {
         colors.updateColorIcon(colorIndex);
         updateTitle();
     }
 
-    @Override
     public void colorsChanged() {
         colors.updateAll();
         updateTitle();
     }
 
-    @Override
     public void scrollChanged(int scroll) {
         updateTitle();
     }
 
-    @Override
     public void shiftChanged(int shift) {
         updateTitle();
     }
 
-    @Override
     public void zoomChanged(int gridx, int gridy) {
         updateTitle();
     }
 
-    @Override
     public void repeatChanged(int repeat) {
         updateTitle();
     }

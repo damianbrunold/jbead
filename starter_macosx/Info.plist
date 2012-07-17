@@ -23,17 +23,13 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.16</string>
+	<string>1.0.17</string>
 	<key>Java</key>
 	<dict>
-		<key>Arguments</key>
-		<string></string>
 		<key>ClassPath</key>
-		<array>
-			<string>$APP_PACKAGE/Contents/Resources/Java/jbead.jar</string>
-		</array>
+		<string>$APP_PACKAGE/Contents/Resources/Java/jbead.jar</string>
 		<key>JVMVersion</key>
-		<string>1.6*</string>
+		<string>1.5+</string>
 		<key>MainClass</key>
 		<string>ch.jbead.JBeadApp</string>
 		<key>Properties</key>
@@ -48,11 +44,5 @@
 			<string>true</string>
 		</dict>
 	</dict>
-	<key>LSHasLocalizedDisplayName</key>
-	<false/>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (c) 2001-2012 Damian Brunold</string>
-	<key>NSJavaRoot</key>
-	<string>Contents/Resources/Java</string>
 </dict>
 </plist>

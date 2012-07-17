@@ -34,7 +34,6 @@ public class ViewCorrectedAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.corrected.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         frame.updateVisibility();
     }

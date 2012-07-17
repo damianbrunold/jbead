@@ -34,7 +34,6 @@ public class EditMirrorHorizontalAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.mirrorhorizontal.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (selection.isActive()) {
             model.mirrorHorizontal(selection);

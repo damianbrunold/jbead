@@ -34,7 +34,6 @@ public class Tokens implements Iterable<Object> {
         parse(data);
     }
 
-    @Override
     public Iterator<Object> iterator() {
         return tokens.iterator();
     }

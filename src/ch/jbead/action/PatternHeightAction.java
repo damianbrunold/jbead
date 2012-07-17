@@ -35,7 +35,6 @@ public class PatternHeightAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.pattern.height.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         PatternHeightDialog dialog = new PatternHeightDialog(frame);
         dialog.setPatternHeight(model.getHeight());

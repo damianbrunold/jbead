@@ -37,12 +37,10 @@ public abstract class BasePanel extends JComponent implements ModelListener {
 
     public abstract void redraw(Point pt);
 
-    @Override
     public void pointChanged(Point pt) {
         redraw(pt);
     }
 
-    @Override
     public void modelChanged() {
         this.scroll = model.getScroll();
         this.gridx = model.getGridx();
@@ -50,35 +48,29 @@ public abstract class BasePanel extends JComponent implements ModelListener {
         repaint();
     }
 
-    @Override
     public void colorChanged(byte colorIndex) {
         repaint();
     }
 
-    @Override
     public void colorsChanged() {
         repaint();
     }
 
-    @Override
     public void scrollChanged(int scroll) {
         this.scroll = scroll;
         repaint();
     }
 
-    @Override
     public void shiftChanged(int shift) {
         // empty
     }
 
-    @Override
     public void zoomChanged(int gridx, int gridy) {
         this.gridx = gridx;
         this.gridy = gridy;
         repaint();
     }
 
-    @Override
     public void repeatChanged(int repeat) {
         // empty
     }

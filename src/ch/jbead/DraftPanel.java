@@ -24,6 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 public class DraftPanel extends BasePanel implements SelectionListener {
 
@@ -50,10 +51,12 @@ public class DraftPanel extends BasePanel implements SelectionListener {
                 form.draftMouseUp(e);
             }
         });
-        addMouseMotionListener(new MouseAdapter() {
-            @Override
+        addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
                 form.draftMouseMove(e);
+            }
+            public void mouseMoved(MouseEvent e) {
+                // empty
             }
         });
     }
@@ -199,13 +202,11 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         return new Point(i, jj);
     }
 
-    @Override
     public void selectionUpdated(Selection before, Selection current) {
         clearSelection(before);
         drawSelection(current);
     }
 
-    @Override
     public void selectionDeleted(Selection sel) {
         clearSelection(sel);
     }

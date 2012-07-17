@@ -37,7 +37,6 @@ public class EditArrangeAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.edit.arrange.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         ArrangeDialog copyform = new ArrangeDialog(localization, selection, model);
         copyform.setVisible(true);

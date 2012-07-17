@@ -95,7 +95,6 @@ public class Node implements Iterable<Node> {
         return result;
     }
 
-    @Override
     public Iterator<Node> iterator() {
         return children.iterator();
     }

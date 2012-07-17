@@ -38,7 +38,7 @@ public class ReportInfos implements Iterable<String> {
 
     private void addInfos() {
         addInfo("report.pattern", model.getFile().getName());
-        if (!model.getAuthor().isEmpty()) {
+        if (model.getAuthor().length() > 0) {
             addInfo("report.author", model.getAuthor());
         }
         addInfo("report.circumference", model.getWidth());
@@ -76,7 +76,6 @@ public class ReportInfos implements Iterable<String> {
         infos.put(localization.getString(labelKey), info.toString());
     }
 
-    @Override
     public Iterator<String> iterator() {
         return infos.keySet().iterator();
     }

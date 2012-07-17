@@ -36,7 +36,6 @@ public class ToolPencilAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.pencil.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         selection.clear();
         frame.selectTool("pencil");

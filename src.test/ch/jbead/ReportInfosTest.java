@@ -31,19 +31,15 @@ public class ReportInfosTest extends TestCase {
     @Override
     protected void setUp() {
         localization = new Localization() {
-            @Override
             public String getString(String key) {
                 return getBundle().getString(key).trim();
             }
-            @Override
             public int getMnemonic(String key) {
                 return getBundle().getString(key).charAt(0);
             }
-            @Override
             public KeyStroke getKeyStroke(String key) {
                 return KeyStroke.getKeyStroke(getBundle().getString(key));
             }
-            @Override
             public ResourceBundle getBundle() {
                 return ResourceBundle.getBundle("jbead_test");
             }

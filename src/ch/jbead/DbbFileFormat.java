@@ -30,12 +30,10 @@ public class DbbFileFormat implements FileFormat {
 
     public static final String EXTENSION = ".dbb";
 
-    @Override
     public String getName() {
         return "DB-BEAD";
     }
 
-    @Override
     public void save(Model model, JBeadFrame form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(destfile));
         try {
@@ -50,7 +48,6 @@ public class DbbFileFormat implements FileFormat {
         }
     }
 
-    @Override
     public void load(Model model, JBeadFrame form, File srcfile) throws IOException {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
@@ -69,12 +66,10 @@ public class DbbFileFormat implements FileFormat {
         }
     }
 
-    @Override
     public FileFilter getFileFilter() {
         return new DbbFileFilter();
     }
 
-    @Override
     public String getExtension() {
         return EXTENSION;
     }

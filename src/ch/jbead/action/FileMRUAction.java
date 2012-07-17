@@ -34,7 +34,6 @@ public class FileMRUAction extends BaseAction {
         this.index = index;
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         File file = frame.getMRU(index);
         frame.updateFileFormat(null, file);

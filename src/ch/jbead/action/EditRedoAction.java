@@ -36,7 +36,6 @@ public class EditRedoAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.edit.redo.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.redo();
     }

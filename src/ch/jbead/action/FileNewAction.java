@@ -38,7 +38,6 @@ public class FileNewAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.new.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (model.isModified()) {
             int answer = JOptionPane.showConfirmDialog(frame, localization.getString("savechanges"));

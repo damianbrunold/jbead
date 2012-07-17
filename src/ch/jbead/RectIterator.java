@@ -31,12 +31,10 @@ public class RectIterator implements Iterator<Point> {
         this.next = this.begin;
     }
 
-    @Override
     public boolean hasNext() {
         return next != null;
     }
 
-    @Override
     public Point next() {
         Point result = next;
         next = next.nextRight();
@@ -49,7 +47,6 @@ public class RectIterator implements Iterator<Point> {
         return result;
     }
 
-    @Override
     public void remove() {
         // ignore
     }

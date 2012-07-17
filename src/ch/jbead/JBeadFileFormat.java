@@ -28,12 +28,10 @@ public class JBeadFileFormat implements FileFormat {
 
     public static final String EXTENSION = ".jbb";
 
-    @Override
     public String getName() {
         return "jbead";
     }
 
-    @Override
     public void save(Model model, JBeadFrame form, File destfile) throws IOException {
         JBeadOutputStream out = new JBeadOutputStream(new FileOutputStream(destfile));
         try {
@@ -47,7 +45,6 @@ public class JBeadFileFormat implements FileFormat {
         }
     }
 
-    @Override
     public void load(Model model, JBeadFrame form, File srcfile) throws IOException {
         JBeadInputStream in = new JBeadInputStream(new FileInputStream(srcfile));
         try {
@@ -62,12 +59,10 @@ public class JBeadFileFormat implements FileFormat {
         }
     }
 
-    @Override
     public FileFilter getFileFilter() {
         return new JbbFileFilter();
     }
 
-    @Override
     public String getExtension() {
         return EXTENSION;
     }

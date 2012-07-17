@@ -34,7 +34,6 @@ public class ViewDraftAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.draft.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         frame.updateVisibility();
     }

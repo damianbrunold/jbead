@@ -37,7 +37,6 @@ public class FileExitAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.exit.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (model.isModified()) {
             int r = JOptionPane.showConfirmDialog(frame, localization.getString("savechanges"));

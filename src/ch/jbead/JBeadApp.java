@@ -35,7 +35,6 @@ public class JBeadApp {
         beadform.setVisible(true);
         if (beadform.isConfigMaximized()) {
             SwingUtilities.invokeLater(new Runnable() {
-                @Override
                 public void run() {
                     beadform.setExtendedState(beadform.getExtendedState() | Frame.MAXIMIZED_BOTH);
                 }

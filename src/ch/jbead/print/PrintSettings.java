@@ -70,7 +70,7 @@ public class PrintSettings {
         }
         attributes.add(new Copies(1));
         String papername = settings.loadString("paper");
-        if (!papername.isEmpty()) {
+        if (papername.length() > 0) {
             attributes.add(getMedia(papername));
         } else {
             Paper paper = PrinterJob.getPrinterJob().defaultPage().getPaper();

@@ -17,25 +17,24 @@
 
 package ch.jbead;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 
-/**
- * 
- */
 public class MRUMenuItem extends JMenuItem {
-    
+
     private static final long serialVersionUID = 1L;
 
     public MRUMenuItem(Action action) {
         super(action);
-        setVisible(!getText().isEmpty());
+        setVisible(getText().length() > 0);
+        addPropertyChangeListener(TEXT_CHANGED_PROPERTY, new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                MRUMenuItem.this.setVisible(getText().length() > 0);
+            }
+        });
     }
 
-    @Override
-    protected void actionPropertyChanged(Action action, String propertyName) {
-        super.actionPropertyChanged(action, propertyName);
-        setVisible(!getText().isEmpty());
-    }
-    
 }

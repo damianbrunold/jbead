@@ -34,7 +34,6 @@ public class EditRotateAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.rotate.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.rotate(selection);
     }

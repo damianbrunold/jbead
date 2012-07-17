@@ -36,7 +36,6 @@ public class EditUndoAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.edit.undo.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.undo();
     }

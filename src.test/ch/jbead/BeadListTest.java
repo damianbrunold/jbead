@@ -51,22 +51,18 @@ public class BeadListTest extends TestCase implements Localization {
         assertEquals("1x1 0x4 ", result.toString());
     }
 
-    @Override
     public ResourceBundle getBundle() {
         return bundle;
     }
 
-    @Override
     public String getString(String key) {
         return bundle.getString(key);
     }
 
-    @Override
     public int getMnemonic(String key) {
         return bundle.getString(key).charAt(0);
     }
 
-    @Override
     public KeyStroke getKeyStroke(String key) {
         return KeyStroke.getKeyStroke(bundle.getString(key));
     }

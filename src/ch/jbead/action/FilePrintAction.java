@@ -39,7 +39,6 @@ public class FilePrintAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.print.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (model.getUsedHeight() == 0) return;
         boolean showDialog = e.getSource() instanceof JMenuItem;

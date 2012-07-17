@@ -26,7 +26,7 @@ public class JBeadDateFormat extends SimpleDateFormat {
     private static final long serialVersionUID = 1L;
 
     public JBeadDateFormat() {
-        super("yyyy-MM-dd'T'HH:mm:ssZ", DateFormatSymbols.getInstance(Locale.ENGLISH));
+        super("yyyy-MM-dd'T'HH:mm:ssZ", new DateFormatSymbols(Locale.ENGLISH));
     }
 
 }

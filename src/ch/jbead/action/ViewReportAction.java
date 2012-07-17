@@ -34,7 +34,6 @@ public class ViewReportAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.report.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         frame.updateVisibility();
     }

@@ -34,7 +34,6 @@ public class EditInsertRowAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.insertrow.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.insertRow();
     }

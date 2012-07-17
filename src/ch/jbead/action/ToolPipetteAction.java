@@ -36,7 +36,6 @@ public class ToolPipetteAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.pipette.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         selection.clear();
         frame.selectTool("pipette");

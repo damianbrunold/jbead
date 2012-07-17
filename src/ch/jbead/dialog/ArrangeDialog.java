@@ -33,7 +33,6 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
-import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Selection;
@@ -108,20 +107,17 @@ public class ArrangeDialog extends JDialog {
 
         initDefaultValues();
 
-        setIconImage(ImageFactory.getImage("jbead-16"));
         setModal(true);
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         bOK.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = true;
                 dispose();
             }
         });
         bCancel.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = false;
                 dispose();

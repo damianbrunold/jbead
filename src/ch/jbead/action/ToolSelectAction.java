@@ -36,7 +36,6 @@ public class ToolSelectAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.tool.select.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         selection.clear();
         frame.selectTool("select");

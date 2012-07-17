@@ -130,17 +130,14 @@ public class Model implements ColorTable {
         colors.addAll(new DefaultColors());
     }
 
-    @Override
     public Color getColor(byte index) {
         return colors.get(index);
     }
 
-    @Override
     public int getColorCount() {
         return colors.size();
     }
 
-    @Override
     public void setColor(byte index, Color color) {
         snapshot();
         colors.set(index, color);
@@ -388,7 +385,6 @@ public class Model implements ColorTable {
         fireModelChanged();
     }
 
-    @Override
     public byte getSelectedColor() {
         return colorIndex;
     }

@@ -20,23 +20,22 @@ package ch.jbead;
 import java.util.Iterator;
 
 /**
- * 
+ *
  */
 public class Segment implements Iterable<Point> {
 
     private Point begin;
     private Point end;
-    
+
     public Segment(Point begin, Point end) {
         this.begin = begin;
         this.end = end;
     }
-    
-    @Override
+
     public Iterator<Point> iterator() {
         return new SegmentIterator(begin, end);
     }
-    
+
     @Override
     public String toString() {
         return begin + "->" + end;

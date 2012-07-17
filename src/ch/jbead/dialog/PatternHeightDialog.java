@@ -33,7 +33,6 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 
-import ch.jbead.ImageFactory;
 import ch.jbead.Localization;
 
 public class PatternHeightDialog extends JDialog {
@@ -74,20 +73,17 @@ public class PatternHeightDialog extends JDialog {
         buttons.add(cancel);
         add(buttons, BorderLayout.SOUTH);
 
-        setIconImage(ImageFactory.getImage("jbead-16"));
         setModal(true);
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         ok.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = true;
                 dispose();
             }
         });
         cancel.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 isOK = false;
                 dispose();

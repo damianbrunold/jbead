@@ -55,7 +55,6 @@ public class PageLayout implements Printable {
         }
     }
 
-    @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         int x = (int) pageFormat.getImageableX();
         int y = (int) pageFormat.getImageableY();

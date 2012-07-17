@@ -35,7 +35,6 @@ public class PatternWidthAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.pattern.width.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         PatternWidthDialog dialog = new PatternWidthDialog(frame);
         dialog.setPatternWidth(model.getWidth());

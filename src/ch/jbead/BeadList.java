@@ -48,7 +48,6 @@ public class BeadList implements Iterable<BeadRun> {
         return runs.get(idx);
     }
 
-    @Override
     public Iterator<BeadRun> iterator() {
         return runs.iterator();
     }

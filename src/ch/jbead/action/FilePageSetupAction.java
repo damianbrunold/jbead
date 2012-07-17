@@ -42,7 +42,6 @@ public class FilePageSetupAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.pagesetup.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         PrinterJob job = PrinterJob.getPrinterJob();
         PrintSettings settings = frame.getPrintSettings();

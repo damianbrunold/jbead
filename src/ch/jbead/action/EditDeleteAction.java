@@ -34,7 +34,6 @@ public class EditDeleteAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.edit.delete.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.delete(selection);
     }

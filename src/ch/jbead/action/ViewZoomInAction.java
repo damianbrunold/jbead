@@ -36,7 +36,6 @@ public class ViewZoomInAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.view.zoomin.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.zoomIn();
         frame.updateScrollbar();

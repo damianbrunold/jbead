@@ -36,7 +36,6 @@ public class ViewZoomOutAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.view.zoomout.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         model.zoomOut();
         frame.updateScrollbar();

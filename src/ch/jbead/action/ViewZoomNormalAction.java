@@ -34,7 +34,6 @@ public class ViewZoomNormalAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.view.zoomnormal.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (model.isNormalZoom()) return;
         model.zoomNormal();

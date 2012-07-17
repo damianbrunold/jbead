@@ -35,7 +35,6 @@ public class InfoTechInfosAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.info.techinfos.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         new TechInfosDialog(frame).setVisible(true);
     }

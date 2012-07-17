@@ -35,7 +35,6 @@ public class InfoAboutAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.info.about.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         new InfoAboutDialog(frame).setVisible(true);
     }

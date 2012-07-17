@@ -108,7 +108,7 @@ public class DesignPrinter {
                     if (!printjob.printDialog(attrs)) return;
                     settings.setService(printjob.getPrintService());
                 }
-                PageFormat pageformat = printjob.getPageFormat(attrs);
+                PageFormat pageformat = PageFormatCreator.create(printjob, attrs);
                 layoutPages(pageformat);
                 Book book = new Book();
                 for (PageLayout page : pages) {

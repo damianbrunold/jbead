@@ -73,21 +73,18 @@ public class ColorPalette extends JComponent {
         JPopupMenu menu = new JPopupMenu();
         menu.add(new AbstractAction(localization.getString("colorpalette.popup.select")) {
             private static final long serialVersionUID = 1L;
-            @Override
             public void actionPerformed(ActionEvent e) {
                 selectColor(x, y);
             }
         });
         menu.add(new AbstractAction(localization.getString("colorpalette.popup.edit")) {
             private static final long serialVersionUID = 1L;
-            @Override
             public void actionPerformed(ActionEvent e2) {
                 chooseColor(x, y);
             }
         });
         menu.add(new AbstractAction(localization.getString("colorpalette.popup.asbackground")) {
             private static final long serialVersionUID = 1L;
-            @Override
             public void actionPerformed(ActionEvent e2) {
                 asBackground(x, y);
             }

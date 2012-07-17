@@ -38,7 +38,6 @@ public class FileOpenAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.open.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         JFileChooser dialog = new JFileChooser();
         dialog.setCurrentDirectory(model.getCurrentDirectory());

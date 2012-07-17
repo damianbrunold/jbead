@@ -34,7 +34,6 @@ public class FileSaveAsAction extends BaseAction {
         putValue(MNEMONIC_KEY, localization.getMnemonic("action.file.saveas.mnemonic"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         frame.fileSaveasClick();
     }

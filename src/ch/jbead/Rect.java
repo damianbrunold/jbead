@@ -29,7 +29,6 @@ public class Rect implements Iterable<Point> {
         this.end = end;
     }
 
-    @Override
     public Iterator<Point> iterator() {
         return new RectIterator(begin, end);
     }

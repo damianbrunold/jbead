@@ -20,20 +20,20 @@ package ch.jbead;
 import java.util.Iterator;
 
 /**
- * 
+ *
  */
 public class SegmentIterator implements Iterator<Point> {
 
     private Point begin;
     private Point end;
     private Point next;
-    
+
     private int dx;
     private int dy;
-    
+
     private int sx;
     private int sy;
-    
+
     public SegmentIterator(Point begin, Point end) {
         this.begin = begin;
         this.end = end;
@@ -43,13 +43,11 @@ public class SegmentIterator implements Iterator<Point> {
         this.sx = dx > 0 ? 1 : -1;
         this.sy = dy > 0 ? 1 : -1;
     }
-    
-    @Override
+
     public boolean hasNext() {
         return next != null;
     }
 
-    @Override
     public Point next() {
         Point result = next;
         if (next.equals(end)) {
@@ -68,7 +66,6 @@ public class SegmentIterator implements Iterator<Point> {
         return result;
     }
 
-    @Override
     public void remove() {
         // ignore
     }

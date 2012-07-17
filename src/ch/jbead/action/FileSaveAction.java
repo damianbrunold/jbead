@@ -36,7 +36,6 @@ public class FileSaveAction extends BaseAction {
         putValue(ACCELERATOR_KEY, localization.getKeyStroke("action.file.save.keystroke"));
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         frame.fileSaveClick(model.isSaved(), model.getFile());
     }
