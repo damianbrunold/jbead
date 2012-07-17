@@ -1,0 +1,15 @@
+If you cant create the image on a mac because of the build process, here is how you can do it under 
+linux:
+
+1. Create a image file, the size is fixed. (dd if=/dev/zero of=/root/eclipse.dmg bs=1M count=130)
+2. Get the hfsutils (for redhat or suse: hfsutils-3.2.6-1.i386.rpm from rpmfind.net) and install them.
+3. Format the image file: hformat -l Eclipse /root/eclipse.dmg
+4. Mount the image: mount -t hfs -o loop /root/eclipse.dmg /mnt/test
+5. Copy files into the volume
+6. Unmount the volume: umount /mnt/test
+7. Thats it.
+
+I have not found out yet how to generate that data for icon location and size of the volume window 
+under linux, but, if you dont change that (eg, every eclipse release will have a folder called eclipse, then 
+you can specify a background image & icon size in OSX and then copy the .DS_Store file over to the 
+linux box and use it for all the future builds.
