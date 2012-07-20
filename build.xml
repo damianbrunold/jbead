@@ -162,7 +162,15 @@
         <copy file="starter_macosx/PkgInfo" todir="dist/jbead.app/Contents" />
         <copy file="starter_macosx/jbead.icns" todir="dist/jbead.app/Contents/Resources" />
         <mkdir dir="setup_macosx" />
-        <tar destfile="setup_macosx/jbead_${version}_macosx.tar.gz" compression="gzip" basedir="dist" />
+        <tar destfile="setup_macosx/jbead_${version}_macosx.tar.gz" compression="gzip">
+          <tarfileset dir="dist/jbead.app" prefix="jbead.app" filemode="755">
+            <include name="Contents/MacOS/JavaApplicationStub"/>
+          </tarfileset>
+          <tarfileset dir="dist/jbead.app" prefix="jbead.app">
+            <include name="**"/>
+            <exclude name="Contents/MacOS/JavaApplicationStub"/>
+          </tarfileset>
+        </tar>
 		<delete dir="dist" />
 	</target>
 
