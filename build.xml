@@ -126,12 +126,12 @@
 	<target name="package_linux">
 		<property file="build.properties" />
 		<mkdir dir="dist" />
-		<mkdir dir="jbead_${version}" />
+		<mkdir dir="dist/jbead_${version}" />
 		<copy file="jbead.jar" todir="dist/jbead_${version}" />
 		<copy file="LICENSE.txt" todir="dist/jbead_${version}" />
 		<copy file="starter_linux/jbead" todir="dist/jbead_${version}" />
 		<chmod file="dist/jbead_${version}/jbead" perm="755" />
-		<mkdir dir="jbead_${version}/samples" />
+		<mkdir dir="dist/jbead_${version}/samples" />
 		<copy todir="dist/jbead_${version}/samples">
 			<fileset dir="samples"/>
 		</copy>	
