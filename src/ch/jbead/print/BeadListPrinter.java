@@ -46,10 +46,13 @@ public class BeadListPrinter extends PartPrinter {
         return columns;
     }
 
+    private int getBeadsPerColumn(int height) {
+        return height / (font.getSize() + 2);
+    }
+
     private void addBeadColumns(List<Integer> columns, int height) {
         FontRenderContext context = new FontRenderContext(null, false, false);
-        int d = font.getSize();
-        int beadsPerColumn = height / (d + 2);
+        int beadsPerColumn = getBeadsPerColumn(height);
         int colWidth = font.getSize() + 3 + (int) font.getStringBounds("9999x ", context).getWidth();
         int cols = (beadlist.size() + beadsPerColumn - 1) / beadsPerColumn;
         for (int i = 0; i < cols; i++) {
@@ -69,7 +72,7 @@ public class BeadListPrinter extends PartPrinter {
 
     private int drawBeadList(Graphics2D g, int x, int y, int height, int column) {
         int d = font.getSize();
-        int beadsPerColumn = height / d;
+        int beadsPerColumn = getBeadsPerColumn(height);
         int start = beadsPerColumn * column;
         for (int index = start; index < start + beadsPerColumn; index++) {
             if (index >= beadlist.size()) break;
