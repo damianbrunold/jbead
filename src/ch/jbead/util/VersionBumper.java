@@ -136,7 +136,7 @@ public class VersionBumper {
     }
 
     private static File getSetupConfigFile() {
-        return new File("setup_win/jbead.nsi");
+        return new File("setup/jbead.nsi");
     }
 
     private static void patchInfoPlist(Version version) throws IOException {

@@ -24,6 +24,7 @@
 		<antcall target="compile" />
 		<antcall target="test" />
 		<antcall target="jar" />
+		<mkdir dir="setup"/>
 		<antcall target="package_linux" />
         <antcall target="package_macosx" />
 	</target>
@@ -135,8 +136,7 @@
 		<copy todir="dist/jbead_${version}/samples">
 			<fileset dir="samples"/>
 		</copy>	
-		<mkdir dir="setup_linux" />
-		<tar destfile="setup_linux/jbead_${version}_linux.tar.gz" compression="gzip">
+		<tar destfile="setup/jbead_${version}_linux.tar.gz" compression="gzip">
 		  <tarfileset dir="dist/jbead_${version}" prefix="jbead_${version}" filemode="755">
 		    <include name="jbead"/>
 		  </tarfileset>
@@ -161,8 +161,7 @@
         <copy file="starter_macosx/JavaApplicationStub" todir="dist/jbead.app/Contents/MacOS" />
         <copy file="starter_macosx/PkgInfo" todir="dist/jbead.app/Contents" />
         <copy file="starter_macosx/jbead.icns" todir="dist/jbead.app/Contents/Resources" />
-        <mkdir dir="setup_macosx" />
-        <tar destfile="setup_macosx/jbead_${version}_macosx.tar.gz" compression="gzip">
+        <tar destfile="setup/jbead_${version}_macosx.tar.gz" compression="gzip">
           <tarfileset dir="dist/jbead.app" prefix="jbead.app" filemode="755">
             <include name="Contents/MacOS/JavaApplicationStub"/>
           </tarfileset>

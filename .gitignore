@@ -5,7 +5,5 @@ testreport/
 coverage/
 jbead.jar
 jbead.exe
-setup_linux/jbead_*
-setup_win/jbead_*
-setup_macosx/jbead_*
+setup/jbead_*
 
