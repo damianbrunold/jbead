@@ -83,6 +83,7 @@ import ch.jbead.action.FileSaveAction;
 import ch.jbead.action.FileSaveAsAction;
 import ch.jbead.action.InfoAboutAction;
 import ch.jbead.action.InfoTechInfosAction;
+import ch.jbead.action.InfoUpdateCheckAction;
 import ch.jbead.action.PatternHeightAction;
 import ch.jbead.action.PatternWidthAction;
 import ch.jbead.action.ToolFillAction;
@@ -428,6 +429,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
     private JMenu createInfoMenu() {
         JMenu menuInfo = createMenu("action.info");
         menuInfo.add(new InfoTechInfosAction(this));
+        menuInfo.add(new InfoUpdateCheckAction(this));
         menuInfo.add(new InfoAboutAction(this));
         return menuInfo;
     }

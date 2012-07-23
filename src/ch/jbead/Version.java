@@ -88,6 +88,10 @@ public class Version {
         return String.format("%d.%d", major, minor);
     }
 
+    public boolean isOlderThan(String version) {
+        return getVersionString().compareTo(version) < 0;
+    }
+
     public Version bump() {
         return new Version(major, minor, build + 1);
     }
