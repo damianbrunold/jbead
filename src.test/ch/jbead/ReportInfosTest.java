@@ -89,7 +89,7 @@ public class ReportInfosTest extends TestCase {
             model.set(new Point(i, i), (byte) 1);
         }
         for (int i = 0; i < 15; i++) {
-            model.set(new Point(i, 15 + i), (byte) 1);
+            model.set(new Point(i, 15 + 1 + i), (byte) 1);
         }
         model.updateRepeat();
         ReportInfos info = new ReportInfos(model, localization);
@@ -97,8 +97,8 @@ public class ReportInfosTest extends TestCase {
                 "Circumference: 15, " +
                 "Repeat of colors: 16 beads, " +
                 "Rows per repeat: 1 row and 1 bead, " +
-                "Total number of rows: 30, " +
-                "Total number of beads: 450 beads, ", infosAsString(info));
+                "Total number of rows: 31, " +
+                "Total number of beads: 465 beads, ", infosAsString(info));
     }
 
     public void testInfosTwoRowsRepeat() {
