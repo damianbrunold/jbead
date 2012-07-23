@@ -459,7 +459,7 @@ public class Model implements ColorTable {
         if (usedHeight == 0) {
             setRepeat(0);
         } else {
-            setRepeat(calcRepeat(calcRowRepeat(usedHeight)));
+            setRepeat(calcRepeat(usedHeight));
         }
     }
 
@@ -469,11 +469,11 @@ public class Model implements ColorTable {
         fireRepeatChanged(repeat);
     }
 
-    private int calcRepeat(int rowrepeat) {
-        for (int i = 1; i < rowrepeat * field.getWidth(); i++) {
+    private int calcRepeat(int usedheight) {
+        for (int i = 1; i < usedheight * field.getWidth(); i++) {
             if (field.get(i) == field.get(0)) {
                 boolean ok = true;
-                for (int k = i + 1; k < rowrepeat * field.getWidth(); k++) {
+                for (int k = i + 1; k < usedheight * field.getWidth(); k++) {
                     if (field.get((k - i) % i) != field.get(k)) {
                         ok = false;
                         break;
@@ -484,25 +484,7 @@ public class Model implements ColorTable {
                 }
             }
         }
-        return rowrepeat * field.getWidth();
-    }
-
-    private int calcRowRepeat(int usedHeight) {
-        for (int j = 1; j < usedHeight; j++) {
-            if (equalRows(0, j)) {
-                boolean ok = true;
-                for (int k = j + 1; k < usedHeight; k++) {
-                    if (!equalRows((k - j) % j, k)) {
-                        ok = false;
-                        break;
-                    }
-                }
-                if (ok) {
-                    return j;
-                }
-            }
-        }
-        return usedHeight;
+        return usedheight * field.getWidth();
     }
 
     public int getUsedHeight() {
