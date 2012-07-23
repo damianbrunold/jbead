@@ -281,7 +281,9 @@ public class Model implements ColorTable {
     }
 
     public Rect getUsedRect() {
-        return field.getRect(0, getUsedHeight() - 1);
+        int height = getUsedHeight();
+        if (height == 0) return Rect.EMPTY;
+        return field.getRect(0, height - 1);
     }
 
     public File getFile() {

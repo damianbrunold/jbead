@@ -49,4 +49,8 @@ public class RectIteratorTest extends TestCase {
         assertFalse(iter.hasNext());
     }
 
+    public void testEmpty() {
+        assertFalse(new RectIterator(Rect.EMPTY.getBegin(), Rect.EMPTY.getEnd()).hasNext());
+    }
+
 }

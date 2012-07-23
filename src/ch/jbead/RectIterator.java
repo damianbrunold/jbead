@@ -28,7 +28,11 @@ public class RectIterator implements Iterator<Point> {
     public RectIterator(Point begin, Point end) {
         this.begin = new Point(Math.min(begin.getX(), end.getX()), Math.min(begin.getY(), end.getY()));
         this.end = new Point(Math.max(begin.getX(), end.getX()), Math.max(begin.getY(), end.getY()));
-        this.next = this.begin;
+        if (this.begin.getX() < 0 || this.end.getY() < 0) {
+            this.next = null;
+        } else {
+            this.next = this.begin;
+        }
     }
 
     public boolean hasNext() {

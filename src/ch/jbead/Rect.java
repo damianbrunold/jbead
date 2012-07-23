@@ -21,6 +21,8 @@ import java.util.Iterator;
 
 public class Rect implements Iterable<Point> {
 
+    public static final Rect EMPTY = new Rect(new Point(0, 0), new Point(-1, -1));
+
     protected Point begin;
     protected Point end;
 
