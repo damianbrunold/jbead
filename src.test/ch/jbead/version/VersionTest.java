@@ -57,4 +57,19 @@ public class VersionTest extends TestCase {
         assertEquals("2.0.0", v.bumpMajor().getVersionString());
     }
 
+    public void testCompareEquals() {
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(1, 2, 3)) == 0);
+    }
+
+    public void testCompareLess() {
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(1, 2, 4)) < 0);
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(1, 3, 0)) < 0);
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(2, 0, 0)) < 0);
+    }
+
+    public void testCompareGreater() {
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(1, 2, 2)) > 0);
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(1, 1, 0)) > 0);
+        assertTrue(new Version(1, 2, 3).compareTo(new Version(0, 2, 3)) > 0);
+    }
 }
