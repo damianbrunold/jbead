@@ -59,12 +59,6 @@ location if this is implemented). This allows to "rotate" the pattern
 or to add/remove beads in a very fine-grained way. (Currently, only
 whole lines can be inserted and only at the start of the pattern.)
 
-There is a redraw bug in the simulation. It is visible in the hearts
-sample file. The partial beads at the left end are not drawn.
-
-Undo should also undo color changes! Currently this is not part of
-the undo snapshot.
-
 Currently, only the ObjectModel supports path methods. But maybe it
 would be better if the Node itself supports paths. This would allow
 to get a subnode and then handle it as if it were the whole ObjectModel.

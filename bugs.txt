@@ -1,0 +1,12 @@
+Bugs
+----
+
+B0002 There is a redraw bug in the simulation. It is visible in the hearts
+sample file. The partial beads at the left end are not drawn.
+
+B0001 Undo should also undo color changes! Currently this is not part of
+the undo snapshot.
+
+Fixed
+-----
+
