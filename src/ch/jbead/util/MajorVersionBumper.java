@@ -17,7 +17,7 @@
 
 package ch.jbead.util;
 
-import ch.jbead.Version;
+import ch.jbead.version.Version;
 
 public class MajorVersionBumper {
 

@@ -25,7 +25,6 @@ import javax.print.attribute.standard.Media;
 import javax.print.attribute.standard.MediaSizeName;
 import javax.print.attribute.standard.OrientationRequested;
 
-import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Settings;
 import ch.jbead.print.PrintSettings;

@@ -22,11 +22,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
-import ch.jbead.Version;
-import ch.jbead.VersionChecker;
-import ch.jbead.VersionListener;
+import ch.jbead.version.Version;
+import ch.jbead.version.VersionChecker;
+import ch.jbead.version.VersionListener;
 
 public class InfoUpdateCheckAction extends BaseAction implements VersionListener {
 

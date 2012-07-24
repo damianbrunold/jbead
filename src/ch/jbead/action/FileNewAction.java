@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JOptionPane;
 
-import ch.jbead.BaseAction;
 import ch.jbead.ImageFactory;
 import ch.jbead.JBeadFrame;
 

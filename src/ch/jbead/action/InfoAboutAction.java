@@ -19,7 +19,6 @@ package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
 
-import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
 import ch.jbead.dialog.InfoAboutDialog;
 

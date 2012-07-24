@@ -30,9 +30,9 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import ch.jbead.JBeadMemento;
 import ch.jbead.Localization;
-import ch.jbead.Version;
+import ch.jbead.fileformat.JBeadMemento;
+import ch.jbead.version.Version;
 
 public class TechInfosDialog extends JDialog {
     private static final long serialVersionUID = 1L;

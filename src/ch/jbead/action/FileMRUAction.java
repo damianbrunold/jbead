@@ -20,7 +20,6 @@ package ch.jbead.action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
 
 public class FileMRUAction extends BaseAction {

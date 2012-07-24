@@ -17,6 +17,8 @@
 
 package ch.jbead;
 
+import ch.jbead.fileformat.Memento;
+
 
 public class BeadField {
 

@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.swing.JFileChooser;
 
+import ch.jbead.fileformat.Memento;
 import ch.jbead.storage.JBeadFileFormatException;
 
 public class Model implements ColorTable {

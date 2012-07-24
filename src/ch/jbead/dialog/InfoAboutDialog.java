@@ -28,7 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import ch.jbead.Localization;
-import ch.jbead.Version;
+import ch.jbead.version.Version;
 
 public class InfoAboutDialog extends JDialog {
     private static final long serialVersionUID = 1L;

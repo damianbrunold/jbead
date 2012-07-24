@@ -99,8 +99,30 @@ import ch.jbead.action.ViewZoomInAction;
 import ch.jbead.action.ViewZoomNormalAction;
 import ch.jbead.action.ViewZoomOutAction;
 import ch.jbead.dialog.ArrangeDialog;
+import ch.jbead.fileformat.DbbFileFilter;
+import ch.jbead.fileformat.DbbFileFormat;
+import ch.jbead.fileformat.FileFormat;
+import ch.jbead.fileformat.JBeadFileFilter;
+import ch.jbead.fileformat.JBeadFileFormat;
+import ch.jbead.fileformat.JbbFileFilter;
+import ch.jbead.fileformat.Memento;
 import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
+import ch.jbead.ui.Button;
+import ch.jbead.ui.ColorsToolbar;
+import ch.jbead.ui.MRUMenuItem;
+import ch.jbead.ui.RotateLeftButton;
+import ch.jbead.ui.RotateRightButton;
+import ch.jbead.ui.ToolButton;
+import ch.jbead.ui.ToolMenuItem;
+import ch.jbead.ui.ToolsGroup;
+import ch.jbead.version.Version;
+import ch.jbead.version.VersionChecker;
+import ch.jbead.version.VersionListener;
+import ch.jbead.view.CorrectedPanel;
+import ch.jbead.view.DraftPanel;
+import ch.jbead.view.ReportPanel;
+import ch.jbead.view.SimulationPanel;
 
 public class JBeadFrame extends JFrame implements Localization, ModelListener, VersionListener {
 
