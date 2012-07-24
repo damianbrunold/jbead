@@ -19,6 +19,7 @@ package ch.jbead.version;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class VersionChecker {
@@ -29,15 +30,15 @@ public class VersionChecker {
         this.listener = listener;
     }
 
-    protected String getLatestVersionURL() {
-        return "http://www.jbead.ch/latestversion";
+    protected URL getLatestVersionURL() throws MalformedURLException {
+        return new URL("http://www.jbead.ch/latestversion");
     }
 
     public void check() {
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 try {
-                    URL url = new URL(getLatestVersionURL());
+                    URL url = getLatestVersionURL();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
                     try {
                         String latestversion = reader.readLine();
