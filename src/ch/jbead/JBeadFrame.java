@@ -62,6 +62,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import ch.jbead.action.EditArrangeAction;
@@ -101,7 +102,7 @@ import ch.jbead.dialog.ArrangeDialog;
 import ch.jbead.print.PrintSettings;
 import ch.jbead.storage.JBeadFileFormatException;
 
-public class JBeadFrame extends JFrame implements Localization, ModelListener {
+public class JBeadFrame extends JFrame implements Localization, ModelListener, VersionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -218,6 +219,14 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
         }, UPDATE_INTERVAL, UPDATE_INTERVAL);
 
         handleCommandLineArgs(args);
+
+        Timer timer = new Timer("updatecheck");
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                new VersionChecker(JBeadFrame.this).check();
+            }
+        }, 2000);
     }
 
     public boolean isConfigMaximized() {
@@ -1074,6 +1083,25 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener {
 
     public void setSelectedTool(String tool) {
         toolsGroup.selectTool(tool);
+    }
+
+    @Override
+    public void versionAvailabe(final Version version) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JOptionPane.showMessageDialog(JBeadFrame.this, getString("updatecheck.updateavailable").replace("{1}", version.getVersionString()));
+            }
+        });
+    }
+
+    @Override
+    public void versionUpToDate() {
+        // ignore
+    }
+
+    @Override
+    public void failure(String msg) {
+        // ignore
     }
 
 }
