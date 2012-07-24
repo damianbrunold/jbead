@@ -1,6 +1,12 @@
 Todo and Smells
 ---------------
 
+Write a log file during each jbead run. The log file
+should be a temporary file that is deleted when jbead
+is closed. It should be possible to send the logfile
+from within jbead to my server in order to simplify
+error handling.
+
 The various mouse event handler have now state checked
 in if-else-statements. Better to encapsulate this using
 the State pattern.
