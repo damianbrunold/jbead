@@ -18,9 +18,6 @@
 package ch.jbead.action;
 
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -28,8 +25,10 @@ import javax.swing.SwingUtilities;
 import ch.jbead.BaseAction;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Version;
+import ch.jbead.VersionChecker;
+import ch.jbead.VersionListener;
 
-public class InfoUpdateCheckAction extends BaseAction {
+public class InfoUpdateCheckAction extends BaseAction implements VersionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,51 +41,34 @@ public class InfoUpdateCheckAction extends BaseAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        Thread thread = new Thread(new Runnable() {
+        new VersionChecker(this).check();
+    }
+
+    @Override
+    public void versionAvailabe(final Version version) {
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                checkVersion();
-            }
-
-            private void checkVersion() {
-                try {
-                    URL url = new URL("http://www.jbead.ch/latestversion");
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
-                    try {
-                        String latestversion = reader.readLine();
-                        reportVersions(latestversion);
-                    } finally {
-                        reader.close();
-                    }
-                } catch (Exception e) {
-                    reportFailure();
-                }
-            }
-
-            private void reportFailure() {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        JOptionPane.showMessageDialog(frame, localization.getString("updatecheck.failure"));
-                    }
-                });
-            }
-
-            private void reportVersions(final String latestversion) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        JOptionPane.showMessageDialog(frame, getMessage(latestversion));
-                    }
-
-                    private String getMessage(String latestversion) {
-                        if (Version.getInstance().isOlderThan(latestversion)) {
-                            return localization.getString("updatecheck.updateavailable").replace("{1}", latestversion);
-                        } else {
-                            return localization.getString("updatecheck.uptodate");
-                        }
-                    }
-                });
+                JOptionPane.showMessageDialog(frame, localization.getString("updatecheck.updateavailable").replace("{1}", version.getVersionString()));
             }
         });
-        thread.start();
+    }
+
+    @Override
+    public void versionUpToDate() {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JOptionPane.showMessageDialog(frame, localization.getString("updatecheck.uptodate"));
+            }
+        });
+    }
+
+    @Override
+    public void failure(final String msg) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JOptionPane.showMessageDialog(frame, localization.getString("updatecheck.failure").replace("{1}", msg));
+            }
+        });
     }
 
 }

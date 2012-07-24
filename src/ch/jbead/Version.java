@@ -43,13 +43,13 @@ public class Version implements Comparable<Version> {
         }
     }
 
-    Version(int major, int minor, int build) {
+    public Version(int major, int minor, int build) {
         this.major = major;
         this.minor = minor;
         this.build = build;
     }
 
-    private Version(String version) {
+    public Version(String version) {
         String[] parts = version.split(Pattern.quote("."));
         this.major = Integer.parseInt(parts[0]);
         this.minor = Integer.parseInt(parts[1]);
