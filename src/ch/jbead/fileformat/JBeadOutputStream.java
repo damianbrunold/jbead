@@ -21,9 +21,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * 
- */
 public class JBeadOutputStream {
 
     private OutputStream out;
@@ -42,7 +39,7 @@ public class JBeadOutputStream {
         out.write(b3);
         out.write(b4);
     }
-    
+
     public void write(int value) throws IOException {
         out.write(value);
     }
@@ -65,7 +62,7 @@ public class JBeadOutputStream {
         out.write(color.getBlue());
         out.write(0);
     }
-    
+
     public void writeBool(boolean value) throws IOException {
         out.write(value ? 1 : 0);
     }
