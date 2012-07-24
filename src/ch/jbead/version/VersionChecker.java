@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class VersionChecker {
 
@@ -39,7 +40,9 @@ public class VersionChecker {
             public void run() {
                 try {
                     URL url = getLatestVersionURL();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                    URLConnection connection = url.openConnection();
+                    connection.setRequestProperty("User-Agent", "jbead " + Version.getInstance().getVersionString());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
                     try {
                         String latestversion = reader.readLine();
                         if (Version.getInstance().isOlderThan(latestversion)) {
