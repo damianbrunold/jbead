@@ -44,7 +44,6 @@ public class InfoUpdateCheckAction extends BaseAction implements VersionListener
         new VersionChecker(this).check();
     }
 
-    @Override
     public void versionAvailabe(final Version version) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -53,7 +52,6 @@ public class InfoUpdateCheckAction extends BaseAction implements VersionListener
         });
     }
 
-    @Override
     public void versionUpToDate() {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -62,7 +60,6 @@ public class InfoUpdateCheckAction extends BaseAction implements VersionListener
         });
     }
 
-    @Override
     public void failure(final String msg) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {

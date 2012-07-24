@@ -111,7 +111,6 @@ public class Version implements Comparable<Version> {
         return new Version(major + 1, 0, 0);
     }
 
-    @Override
     public int compareTo(Version version) {
         if (major < version.major) return -1;
         if (major > version.major) return 1;

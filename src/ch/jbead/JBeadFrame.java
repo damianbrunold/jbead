@@ -220,13 +220,16 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
 
         handleCommandLineArgs(args);
 
-        Timer timer = new Timer("updatecheck");
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                new VersionChecker(JBeadFrame.this).check();
-            }
-        }, 2000);
+        settings.setCategory("update");
+        if (settings.loadBoolean("check_at_start", true)) {
+            Timer timer = new Timer("updatecheck");
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    new VersionChecker(JBeadFrame.this).check();
+                }
+            }, 2000);
+        }
     }
 
     public boolean isConfigMaximized() {
@@ -1085,7 +1088,6 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         toolsGroup.selectTool(tool);
     }
 
-    @Override
     public void versionAvailabe(final Version version) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -1094,12 +1096,10 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         });
     }
 
-    @Override
     public void versionUpToDate() {
         // ignore
     }
 
-    @Override
     public void failure(String msg) {
         // ignore
     }
