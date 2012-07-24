@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
-public class Version {
+public class Version implements Comparable<Version> {
 
     private int major = -1;
     private int minor = -1;
@@ -43,10 +43,17 @@ public class Version {
         }
     }
 
-    private Version(int major, int minor, int build) {
+    Version(int major, int minor, int build) {
         this.major = major;
         this.minor = minor;
         this.build = build;
+    }
+
+    private Version(String version) {
+        String[] parts = version.split(Pattern.quote("."));
+        this.major = Integer.parseInt(parts[0]);
+        this.minor = Integer.parseInt(parts[1]);
+        this.build = Integer.parseInt(parts[2]);
     }
 
     private void readVersionFile(BufferedReader reader) throws IOException {
@@ -89,7 +96,7 @@ public class Version {
     }
 
     public boolean isOlderThan(String version) {
-        return getVersionString().compareTo(version) < 0;
+        return compareTo(new Version(version)) < 0;
     }
 
     public Version bump() {
@@ -102,6 +109,17 @@ public class Version {
 
     public Version bumpMajor() {
         return new Version(major + 1, 0, 0);
+    }
+
+    @Override
+    public int compareTo(Version version) {
+        if (major < version.major) return -1;
+        if (major > version.major) return 1;
+        if (minor < version.minor) return -1;
+        if (minor > version.minor) return 1;
+        if (build < version.build) return -1;
+        if (build > version.build) return 1;
+        return 0;
     }
 
 }
