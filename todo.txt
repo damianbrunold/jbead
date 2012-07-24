@@ -1,6 +1,8 @@
 Todo and Smells
 ---------------
 
+Add cyclomatic complexity and other code metrics.
+
 Write a log file during each jbead run. The log file
 should be a temporary file that is deleted when jbead
 is closed. It should be possible to send the logfile
