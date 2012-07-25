@@ -66,18 +66,27 @@ public class DesignPrinter {
         int pageWidth = (int) format.getImageableWidth();
         int pageHeight = (int) format.getImageableHeight();
         PageLayout currentPage = new PageLayout(pageWidth);
-        for (PartPrinter printer : getPartPrinters()) {
-            List<Integer> columns = printer.layoutColumns(pageWidth, pageHeight);
-            for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
-                int columnWidth = columns.get(columnIndex);
-                if (pageWidth < columnWidth) throw new RuntimeException("Column is wider than page!");
-                if (currentPage.getUnusedWidth() < columnWidth) {
-                    pages.add(currentPage);
-                    currentPage = new PageLayout(pageWidth);
-                }
-                currentPage.addPart(new PagePart(printer, columnIndex, columnWidth));
-            }
+        for (PartPrinter part : getPartPrinters()) {
+            currentPage = layoutPart(part, currentPage, pageWidth, pageHeight);
         }
+        addPartialPage(pageWidth, currentPage);
+    }
+
+    private PageLayout layoutPart(PartPrinter part, PageLayout currentPage, int pageWidth, int pageHeight) {
+        List<Integer> columns = part.layoutColumns(pageWidth, pageHeight);
+        for (int columnIndex = 0; columnIndex < columns.size(); columnIndex++) {
+            int columnWidth = columns.get(columnIndex);
+            if (pageWidth < columnWidth) throw new RuntimeException("Column is wider than page!");
+            if (currentPage.getUnusedWidth() < columnWidth) {
+                pages.add(currentPage);
+                currentPage = new PageLayout(pageWidth);
+            }
+            currentPage.addPart(new PagePart(part, columnIndex, columnWidth));
+        }
+        return currentPage;
+    }
+
+    private void addPartialPage(int pageWidth, PageLayout currentPage) {
         if (currentPage.getUnusedWidth() < pageWidth) {
             pages.add(currentPage);
         }

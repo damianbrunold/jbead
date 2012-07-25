@@ -47,7 +47,6 @@ public class CorrectedPrinter extends GridPrinter {
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
         int height = (int) pageFormat.getImageableHeight();
-        x += border + gx / 2;
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < model.getUsedHeight(); j++) {
@@ -55,16 +54,28 @@ public class CorrectedPrinter extends GridPrinter {
                 Point pt = new Point(i, j);
                 byte c = model.get(pt);
                 pt = model.correct(pt);
-                if (pt.getY() < start) continue;
-                if (pt.getY() >= start + rows) continue;
-                int dx = pt.getY() % 2 == 0 ? 0 : gx / 2;
-                g.setColor(model.getColor(c));
-                g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
-                g.setColor(Color.BLACK);
-                g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, gx, gy);
+                if (!isVisible(pt, start, start + rows)) continue;
+                drawBead(g, x + border + gx / 2 + pt.getX() * gx - dx(pt), y + (rows - (pt.getY() - start) - 1) * gy, c);
             }
         }
-        return x + getColumnWidth() + border;
+        return x + border + gx / 2 + getColumnWidth() + border;
+    }
+
+    private void drawBead(Graphics2D g, int x, int y, byte color) {
+        g.setColor(model.getColor(color));
+        g.fillRect(x, y, gx, gy);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, gx, gy);
+    }
+
+    private boolean isVisible(Point pt, int start, int end) {
+        if (pt.getY() < start) return false;
+        if (pt.getY() >= end) return false;
+        return true;
+    }
+
+    private int dx(Point pt) {
+        return pt.getY() % 2 == 0 ? 0 : gx / 2;
     }
 
 }

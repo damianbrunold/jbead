@@ -47,25 +47,31 @@ public class DraftPrinter extends GridPrinter {
         setStroke(g);
         g.setFont(font);
         int height = (int) pageFormat.getImageableHeight();
-        x += border;
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < rows; j++) {
             if (start + j >= getRows(height)) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
-                g.setColor(model.getColor(c));
-                g.fillRect(x + markerWidth + i * gx, y + (rows - j - 1) * gy, gx, gy);
-                g.setColor(Color.BLACK);
-                g.drawRect(x + markerWidth + i * gx, y + (rows - j - 1) * gy, gx, gy);
+                drawBead(g, x + border + markerWidth + i * gx, y + (rows - j - 1) * gy, c);
             }
             if ((start + j) % 10 == 0) {
-                g.setColor(Color.BLACK);
-                g.drawLine(x, y + (rows - j) * gy, x + markerWidth - gx, y + (rows -j) * gy);
-                g.drawString(Integer.toString(start + j), x, y + (rows - j) * gy - gy / 3);
+                drawLabel(g, x + border, y + (rows - j) * gy, start + j);
             }
         }
-        return x + getColumnWidth() + border;
+        return x + border + getColumnWidth() + border;
     }
 
+    private void drawBead(Graphics2D g, int x, int y, byte color) {
+        g.setColor(model.getColor(color));
+        g.fillRect(x, y, gx, gy);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, gx, gy);
+    }
+
+    private void drawLabel(Graphics2D g, int x, int y, int row) {
+        g.setColor(Color.BLACK);
+        g.drawLine(x, y, x + markerWidth - gx, y);
+        g.drawString(Integer.toString(row), x, y - gy / 3);
+    }
 }

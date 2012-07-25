@@ -51,7 +51,6 @@ public class SimulationPrinter extends GridPrinter {
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
         int height = (int) pageFormat.getImageableHeight();
-        x += border;
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         for (int j = 0; j < model.getUsedHeight(); j++) {
@@ -59,18 +58,25 @@ public class SimulationPrinter extends GridPrinter {
                 Point pt = new Point(i, j);
                 byte c = model.get(pt);
                 pt = model.correct(pt);
-                if (pt.getY() < start) continue;
-                if (pt.getY() >= start + rows) continue;
-                if (pt.getX() > visibleWidth()) continue;
-                int dx = dx(pt);
-                int w = w(pt);
-                g.setColor(model.getColor(c));
-                g.fillRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
-                g.setColor(Color.BLACK);
-                g.drawRect(x + pt.getX() * gx - dx, y + (rows - (pt.getY() - start) - 1) * gy, w, gy);
+                if (!isVisible(pt, start, start + rows)) continue;
+                drawBead(g, x + border + pt.getX() * gx - dx(pt), y + (rows - (pt.getY() - start) - 1) * gy, w(pt), c);
             }
         }
-        return x + getColumnWidth() + border;
+        return x + border + getColumnWidth() + border;
+    }
+
+    private boolean isVisible(Point pt, int start, int end) {
+        if (pt.getY() < start) return false;
+        if (pt.getY() >= end) return false;
+        if (pt.getX() > visibleWidth()) return false;
+        return true;
+    }
+
+    private void drawBead(Graphics2D g, int x, int y, int w, byte color) {
+        g.setColor(model.getColor(color));
+        g.fillRect(x, y, w, gy);
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, w, gy);
     }
 
     private int dx(Point pt) {
