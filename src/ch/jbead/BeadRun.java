@@ -47,8 +47,8 @@ public class BeadRun {
         if (getClass() != obj.getClass()) return false;
         BeadRun other = (BeadRun) obj;
         if (color != other.color) return false;
-        if (count != other.count) return false;
-        return true;
+        else if (count != other.count) return false;
+        else return true;
     }
 
     @Override
