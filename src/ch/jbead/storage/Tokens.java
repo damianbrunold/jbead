@@ -30,6 +30,9 @@ public class Tokens implements Iterable<Object> {
 
     private List<Object> tokens = new ArrayList<Object>();
 
+    private LexerState state;
+    private StringBuilder token;
+
     public Tokens(String data) {
         parse(data);
     }
@@ -40,68 +43,13 @@ public class Tokens implements Iterable<Object> {
 
     private void parse(String data) {
         try {
-            int state = 0;
-            StringBuilder token = new StringBuilder();
+            state = LexerState.START;
+            token = new StringBuilder();
             Reader reader = new StringReader(data);
             int c = reader.read();
             while (c != -1) {
                 char ch = (char) c;
-                switch (state) {
-                case 0:
-                    if (Character.isWhitespace(ch)) {
-                        break;
-                    } else if (ch == '(' || ch == ')') {
-                        addToken(Character.toString(ch));
-                    } else if (ch == '"') {
-                        token.append(ch);
-                        state = 1;
-                    } else if (ch == '#') {
-                        state = 4;
-                    } else {
-                        token.append(ch);
-                        state = 3;
-                    }
-                    break;
-
-                case 1: // quoted string
-                    if (ch == '\\') {
-                        state = 2;
-                    } else if (ch == '"') {
-                        token.append(ch);
-                        addToken(token.toString());
-                        token = new StringBuilder();
-                       state = 0;
-                    } else {
-                        token.append(ch);
-                    }
-                    break;
-
-                case 2: // quoted string escape
-                    token.append(ch);
-                    state = 1;
-                    break;
-
-                case 3: // general token (int, date, boolean, identifier)
-                    if (ch == ' ' || ch == '\n' || ch == '\r') {
-                        addToken(token.toString());
-                        token = new StringBuilder();
-                        state = 0;
-                    } else if (ch == ')' || ch == '(') {
-                        addToken(token.toString());
-                        addToken(Character.toString(ch));
-                        token = new StringBuilder();
-                        state = 0;
-                    } else {
-                        token.append(ch);
-                    }
-                    break;
-
-                case 4: // comment
-                    if (ch == '\n') {
-                        state = 0;
-                    }
-                    break;
-                }
+                processChar(ch);
                 c = reader.read();
             }
             if (token.length() > 0) {
@@ -112,31 +60,139 @@ public class Tokens implements Iterable<Object> {
         }
     }
 
+    private void processChar(char ch) {
+        switch (state) {
+        case START:
+            startState(ch);
+            break;
+
+        case QUOTED_STRING:
+            quotedStringState(ch);
+            break;
+
+        case QUOTED_STRING_ESCAPE:
+            quotedStringEscapeState(ch);
+            break;
+
+        case GENERAL_TOKEN: //(int, date, boolean, identifier)
+            generalTokenState(ch);
+            break;
+
+        case COMMENT:
+            commentState(ch);
+            break;
+        }
+    }
+
+    private void startState(char ch) {
+        if (Character.isWhitespace(ch)) {
+            return;
+        } else if (ch == '(' || ch == ')') {
+            addToken(Character.toString(ch));
+        } else if (ch == '"') {
+            quotedStringEscapeState(ch);
+        } else if (ch == '#') {
+            state = LexerState.COMMENT;
+        } else {
+            token.append(ch);
+            state = LexerState.GENERAL_TOKEN;
+        }
+    }
+
+    private void quotedStringState(char ch) {
+        if (ch == '\\') {
+            state = LexerState.QUOTED_STRING_ESCAPE;
+        } else if (ch == '"') {
+            token.append(ch);
+            addToken(token.toString());
+            token = new StringBuilder();
+           state = LexerState.START;
+        } else {
+            token.append(ch);
+        }
+    }
+
+    private void quotedStringEscapeState(char ch) {
+        token.append(ch);
+        state = LexerState.QUOTED_STRING;
+    }
+
+    private void generalTokenState(char ch) {
+        if (ch == ' ' || ch == '\n' || ch == '\r') {
+            addToken(token.toString());
+            token = new StringBuilder();
+            state = LexerState.START;
+        } else if (ch == ')' || ch == '(') {
+            addToken(token.toString());
+            addToken(Character.toString(ch));
+            token = new StringBuilder();
+            state = LexerState.START;
+        } else {
+            token.append(ch);
+        }
+    }
+
+    private void commentState(char ch) {
+        if (ch == '\n') {
+            state = LexerState.START;
+        }
+    }
+
     private void addToken(String token) {
         if (token.charAt(0) == '"') {
-            tokens.add(token.substring(1, token.length() - 1));
+            addStringToken(token);
         } else if (Character.isDigit(token.charAt(0))) {
-            try {
-                tokens.add(Integer.parseInt(token));
+            if (addIntegerToken(token)) {
                 return;
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-            DateFormat format = new JBeadDateFormat();
-            try {
-                tokens.add(format.parse(token));
+            } else if (addDateToken(token)) {
                 return;
-            } catch (ParseException e) {
-                // ignore
+            } else {
+                addIdentifierToken(token);
             }
-            tokens.add(token);
         } else if (token.equals("true")) {
-            tokens.add(Boolean.TRUE);
+            addTrueToken();
         } else if (token.equals("false")) {
-            tokens.add(Boolean.FALSE);
+            addFalseToken();
         } else {
-            tokens.add(token);
+            addIdentifierToken(token);
         }
+    }
+
+    private boolean addIntegerToken(String token) {
+        try {
+            tokens.add(Integer.parseInt(token));
+            return true;
+        } catch (NumberFormatException e) {
+            // ignore
+        }
+        return false;
+    }
+
+    private boolean addDateToken(String token) {
+        DateFormat format = new JBeadDateFormat();
+        try {
+            tokens.add(format.parse(token));
+            return true;
+        } catch (ParseException e) {
+            // ignore
+        }
+        return false;
+    }
+
+    private void addIdentifierToken(String token) {
+        tokens.add(token);
+    }
+
+    private void addFalseToken() {
+        tokens.add(Boolean.FALSE);
+    }
+
+    private void addTrueToken() {
+        tokens.add(Boolean.TRUE);
+    }
+
+    private void addStringToken(String token) {
+        tokens.add(token.substring(1, token.length() - 1));
     }
 
     @Override
