@@ -113,12 +113,12 @@ public class Version implements Comparable<Version> {
 
     public int compareTo(Version version) {
         if (major < version.major) return -1;
-        if (major > version.major) return 1;
-        if (minor < version.minor) return -1;
-        if (minor > version.minor) return 1;
-        if (build < version.build) return -1;
-        if (build > version.build) return 1;
-        return 0;
+        else if (major > version.major) return 1;
+        else if (minor < version.minor) return -1;
+        else if (minor > version.minor) return 1;
+        else if (build < version.build) return -1;
+        else if (build > version.build) return 1;
+        else return 0;
     }
 
 }

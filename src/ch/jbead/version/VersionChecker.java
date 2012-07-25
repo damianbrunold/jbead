@@ -17,12 +17,8 @@
 
 package ch.jbead.version;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Locale;
 
 public class VersionChecker {
 
@@ -37,46 +33,12 @@ public class VersionChecker {
     }
 
     public void check() {
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    URL url = getLatestVersionURL();
-                    URLConnection connection = url.openConnection();
-                    connection.setRequestProperty("User-Agent", getUserAgent());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
-                    try {
-                        String latestversion = reader.readLine();
-                        if (Version.getInstance().isOlderThan(latestversion)) {
-                            listener.versionAvailabe(new Version(latestversion));
-                        } else {
-                            listener.versionUpToDate();
-                        }
-                    } finally {
-                        reader.close();
-                    }
-                } catch (Exception e) {
-                    listener.failure(e.toString());
-                }
-            }
+        try {
+            VersionCheckerThread thread = new VersionCheckerThread(listener, getLatestVersionURL());
+            thread.start();
+        } catch (MalformedURLException e) {
+            listener.failure(e.toString());
+        }
 
-            private String getUserAgent() {
-                return getJbeadVersion() + ", " + getJavaVersion() + ", " + getOsVersion();
-            }
-
-            private String getJbeadVersion() {
-                return "jbead " + Version.getInstance().getVersionString() + " " + Locale.getDefault();
-            }
-
-            private String getJavaVersion() {
-                return "java " + System.getProperty("java.version") + " " + System.getProperty("java.vendor");
-            }
-
-            private String getOsVersion() {
-                return System.getProperty("os.name") + " " +
-                        System.getProperty("os.version") + " " +
-                        System.getProperty("os.arch");
-            }
-        });
-        thread.start();
     }
 }
