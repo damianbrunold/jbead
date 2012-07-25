@@ -110,4 +110,26 @@ public class JBeadOutputStreamTest extends TestCase {
         assertEquals((byte) 2, bytes[0]);
     }
 
+    public static class FakeOutputStream extends ByteArrayOutputStream {
+        private boolean isClosed = false;
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            isClosed = true;
+        }
+
+        public boolean isClosed() {
+            return isClosed;
+        }
+    }
+
+    public void testClose() throws IOException {
+        FakeOutputStream result = new FakeOutputStream();
+        JBeadOutputStream stream = new JBeadOutputStream(result);
+        assertFalse(result.isClosed());
+        stream.close();
+        assertTrue(result.isClosed());
+    }
+
 }
