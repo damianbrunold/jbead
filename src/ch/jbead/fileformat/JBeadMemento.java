@@ -32,13 +32,27 @@ public class JBeadMemento extends Memento {
     @Override
     public void save(JBeadOutputStream out) throws IOException {
         ObjectModel om = new ObjectModel("jbb");
+        saveInfos(om);
+        saveColors(om);
+        saveView(om);
+        savePattern(om);
+        out.write(om.toString());
+    }
+
+    private void saveInfos(ObjectModel om) {
         om.add("version", VERSION);
         om.add("author", author);
         om.add("organization", organization);
         om.add("notes", notes);
+    }
+
+    private void saveColors(ObjectModel om) {
         for (Color color: colors) {
             om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue());
         }
+    }
+
+    private void saveView(ObjectModel om) {
         om.add("view/draft-visible", draftVisible);
         om.add("view/corrected-visible", correctedVisible);
         om.add("view/simulation-visible", simulationVisible);
@@ -48,6 +62,9 @@ public class JBeadMemento extends Memento {
         om.add("view/zoom", zoomIndex);
         om.add("view/scroll", scroll);
         om.add("view/shift", shift);
+    }
+
+    private void savePattern(ObjectModel om) {
         for (int j = 0; j < height; j++) {
             List<Byte> row = new ArrayList<Byte>();
             for (int i = 0; i < width; i++) {
@@ -55,12 +72,18 @@ public class JBeadMemento extends Memento {
             }
             om.add("model/row", row.toArray());
         }
-        out.write(om.toString());
     }
 
     @Override
     public void load(JBeadInputStream in) throws IOException {
         ObjectModel om = ObjectModel.fromData(in.readAll());
+        loadInfos(om);
+        loadColors(om);
+        loadView(om);
+        loadPattern(om);
+    }
+
+    private void loadInfos(ObjectModel om) {
         int version = om.getIntValue("version", 1);
         if (version < VERSION) {
             upgrade(om, version);
@@ -68,10 +91,16 @@ public class JBeadMemento extends Memento {
         author = (String) om.getStringValue("author", "");
         organization = (String) om.getStringValue("organization", "");
         notes = (String) om.getStringValue("notes", "");
+    }
+
+    private void loadColors(ObjectModel om) {
         colors.clear();
         for (Node color : om.getAll("colors/rgb")) {
             colors.add(getColor(color));
         }
+    }
+
+    private void loadView(ObjectModel om) {
         draftVisible = om.getBoolValue("view/draft-visible", true);
         correctedVisible = om.getBoolValue("view/corrected-visible", true);
         simulationVisible = om.getBoolValue("view/simulation-visible", true);
@@ -81,6 +110,9 @@ public class JBeadMemento extends Memento {
         zoomIndex = om.getIntValue("view/zoom", 2);
         scroll = om.getIntValue("view/scroll", 0);
         shift = om.getIntValue("view/shift", 0);
+    }
+
+    private void loadPattern(ObjectModel om) {
         List<Node> rows = om.getAll("model/row");
         height = rows.size();
         width = rows.get(0).size();
@@ -92,7 +124,6 @@ public class JBeadMemento extends Memento {
             }
         }
     }
-
     private void upgrade(ObjectModel om, int version) {
         // in the future, here will be conversion code that upgrades from earlier versions
     }
