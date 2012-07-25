@@ -1,0 +1,4 @@
+cyclomatic complexity 10
+non commenting source statements 20
+npath complexity 25
+
