@@ -114,8 +114,14 @@ public class PreferencesDialog extends JDialog {
                 settings.saveString("organization", organization.getText());
                 settings.setCategory("update");
                 settings.saveBoolean("check_at_start", !disablestartcheck.isSelected());
-                model.setAuthor(author.getText());
-                model.setOrganization(organization.getText());
+                if (!model.getAuthor().equals(author.getText())) {
+                    model.setModified();
+                    model.setAuthor(author.getText());
+                }
+                if (!model.getOrganization().equals(organization.getText())) {
+                    model.setModified();
+                    model.setOrganization(organization.getText());
+                }
                 dispose();
             }
         });
