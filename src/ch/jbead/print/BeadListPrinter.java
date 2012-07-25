@@ -17,6 +17,7 @@
 
 package ch.jbead.print;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -71,6 +72,7 @@ public class BeadListPrinter extends PartPrinter {
     }
 
     private int drawBeadList(Graphics2D g, int x, int y, int height, int column) {
+        g.setStroke(new BasicStroke(0.3f));
         int d = font.getSize();
         int beadsPerColumn = getBeadsPerColumn(height);
         int start = beadsPerColumn * column;

@@ -20,7 +20,6 @@ package ch.jbead.print;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
 import java.awt.print.PageFormat;
@@ -36,6 +35,10 @@ public class ReportInfosPrinter extends PartPrinter {
 
     private ReportInfos infos;
     private BeadCounts beadcounts;
+
+    private FontMetrics metrics;
+    private int countwidth;
+    private int bx;
 
     public ReportInfosPrinter(Model model, Localization localization) {
         super(model, localization);
@@ -54,17 +57,18 @@ public class ReportInfosPrinter extends PartPrinter {
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         g.setFont(font);
+        metrics = g.getFontMetrics(font);
+        bx = font.getSize();
+        countwidth = metrics.stringWidth("9999 x");
         y = drawInfos(g, x, y);
-        y += font.getSize() / 2;
-        drawBeadColors(g, x, y);
-        return x + infos.getWidth(g.getFontMetrics()) + 10;
+        drawBeadColors(g, x, y + bx / 2);
+        return x + infos.getWidth(metrics) + 10;
     }
 
-    private int drawInfos(Graphics g, int x, int y) {
-        FontMetrics metrics = g.getFontMetrics(font);
+    private int drawInfos(Graphics2D g, int x, int y) {
         int labelx = x + 1;
         int infox = x + 1 + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
-        int dy = font.getSize() + 1;
+        int dy = bx + 1;
         y += dy;
         g.setColor(Color.BLACK);
         for (String label : infos) {
@@ -77,37 +81,38 @@ public class ReportInfosPrinter extends PartPrinter {
 
     private int drawBeadColors(Graphics2D g, int x, int y) {
         g.setStroke(new BasicStroke(0.3f));
-        FontMetrics metrics = g.getFontMetrics(font);
-        int bx = font.getSize();
-        int countwidth = metrics.stringWidth("9999 x");
         int colorwidth = countwidth + 3 + bx + 5;
         int infowidth = infos.getWidth(metrics);
         int colorsPerRow = infowidth / colorwidth;
         int xx = x;
         int current = 0;
         for (byte color = 0; color < model.getColorCount(); color++) {
-            int count = beadcounts.getCount(color);
-            if (count == 0) continue;
-            String s = String.format("%d x", count);
-            g.drawString(s, xx + countwidth - metrics.stringWidth(s), y);
-            xx += countwidth + 3;
-            g.setColor(model.getColor(color));
-            g.fillRect(xx, y - bx, bx, bx);
-            g.setColor(Color.BLACK);
-            g.drawRect(xx, y - bx, bx, bx);
-            g.setColor(Color.BLACK);
-            xx += bx + 5;
+            if (!drawBeadColor(g, xx, y, color)) continue;
+            xx += colorwidth;
             current++;
             if (current == colorsPerRow) {
                 xx = x;
                 current = 0;
-                y += font.getSize() + 3;
+                y += bx + 3;
             }
         }
         if (current > 0) {
-            y += font.getSize();
+            y += bx;
         }
         return y;
+    }
+
+    private boolean drawBeadColor(Graphics2D g, int x, int y, byte color) {
+        int count = beadcounts.getCount(color);
+        if (count == 0) return false;
+        String s = String.format("%d x", count);
+        g.drawString(s, x + countwidth - metrics.stringWidth(s), y);
+        g.setColor(model.getColor(color));
+        g.fillRect(x + countwidth + 3, y - bx, bx, bx);
+        g.setColor(Color.BLACK);
+        g.drawRect(x + countwidth + 3, y - bx, bx, bx);
+        g.setColor(Color.BLACK);
+        return true;
     }
 
 }

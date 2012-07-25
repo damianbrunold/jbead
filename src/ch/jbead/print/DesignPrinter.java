@@ -85,12 +85,32 @@ public class DesignPrinter {
 
     private List<PartPrinter> getPartPrinters() {
         List<PartPrinter> printers = new ArrayList<PartPrinter>();
-        if (withReport) printers.add(new ReportInfosPrinter(model, localization));
-        if (withDraft) printers.add(new DraftPrinter(model, localization, fullPattern));
-        if (withCorrected) printers.add(new CorrectedPrinter(model, localization, fullPattern));
-        if (withSimulation) printers.add(new SimulationPrinter(model, localization, fullPattern));
-        if (withReport) printers.add(new BeadListPrinter(model, localization));
+        addReportInfosPrinter(printers);
+        addDraftPrinter(printers);
+        addCorrectedPrinter(printers);
+        addSimulationPrinter(printers);
+        addBeadListPrinter(printers);
         return printers;
+    }
+
+    private void addBeadListPrinter(List<PartPrinter> printers) {
+        if (withReport) printers.add(new BeadListPrinter(model, localization));
+    }
+
+    private void addSimulationPrinter(List<PartPrinter> printers) {
+        if (withSimulation) printers.add(new SimulationPrinter(model, localization, fullPattern));
+    }
+
+    private void addCorrectedPrinter(List<PartPrinter> printers) {
+        if (withCorrected) printers.add(new CorrectedPrinter(model, localization, fullPattern));
+    }
+
+    private void addDraftPrinter(List<PartPrinter> printers) {
+        if (withDraft) printers.add(new DraftPrinter(model, localization, fullPattern));
+    }
+
+    private void addReportInfosPrinter(List<PartPrinter> printers) {
+        if (withReport) printers.add(new ReportInfosPrinter(model, localization));
     }
 
     public void print(boolean showDialog) {
@@ -98,36 +118,58 @@ public class DesignPrinter {
             int scroll = model.getScroll();
             try {
                 model.setScroll(0);
-                PrinterJob printjob = PrinterJob.getPrinterJob();
-                if (settings.getService() != null) {
-                    printjob.setPrintService(settings.getService());
-                }
-                PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet(settings.getAttributes());
-                attrs.add(new JobName(getJobName(), null));
+                PrinterJob printjob = getPrinterJob();
+                PrintRequestAttributeSet attrs = getPrintAttributeSet();
                 if (showDialog) {
                     if (!printjob.printDialog(attrs)) return;
                     settings.setService(printjob.getPrintService());
                 }
                 PageFormat pageformat = PageFormatCreator.create(printjob, attrs);
                 layoutPages(pageformat);
-                Book book = new Book();
-                for (PageLayout page : pages) {
-                    book.append(page, pageformat);
-                }
-                printjob.setPageable(book);
+                printjob.setPageable(createBook(pageformat));
                 printjob.print(attrs);
             } finally {
                 model.setScroll(scroll);
             }
         } catch (PrinterException e) {
-            String msg = e.getMessage();
-            if (msg == null) msg = e.toString();
-            JOptionPane.showMessageDialog(null, localization.getString("print.failure") + ": " + msg);
+            showPrintErrorMessage(e);
         }
     }
 
+    private PrinterJob getPrinterJob() throws PrinterException {
+        PrinterJob printjob = PrinterJob.getPrinterJob();
+        if (settings.getService() != null) {
+            printjob.setPrintService(settings.getService());
+        }
+        return printjob;
+    }
+
+    private PrintRequestAttributeSet getPrintAttributeSet() {
+        PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet(settings.getAttributes());
+        attrs.add(new JobName(getJobName(), null));
+        return attrs;
+    }
+
     private String getJobName() {
-        return "jbead " + System.currentTimeMillis() + " " + model.getFile().getName();
+        return "jbead " + System.currentTimeMillis() + " " + normalize(model.getFile().getName());
+    }
+
+    private String normalize(String s) {
+        return s.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue");
+    }
+
+    private Book createBook(PageFormat pageformat) {
+        Book book = new Book();
+        for (PageLayout page : pages) {
+            book.append(page, pageformat);
+        }
+        return book;
+    }
+
+    private void showPrintErrorMessage(PrinterException e) {
+        String msg = e.getMessage();
+        if (msg == null) msg = e.toString();
+        JOptionPane.showMessageDialog(null, localization.getString("print.failure") + ": " + msg);
     }
 
 }
