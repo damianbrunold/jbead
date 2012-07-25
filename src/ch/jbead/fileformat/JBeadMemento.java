@@ -34,6 +34,7 @@ public class JBeadMemento extends Memento {
         ObjectModel om = new ObjectModel("jbb");
         om.add("version", VERSION);
         om.add("author", author);
+        om.add("organization", organization);
         om.add("notes", notes);
         for (Color color: colors) {
             om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue());
@@ -64,8 +65,9 @@ public class JBeadMemento extends Memento {
         if (version < VERSION) {
             upgrade(om, version);
         }
-        author = (String) om.getValue("author");
-        notes = (String) om.getValue("notes");
+        author = (String) om.getStringValue("author", "");
+        organization = (String) om.getStringValue("organization", "");
+        notes = (String) om.getStringValue("notes", "");
         colors.clear();
         for (Node color : om.getAll("colors/rgb")) {
             colors.add(getColor(color));

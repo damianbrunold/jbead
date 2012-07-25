@@ -86,6 +86,7 @@ import ch.jbead.action.InfoAboutAction;
 import ch.jbead.action.InfoTechInfosAction;
 import ch.jbead.action.InfoUpdateCheckAction;
 import ch.jbead.action.PatternHeightAction;
+import ch.jbead.action.PatternPreferencesAction;
 import ch.jbead.action.PatternWidthAction;
 import ch.jbead.action.ToolFillAction;
 import ch.jbead.action.ToolPencilAction;
@@ -469,6 +470,10 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         JMenu menuPattern = createMenu("action.pattern");
         menuPattern.add(new PatternWidthAction(this));
         menuPattern.add(new PatternHeightAction(this));
+        PatternPreferencesAction preferencesAction = new PatternPreferencesAction(this);
+        if (!Platform.isMacOSX()) {
+            menuPattern.add(preferencesAction);
+        }
         return menuPattern;
     }
 

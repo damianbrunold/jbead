@@ -81,6 +81,8 @@ public class DbbMemento extends Memento {
         simulationVisible = in.readBool();
         reportVisible = true;
         selectedTool = "pencil";
+        author = "";
+        organization = "";
     }
 
     private byte readByte(JBeadInputStream in, String name) throws IOException {

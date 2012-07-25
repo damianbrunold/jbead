@@ -45,7 +45,7 @@ public class MacOSXInitializer {
             }
 
             public void handlePreferences(ApplicationEvent event) {
-                // TODO
+                frame.getAction("pattern.preferences").actionPerformed(new ActionEvent(this, 0, null));
                 event.setHandled(true);
             }
 

@@ -48,6 +48,7 @@ public class Model implements ColorTable {
     private boolean saved;
     private boolean modified;
     private String author = "";
+    private String organization = "";
     private String notes = "";
 
     private List<ModelListener> listeners = new ArrayList<ModelListener>();
@@ -357,6 +358,10 @@ public class Model implements ColorTable {
         zoomIndex = 2;
         scroll = 0;
         shift = 0;
+        Settings settings = new Settings();
+        settings.setCategory("user");
+        author = settings.loadString("author");
+        organization = settings.loadString("organization");
         file = new File(unnamed);
         saved = false;
         modified = false;
@@ -561,6 +566,7 @@ public class Model implements ColorTable {
         memento.setShift(shift);
         memento.setScroll(scroll);
         memento.setAuthor(author);
+        memento.setOrganization(organization);
         memento.setNotes(notes);
     }
 
@@ -573,6 +579,7 @@ public class Model implements ColorTable {
         shift = memento.getShift();
         scroll = memento.getScroll();
         author = memento.getAuthor();
+        organization = memento.getOrganization();
         notes = memento.getNotes();
         fireModelChanged();
     }
@@ -665,6 +672,20 @@ public class Model implements ColorTable {
 
     public String getAuthor() {
         return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+        fireModelChanged();
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+        fireModelChanged();
     }
 
     public String getNotes() {

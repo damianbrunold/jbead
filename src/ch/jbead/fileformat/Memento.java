@@ -25,6 +25,7 @@ import java.util.List;
 public abstract class Memento {
 
     protected String author = "";
+    protected String organization = "";
     protected String notes = "";
 
     protected int width;
@@ -157,6 +158,14 @@ public abstract class Memento {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public String getNotes() {

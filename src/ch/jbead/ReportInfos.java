@@ -41,6 +41,9 @@ public class ReportInfos implements Iterable<String> {
         if (model.getAuthor().length() > 0) {
             addInfo("report.author", model.getAuthor());
         }
+        if (model.getOrganization().length() > 0) {
+            addInfo("report.organization", model.getOrganization());
+        }
         addInfo("report.circumference", model.getWidth());
         addInfo("report.colorrepeat", model.getRepeat() + " " + localization.getString("report.beads"));
         if (model.getRepeat() % model.getWidth() == 0) {
