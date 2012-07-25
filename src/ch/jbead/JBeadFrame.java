@@ -116,6 +116,7 @@ import ch.jbead.ui.RotateRightButton;
 import ch.jbead.ui.ToolButton;
 import ch.jbead.ui.ToolMenuItem;
 import ch.jbead.ui.ToolsGroup;
+import ch.jbead.util.Platform;
 import ch.jbead.version.Version;
 import ch.jbead.version.VersionChecker;
 import ch.jbead.version.VersionListener;
@@ -252,6 +253,14 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
                 }
             }, 2000);
         }
+
+        if (Platform.isMacOSX()) {
+            initMacOSX();
+        }
+    }
+
+    private void initMacOSX() {
+        new MacOSXInitializer().initialize(this);
     }
 
     public boolean isConfigMaximized() {
@@ -411,7 +420,9 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 4)));
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 5)));
         menuFile.addSeparator(); // TODO what if no mru files are there?
-        menuFile.add(new FileExitAction(this));
+        if (!Platform.isMacOSX()) {
+            menuFile.add(new FileExitAction(this));
+        }
         return menuFile;
     }
 
@@ -464,7 +475,9 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         JMenu menuInfo = createMenu("action.info");
         menuInfo.add(new InfoTechInfosAction(this));
         menuInfo.add(new InfoUpdateCheckAction(this));
-        menuInfo.add(new InfoAboutAction(this));
+        if (!Platform.isMacOSX()) {
+            menuInfo.add(new InfoAboutAction(this));
+        }
         return menuInfo;
     }
 
