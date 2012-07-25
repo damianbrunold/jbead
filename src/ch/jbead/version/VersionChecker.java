@@ -60,7 +60,11 @@ public class VersionChecker {
             }
 
             private String getUserAgent() {
-                return "jbead " + Version.getInstance().getVersionString() + " " + Locale.getDefault() + ", " + getJavaVersion() + ", " + getOsVersion();
+                return getJbeadVersion() + ", " + getJavaVersion() + ", " + getOsVersion();
+            }
+
+            private String getJbeadVersion() {
+                return "jbead " + Version.getInstance().getVersionString() + " " + Locale.getDefault();
             }
 
             private String getJavaVersion() {
