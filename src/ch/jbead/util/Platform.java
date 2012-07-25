@@ -28,7 +28,7 @@ public class Platform {
     }
 
     public static boolean isMacOSX() {
-        return System.getProperty("os.name").toLowerCase().indexOf("os x") != -1;
+        return System.getProperty("os.name").toLowerCase().indexOf("mac os x") != -1;
     }
 
 }

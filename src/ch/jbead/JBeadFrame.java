@@ -419,9 +419,10 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 3)));
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 4)));
         menuFile.add(new MRUMenuItem(new FileMRUAction(this, 5)));
-        menuFile.addSeparator(); // TODO what if no mru files are there?
+        menuFile.addSeparator();
+        FileExitAction exitAction = new FileExitAction(this); // this registers the action
         if (!Platform.isMacOSX()) {
-            menuFile.add(new FileExitAction(this));
+            menuFile.add(exitAction);
         }
         return menuFile;
     }
@@ -475,8 +476,9 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         JMenu menuInfo = createMenu("action.info");
         menuInfo.add(new InfoTechInfosAction(this));
         menuInfo.add(new InfoUpdateCheckAction(this));
+        InfoAboutAction aboutAction = new InfoAboutAction(this); // this registers the action
         if (!Platform.isMacOSX()) {
-            menuInfo.add(new InfoAboutAction(this));
+            menuInfo.add(aboutAction);
         }
         return menuInfo;
     }
