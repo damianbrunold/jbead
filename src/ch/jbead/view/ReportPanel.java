@@ -50,11 +50,10 @@ public class ReportPanel extends BasePanel {
         enableAntialiasing(g);
         ReportInfos infos = new ReportInfos(model, localization);
         int dy = dy(g);
-        int y = dy;
-        y = drawInfos(g, infos, y);
+        int y = drawInfos(g, infos, dy);
         if (model.getRepeat() > 0) {
             y += dy / 2;
-            y = drawBeadCounts(g, y);
+            y = drawColorList(g, y);
             y += dy / 2;
             drawBeadList(g, y);
         }
@@ -72,37 +71,41 @@ public class ReportPanel extends BasePanel {
         return y;
     }
 
-    private int drawBeadCounts(Graphics g, int y) {
-        FontMetrics fm = g.getFontMetrics();
+    private int drawColorList(Graphics g, int y) {
+        FontMetrics metrics = g.getFontMetrics();
         BeadCounts counts = new BeadCounts(model);
-        g.setColor(Color.BLACK);
-        int xx = x1();
-        int bx = fm.getAscent();
-        int countw = fm.stringWidth("9999 x");
-        int w = countw + 3 + bx + 1 + bx;
+        int x = x1();
+        int bx = metrics.getAscent();
+        int countw = metrics.stringWidth("9999 x");
+        int w = countw + 4 + bx + 1 + bx;
         for (byte color = 0; color < model.getColorCount(); color++) {
-            int count = counts.getCount(color);
-            if (count == 0) continue;
-            String s = String.format("%d x ", count);
-            g.drawString(s, xx + countw - fm.stringWidth(s), y);
-            xx += countw + 3;
-            g.drawRect(xx, y - bx, bx, bx);
-            g.setColor(model.getColor(color));
-            g.fillRect(xx + 1, y - bx + 1, bx - 1, bx - 1);
-            g.setColor(Color.BLACK);
-            xx += bx + 1 + bx;
-            if (xx + w > getWidth()) {
-                xx = x1();
+            if (!drawColorCount(g, x, y, color, counts, metrics))
+                continue;
+            x += w;
+            if (x + w > getWidth()) {
+                x = x1();
                 y += dy(g);
             }
         }
         return y + dy(g);
     }
 
+    private boolean drawColorCount(Graphics g, int x, int y, byte color, BeadCounts counts, FontMetrics metrics) {
+        int count = counts.getCount(color);
+        if (count == 0) return false;
+        String s = String.format("%d x", count);
+        g.setColor(Color.BLACK);
+        int cw = metrics.stringWidth("9999 x");
+        int bx = metrics.getAscent();
+        g.drawString(s, x + cw - metrics.stringWidth(s), y);
+        drawBead(g, x + cw + 4, y - bx, bx, bx, color);
+        return true;
+    }
+
     private void drawBeadList(Graphics g, int y) {
-        FontMetrics fm = g.getFontMetrics();
+        FontMetrics metrics = g.getFontMetrics();
         BeadList beads = new BeadList(model);
-        int height = fm.getLeading() + g.getFontMetrics().getAscent();
+        int height = metrics.getLeading() + g.getFontMetrics().getAscent();
         g.drawString(localization.getString("report.listofbeads"), x1(), y);
         y += 3;
         int ystart = y;
@@ -111,8 +114,8 @@ public class ReportPanel extends BasePanel {
         int dy = dy(g);
         int colwidth = colwidth(g);
         for (BeadRun bead : beads) {
-            drawColorCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
-            y += dy;
+            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
+            y += dy + 3;
             if (y >= getHeight() - dy) {
                 x1 += colwidth;
                 y = ystart;
@@ -121,7 +124,7 @@ public class ReportPanel extends BasePanel {
     }
 
     private int colwidth(Graphics g) {
-        return dx(g) + 2 + g.getFontMetrics().stringWidth("999") + 3;
+        return dx(g) + 2 + g.getFontMetrics().stringWidth("9999") + 3;
     }
 
     private void enableAntialiasing(Graphics g) {
@@ -133,7 +136,7 @@ public class ReportPanel extends BasePanel {
     }
 
     private int dx(Graphics g) {
-        return g.getFontMetrics().getHeight() + 2;
+        return g.getFontMetrics().getHeight();
     }
 
     private int dy(Graphics g) {
@@ -146,13 +149,17 @@ public class ReportPanel extends BasePanel {
         g.drawString(value, x2, y);
     }
 
-    private void drawColorCount(Graphics g, int x1, int y, int dx, int dy, int height, byte col, int count) {
-        g.setColor(model.getColor(col));
-        g.fillRect(x1 + 1, y + 1, dx - 1, dy - 1);
-        g.setColor(Color.DARK_GRAY);
-        g.drawRect(x1, y, dx, dy);
+    private void drawBead(Graphics g, int x, int y, int w, int h, byte color) {
+        g.setColor(model.getColor(color));
+        g.fillRect(x + 1, y + 1, w - 1, h - 1);
         g.setColor(Color.BLACK);
-        g.drawString(Integer.toString(count), x1 + dx + 3, y + height);
+        g.drawRect(x, y, w, h);
+    }
+
+    private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count) {
+        drawBead(g, x, y, dx, dy, color);
+        g.setColor(Color.BLACK);
+        g.drawString(Integer.toString(count), x + dx + 3, y + height);
     }
 
     @Override
