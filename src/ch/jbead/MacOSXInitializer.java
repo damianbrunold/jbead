@@ -26,46 +26,54 @@ import com.apple.eawt.ApplicationListener;
 
 public class MacOSXInitializer {
 
-    public void initialize(final JBeadFrame frame) {
-        Application.getApplication().addApplicationListener(new ApplicationListener() {
-            public void handleAbout(ApplicationEvent event) {
-                frame.getAction("info.about").actionPerformed(new ActionEvent(frame, 0, null));
-                event.setHandled(true);
-            }
+    public static class JBeadApplicationListener implements ApplicationListener {
+        private JBeadFrame frame;
 
-            public void handleOpenApplication(ApplicationEvent event) {
-                // empty
-            }
+        public JBeadApplicationListener(JBeadFrame frame) {
+            this.frame = frame;
+        }
 
-            public void handleOpenFile(ApplicationEvent event) {
-                File file = new File(event.getFilename());
-                if (!file.exists()) return;
-                frame.loadFile(file, true);
-                event.setHandled(true);
-            }
+        public void handleAbout(ApplicationEvent event) {
+            frame.getAction("info.about").actionPerformed(new ActionEvent(frame, 0, null));
+            event.setHandled(true);
+        }
 
-            public void handlePreferences(ApplicationEvent event) {
-                frame.getAction("pattern.preferences").actionPerformed(new ActionEvent(this, 0, null));
-                event.setHandled(true);
-            }
+        public void handleOpenApplication(ApplicationEvent event) {
+            // empty
+        }
 
-            public void handlePrintFile(ApplicationEvent event) {
-                File file = new File(event.getFilename());
-                if (!file.exists()) return;
-                frame.loadFile(file, false);
-                frame.getAction("file.print").actionPerformed(new ActionEvent(this, 0, null));
-                event.setHandled(true);
-            }
+        public void handleOpenFile(ApplicationEvent event) {
+            File file = new File(event.getFilename());
+            if (!file.exists()) return;
+            frame.loadFile(file, true);
+            event.setHandled(true);
+        }
 
-            public void handleQuit(ApplicationEvent event) {
-                frame.getAction("file.exit").actionPerformed(new ActionEvent(this, 0, null));
-                event.setHandled(true);
-            }
+        public void handlePreferences(ApplicationEvent event) {
+            frame.getAction("pattern.preferences").actionPerformed(new ActionEvent(this, 0, null));
+            event.setHandled(true);
+        }
 
-            public void handleReOpenApplication(ApplicationEvent event) {
-                // empty
-            }
-        });
+        public void handlePrintFile(ApplicationEvent event) {
+            File file = new File(event.getFilename());
+            if (!file.exists()) return;
+            frame.loadFile(file, false);
+            frame.getAction("file.print").actionPerformed(new ActionEvent(this, 0, null));
+            event.setHandled(true);
+        }
+
+        public void handleQuit(ApplicationEvent event) {
+            frame.getAction("file.exit").actionPerformed(new ActionEvent(this, 0, null));
+            event.setHandled(true);
+        }
+
+        public void handleReOpenApplication(ApplicationEvent event) {
+            // empty
+        }
+    }
+
+    public void initialize(JBeadFrame frame) {
+        Application.getApplication().addApplicationListener(new JBeadApplicationListener(frame));
         Application.getApplication().setEnabledPreferencesMenu(true);
     }
 
