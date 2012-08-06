@@ -109,8 +109,11 @@ public class ColorPalette extends JComponent {
     }
 
     private void asBackground(int x, int y) {
-        Color color = model.getColor(getColorIndex(x, y));
+        byte index = getColorIndex(x, y);
+        Color background = model.getColor((byte) 0);
+        Color color = model.getColor(index);
         model.setColor((byte) 0, color);
+        model.setColor(index, background);
         repaint();
     }
 

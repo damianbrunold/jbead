@@ -1,16 +1,7 @@
 Bugs
 ----
 
-B0004 If a color x is chosen as the background color, then this color value
-is used twice in the color palette. Now, if a pattern is designed and some
-beads should be reverted back to the background, if the user accidentally
-selects the non-background color x, then the bead list will be strange and
-maybe incomprehensible, because the same color signifies two different
-states (background and foreground). The solution might be to disallow having
-the same color twice in the palette, thus, choosing a color as the background
-switches the color with the current background. Also, this should be handled
-when changing a color manually. A mitigation might be to show the symbols
-(not yet implemented) in addition to the color.
+B0005
 
 B0003 Undo should also cover author/organization and maybe even description.
 
@@ -22,4 +13,14 @@ the undo snapshot.
 
 Fixed
 -----
+
+B0004 If a color x is chosen as the background color, then this color value
+is used twice in the color palette. Now, if a pattern is designed and some
+beads should be reverted back to the background, if the user accidentally
+selects the non-background color x, then the bead list will be strange and
+maybe incomprehensible, because the same color signifies two different
+states (background and foreground). The solution might be to disallow having
+the same color twice in the palette, thus, choosing a color as the background
+switches the color with the current background. A mitigation might be to show 
+the symbols (not yet implemented) in addition to the color.
 
