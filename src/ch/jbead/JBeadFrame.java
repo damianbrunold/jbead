@@ -94,6 +94,8 @@ import ch.jbead.action.ToolPipetteAction;
 import ch.jbead.action.ToolSelectAction;
 import ch.jbead.action.ViewCorrectedAction;
 import ch.jbead.action.ViewDraftAction;
+import ch.jbead.action.ViewDrawColorsAction;
+import ch.jbead.action.ViewDrawSymbolsAction;
 import ch.jbead.action.ViewReportAction;
 import ch.jbead.action.ViewSimulationAction;
 import ch.jbead.action.ViewZoomInAction;
@@ -135,6 +137,8 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
 
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
 
+    private List<ViewListener> listeners = new ArrayList<ViewListener>();
+
     private Model model = new Model(this);
     private Selection selection = new Selection();
     private FileFormat fileformat = new JBeadFileFormat();
@@ -163,6 +167,9 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
     private JMenuItem viewSimulation;
     private JMenuItem viewReport;
 
+    private JMenuItem viewDrawColors;
+    private JMenuItem viewDrawSymbols;
+
     private ToolsGroup toolsGroup = new ToolsGroup();
 
     private Settings settings = new Settings();
@@ -188,11 +195,17 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         updateMRU();
         initCloseHandler();
 
-        // persist settings?
+        // TODO persist settings?
         viewDraft.setSelected(true);
         viewCorrected.setSelected(true);
         viewSimulation.setSelected(true);
         viewReport.setSelected(true);
+
+        // TODO persist settings?
+        viewDrawColors.setSelected(true);
+        viewDrawSymbols.setSelected(false);
+        fireDrawColorsChanged();
+        fireDrawSymbolsChanged();
 
         setIconImage(ImageFactory.getImage("jbead-16"));
 
@@ -353,6 +366,30 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         actions.put(name, action);
     }
 
+    public void addListener(ViewListener listener) {
+        listeners.add(listener);
+    }
+
+    public void fireDrawColorsChanged() {
+        for (ViewListener listener : listeners) {
+            listener.drawColorsChanged(viewDrawColors.isSelected());
+        }
+    }
+
+    public void fireDrawSymbolsChanged() {
+        for (ViewListener listener : listeners) {
+            listener.drawSymbolsChanged(viewDrawSymbols.isSelected());
+        }
+    }
+
+    public boolean isDrawColors() {
+        return viewDrawColors.isSelected();
+    }
+
+    public boolean isDrawSymbols() {
+        return viewDrawSymbols.isSelected();
+    }
+
     public void clearSelection() {
         selection.clear();
     }
@@ -450,6 +487,9 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         menuView.add(viewCorrected = new JCheckBoxMenuItem(new ViewCorrectedAction(this)));
         menuView.add(viewSimulation = new JCheckBoxMenuItem(new ViewSimulationAction(this)));
         menuView.add(viewReport = new JCheckBoxMenuItem(new ViewReportAction(this)));
+        menuView.addSeparator();
+        menuView.add(viewDrawColors = new JCheckBoxMenuItem(new ViewDrawColorsAction(this)));
+        menuView.add(viewDrawSymbols = new JCheckBoxMenuItem(new ViewDrawSymbolsAction(this)));
         menuView.addSeparator();
         menuView.add(new ViewZoomInAction(this));
         menuView.add(new ViewZoomNormalAction(this));
@@ -1104,6 +1144,8 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         memento.setSimulationVisible(isSimulationVisible());
         memento.setReportVisible(isReportVisible());
         memento.setSelectedTool(getSelectedTool());
+        memento.setDrawColors(isDrawColors());
+        memento.setDrawSymbols(isDrawSymbols());
     }
 
     public void loadFrom(Memento memento) {
@@ -1111,7 +1153,12 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
         setCorrectedVisible(memento.isCorrectedVisible());
         setSimulationVisible(memento.isSimulationVisible());
         setReportVisible(memento.isReportVisible());
+        updateVisibility();
         setSelectedTool(memento.getSelectedTool());
+        viewDrawColors.setSelected(memento.isDrawColors());
+        fireDrawColorsChanged();
+        viewDrawSymbols.setSelected(memento.isDrawSymbols());
+        fireDrawSymbolsChanged();
     }
 
     public Model getModel() {

@@ -43,6 +43,9 @@ public abstract class Memento {
     protected boolean simulationVisible;
     protected boolean reportVisible;
 
+    protected boolean drawColors;
+    protected boolean drawSymbols;
+
     protected String selectedTool;
 
     public abstract void save(JBeadOutputStream out) throws IOException;
@@ -110,6 +113,22 @@ public abstract class Memento {
 
     public void setReportVisible(boolean visible) {
         reportVisible = visible;
+    }
+
+    public boolean isDrawColors() {
+        return drawColors;
+    }
+
+    public boolean isDrawSymbols() {
+        return drawSymbols;
+    }
+
+    public void setDrawColors(boolean drawColors) {
+        this.drawColors = drawColors;
+    }
+
+    public void setDrawSymbols(boolean drawSymbols) {
+        this.drawSymbols = drawSymbols;
     }
 
     public List<Color> getColors() {

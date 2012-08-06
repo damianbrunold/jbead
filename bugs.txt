@@ -1,7 +1,7 @@
 Bugs
 ----
 
-B0005
+B0006
 
 B0003 Undo should also cover author/organization and maybe even description.
 
@@ -13,6 +13,9 @@ the undo snapshot.
 
 Fixed
 -----
+
+B0005 Open a saved file with non-standard zoom. Trying to zoom in results
+in a zoom out, most probably due to an in correctly applied zoom setting.
 
 B0004 If a color x is chosen as the background color, then this color value
 is used twice in the color palette. Now, if a pattern is designed and some

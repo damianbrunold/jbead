@@ -62,6 +62,8 @@ public class JBeadMemento extends Memento {
         om.add("view/zoom", zoomIndex);
         om.add("view/scroll", scroll);
         om.add("view/shift", shift);
+        om.add("view/draw-colors", drawColors);
+        om.add("view/draw-symbols", drawSymbols);
     }
 
     private void savePattern(ObjectModel om) {
@@ -110,6 +112,8 @@ public class JBeadMemento extends Memento {
         zoomIndex = om.getIntValue("view/zoom", 2);
         scroll = om.getIntValue("view/scroll", 0);
         shift = om.getIntValue("view/shift", 0);
+        drawColors = om.getBoolValue("view/draw-colors", true);
+        drawSymbols = om.getBoolValue("view/draw-symbols", false);
     }
 
     private void loadPattern(ObjectModel om) {

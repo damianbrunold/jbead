@@ -19,29 +19,38 @@ package ch.jbead.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import ch.jbead.BeadSymbols;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
+import ch.jbead.ViewListener;
 
-public class CorrectedPanel extends BasePanel {
+public class CorrectedPanel extends BasePanel implements ViewListener {
 
     private static final long serialVersionUID = 1L;
 
     private int offsetx;
     private int left;
+    private Font symbolfont;
+    private boolean drawColors = true;
+    private boolean drawSymbols = false;
 
-    public CorrectedPanel(Model model, Selection selection, final JBeadFrame form) {
+    public CorrectedPanel(Model model, Selection selection, final JBeadFrame frame) {
         super(model, selection);
         model.addListener(this);
+        frame.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                form.correctedMouseUp(e);
+                frame.correctedMouseUp(e);
             }
         });
     }
@@ -64,6 +73,8 @@ public class CorrectedPanel extends BasePanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 1);
         offsetx = getOffsetX();
         left = getLeft();
         paintBeads(g);
@@ -95,11 +106,12 @@ public class CorrectedPanel extends BasePanel {
 
     private void paintBeads(Graphics g) {
         if (scroll > model.getHeight() - 1) return;
+        g.setFont(symbolfont);
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll));
             if (aboveTop(pt)) break;
-            paintBead(g, pt, model.getColor(c));
+            paintBead(g, pt, c);
         }
     }
 
@@ -107,11 +119,41 @@ public class CorrectedPanel extends BasePanel {
         return y(pt.getY()) < -gridy;
     }
 
-    private void paintBead(Graphics g, Point pt, Color color) {
-        g.setColor(color);
-        g.fillRect(x(pt.getX()) + 1 - dx(pt.getY()), y(pt.getY()) + 1, gridx - 1, gridy - 1);
-        g.setColor(Color.DARK_GRAY);
-        g.drawRect(x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gridx, gridy);
+    private void paintBead(Graphics g, Point pt, byte c) {
+        Color color = model.getColor(c);
+        if (drawColors) {
+            g.setColor(color);
+            g.fillRect(x(pt.getX()) + 1 - dx(pt.getY()), y(pt.getY()) + 1, gridx - 1, gridy - 1);
+            g.setColor(Color.DARK_GRAY);
+            g.drawRect(x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gridx, gridy);
+        }
+        if (drawSymbols) {
+            setSymbolColor(g, color);
+            g.drawString(BeadSymbols.get(c), x(pt.getX()) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx(pt.getY()), y(pt.getY()) + symbolfont.getSize());
+        }
+    }
+
+    private void setSymbolColor(Graphics g, Color color) {
+        if (drawColors) {
+            g.setColor(getContrastingColor(color));
+        } else {
+            g.setColor(Color.BLACK);
+        }
+    }
+
+    private Color getContrastingColor(Color color) {
+        if (getContrast(color, Color.WHITE) > getContrast(color, Color.BLACK)) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
+    }
+
+    private int getContrast(Color a, Color b) {
+        int red_diff = a.getRed() - b.getRed();
+        int green_diff = a.getGreen() - b.getGreen();
+        int blue_diff = a.getBlue() - b.getBlue();
+        return (int) Math.sqrt(red_diff * red_diff + green_diff * green_diff + blue_diff * blue_diff);
     }
 
     @Override
@@ -121,8 +163,9 @@ public class CorrectedPanel extends BasePanel {
         byte c = model.get(pt);
         _pt = model.correct(_pt);
         Graphics g = getGraphics();
-        g.setColor(model.getColor(c));
-        paintBead(g, _pt, model.getColor(c));
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setFont(symbolfont);
+        paintBead(g, _pt, c);
         g.dispose();
     }
 
@@ -150,4 +193,15 @@ public class CorrectedPanel extends BasePanel {
         selection.clear();
         model.fillLine(pt.unscrolled(scroll));
     }
+
+    public void drawColorsChanged(boolean drawColors) {
+        this.drawColors = drawColors;
+        repaint();
+    }
+
+    public void drawSymbolsChanged(boolean drawSymbols) {
+        this.drawSymbols = drawSymbols;
+        repaint();
+    }
+
 }

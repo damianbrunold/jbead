@@ -1,0 +1,6 @@
+1.0.22
+
+- Restore zoom setting when loading file
+- Add support for bead symbols
+- Add flags for bead colors and bead symbols
+- Restore panel visibility when loading file

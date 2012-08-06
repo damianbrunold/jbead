@@ -423,6 +423,12 @@ public class Model implements ColorTable {
         fireModelChanged();
     }
 
+    private void updateZoom() {
+        if (zoomIndex >= zoomtable.length - 1) return;
+        gridx = gridy = zoomtable[zoomIndex];
+        fireZoomChanged(gridx, gridy);
+    }
+
     public void zoomIn() {
         if (zoomIndex >= zoomtable.length - 1) return;
         zoomIndex++;
@@ -576,6 +582,7 @@ public class Model implements ColorTable {
         fillDefaultColorsUp();
         colorIndex = memento.getColorIndex();
         zoomIndex = memento.getZoomIndex();
+        updateZoom();
         shift = memento.getShift();
         scroll = memento.getScroll();
         author = memento.getAuthor();

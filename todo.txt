@@ -1,7 +1,31 @@
 Todo and Smells
 ---------------
 
-Add cyclomatic complexity and other code metrics.
+Draw bead symbols in color palette, if the symbols
+are enabled.
+
+Extract bead drawing code from draft and corrected
+panel (and maybe simulation panel). This should
+probably use the decorator pattern to handle stuff
+like colors, symbols, ... The same code could probably
+be used in the printing code.
+
+Extract a XY interface with x(), y() and dx() methods.
+Both DraftPanel and CorrectedPanel implement XY. This
+would allow to provide XY to the bead drawing code
+in order to transparently calculate the x, y coordinated
+including any corrections. Maybe this would also work
+with simulation if the width w is included too. Then
+the whole bead drawing process can be handled quite
+cleanly.
+
+Persist view settings (which panels are visible, are
+colors and/or symbols drawn, ...)
+
+The getContrastingColor method for drawing the bead
+symbols should possibly use a precomputed table. But
+be careful to update the table when the colors are
+changed.
 
 Write a log file during each jbead run. The log file
 should be a temporary file that is deleted when jbead

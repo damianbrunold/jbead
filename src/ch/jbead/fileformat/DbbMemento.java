@@ -59,6 +59,8 @@ public class DbbMemento extends Memento {
         out.writeBool(simulationVisible);
         // report flag is not saved
         // selected tool is not saved
+        // draw colors flag not saved
+        // draw symbols flag not saved
     }
 
     @Override
@@ -79,7 +81,13 @@ public class DbbMemento extends Memento {
         draftVisible = in.readBool();
         correctedVisible = in.readBool();
         simulationVisible = in.readBool();
+        setDefaults();
+    }
+
+    private void setDefaults() {
         reportVisible = true;
+        drawColors = true;
+        drawSymbols = false;
         selectedTool = "pencil";
         author = "";
         organization = "";

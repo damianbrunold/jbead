@@ -19,6 +19,7 @@ package ch.jbead.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -26,13 +27,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
+import ch.jbead.BeadSymbols;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.SelectionListener;
+import ch.jbead.ViewListener;
 
-public class DraftPanel extends BasePanel implements SelectionListener {
+public class DraftPanel extends BasePanel implements SelectionListener, ViewListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -41,25 +44,30 @@ public class DraftPanel extends BasePanel implements SelectionListener {
 
     private int offsetx;
     private int maxj;
+    private Font defaultfont;
+    private Font symbolfont;
+    private boolean drawColors = true;
+    private boolean drawSymbols = false;
 
-    public DraftPanel(Model model, Selection selection, final JBeadFrame form) {
+    public DraftPanel(Model model, Selection selection, final JBeadFrame frame) {
         super(model, selection);
         model.addListener(this);
+        frame.addListener(this);
         setBackground(Color.LIGHT_GRAY);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                form.draftMouseDown(e);
+                frame.draftMouseDown(e);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                form.draftMouseUp(e);
+                frame.draftMouseUp(e);
             }
         });
         addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
-                form.draftMouseMove(e);
+                frame.draftMouseMove(e);
             }
             public void mouseMoved(MouseEvent e) {
                 // empty
@@ -70,6 +78,9 @@ public class DraftPanel extends BasePanel implements SelectionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        defaultfont = g.getFont();
+        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 1);
         offsetx = getOffsetX();
         maxj = getMaxJ();
         paintBeads(g);
@@ -111,18 +122,54 @@ public class DraftPanel extends BasePanel implements SelectionListener {
     }
 
     private void paintBeads(Graphics g) {
+        g.setFont(symbolfont);
         for (int j = 0; j < maxj; j++) {
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
-                g.setColor(model.getColor(c));
-                g.fillRect(x(i) + 1, y(j) + 1, gridx - 1, gridy - 1);
-                g.setColor(Color.DARK_GRAY);
-                g.drawRect(x(i), y(j), gridx, gridy);
+                paintBead(g, i, j, c);
             }
         }
     }
 
+    private void paintBead(Graphics g, int i, int j, byte c) {
+        Color color = model.getColor(c);
+        if (drawColors) {
+            g.setColor(model.getColor(c));
+            g.fillRect(x(i) + 1, y(j) + 1, gridx - 1, gridy - 1);
+            g.setColor(Color.DARK_GRAY);
+            g.drawRect(x(i), y(j), gridx, gridy);
+        }
+        if (drawSymbols) {
+            setSymbolColor(g, color);
+            g.drawString(BeadSymbols.get(c), x(i) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2, y(j) + symbolfont.getSize());
+        }
+    }
+
+    private void setSymbolColor(Graphics g, Color color) {
+        if (drawColors) {
+            g.setColor(getContrastingColor(color));
+        } else {
+            g.setColor(Color.BLACK);
+        }
+    }
+
+    private Color getContrastingColor(Color color) {
+        if (getContrast(color, Color.WHITE) > getContrast(color, Color.BLACK)) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
+    }
+
+    private int getContrast(Color a, Color b) {
+        int red_diff = a.getRed() - b.getRed();
+        int green_diff = a.getGreen() - b.getGreen();
+        int blue_diff = a.getBlue() - b.getBlue();
+        return (int) Math.sqrt(red_diff * red_diff + green_diff * green_diff + blue_diff * blue_diff);
+    }
+
     private void paintMarkers(Graphics g) {
+        g.setFont(defaultfont);
         g.setColor(Color.DARK_GRAY);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int fontHeight = g.getFontMetrics().getAscent();
@@ -159,8 +206,9 @@ public class DraftPanel extends BasePanel implements SelectionListener {
         if (!isVisible()) return;
         byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
         Graphics g = getGraphics();
-        g.setColor(model.getColor(c));
-        g.fillRect(x(i) + 1, y(j) + 1, gridx - 1, gridy - 1);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setFont(symbolfont);
+        paintBead(g, i, j, c);
         g.dispose();
     }
 
@@ -215,6 +263,16 @@ public class DraftPanel extends BasePanel implements SelectionListener {
 
     public void selectionDeleted(Selection sel) {
         clearSelection(sel);
+    }
+
+    public void drawColorsChanged(boolean drawColors) {
+        this.drawColors = drawColors;
+        repaint();
+    }
+
+    public void drawSymbolsChanged(boolean drawSymbols) {
+        this.drawSymbols = drawSymbols;
+        repaint();
     }
 
 }
