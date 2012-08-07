@@ -27,6 +27,7 @@ public class BeadPainter {
     private Model model;
     private boolean drawColors;
     private boolean drawSymbols;
+    private boolean withBorder = true;
     private Font symbolfont;
 
     public BeadPainter(CoordinateCalculator coord, Model model, boolean drawColors, boolean drawSymbols, Font symbolfont) {
@@ -35,6 +36,10 @@ public class BeadPainter {
         this.drawColors = drawColors;
         this.drawSymbols = drawSymbols;
         this.symbolfont = symbolfont;
+    }
+
+    public void setWidthBorder(boolean withBorder) {
+        this.withBorder = withBorder;
     }
 
     public void paint(Graphics g, Point pt, byte c) {
@@ -46,9 +51,11 @@ public class BeadPainter {
         int dx = coord.dx(pt);
         if (drawColors) {
             g.setColor(color);
-            g.fillRect(x + 1 - dx, y + 1, gridx - 1, gridy - 1);
-            g.setColor(Color.DARK_GRAY);
-            g.drawRect(x - dx, y, gridx, gridy);
+            g.fillRect(x - dx, y, gridx, gridy);
+            if (withBorder) {
+                g.setColor(Color.DARK_GRAY);
+                g.drawRect(x - dx, y, gridx, gridy);
+            }
         }
         if (drawSymbols) {
             setSymbolColor(g, color);

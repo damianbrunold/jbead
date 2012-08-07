@@ -19,6 +19,7 @@ package ch.jbead.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -29,23 +30,34 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import ch.jbead.BeadPainter;
+import ch.jbead.CoordinateCalculator;
+import ch.jbead.JBeadFrame;
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.Point;
+import ch.jbead.ViewListener;
 
-public class ColorPalette extends JComponent {
+public class ColorPalette extends JComponent implements ViewListener, CoordinateCalculator {
 
     private static final long serialVersionUID = 1L;
 
     private static final int d = 14;
+
+    private static final Font symbolfont = new Font("SansSerif", Font.PLAIN, d - 2);
 
     private static final Dimension preferredSize = new Dimension(16 * d, 2 * d);
 
     private Model model;
     private Localization localization;
 
-    public ColorPalette(Model model, final Localization localization) {
+    private boolean drawColors = true;
+    private boolean drawSymbols = false;
+
+    public ColorPalette(Model model, JBeadFrame frame) {
         this.model = model;
-        this.localization = localization;
+        this.localization = frame;
+        frame.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
@@ -126,24 +138,18 @@ public class ColorPalette extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        for (byte i = 0; i < 16; i++) {
+        g.setFont(symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        painter.setWidthBorder(false);
+        for (byte i = 0; i < 32; i++) {
+            Point pt = new Point(i % 16, i / 16);
             g.setColor(model.getColor(i));
-            g.fillRect(i * d, 0, d, d);
+            painter.paint(g, pt, i);
             if (i == model.getSelectedColor()) {
                 g.setColor(Color.BLACK);
-                g.drawRect(i * d, 0, d - 1, d - 1);
+                g.drawRect(x(pt), y(pt), d - 1, d - 1);
                 g.setColor(Color.WHITE);
-                g.drawRect(i * d + 1, 1, d - 3, d - 3);
-            }
-        }
-        for (byte i = 16; i < 32; i++) {
-            g.setColor(model.getColor(i));
-            g.fillRect((i - 16) * d, d, d, d);
-            if (i == model.getSelectedColor()) {
-                g.setColor(Color.BLACK);
-                g.drawRect((i - 16) * d, d, d - 1, d - 1);
-                g.setColor(Color.WHITE);
-                g.drawRect((i - 16) * d + 1, d + 1, d - 3, d - 3);
+                g.drawRect(x(pt) + 1, y(pt) + 1, d - 3, d - 3);
             }
         }
     }
@@ -151,6 +157,42 @@ public class ColorPalette extends JComponent {
     @Override
     public Dimension getPreferredSize() {
         return preferredSize;
+    }
+
+    public int getGridx() {
+        return d;
+    }
+
+    public int getGridy() {
+        return d;
+    }
+
+    public int x(Point pt) {
+        return pt.getX() * d;
+    }
+
+    public int y(Point pt) {
+        return pt.getY() * d;
+    }
+
+    public int dx(Point pt) {
+        return 0;
+    }
+
+    public int dx(int j) {
+        return 0;
+    }
+
+    public int w(Point pt) {
+        return d;
+    }
+
+    public void drawColorsChanged(boolean drawColors) {
+        this.drawColors = drawColors;
+    }
+
+    public void drawSymbolsChanged(boolean drawSymbols) {
+        this.drawSymbols = drawSymbols;
     }
 
 
