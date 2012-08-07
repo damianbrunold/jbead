@@ -21,6 +21,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -138,8 +140,9 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
-        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, true, drawSymbols, symbolfont);
         painter.setWidthBorder(false);
         for (byte i = 0; i < 32; i++) {
             Point pt = new Point(i % 16, i / 16);
@@ -189,11 +192,12 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
 
     public void drawColorsChanged(boolean drawColors) {
         this.drawColors = drawColors;
+        repaint();
     }
 
     public void drawSymbolsChanged(boolean drawSymbols) {
         this.drawSymbols = drawSymbols;
+        repaint();
     }
-
 
 }
