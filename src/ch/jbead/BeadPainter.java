@@ -20,6 +20,8 @@ package ch.jbead;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BeadPainter {
 
@@ -29,6 +31,8 @@ public class BeadPainter {
     private boolean drawSymbols;
     private boolean drawBorder = true;
     private Font symbolfont;
+
+    private static Map<Color, Color> contrastingColors = new HashMap<Color, Color>();
 
     public BeadPainter(CoordinateCalculator coord, Model model, boolean drawColors, boolean drawSymbols, Font symbolfont) {
         this.coord = coord;
@@ -72,9 +76,13 @@ public class BeadPainter {
     }
 
     private Color getContrastingColor(Color color) {
+        // use memoization to reduce recalculation of contrasting colors
+        if (contrastingColors.containsKey(color)) return contrastingColors.get(color);
         if (getContrast(color, Color.WHITE) > getContrast(color, Color.BLACK)) {
+            contrastingColors.put(color, Color.WHITE);
             return Color.WHITE;
         } else {
+            contrastingColors.put(color, Color.BLACK);
             return Color.BLACK;
         }
     }
