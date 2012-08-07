@@ -28,7 +28,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 import ch.jbead.BeadPainter;
-import ch.jbead.BeadSymbols;
 import ch.jbead.CoordinateCalculator;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
