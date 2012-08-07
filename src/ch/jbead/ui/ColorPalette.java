@@ -53,7 +53,6 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
     private Model model;
     private Localization localization;
 
-    private boolean drawColors = true;
     private boolean drawSymbols = false;
 
     public ColorPalette(Model model, JBeadFrame frame) {
@@ -191,8 +190,7 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
     }
 
     public void drawColorsChanged(boolean drawColors) {
-        this.drawColors = drawColors;
-        repaint();
+        // ignore, colors are always shown in palette
     }
 
     public void drawSymbolsChanged(boolean drawSymbols) {
