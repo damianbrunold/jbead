@@ -27,13 +27,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import ch.jbead.BeadSymbols;
+import ch.jbead.CoordinateCalculator;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.ViewListener;
 
-public class CorrectedPanel extends BasePanel implements ViewListener {
+public class CorrectedPanel extends BasePanel implements ViewListener, CoordinateCalculator {
 
     private static final long serialVersionUID = 1L;
 
@@ -88,20 +89,36 @@ public class CorrectedPanel extends BasePanel implements ViewListener {
         return gridx / 2 + (getWidth() - 1 - model.getWidth() * gridx - gridx / 2) / 2;
     }
 
-    private int x(int i) {
-        return left + i * gridx;
+    public int getGridx() {
+        return gridx;
     }
 
-    private int y(int j) {
-        return getHeight() - 1 - (j + 1) * gridy;
+    public int getGridy() {
+        return gridy;
     }
 
-    private int dx(int j) {
+    public int x(Point pt) {
+        return left + pt.getX() * gridx;
+    }
+
+    public int y(Point pt) {
+        return getHeight() - 1 - (pt.getY() + 1) * gridy;
+    }
+
+    public int dx(Point pt) {
+        return dx(pt.getY());
+    }
+
+    public int dx(int j) {
         if ((j + scroll) % 2 == 0) {
             return 0;
         } else {
             return gridx / 2;
         }
+    }
+
+    public int w(Point pt) {
+        return gridx;
     }
 
     private void paintBeads(Graphics g) {
@@ -116,20 +133,20 @@ public class CorrectedPanel extends BasePanel implements ViewListener {
     }
 
     private boolean aboveTop(Point pt) {
-        return y(pt.getY()) < -gridy;
+        return y(pt) < -gridy;
     }
 
     private void paintBead(Graphics g, Point pt, byte c) {
         Color color = model.getColor(c);
         if (drawColors) {
             g.setColor(color);
-            g.fillRect(x(pt.getX()) + 1 - dx(pt.getY()), y(pt.getY()) + 1, gridx - 1, gridy - 1);
+            g.fillRect(x(pt) + 1 - dx(pt), y(pt) + 1, gridx - 1, gridy - 1);
             g.setColor(Color.DARK_GRAY);
-            g.drawRect(x(pt.getX()) - dx(pt.getY()), y(pt.getY()), gridx, gridy);
+            g.drawRect(x(pt) - dx(pt), y(pt), gridx, gridy);
         }
         if (drawSymbols) {
             setSymbolColor(g, color);
-            g.drawString(BeadSymbols.get(c), x(pt.getX()) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx(pt.getY()), y(pt.getY()) + symbolfont.getSize());
+            g.drawString(BeadSymbols.get(c), x(pt) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx(pt), y(pt) + symbolfont.getSize());
         }
     }
 
