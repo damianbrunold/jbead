@@ -27,7 +27,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
+import ch.jbead.BeadPainter;
 import ch.jbead.BeadSymbols;
+import ch.jbead.CoordinateCalculator;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
@@ -35,7 +37,7 @@ import ch.jbead.Selection;
 import ch.jbead.SelectionListener;
 import ch.jbead.ViewListener;
 
-public class DraftPanel extends BasePanel implements SelectionListener, ViewListener {
+public class DraftPanel extends BasePanel implements SelectionListener, ViewListener, CoordinateCalculator {
 
     private static final long serialVersionUID = 1L;
 
@@ -113,59 +115,27 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
         return Math.min(model.getHeight() - scroll, getHeight() / gridy + 1);
     }
 
-    private int x(int i) {
-        return offsetx + i * gridx;
+    public int x(Point pt) {
+        return offsetx + pt.getX() * gridx;
+    }
+
+    public int y(Point pt) {
+        return getHeight() - 1 - (pt.getY() + 1) * gridy;
     }
 
     private int y(int j) {
-        return getHeight() - 1 - (j + 1) * gridy;
+        return y(new Point(0, j));
     }
 
     private void paintBeads(Graphics g) {
+        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
         g.setFont(symbolfont);
         for (int j = 0; j < maxj; j++) {
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
-                paintBead(g, i, j, c);
+                painter.paint(g, new Point(i, j), c);
             }
         }
-    }
-
-    private void paintBead(Graphics g, int i, int j, byte c) {
-        Color color = model.getColor(c);
-        if (drawColors) {
-            g.setColor(model.getColor(c));
-            g.fillRect(x(i) + 1, y(j) + 1, gridx - 1, gridy - 1);
-            g.setColor(Color.DARK_GRAY);
-            g.drawRect(x(i), y(j), gridx, gridy);
-        }
-        if (drawSymbols) {
-            setSymbolColor(g, color);
-            g.drawString(BeadSymbols.get(c), x(i) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2, y(j) + symbolfont.getSize());
-        }
-    }
-
-    private void setSymbolColor(Graphics g, Color color) {
-        if (drawColors) {
-            g.setColor(getContrastingColor(color));
-        } else {
-            g.setColor(Color.BLACK);
-        }
-    }
-
-    private Color getContrastingColor(Color color) {
-        if (getContrast(color, Color.WHITE) > getContrast(color, Color.BLACK)) {
-            return Color.WHITE;
-        } else {
-            return Color.BLACK;
-        }
-    }
-
-    private int getContrast(Color a, Color b) {
-        int red_diff = a.getRed() - b.getRed();
-        int green_diff = a.getGreen() - b.getGreen();
-        int blue_diff = a.getBlue() - b.getBlue();
-        return (int) Math.sqrt(red_diff * red_diff + green_diff * green_diff + blue_diff * blue_diff);
     }
 
     private void paintMarkers(Graphics g) {
@@ -199,16 +169,17 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
 
     private void paintSelection(Graphics g, Color color, Selection sel) {
         g.setColor(color);
-        g.drawRect(x(sel.left()), y(sel.top()), sel.width() * gridx, sel.height() * gridy);
+        g.drawRect(x(sel.getBegin()), y(sel.getEnd()), sel.width() * gridx, sel.height() * gridy);
     }
 
     public void redraw(int i, int j) {
         if (!isVisible()) return;
         byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
+        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
         Graphics g = getGraphics();
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
-        paintBead(g, i, j, c);
+        painter.paint(g, new Point(i, j), c);
         g.dispose();
     }
 
@@ -220,7 +191,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
     public void selectPreview(boolean draw, Point pt1, Point pt2) {
         Graphics g = getGraphics();
         g.setColor(draw ? Color.RED : Color.DARK_GRAY);
-        g.drawRect(x(pt1.getX()), y(pt2.getY()), (pt2.getX() - pt1.getX() + 1) * gridx, (pt2.getY() - pt1.getY() + 1) * gridy);
+        g.drawRect(x(pt1), y(pt2), (pt2.getX() - pt1.getX() + 1) * gridx, (pt2.getY() - pt1.getY() + 1) * gridy);
         g.dispose();
     }
 
@@ -228,14 +199,14 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
         Graphics g = getGraphics();
         g.setColor(Color.WHITE);
         g.setXORMode(Color.BLACK);
-        g.drawLine(x(pt1.getX()) + gridx / 2, y(pt1.getY()) + gridy / 2, x(pt2.getX()) + gridx / 2, y(pt2.getY()) + gridy / 2);
+        g.drawLine(x(pt1) + gridx / 2, y(pt1.getY()) + gridy / 2, x(pt2) + gridx / 2, y(pt2.getY()) + gridy / 2);
         g.dispose();
     }
 
     public void drawPrepress(Point pt) {
         Graphics g = getGraphics();
-        int x0 = x(pt.getX());
-        int y0 = y(pt.getY());
+        int x0 = x(pt);
+        int y0 = y(pt);
         g.setColor(Color.BLACK);
         g.drawLine(x0 + 1, y0 + gridy - 1, x0 + 1, y0 + 1);
         g.drawLine(x0 + 1, y0 + 1, x0 + gridx - 1, y0 + 1);

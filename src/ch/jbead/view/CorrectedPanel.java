@@ -17,7 +17,6 @@
 
 package ch.jbead.view;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -26,7 +25,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import ch.jbead.BeadSymbols;
+import ch.jbead.BeadPainter;
 import ch.jbead.CoordinateCalculator;
 import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
@@ -89,14 +88,6 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         return gridx / 2 + (getWidth() - 1 - model.getWidth() * gridx - gridx / 2) / 2;
     }
 
-    public int getGridx() {
-        return gridx;
-    }
-
-    public int getGridy() {
-        return gridy;
-    }
-
     public int x(Point pt) {
         return left + pt.getX() * gridx;
     }
@@ -105,10 +96,7 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         return getHeight() - 1 - (pt.getY() + 1) * gridy;
     }
 
-    public int dx(Point pt) {
-        return dx(pt.getY());
-    }
-
+    @Override
     public int dx(int j) {
         if ((j + scroll) % 2 == 0) {
             return 0;
@@ -117,60 +105,20 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         }
     }
 
-    public int w(Point pt) {
-        return gridx;
-    }
-
     private void paintBeads(Graphics g) {
         if (scroll > model.getHeight() - 1) return;
+        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
         g.setFont(symbolfont);
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll));
             if (aboveTop(pt)) break;
-            paintBead(g, pt, c);
+            painter.paint(g, pt, c);
         }
     }
 
     private boolean aboveTop(Point pt) {
         return y(pt) < -gridy;
-    }
-
-    private void paintBead(Graphics g, Point pt, byte c) {
-        Color color = model.getColor(c);
-        if (drawColors) {
-            g.setColor(color);
-            g.fillRect(x(pt) + 1 - dx(pt), y(pt) + 1, gridx - 1, gridy - 1);
-            g.setColor(Color.DARK_GRAY);
-            g.drawRect(x(pt) - dx(pt), y(pt), gridx, gridy);
-        }
-        if (drawSymbols) {
-            setSymbolColor(g, color);
-            g.drawString(BeadSymbols.get(c), x(pt) + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx(pt), y(pt) + symbolfont.getSize());
-        }
-    }
-
-    private void setSymbolColor(Graphics g, Color color) {
-        if (drawColors) {
-            g.setColor(getContrastingColor(color));
-        } else {
-            g.setColor(Color.BLACK);
-        }
-    }
-
-    private Color getContrastingColor(Color color) {
-        if (getContrast(color, Color.WHITE) > getContrast(color, Color.BLACK)) {
-            return Color.WHITE;
-        } else {
-            return Color.BLACK;
-        }
-    }
-
-    private int getContrast(Color a, Color b) {
-        int red_diff = a.getRed() - b.getRed();
-        int green_diff = a.getGreen() - b.getGreen();
-        int blue_diff = a.getBlue() - b.getBlue();
-        return (int) Math.sqrt(red_diff * red_diff + green_diff * green_diff + blue_diff * blue_diff);
     }
 
     @Override
@@ -179,10 +127,11 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         Point _pt = pt.unscrolled(scroll);
         byte c = model.get(pt);
         _pt = model.correct(_pt);
+        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
         Graphics g = getGraphics();
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
-        paintBead(g, _pt, c);
+        painter.paint(g, _pt, c);
         g.dispose();
     }
 

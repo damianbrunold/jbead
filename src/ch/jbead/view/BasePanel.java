@@ -80,4 +80,24 @@ public abstract class BasePanel extends JComponent implements ModelListener {
         // empty
     }
 
+    public int getGridx() {
+        return gridx;
+    }
+
+    public int getGridy() {
+        return gridy;
+    }
+
+    public int dx(Point pt) {
+        return dx(pt.getY());
+    }
+
+    public int dx(int j) {
+        return 0;
+    }
+
+    public int w(Point pt) {
+        return gridx;
+    }
+
 }

@@ -93,6 +93,14 @@ public class SimulationPanel extends BasePanel {
         return getHeight() - 1 - (j + 1) * gridy;
     }
 
+    public int dx(int j) {
+        if ((j + scroll) % 2 == 0) {
+            return 0;
+        } else {
+            return gridx / 2;
+        }
+    }
+
     private void paintBeads(Graphics g) {
         if (scroll > model.getHeight() - 1) return;
         int width = model.getWidth();
@@ -167,14 +175,6 @@ public class SimulationPanel extends BasePanel {
     @Override
     public void shiftChanged(int scroll) {
         repaint();
-    }
-
-    private int dx(int j) {
-        if ((j + scroll) % 2 == 0) {
-            return 0;
-        } else {
-            return gridx / 2;
-        }
     }
 
     public Point mouseToField(Point pt) {
