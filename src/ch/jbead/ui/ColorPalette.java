@@ -142,7 +142,7 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
         BeadPainter painter = new BeadPainter(this, model, true, drawSymbols, symbolfont);
-        painter.setWidthBorder(false);
+        painter.setDrawBorder(false);
         for (byte i = 0; i < 32; i++) {
             Point pt = new Point(i % 16, i / 16);
             g.setColor(model.getColor(i));
