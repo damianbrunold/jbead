@@ -41,6 +41,7 @@ public class ReportPanel extends BasePanel {
     private static final long serialVersionUID = 1L;
 
     private Localization localization;
+    private Font defaultfont;
 
     public ReportPanel(Model model, View view, Selection selection, Localization localization) {
         super(model, view, selection);
@@ -50,6 +51,7 @@ public class ReportPanel extends BasePanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        defaultfont = g.getFont();
         enableAntialiasing(g);
         ReportInfos infos = new ReportInfos(model, localization);
         int dy = dy(g);
@@ -63,6 +65,7 @@ public class ReportPanel extends BasePanel {
     }
 
     private int drawInfos(Graphics g, ReportInfos infos, int y) {
+        g.setFont(defaultfont);
         FontMetrics metrics = g.getFontMetrics();
         int x1 = x1();
         int x2 = x1 + infos.getMaxLabelWidth(metrics) + metrics.stringWidth(" ");
@@ -85,7 +88,7 @@ public class ReportPanel extends BasePanel {
         Font symbolfont = new Font("SansSerif", Font.PLAIN, bx - 2);
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (byte color = 0; color < model.getColorCount(); color++) {
-            if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord))
+            if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord, symbolfont))
                 continue;
             x += w;
             if (x + w > getWidth()) {
@@ -100,15 +103,17 @@ public class ReportPanel extends BasePanel {
     }
 
     private boolean drawColorCount(Graphics g, int x, int y, int bx, byte color, BeadCounts counts,
-            FontMetrics metrics, BeadPainter painter, SimpleCoordinateCalculator coord) {
+            FontMetrics metrics, BeadPainter painter, SimpleCoordinateCalculator coord, Font symbolfont) {
         int count = counts.getCount(color);
         if (count == 0) return false;
         String s = String.format("%d x", count);
         g.setColor(Color.BLACK);
+        g.setFont(defaultfont);
         int cw = metrics.stringWidth("9999 x");
         g.drawString(s, x + cw - metrics.stringWidth(s), y);
         coord.setOffsetX(x + cw + 4);
         coord.setOffsetY(y);
+        g.setFont(symbolfont);
         painter.paint(g, new Point(0, 0), color);
         return true;
     }
@@ -117,6 +122,7 @@ public class ReportPanel extends BasePanel {
         FontMetrics metrics = g.getFontMetrics();
         BeadList beads = new BeadList(model);
         int height = metrics.getLeading() + g.getFontMetrics().getAscent();
+        g.setFont(defaultfont);
         g.drawString(localization.getString("report.listofbeads"), x1(), y);
         y += 3;
         int ystart = y;
@@ -128,7 +134,7 @@ public class ReportPanel extends BasePanel {
         Font symbolfont = new Font("SansSerif", Font.PLAIN, dx - 2);
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (BeadRun bead : beads) {
-            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord);
+            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord, symbolfont);
             y += dy + 3;
             if (y >= getHeight() - dy) {
                 x1 += colwidth;
@@ -150,11 +156,11 @@ public class ReportPanel extends BasePanel {
     }
 
     private int dx(Graphics g) {
-        return g.getFontMetrics().getHeight();
+        return g.getFontMetrics(defaultfont).getHeight();
     }
 
     private int dy(Graphics g) {
-        return g.getFontMetrics().getHeight();
+        return dx(g);
     }
 
     private void drawText(Graphics g, int x1, int x2, int y, String label, String value) {
@@ -164,11 +170,13 @@ public class ReportPanel extends BasePanel {
     }
 
     private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count,
-            BeadPainter painter, SimpleCoordinateCalculator coord) {
+            BeadPainter painter, SimpleCoordinateCalculator coord, Font symbolfont) {
         coord.setOffsetX(x);
         coord.setOffsetY(y + dy);
+        g.setFont(symbolfont);
         painter.paint(g, new Point(0, 0), color);
         g.setColor(Color.BLACK);
+        g.setFont(defaultfont);
         g.drawString(Integer.toString(count), x + dx + 3, y + height);
     }
 
