@@ -1,7 +1,11 @@
 Bugs
 ----
 
-B0006
+B0008
+
+B0007 When a pattern is shifted, then the editing of the simulation view
+does not always work correctly. Have to investigate further for more
+details.
 
 B0003 Undo should also cover author/organization and maybe even description.
 
@@ -13,6 +17,10 @@ the undo snapshot.
 
 Fixed
 -----
+
+B0006 When a pattern is scrolled and a selection is made, then the arrange
+function does not work properly. The wrong part of the pattern is arranged
+due to the fact that the scrolled amount is not taken into account.
 
 B0005 Open a saved file with non-standard zoom. Trying to zoom in results
 in a zoom out, most probably due to an in correctly applied zoom setting.
