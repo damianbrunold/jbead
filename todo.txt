@@ -1,10 +1,8 @@
 Todo and Smells
 ---------------
 
-beadpainter in color list
-beadpainter in bead list
-beadpainter in simulation
-beadpainter in print
+Use BeadPainter in print so that symbols can be
+printed too.
 
 Split ReportPanel into three panels: InfosPanel,
 ColorListPanel and BeadListPanel. In the main
