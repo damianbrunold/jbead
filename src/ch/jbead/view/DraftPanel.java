@@ -49,8 +49,6 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
 
     public DraftPanel(Model model, Selection selection, final JBeadFrame frame) {
         super(model, frame, selection);
-        model.addListener(this);
-        frame.addListener(this);
         setBackground(Color.LIGHT_GRAY);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -78,7 +76,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         super.paintComponent(g);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         defaultfont = g.getFont();
-        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 1);
+        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 2);
         offsetx = getOffsetX();
         maxj = getMaxJ();
         paintBeads(g);

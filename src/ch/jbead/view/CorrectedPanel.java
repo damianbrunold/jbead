@@ -42,8 +42,6 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
 
     public CorrectedPanel(Model model, Selection selection, final JBeadFrame frame) {
         super(model, frame, selection);
-        model.addListener(this);
-        frame.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -71,7 +69,7 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 1);
+        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 2);
         offsetx = getOffsetX();
         left = getLeft();
         paintBeads(g);

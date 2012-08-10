@@ -42,6 +42,8 @@ public abstract class BasePanel extends JComponent implements ModelListener, Vie
         this.model = model;
         this.view = view;
         this.selection = selection;
+        model.addListener(this);
+        view.addListener(this);
     }
 
     public abstract void redraw(Point pt);

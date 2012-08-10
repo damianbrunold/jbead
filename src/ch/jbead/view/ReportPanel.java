@@ -18,6 +18,7 @@
 package ch.jbead.view;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,12 +26,14 @@ import java.awt.RenderingHints;
 
 import ch.jbead.BeadCounts;
 import ch.jbead.BeadList;
+import ch.jbead.BeadPainter;
 import ch.jbead.BeadRun;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.ReportInfos;
 import ch.jbead.Selection;
+import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
 
 public class ReportPanel extends BasePanel {
@@ -42,7 +45,6 @@ public class ReportPanel extends BasePanel {
     public ReportPanel(Model model, View view, Selection selection, Localization localization) {
         super(model, view, selection);
         this.localization = localization;
-        model.addListener(this);
     }
 
     @Override
@@ -76,30 +78,38 @@ public class ReportPanel extends BasePanel {
         FontMetrics metrics = g.getFontMetrics();
         BeadCounts counts = new BeadCounts(model);
         int x = x1();
-        int bx = metrics.getAscent();
+        int bx = dx(g);
         int countw = metrics.stringWidth("9999 x");
         int w = countw + 4 + bx + 1 + bx;
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, bx - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (byte color = 0; color < model.getColorCount(); color++) {
-            if (!drawColorCount(g, x, y, color, counts, metrics))
+            if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord))
                 continue;
             x += w;
             if (x + w > getWidth()) {
                 x = x1();
-                y += dy(g);
+                y += dy(g) + 3;
             }
         }
-        return y + dy(g);
+        if (x != x1()) {
+            y += dy(g) + 3;
+        }
+        return y;
     }
 
-    private boolean drawColorCount(Graphics g, int x, int y, byte color, BeadCounts counts, FontMetrics metrics) {
+    private boolean drawColorCount(Graphics g, int x, int y, int bx, byte color, BeadCounts counts,
+            FontMetrics metrics, BeadPainter painter, SimpleCoordinateCalculator coord) {
         int count = counts.getCount(color);
         if (count == 0) return false;
         String s = String.format("%d x", count);
         g.setColor(Color.BLACK);
         int cw = metrics.stringWidth("9999 x");
-        int bx = metrics.getAscent();
         g.drawString(s, x + cw - metrics.stringWidth(s), y);
-        drawBead(g, x + cw + 4, y - bx, bx, bx, color);
+        coord.setOffsetX(x + cw + 4);
+        coord.setOffsetY(y - bx);
+        painter.paint(g, new Point(0, 0), color);
         return true;
     }
 
@@ -114,8 +124,11 @@ public class ReportPanel extends BasePanel {
         int dx = dx(g);
         int dy = dy(g);
         int colwidth = colwidth(g);
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(dx, dy);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, dx - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (BeadRun bead : beads) {
-            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount());
+            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord);
             y += dy + 3;
             if (y >= getHeight() - dy) {
                 x1 += colwidth;
@@ -150,15 +163,11 @@ public class ReportPanel extends BasePanel {
         g.drawString(value, x2, y);
     }
 
-    private void drawBead(Graphics g, int x, int y, int w, int h, byte color) {
-        g.setColor(model.getColor(color));
-        g.fillRect(x + 1, y + 1, w - 1, h - 1);
-        g.setColor(Color.BLACK);
-        g.drawRect(x, y, w, h);
-    }
-
-    private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count) {
-        drawBead(g, x, y, dx, dy, color);
+    private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count,
+            BeadPainter painter, SimpleCoordinateCalculator coord) {
+        coord.setOffsetX(x);
+        coord.setOffsetY(y);
+        painter.paint(g, new Point(0, 0), color);
         g.setColor(Color.BLACK);
         g.drawString(Integer.toString(count), x + dx + 3, y + height);
     }

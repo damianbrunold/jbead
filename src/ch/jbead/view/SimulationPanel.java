@@ -38,7 +38,6 @@ public class SimulationPanel extends BasePanel {
 
     public SimulationPanel(Model model, Selection selection, final JBeadFrame frame) {
         super(model, frame, selection);
-        model.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
