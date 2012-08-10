@@ -19,8 +19,9 @@ package ch.jbead.ui;
 
 import javax.swing.JToolBar;
 
-import ch.jbead.JBeadFrame;
+import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.View;
 
 public class ColorsToolbar extends JToolBar {
 
@@ -28,9 +29,9 @@ public class ColorsToolbar extends JToolBar {
 
     private Model model;
 
-    public ColorsToolbar(JBeadFrame frame, Model model) {
+    public ColorsToolbar(Model model, View view, Localization localization) {
         this.model = model;
-        add(new ColorPalette(model, frame));
+        add(new ColorPalette(model, view, localization));
     }
 
     public void selectDefaultColor() {

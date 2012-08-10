@@ -40,11 +40,9 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
     private int offsetx;
     private int left;
     private Font symbolfont;
-    private boolean drawColors = true;
-    private boolean drawSymbols = false;
 
     public CorrectedPanel(Model model, Selection selection, final JBeadFrame frame) {
-        super(model, selection);
+        super(model, frame, selection);
         model.addListener(this);
         frame.addListener(this);
         addMouseListener(new MouseAdapter() {
@@ -107,7 +105,7 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
 
     private void paintBeads(Graphics g) {
         if (scroll > model.getHeight() - 1) return;
-        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         g.setFont(symbolfont);
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
@@ -127,7 +125,7 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         Point _pt = pt.unscrolled(scroll);
         byte c = model.get(pt);
         _pt = model.correct(_pt);
-        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         Graphics g = getGraphics();
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
@@ -161,12 +159,10 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
     }
 
     public void drawColorsChanged(boolean drawColors) {
-        this.drawColors = drawColors;
         repaint();
     }
 
     public void drawSymbolsChanged(boolean drawSymbols) {
-        this.drawSymbols = drawSymbols;
         repaint();
     }
 

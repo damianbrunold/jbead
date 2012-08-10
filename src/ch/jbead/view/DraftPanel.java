@@ -47,11 +47,9 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
     private int maxj;
     private Font defaultfont;
     private Font symbolfont;
-    private boolean drawColors = true;
-    private boolean drawSymbols = false;
 
     public DraftPanel(Model model, Selection selection, final JBeadFrame frame) {
-        super(model, selection);
+        super(model, frame, selection);
         model.addListener(this);
         frame.addListener(this);
         setBackground(Color.LIGHT_GRAY);
@@ -127,7 +125,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
     }
 
     private void paintBeads(Graphics g) {
-        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         g.setFont(symbolfont);
         for (int j = 0; j < maxj; j++) {
             for (int i = 0; i < model.getWidth(); i++) {
@@ -174,7 +172,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
     public void redraw(int i, int j) {
         if (!isVisible()) return;
         byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
-        BeadPainter painter = new BeadPainter(this, model, drawColors, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         Graphics g = getGraphics();
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
@@ -236,12 +234,10 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
     }
 
     public void drawColorsChanged(boolean drawColors) {
-        this.drawColors = drawColors;
         repaint();
     }
 
     public void drawSymbolsChanged(boolean drawSymbols) {
-        this.drawSymbols = drawSymbols;
         repaint();
     }
 

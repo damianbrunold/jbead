@@ -23,20 +23,23 @@ import ch.jbead.Model;
 import ch.jbead.ModelListener;
 import ch.jbead.Point;
 import ch.jbead.Selection;
+import ch.jbead.View;
 
 public abstract class BasePanel extends JComponent implements ModelListener {
 
     private static final long serialVersionUID = 1L;
 
     protected Model model;
+    protected View view;
     protected Selection selection;
 
     protected int gridx;
     protected int gridy;
     protected int scroll;
 
-    protected BasePanel(Model model, Selection selection) {
+    protected BasePanel(Model model, View view, Selection selection) {
         this.model = model;
+        this.view = view;
         this.selection = selection;
     }
 

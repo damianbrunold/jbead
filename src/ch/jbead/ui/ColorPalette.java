@@ -34,10 +34,10 @@ import javax.swing.JPopupMenu;
 
 import ch.jbead.BeadPainter;
 import ch.jbead.CoordinateCalculator;
-import ch.jbead.JBeadFrame;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Point;
+import ch.jbead.View;
 import ch.jbead.ViewListener;
 
 public class ColorPalette extends JComponent implements ViewListener, CoordinateCalculator {
@@ -51,14 +51,14 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
     private static final Dimension preferredSize = new Dimension(16 * d, 2 * d);
 
     private Model model;
+    private View view;
     private Localization localization;
 
-    private boolean drawSymbols = false;
-
-    public ColorPalette(Model model, JBeadFrame frame) {
+    public ColorPalette(Model model, View view, Localization localization) {
         this.model = model;
-        this.localization = frame;
-        frame.addListener(this);
+        this.view = view;
+        this.localization = localization;
+        view.addListener(this);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(final MouseEvent e) {
@@ -141,7 +141,8 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
         super.paintComponent(g);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setFont(symbolfont);
-        BeadPainter painter = new BeadPainter(this, model, true, drawSymbols, symbolfont);
+        BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
+        painter.setForceColors();
         painter.setDrawBorder(false);
         for (byte i = 0; i < 32; i++) {
             Point pt = new Point(i % 16, i / 16);
@@ -194,7 +195,6 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
     }
 
     public void drawSymbolsChanged(boolean drawSymbols) {
-        this.drawSymbols = drawSymbols;
         repaint();
     }
 

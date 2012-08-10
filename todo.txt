@@ -1,6 +1,13 @@
 Todo and Smells
 ---------------
 
+beadpainter in color list
+beadpainter in bead list
+beadpainter in simulation
+beadpainter in print
+
+export pattern as jpeg, png, gif or pdf
+
 Draw bead symbols in color palette, if the symbols
 are enabled.
 

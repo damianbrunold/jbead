@@ -128,7 +128,7 @@ import ch.jbead.view.DraftPanel;
 import ch.jbead.view.ReportPanel;
 import ch.jbead.view.SimulationPanel;
 
-public class JBeadFrame extends JFrame implements Localization, ModelListener, VersionListener {
+public class JBeadFrame extends JFrame implements Localization, View, ModelListener, VersionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -155,7 +155,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
     private DraftPanel draft = new DraftPanel(model, selection, this);
     private CorrectedPanel corrected = new CorrectedPanel(model, selection, this);
     private SimulationPanel simulation = new SimulationPanel(model, selection, this);
-    private ReportPanel report = new ReportPanel(model, selection, this);
+    private ReportPanel report = new ReportPanel(model, this, selection, this);
 
     private JLabel laDraft = new JLabel(getString("draft"));
     private JLabel laCorrected = new JLabel(getString("corrected"));
@@ -554,7 +554,7 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
     }
 
     private ColorsToolbar createColorbar() {
-        return new ColorsToolbar(this, model);
+        return new ColorsToolbar(model, this, this);
     }
 
     private void createMainGUI() {
@@ -1191,6 +1191,14 @@ public class JBeadFrame extends JFrame implements Localization, ModelListener, V
 
     public void failure(String msg) {
         // ignore
+    }
+
+    public boolean drawColors() {
+        return viewDrawColors.isSelected();
+    }
+
+    public boolean drawSymbols() {
+        return viewDrawSymbols.isSelected();
     }
 
 }

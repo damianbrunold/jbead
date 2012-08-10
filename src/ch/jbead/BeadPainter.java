@@ -27,19 +27,22 @@ public class BeadPainter {
 
     private CoordinateCalculator coord;
     private Model model;
-    private boolean drawColors;
-    private boolean drawSymbols;
+    private View view;
+    private boolean forceColors = false;
     private boolean drawBorder = true;
     private Font symbolfont;
 
     private static Map<Color, Color> contrastingColors = new HashMap<Color, Color>();
 
-    public BeadPainter(CoordinateCalculator coord, Model model, boolean drawColors, boolean drawSymbols, Font symbolfont) {
+    public BeadPainter(CoordinateCalculator coord, Model model, View view, Font symbolfont) {
         this.coord = coord;
         this.model = model;
-        this.drawColors = drawColors;
-        this.drawSymbols = drawSymbols;
+        this.view = view;
         this.symbolfont = symbolfont;
+    }
+
+    public void setForceColors() {
+        this.forceColors = true;
     }
 
     public void setDrawBorder(boolean drawBorder) {
@@ -53,11 +56,11 @@ public class BeadPainter {
         int gridx = coord.getGridx();
         int gridy = coord.getGridy();
         int dx = coord.dx(pt);
-        if (drawColors) {
+        if (view.drawColors() || forceColors) {
             g.setColor(color);
             g.fillRect(x - dx, y, gridx, gridy);
         }
-        if (drawSymbols) {
+        if (view.drawSymbols()) {
             setSymbolColor(g, color);
             g.drawString(BeadSymbols.get(c), x + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx, y + symbolfont.getSize());
         }
@@ -68,7 +71,7 @@ public class BeadPainter {
     }
 
     private void setSymbolColor(Graphics g, Color color) {
-        if (drawColors) {
+        if (view.drawColors() || forceColors) {
             g.setColor(getContrastingColor(color));
         } else {
             g.setColor(Color.BLACK);

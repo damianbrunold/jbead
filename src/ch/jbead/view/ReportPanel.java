@@ -31,6 +31,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.ReportInfos;
 import ch.jbead.Selection;
+import ch.jbead.View;
 
 public class ReportPanel extends BasePanel {
 
@@ -38,8 +39,8 @@ public class ReportPanel extends BasePanel {
 
     private Localization localization;
 
-    public ReportPanel(Model model, Selection selection, Localization localization) {
-        super(model, selection);
+    public ReportPanel(Model model, View view, Selection selection, Localization localization) {
+        super(model, view, selection);
         this.localization = localization;
         model.addListener(this);
     }
