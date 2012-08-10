@@ -4,3 +4,4 @@
 - Add support for bead symbols
 - Add flags for bead colors and bead symbols
 - Restore panel visibility when loading file
+- Fix problem with arranging when pattern was scrolled down
