@@ -34,9 +34,8 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.SelectionListener;
-import ch.jbead.ViewListener;
 
-public class DraftPanel extends BasePanel implements SelectionListener, ViewListener, CoordinateCalculator {
+public class DraftPanel extends BasePanel implements SelectionListener, CoordinateCalculator {
 
     private static final long serialVersionUID = 1L;
 
@@ -231,14 +230,6 @@ public class DraftPanel extends BasePanel implements SelectionListener, ViewList
 
     public void selectionDeleted(Selection sel) {
         clearSelection(sel);
-    }
-
-    public void drawColorsChanged(boolean drawColors) {
-        repaint();
-    }
-
-    public void drawSymbolsChanged(boolean drawSymbols) {
-        repaint();
     }
 
 }

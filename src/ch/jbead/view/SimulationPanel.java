@@ -210,4 +210,12 @@ public class SimulationPanel extends BasePanel {
         model.fillLine(pt.unscrolled(scroll));
     }
 
+    public void drawColorsChanged(boolean drawColors) {
+        // empty
+    }
+
+    public void drawSymbolsChanged(boolean drawSymbols) {
+        // empty
+    }
+
 }

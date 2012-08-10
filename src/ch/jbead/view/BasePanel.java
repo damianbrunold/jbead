@@ -24,8 +24,9 @@ import ch.jbead.ModelListener;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.View;
+import ch.jbead.ViewListener;
 
-public abstract class BasePanel extends JComponent implements ModelListener {
+public abstract class BasePanel extends JComponent implements ModelListener, ViewListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -81,6 +82,14 @@ public abstract class BasePanel extends JComponent implements ModelListener {
 
     public void repeatChanged(int repeat) {
         // empty
+    }
+
+    public void drawColorsChanged(boolean drawColors) {
+        repaint();
+    }
+
+    public void drawSymbolsChanged(boolean drawSymbols) {
+        repaint();
     }
 
     public int getGridx() {

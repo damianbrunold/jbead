@@ -31,9 +31,8 @@ import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
-import ch.jbead.ViewListener;
 
-public class CorrectedPanel extends BasePanel implements ViewListener, CoordinateCalculator {
+public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
 
     private static final long serialVersionUID = 1L;
 
@@ -156,14 +155,6 @@ public class CorrectedPanel extends BasePanel implements ViewListener, Coordinat
         pt = model.getPoint(idx);
         selection.clear();
         model.fillLine(pt.unscrolled(scroll));
-    }
-
-    public void drawColorsChanged(boolean drawColors) {
-        repaint();
-    }
-
-    public void drawSymbolsChanged(boolean drawSymbols) {
-        repaint();
     }
 
 }
