@@ -108,7 +108,7 @@ public class ReportPanel extends BasePanel {
         int cw = metrics.stringWidth("9999 x");
         g.drawString(s, x + cw - metrics.stringWidth(s), y);
         coord.setOffsetX(x + cw + 4);
-        coord.setOffsetY(y - bx);
+        coord.setOffsetY(y);
         painter.paint(g, new Point(0, 0), color);
         return true;
     }
@@ -166,7 +166,7 @@ public class ReportPanel extends BasePanel {
     private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count,
             BeadPainter painter, SimpleCoordinateCalculator coord) {
         coord.setOffsetX(x);
-        coord.setOffsetY(y);
+        coord.setOffsetY(y + dy);
         painter.paint(g, new Point(0, 0), color);
         g.setColor(Color.BLACK);
         g.drawString(Integer.toString(count), x + dx + 3, y + height);

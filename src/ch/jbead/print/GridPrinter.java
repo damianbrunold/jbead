@@ -24,6 +24,7 @@ import java.util.List;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.View;
 
 public abstract class GridPrinter extends PartPrinter {
 
@@ -31,8 +32,8 @@ public abstract class GridPrinter extends PartPrinter {
     protected int gy = gx;
     protected boolean fullPattern;
 
-    public GridPrinter(Model model, Localization localization, boolean fullPattern) {
-        super(model, localization);
+    public GridPrinter(Model model, View view, Localization localization, boolean fullPattern) {
+        super(model, view, localization);
         this.fullPattern = fullPattern;
     }
 

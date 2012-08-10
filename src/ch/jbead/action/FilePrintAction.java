@@ -41,9 +41,7 @@ public class FilePrintAction extends BaseAction {
     public void actionPerformed(ActionEvent e) {
         if (model.getUsedHeight() == 0) return;
         boolean showDialog = e.getSource() instanceof JMenuItem;
-        new DesignPrinter(model, localization, frame.getPrintSettings(),
-                frame.isDraftVisible(), frame.isCorrectedVisible(),
-                frame.isSimulationVisible(), frame.isReportVisible())
+        new DesignPrinter(model, frame, localization, frame.getPrintSettings())
                 .print(showDialog);
     }
 

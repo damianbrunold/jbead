@@ -18,20 +18,24 @@
 package ch.jbead.print;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
+import ch.jbead.BeadPainter;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Point;
+import ch.jbead.SimpleCoordinateCalculator;
+import ch.jbead.View;
 
 
 public class DraftPrinter extends GridPrinter {
 
     private int markerWidth = Convert.mm2pt(10);
 
-    public DraftPrinter(Model model, Localization localization, boolean fullPattern) {
-        super(model, localization, fullPattern);
+    public DraftPrinter(Model model, View view, Localization localization, boolean fullPattern) {
+        super(model, view, localization, fullPattern);
     }
 
     protected int getColumnWidth() {
@@ -45,28 +49,30 @@ public class DraftPrinter extends GridPrinter {
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
-        g.setFont(font);
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(gx, gy);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, gx - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         int height = (int) pageFormat.getImageableHeight();
         int rows = getRowsPerColumn(height);
         int start = rows * column;
+        coord.setOffsetX(x + border + markerWidth);
+        coord.setOffsetY(y + rows * gy);
+        g.setFont(symbolfont);
         for (int j = 0; j < rows; j++) {
             if (start + j >= getRows(height)) break;
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, start + j));
-                drawBead(g, x + border + markerWidth + i * gx, y + (rows - j - 1) * gy, c);
+                painter.paint(g, new Point(i, j), c);
             }
+        }
+        g.setFont(font);
+        for (int j = 0; j < rows; j++) {
+            if (start + j >= getRows(height)) break;
             if ((start + j) % 10 == 0) {
                 drawLabel(g, x + border, y + (rows - j) * gy, start + j);
             }
         }
         return x + border + getColumnWidth() + border;
-    }
-
-    private void drawBead(Graphics2D g, int x, int y, byte color) {
-        g.setColor(model.getColor(color));
-        g.fillRect(x, y, gx, gy);
-        g.setColor(Color.BLACK);
-        g.drawRect(x, y, gx, gy);
     }
 
     private void drawLabel(Graphics2D g, int x, int y, int row) {

@@ -24,17 +24,20 @@ import java.util.List;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.View;
 
 public abstract class PartPrinter {
 
     protected Model model;
+    protected View view;
     protected Localization localization;
 
     protected Font font = new Font("SansSerif", Font.PLAIN, 8);
     protected int border = Convert.mm2pt(4);
 
-    public PartPrinter(Model model, Localization localization) {
+    public PartPrinter(Model model, View view, Localization localization) {
         this.model = model;
+        this.view = view;
         this.localization = localization;
     }
 

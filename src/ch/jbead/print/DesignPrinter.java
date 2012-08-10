@@ -31,31 +31,24 @@ import javax.swing.JOptionPane;
 
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.View;
 
 
 public class DesignPrinter {
 
     private Model model;
+    private View view;
     private Localization localization;
     private PrintSettings settings;
-    private boolean withDraft;
-    private boolean withCorrected;
-    private boolean withSimulation;
-    private boolean withReport;
     private boolean fullPattern = false;
 
     private List<PageLayout> pages = new ArrayList<PageLayout>();
 
-    public DesignPrinter(Model model, Localization localization, PrintSettings settings,
-            boolean withDraft, boolean withCorrected,
-            boolean withSimulation, boolean withReport) {
+    public DesignPrinter(Model model, View view, Localization localization, PrintSettings settings) {
         this.model = model;
+        this.view = view;
         this.localization = localization;
         this.settings = settings;
-        this.withDraft = withDraft;
-        this.withCorrected = withCorrected;
-        this.withSimulation = withSimulation;
-        this.withReport = withReport;
     }
 
     public void setFullPattern(boolean fullPattern) {
@@ -103,23 +96,23 @@ public class DesignPrinter {
     }
 
     private void addBeadListPrinter(List<PartPrinter> printers) {
-        if (withReport) printers.add(new BeadListPrinter(model, localization));
+        if (view.isReportVisible()) printers.add(new BeadListPrinter(model, view, localization));
     }
 
     private void addSimulationPrinter(List<PartPrinter> printers) {
-        if (withSimulation) printers.add(new SimulationPrinter(model, localization, fullPattern));
+        if (view.isSimulationVisible()) printers.add(new SimulationPrinter(model, view, localization, fullPattern));
     }
 
     private void addCorrectedPrinter(List<PartPrinter> printers) {
-        if (withCorrected) printers.add(new CorrectedPrinter(model, localization, fullPattern));
+        if (view.isCorrectedVisible()) printers.add(new CorrectedPrinter(model, view, localization, fullPattern));
     }
 
     private void addDraftPrinter(List<PartPrinter> printers) {
-        if (withDraft) printers.add(new DraftPrinter(model, localization, fullPattern));
+        if (view.isDraftVisible()) printers.add(new DraftPrinter(model, view, localization, fullPattern));
     }
 
     private void addReportInfosPrinter(List<PartPrinter> printers) {
-        if (withReport) printers.add(new ReportInfosPrinter(model, localization));
+        if (view.isReportVisible()) printers.add(new ReportInfosPrinter(model, view, localization));
     }
 
     public void print(boolean showDialog) {

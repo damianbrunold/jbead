@@ -19,6 +19,7 @@ package ch.jbead.print;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
@@ -27,9 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.jbead.BeadCounts;
+import ch.jbead.BeadPainter;
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.Point;
 import ch.jbead.ReportInfos;
+import ch.jbead.SimpleCoordinateCalculator;
+import ch.jbead.View;
 
 public class ReportInfosPrinter extends PartPrinter {
 
@@ -40,8 +45,8 @@ public class ReportInfosPrinter extends PartPrinter {
     private int countwidth;
     private int bx;
 
-    public ReportInfosPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public ReportInfosPrinter(Model model, View view, Localization localization) {
+        super(model, view, localization);
         infos = new ReportInfos(model, localization);
         beadcounts = new BeadCounts(model);
     }
@@ -81,13 +86,16 @@ public class ReportInfosPrinter extends PartPrinter {
 
     private int drawBeadColors(Graphics2D g, int x, int y) {
         g.setStroke(new BasicStroke(0.3f));
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, bx - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         int colorwidth = countwidth + 3 + bx + 5;
         int infowidth = infos.getWidth(metrics);
         int colorsPerRow = infowidth / colorwidth;
         int xx = x;
         int current = 0;
         for (byte color = 0; color < model.getColorCount(); color++) {
-            if (!drawBeadColor(g, xx, y, color)) continue;
+            if (!drawBeadColor(g, xx, y, color, coord, painter, symbolfont)) continue;
             xx += colorwidth;
             current++;
             if (current == colorsPerRow) {
@@ -102,16 +110,17 @@ public class ReportInfosPrinter extends PartPrinter {
         return y;
     }
 
-    private boolean drawBeadColor(Graphics2D g, int x, int y, byte color) {
+    private boolean drawBeadColor(Graphics2D g, int x, int y, byte color,
+            SimpleCoordinateCalculator coord, BeadPainter painter, Font symbolfont) {
         int count = beadcounts.getCount(color);
         if (count == 0) return false;
         String s = String.format("%d x", count);
+        g.setColor(Color.BLACK);
+        g.setFont(font);
         g.drawString(s, x + countwidth - metrics.stringWidth(s), y);
-        g.setColor(model.getColor(color));
-        g.fillRect(x + countwidth + 3, y - bx, bx, bx);
-        g.setColor(Color.BLACK);
-        g.drawRect(x + countwidth + 3, y - bx, bx, bx);
-        g.setColor(Color.BLACK);
+        coord.setOffsetX(x + countwidth + 3);
+        coord.setOffsetY(y);
+        painter.paint(g, new Point(0, 0), color);
         return true;
     }
 

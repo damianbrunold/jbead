@@ -24,11 +24,12 @@ import java.awt.print.PageFormat;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Point;
+import ch.jbead.View;
 
 public class SimulationPrinter extends GridPrinter {
 
-    public SimulationPrinter(Model model, Localization localization, boolean fullPattern) {
-        super(model, localization, fullPattern);
+    public SimulationPrinter(Model model, View view, Localization localization, boolean fullPattern) {
+        super(model, view, localization, fullPattern);
     }
 
     @Override

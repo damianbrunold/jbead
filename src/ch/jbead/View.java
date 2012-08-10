@@ -20,7 +20,13 @@ package ch.jbead;
 public interface View {
 
     public void addListener(ViewListener listener);
+
     public boolean drawColors();
     public boolean drawSymbols();
+
+    public boolean isDraftVisible();
+    public boolean isCorrectedVisible();
+    public boolean isSimulationVisible();
+    public boolean isReportVisible();
 
 }

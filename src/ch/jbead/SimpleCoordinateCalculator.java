@@ -50,7 +50,7 @@ public class SimpleCoordinateCalculator implements CoordinateCalculator {
     }
 
     public int y(Point pt) {
-        return offsety + pt.getY() * gridy;
+        return offsety - (pt.getY() + 1) * gridy;
     }
 
     public int dx(Point pt) {

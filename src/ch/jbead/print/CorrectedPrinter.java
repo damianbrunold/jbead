@@ -18,17 +18,21 @@
 package ch.jbead.print;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
+import ch.jbead.BeadPainter;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Point;
+import ch.jbead.SimpleCoordinateCalculator;
+import ch.jbead.View;
 
 public class CorrectedPrinter extends GridPrinter {
 
-    public CorrectedPrinter(Model model, Localization localization, boolean fullPattern) {
-        super(model, localization, fullPattern);
+    public CorrectedPrinter(Model model, View view, Localization localization, boolean fullPattern) {
+        super(model, view, localization, fullPattern);
     }
 
     @Override
@@ -46,26 +50,25 @@ public class CorrectedPrinter extends GridPrinter {
     @Override
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(gx, gy);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, gx - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         int height = (int) pageFormat.getImageableHeight();
         int rows = getRowsPerColumn(height);
         int start = rows * column;
+        g.setFont(symbolfont);
         for (int j = 0; j < model.getUsedHeight(); j++) {
             for (int i = 0; i < model.getWidth(); i++) {
                 Point pt = new Point(i, j);
                 byte c = model.get(pt);
                 pt = model.correct(pt);
                 if (!isVisible(pt, start, start + rows)) continue;
-                drawBead(g, x + border + gx / 2 + pt.getX() * gx - dx(pt), y + (rows - (pt.getY() - start) - 1) * gy, c);
+                coord.setOffsetX(x + border + gx / 2 - dx(pt));
+                coord.setOffsetY(y + rows * gy);
+                painter.paint(g, pt.unscrolled(start), c);
             }
         }
         return x + border + gx / 2 + getColumnWidth() + border;
-    }
-
-    private void drawBead(Graphics2D g, int x, int y, byte color) {
-        g.setColor(model.getColor(color));
-        g.fillRect(x, y, gx, gy);
-        g.setColor(Color.BLACK);
-        g.drawRect(x, y, gx, gy);
     }
 
     private boolean isVisible(Point pt, int start, int end) {

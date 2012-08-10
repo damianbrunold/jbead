@@ -19,6 +19,7 @@ package ch.jbead.print;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
@@ -27,16 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.jbead.BeadList;
+import ch.jbead.BeadPainter;
 import ch.jbead.BeadRun;
 import ch.jbead.Localization;
 import ch.jbead.Model;
+import ch.jbead.Point;
+import ch.jbead.SimpleCoordinateCalculator;
+import ch.jbead.View;
 
 public class BeadListPrinter extends PartPrinter {
 
     private BeadList beadlist;
 
-    public BeadListPrinter(Model model, Localization localization) {
-        super(model, localization);
+    public BeadListPrinter(Model model, View view, Localization localization) {
+        super(model, view, localization);
         beadlist = new BeadList(model);
     }
 
@@ -74,16 +79,20 @@ public class BeadListPrinter extends PartPrinter {
     private int drawBeadList(Graphics2D g, int x, int y, int height, int column) {
         g.setStroke(new BasicStroke(0.3f));
         int d = font.getSize();
+        SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(d, d);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, d - 2);
+        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         int beadsPerColumn = getBeadsPerColumn(height);
         int start = beadsPerColumn * column;
         for (int index = start; index < start + beadsPerColumn; index++) {
             if (index >= beadlist.size()) break;
             BeadRun bead = beadlist.get(index);
-            g.setColor(model.getColor(bead.getColor()));
-            g.fillRect(x, y, d, d);
+            coord.setOffsetX(x);
+            coord.setOffsetY(y + d);
+            g.setFont(symbolfont);
+            painter.paint(g, new Point(0, 0), bead.getColor());
             g.setColor(Color.BLACK);
-            g.drawRect(x, y, d, d);
-            g.setColor(Color.BLACK);
+            g.setFont(font);
             g.drawString(Integer.toString(bead.getCount()), x + d + 3, y + font.getSize());
             y += d + 2;
         }

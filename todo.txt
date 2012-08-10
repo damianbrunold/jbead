@@ -1,9 +1,6 @@
 Todo and Smells
 ---------------
 
-Use BeadPainter in print so that symbols can be
-printed too.
-
 Split ReportPanel into three panels: InfosPanel,
 ColorListPanel and BeadListPanel. In the main
 GUI, stack the three panels vertically.
