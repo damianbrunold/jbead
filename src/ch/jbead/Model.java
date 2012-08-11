@@ -31,13 +31,15 @@ import ch.jbead.storage.JBeadFileFormatException;
 
 public class Model implements ColorTable {
 
+    private static final int ZOOM_NORMAL = 3;
+
     private BeadUndo undo = new BeadUndo();
     private BeadField field = new BeadField();
     private List<Color> colors = new ArrayList<Color>();
     private byte colorIndex;
     private int gridx;
     private int gridy;
-    private int zoomtable[] = new int[5];
+    private int zoomtable[] = new int[8];
     private int zoomIndex;
     private int scroll;
     private int shift;
@@ -67,12 +69,15 @@ public class Model implements ColorTable {
     }
 
     private void initZoomTable() {
-        zoomIndex = 2;
+        zoomIndex = ZOOM_NORMAL;
         zoomtable[0] = 6;
         zoomtable[1] = 8;
         zoomtable[2] = 10;
         zoomtable[3] = 12;
         zoomtable[4] = 14;
+        zoomtable[5] = 16;
+        zoomtable[6] = 18;
+        zoomtable[7] = 20;
     }
 
     public void addListener(ModelListener listener) {
@@ -438,7 +443,7 @@ public class Model implements ColorTable {
 
     public void zoomNormal() {
         if (isNormalZoom()) return;
-        zoomIndex = 2;
+        zoomIndex = ZOOM_NORMAL;
         gridx = gridy = zoomtable[zoomIndex];
         fireZoomChanged(gridx, gridy);
     }
@@ -451,7 +456,7 @@ public class Model implements ColorTable {
     }
 
     public boolean isNormalZoom() {
-        return zoomIndex == 2;
+        return zoomIndex == ZOOM_NORMAL;
     }
 
     public boolean canUndo() {
