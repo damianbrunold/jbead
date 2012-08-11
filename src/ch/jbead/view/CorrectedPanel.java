@@ -69,13 +69,11 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        long start = System.currentTimeMillis();
         setHints(g);
         symbolfont = SymbolFont.get(gridy);
         offsetx = getOffsetX();
         left = getLeft();
         paintBeads(g);
-        System.out.println("corrected draw time " + (System.currentTimeMillis() - start));
     }
 
     private int getLeft() {

@@ -75,7 +75,6 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        long start = System.currentTimeMillis();
         setHints(g);
         defaultfont = g.getFont();
         symbolfont = SymbolFont.get(gridy);
@@ -86,7 +85,6 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         if (selection.isNormal()) {
             paintSelection(g, Color.RED, selection);
         }
-        System.out.println("draft draw time " + (System.currentTimeMillis() - start));
     }
 
     private void setHints(Graphics g) {

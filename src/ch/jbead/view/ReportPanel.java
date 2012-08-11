@@ -52,7 +52,6 @@ public class ReportPanel extends BasePanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        long start = System.currentTimeMillis();
         defaultfont = g.getFont();
         setHints(g);
         ReportInfos infos = new ReportInfos(model, localization);
@@ -64,7 +63,6 @@ public class ReportPanel extends BasePanel {
             y += dy / 2;
             drawBeadList(g, y);
         }
-        System.out.println("report draw time " + (System.currentTimeMillis() - start));
     }
 
     private int drawInfos(Graphics g, ReportInfos infos, int y) {
@@ -88,8 +86,7 @@ public class ReportPanel extends BasePanel {
         int countw = metrics.stringWidth("9999 x");
         int w = countw + 4 + bx + 1 + bx;
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
-        Font symbolfont = SymbolFont.get(bx);
-        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
+        BeadPainter painter = new BeadPainter(coord, model, view, SymbolFont.get(bx));
         for (byte color = 0; color < model.getColorCount(); color++) {
             if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord))
                 continue;
@@ -123,7 +120,7 @@ public class ReportPanel extends BasePanel {
     private void drawBeadList(Graphics g, int y) {
         FontMetrics metrics = g.getFontMetrics();
         BeadList beads = new BeadList(model);
-        int height = metrics.getLeading() + g.getFontMetrics().getAscent();
+        int height = metrics.getLeading() + metrics.getAscent();
         g.setFont(defaultfont);
         g.drawString(localization.getString("report.listofbeads"), x1(), y);
         y += 3;
@@ -133,8 +130,7 @@ public class ReportPanel extends BasePanel {
         int dy = dy(g);
         int colwidth = colwidth(g);
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(dx, dy);
-        Font symbolfont = SymbolFont.get(dx);
-        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
+        BeadPainter painter = new BeadPainter(coord, model, view, SymbolFont.get(dx));
         for (BeadRun bead : beads) {
             drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord);
             y += dy + 3;

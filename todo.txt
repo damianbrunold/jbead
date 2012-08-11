@@ -1,6 +1,11 @@
 Todo and Smells
 ---------------
 
+Unify Panel drawing and printing code. Currently, e.g. the corrected
+grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
+very similar and core elements have to be exactly the same, otherwise
+the printed display is different from the display on screen.
+
 Split ReportPanel into three panels: InfosPanel,
 ColorListPanel and BeadListPanel. In the main
 GUI, stack the three panels vertically.
@@ -75,13 +80,6 @@ whole lines can be inserted and only at the start of the pattern.)
 Currently, only the ObjectModel supports path methods. But maybe it
 would be better if the Node itself supports paths. This would allow
 to get a subnode and then handle it as if it were the whole ObjectModel.
-
-Make author and notes fields available per documents (File|Properties).
-
-Unify Panel drawing and printing code. Currently, e.g. the corrected
-grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
-very similar and core elements have to be exactly the same, otherwise
-the printed display is different from the display on screen.
 
 Add headers with filename, page number, ... best would be configurable.
 
