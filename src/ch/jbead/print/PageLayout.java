@@ -47,14 +47,6 @@ public class PageLayout implements Printable {
         parts.add(part);
     }
 
-    public void printPage(Graphics2D g, PageFormat pageFormat) {
-        int x = (int) pageFormat.getImageableX();
-        int y = (int) pageFormat.getImageableY();
-        for (PagePart part : parts) {
-            x = part.print(g, pageFormat, x, y);
-        }
-    }
-
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         int x = (int) pageFormat.getImageableX();
         int y = (int) pageFormat.getImageableY();
