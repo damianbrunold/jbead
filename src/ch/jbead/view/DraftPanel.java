@@ -34,6 +34,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.SelectionListener;
+import ch.jbead.util.Convert;
 
 public class DraftPanel extends BasePanel implements SelectionListener, CoordinateCalculator {
 
@@ -76,7 +77,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         super.paintComponent(g);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         defaultfont = g.getFont();
-        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 2);
+        symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(gridy));
         offsetx = getOffsetX();
         maxj = getMaxJ();
         paintBeads(g);

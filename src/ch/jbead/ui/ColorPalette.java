@@ -39,6 +39,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.View;
 import ch.jbead.ViewListener;
+import ch.jbead.util.Convert;
 
 public class ColorPalette extends JComponent implements ViewListener, CoordinateCalculator {
 
@@ -46,7 +47,7 @@ public class ColorPalette extends JComponent implements ViewListener, Coordinate
 
     private static final int d = 14;
 
-    private static final Font symbolfont = new Font("SansSerif", Font.PLAIN, d - 2);
+    private static final Font symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(d));
 
     private static final Dimension preferredSize = new Dimension(16 * d, 2 * d);
 

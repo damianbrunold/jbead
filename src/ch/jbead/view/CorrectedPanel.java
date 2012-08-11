@@ -31,6 +31,7 @@ import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
+import ch.jbead.util.Convert;
 
 public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
 
@@ -69,7 +70,7 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        symbolfont = new Font("SansSerif", Font.PLAIN, gridy - 2);
+        symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(gridy));
         offsetx = getOffsetX();
         left = getLeft();
         paintBeads(g);

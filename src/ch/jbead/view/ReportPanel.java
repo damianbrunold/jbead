@@ -35,6 +35,7 @@ import ch.jbead.ReportInfos;
 import ch.jbead.Selection;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
+import ch.jbead.util.Convert;
 
 public class ReportPanel extends BasePanel {
 
@@ -85,7 +86,7 @@ public class ReportPanel extends BasePanel {
         int countw = metrics.stringWidth("9999 x");
         int w = countw + 4 + bx + 1 + bx;
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, bx - 2);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(bx));
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (byte color = 0; color < model.getColorCount(); color++) {
             if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord, symbolfont))
@@ -131,7 +132,7 @@ public class ReportPanel extends BasePanel {
         int dy = dy(g);
         int colwidth = colwidth(g);
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(dx, dy);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, dx - 2);
+        Font symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(dx));
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (BeadRun bead : beads) {
             drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord, symbolfont);
