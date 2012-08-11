@@ -18,6 +18,7 @@
 package ch.jbead.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -44,27 +45,28 @@ public class TechInfosDialog extends JDialog {
         setContentPane(main);
         setModal(true);
         setLayout(new BorderLayout());
+        JTextArea text = createTextArea(localization);
+        add(text, BorderLayout.CENTER);
+        JPanel buttons = createButtons(localization);
+        add(buttons, BorderLayout.SOUTH);
+        pack();
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    }
+
+    private JTextArea createTextArea(final Localization localization) {
         JTextArea text = new JTextArea();
         text.setText(getTechInfos(localization));
         text.setFocusable(true);
         text.setEditable(false);
         text.setTabSize(15);
         text.setOpaque(false);
-        add(text, BorderLayout.CENTER);
+        return text;
+    }
+
+    private JPanel createButtons(final Localization localization) {
         JPanel buttons = new JPanel();
         JButton copy = new JButton(localization.getString("copyinfos"));
-        buttons.add(copy);
-        JButton ok = new JButton(localization.getString("ok"));
-        buttons.add(ok);
-        add(buttons, BorderLayout.SOUTH);
-        pack();
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        ok.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                TechInfosDialog.this.dispose();
-            }
-        });
         copy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -73,6 +75,15 @@ public class TechInfosDialog extends JDialog {
                 TechInfosDialog.this.dispose();
             }
         });
+        buttons.add(copy);
+        JButton ok = new JButton(localization.getString("ok"));
+        ok.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                TechInfosDialog.this.dispose();
+            }
+        });
+        buttons.add(ok);
+        return buttons;
     }
 
     private String getTechInfos(Localization localization) {
@@ -85,7 +96,18 @@ public class TechInfosDialog extends JDialog {
         addInfo(infos, localization.getString("techinfos.osname"), System.getProperty("os.name"));
         addInfo(infos, localization.getString("techinfos.osarch"), System.getProperty("os.arch"));
         addInfo(infos, localization.getString("techinfos.osversion"), System.getProperty("os.version"));
+        addInfo(infos, localization.getString("techinfos.screensize"), getScreenSize());
+        addInfo(infos, localization.getString("techinfos.screenresolution"), getScreenResolution());
         return infos.toString().trim();
+    }
+
+    private String getScreenSize() {
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+        return (int) size.getWidth() + "x" + (int) size.getHeight();
+    }
+
+    private String getScreenResolution() {
+        return Toolkit.getDefaultToolkit().getScreenResolution() + "dpi";
     }
 
     private void addInfo(StringBuilder infos, String label, Object data) {
