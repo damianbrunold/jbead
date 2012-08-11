@@ -26,4 +26,8 @@ public class SymbolFont {
     public static Font get(int height) {
         return new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(height));
     }
+
+    public static Font getForPrint(int points) {
+        return new Font("SansSerif", Font.PLAIN, points);
+    }
 }

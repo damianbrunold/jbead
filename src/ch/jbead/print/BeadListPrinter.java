@@ -19,7 +19,6 @@ package ch.jbead.print;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
@@ -35,6 +34,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
+import ch.jbead.ui.SymbolFont;
 
 public class BeadListPrinter extends PartPrinter {
 
@@ -80,8 +80,7 @@ public class BeadListPrinter extends PartPrinter {
         g.setStroke(new BasicStroke(0.3f));
         int d = font.getSize();
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(d, d);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, d - 2);
-        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
+        BeadPainter painter = new BeadPainter(coord, model, view, SymbolFont.getForPrint(d - 2));
         int beadsPerColumn = getBeadsPerColumn(height);
         int start = beadsPerColumn * column;
         for (int index = start; index < start + beadsPerColumn; index++) {
@@ -89,7 +88,6 @@ public class BeadListPrinter extends PartPrinter {
             BeadRun bead = beadlist.get(index);
             coord.setOffsetX(x);
             coord.setOffsetY(y + d);
-            g.setFont(symbolfont);
             painter.paint(g, new Point(0, 0), bead.getColor());
             g.setColor(Color.BLACK);
             g.setFont(font);

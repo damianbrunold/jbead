@@ -19,7 +19,6 @@ package ch.jbead.print;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
@@ -35,6 +34,7 @@ import ch.jbead.Point;
 import ch.jbead.ReportInfos;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
+import ch.jbead.ui.SymbolFont;
 
 public class ReportInfosPrinter extends PartPrinter {
 
@@ -87,15 +87,14 @@ public class ReportInfosPrinter extends PartPrinter {
     private int drawBeadColors(Graphics2D g, int x, int y) {
         g.setStroke(new BasicStroke(0.3f));
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, bx - 2);
-        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
+        BeadPainter painter = new BeadPainter(coord, model, view, SymbolFont.getForPrint(bx - 2));
         int colorwidth = countwidth + 3 + bx + 5;
         int infowidth = infos.getWidth(metrics);
         int colorsPerRow = infowidth / colorwidth;
         int xx = x;
         int current = 0;
         for (byte color = 0; color < model.getColorCount(); color++) {
-            if (!drawBeadColor(g, xx, y, color, coord, painter, symbolfont)) continue;
+            if (!drawBeadColor(g, xx, y, color, coord, painter)) continue;
             xx += colorwidth;
             current++;
             if (current == colorsPerRow) {
@@ -111,7 +110,7 @@ public class ReportInfosPrinter extends PartPrinter {
     }
 
     private boolean drawBeadColor(Graphics2D g, int x, int y, byte color,
-            SimpleCoordinateCalculator coord, BeadPainter painter, Font symbolfont) {
+            SimpleCoordinateCalculator coord, BeadPainter painter) {
         int count = beadcounts.getCount(color);
         if (count == 0) return false;
         String s = String.format("%d x", count);

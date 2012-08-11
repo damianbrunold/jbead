@@ -18,7 +18,6 @@
 package ch.jbead.print;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 
@@ -28,6 +27,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
+import ch.jbead.ui.SymbolFont;
 import ch.jbead.util.Convert;
 
 
@@ -51,14 +51,12 @@ public class DraftPrinter extends GridPrinter {
     public int print(Graphics2D g, PageFormat pageFormat, int x, int y, int column) {
         setStroke(g);
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(gx, gy);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, gx - 2);
-        BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
+        BeadPainter painter = new BeadPainter(coord, model, view, SymbolFont.getForPrint(gx - 2));
         int height = (int) pageFormat.getImageableHeight();
         int rows = getRowsPerColumn(height);
         int start = rows * column;
         coord.setOffsetX(x + border + markerWidth);
         coord.setOffsetY(y + rows * gy);
-        g.setFont(symbolfont);
         for (int j = 0; j < rows; j++) {
             if (start + j >= getRows(height)) break;
             for (int i = 0; i < model.getWidth(); i++) {
