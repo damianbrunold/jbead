@@ -25,10 +25,11 @@ import java.util.List;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.View;
+import ch.jbead.util.Convert;
 
 public abstract class GridPrinter extends PartPrinter {
 
-    protected int gx = Convert.mm2pt(3);
+    protected int gx = Convert.mmToPoint(3);
     protected int gy = gx;
     protected boolean fullPattern;
 

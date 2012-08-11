@@ -25,6 +25,7 @@ import java.util.List;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.View;
+import ch.jbead.util.Convert;
 
 public abstract class PartPrinter {
 
@@ -33,7 +34,7 @@ public abstract class PartPrinter {
     protected Localization localization;
 
     protected Font font = new Font("SansSerif", Font.PLAIN, 8);
-    protected int border = Convert.mm2pt(4);
+    protected int border = Convert.mmToPoint(4);
 
     public PartPrinter(Model model, View view, Localization localization) {
         this.model = model;

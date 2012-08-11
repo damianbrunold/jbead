@@ -28,11 +28,12 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
+import ch.jbead.util.Convert;
 
 
 public class DraftPrinter extends GridPrinter {
 
-    private int markerWidth = Convert.mm2pt(10);
+    private int markerWidth = Convert.mmToPoint(10);
 
     public DraftPrinter(Model model, View view, Localization localization, boolean fullPattern) {
         super(model, view, localization, fullPattern);

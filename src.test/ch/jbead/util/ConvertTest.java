@@ -15,16 +15,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package ch.jbead.print;
+package ch.jbead.util;
 
-public class Convert {
+import junit.framework.TestCase;
 
-    public static int mm2pt(int mm) {
-        return mm * 720 / 254;
+public class ConvertTest extends TestCase {
+
+    public void testMm2pt() {
+        assertEquals(0, Convert.mmToPoint(0));
+        assertEquals(2, Convert.mmToPoint(1));
+        assertEquals(8, Convert.mmToPoint(3));
+        assertEquals(11, Convert.mmToPoint(4));
+        assertEquals(720, Convert.mmToPoint(254));
     }
 
-    public static int mm2pt(double mm) {
-        return (int) (mm * 720 / 254);
+    public void testMm2ptFloat() {
+        assertEquals(4, Convert.mmToPoint(1.5));
+        assertEquals(9, Convert.mmToPoint(3.5));
     }
 
 }

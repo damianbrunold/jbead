@@ -25,4 +25,12 @@ public class Convert {
         return pixel * 72.0f / Toolkit.getDefaultToolkit().getScreenResolution();
     }
 
+    public static int mmToPoint(int mm) {
+        return mm * 720 / 254;
+    }
+
+    public static int mmToPoint(double mm) {
+        return (int) (mm * 720 / 254);
+    }
+
 }
