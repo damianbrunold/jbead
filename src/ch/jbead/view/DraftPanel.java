@@ -34,7 +34,7 @@ import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
 import ch.jbead.SelectionListener;
-import ch.jbead.util.Convert;
+import ch.jbead.ui.SymbolFont;
 
 public class DraftPanel extends BasePanel implements SelectionListener, CoordinateCalculator {
 
@@ -75,9 +75,10 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        long start = System.currentTimeMillis();
+        setHints(g);
         defaultfont = g.getFont();
-        symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(gridy));
+        symbolfont = SymbolFont.get(gridy);
         offsetx = getOffsetX();
         maxj = getMaxJ();
         paintBeads(g);
@@ -85,6 +86,12 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         if (selection.isNormal()) {
             paintSelection(g, Color.RED, selection);
         }
+        System.out.println("draft draw time " + (System.currentTimeMillis() - start));
+    }
+
+    private void setHints(Graphics g) {
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
     @Override
@@ -124,7 +131,6 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
 
     private void paintBeads(Graphics g) {
         BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
-        g.setFont(symbolfont);
         for (int j = 0; j < maxj; j++) {
             for (int i = 0; i < model.getWidth(); i++) {
                 byte c = model.get(new Point(i, j).scrolled(scroll));
@@ -136,7 +142,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
     private void paintMarkers(Graphics g) {
         g.setFont(defaultfont);
         g.setColor(Color.DARK_GRAY);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        setHints(g);
         int fontHeight = g.getFontMetrics().getAscent();
         for (int j = 0; j < maxj; j++) {
             if (((j + scroll) % 10) == 0) {
@@ -172,8 +178,7 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         byte c = model.get(new Point(i, j).scrolled(model.getScroll()));
         BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         Graphics g = getGraphics();
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setFont(symbolfont);
+        setHints(g);
         painter.paint(g, new Point(i, j), c);
         g.dispose();
     }

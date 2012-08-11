@@ -62,6 +62,7 @@ public class BeadPainter {
         }
         if (view.drawSymbols()) {
             setSymbolColor(g, color);
+            g.setFont(symbolfont);
             g.drawString(BeadSymbols.get(c), x + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx, y + symbolfont.getSize());
         }
         if (drawBorder) {

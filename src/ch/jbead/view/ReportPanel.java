@@ -35,7 +35,7 @@ import ch.jbead.ReportInfos;
 import ch.jbead.Selection;
 import ch.jbead.SimpleCoordinateCalculator;
 import ch.jbead.View;
-import ch.jbead.util.Convert;
+import ch.jbead.ui.SymbolFont;
 
 public class ReportPanel extends BasePanel {
 
@@ -52,8 +52,9 @@ public class ReportPanel extends BasePanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        long start = System.currentTimeMillis();
         defaultfont = g.getFont();
-        enableAntialiasing(g);
+        setHints(g);
         ReportInfos infos = new ReportInfos(model, localization);
         int dy = dy(g);
         int y = drawInfos(g, infos, dy);
@@ -63,6 +64,7 @@ public class ReportPanel extends BasePanel {
             y += dy / 2;
             drawBeadList(g, y);
         }
+        System.out.println("report draw time " + (System.currentTimeMillis() - start));
     }
 
     private int drawInfos(Graphics g, ReportInfos infos, int y) {
@@ -86,10 +88,10 @@ public class ReportPanel extends BasePanel {
         int countw = metrics.stringWidth("9999 x");
         int w = countw + 4 + bx + 1 + bx;
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(bx, bx);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(bx));
+        Font symbolfont = SymbolFont.get(bx);
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (byte color = 0; color < model.getColorCount(); color++) {
-            if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord, symbolfont))
+            if (!drawColorCount(g, x, y, bx, color, counts, metrics, painter, coord))
                 continue;
             x += w;
             if (x + w > getWidth()) {
@@ -104,7 +106,7 @@ public class ReportPanel extends BasePanel {
     }
 
     private boolean drawColorCount(Graphics g, int x, int y, int bx, byte color, BeadCounts counts,
-            FontMetrics metrics, BeadPainter painter, SimpleCoordinateCalculator coord, Font symbolfont) {
+            FontMetrics metrics, BeadPainter painter, SimpleCoordinateCalculator coord) {
         int count = counts.getCount(color);
         if (count == 0) return false;
         String s = String.format("%d x", count);
@@ -114,7 +116,6 @@ public class ReportPanel extends BasePanel {
         g.drawString(s, x + cw - metrics.stringWidth(s), y);
         coord.setOffsetX(x + cw + 4);
         coord.setOffsetY(y);
-        g.setFont(symbolfont);
         painter.paint(g, new Point(0, 0), color);
         return true;
     }
@@ -132,10 +133,10 @@ public class ReportPanel extends BasePanel {
         int dy = dy(g);
         int colwidth = colwidth(g);
         SimpleCoordinateCalculator coord = new SimpleCoordinateCalculator(dx, dy);
-        Font symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(dx));
+        Font symbolfont = SymbolFont.get(dx);
         BeadPainter painter = new BeadPainter(coord, model, view, symbolfont);
         for (BeadRun bead : beads) {
-            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord, symbolfont);
+            drawBeadCount(g, x1, y, dx, dy, height, bead.getColor(), bead.getCount(), painter, coord);
             y += dy + 3;
             if (y >= getHeight() - dy) {
                 x1 += colwidth;
@@ -148,8 +149,9 @@ public class ReportPanel extends BasePanel {
         return dx(g) + 2 + g.getFontMetrics().stringWidth("9999") + 3;
     }
 
-    private void enableAntialiasing(Graphics g) {
+    private void setHints(Graphics g) {
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
     private int x1() {
@@ -171,10 +173,9 @@ public class ReportPanel extends BasePanel {
     }
 
     private void drawBeadCount(Graphics g, int x, int y, int dx, int dy, int height, byte color, int count,
-            BeadPainter painter, SimpleCoordinateCalculator coord, Font symbolfont) {
+            BeadPainter painter, SimpleCoordinateCalculator coord) {
         coord.setOffsetX(x);
         coord.setOffsetY(y + dy);
-        g.setFont(symbolfont);
         painter.paint(g, new Point(0, 0), color);
         g.setColor(Color.BLACK);
         g.setFont(defaultfont);

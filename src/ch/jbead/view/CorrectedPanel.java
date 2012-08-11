@@ -31,7 +31,7 @@ import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
-import ch.jbead.util.Convert;
+import ch.jbead.ui.SymbolFont;
 
 public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
 
@@ -69,11 +69,13 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        symbolfont = new Font("SansSerif", Font.PLAIN, 1).deriveFont(Convert.pixelToPoint(gridy));
+        long start = System.currentTimeMillis();
+        setHints(g);
+        symbolfont = SymbolFont.get(gridy);
         offsetx = getOffsetX();
         left = getLeft();
         paintBeads(g);
+        System.out.println("corrected draw time " + (System.currentTimeMillis() - start));
     }
 
     private int getLeft() {
@@ -104,7 +106,6 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
     private void paintBeads(Graphics g) {
         if (scroll > model.getHeight() - 1) return;
         BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
-        g.setFont(symbolfont);
         for (Point pt : model.getRect(scroll, model.getHeight() - 1)) {
             byte c = model.get(pt);
             pt = model.correct(pt.unscrolled(scroll));
@@ -125,10 +126,14 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
         _pt = model.correct(_pt);
         BeadPainter painter = new BeadPainter(this, model, view, symbolfont);
         Graphics g = getGraphics();
-        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setFont(symbolfont);
+        setHints(g);
         painter.paint(g, _pt, c);
         g.dispose();
+    }
+
+    private void setHints(Graphics g) {
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
     public Point mouseToField(Point pt) {
