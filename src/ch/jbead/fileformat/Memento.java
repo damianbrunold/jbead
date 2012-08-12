@@ -37,6 +37,7 @@ public abstract class Memento {
     protected int zoomIndex;
     protected int scroll;
     protected int shift;
+    protected String symbols;
 
     protected boolean draftVisible;
     protected boolean correctedVisible;
@@ -151,6 +152,10 @@ public abstract class Memento {
         return scroll;
     }
 
+    public String getSymbols() {
+        return symbols;
+    }
+
     public void setColors(List<Color> colors) {
         this.colors = colors;
     }
@@ -169,6 +174,10 @@ public abstract class Memento {
 
     public void setScroll(int scroll) {
         this.scroll = scroll;
+    }
+
+    public void setSymbols(String symbols) {
+        this.symbols = symbols;
     }
 
     public String getAuthor() {

@@ -20,6 +20,8 @@ package ch.jbead.fileformat;
 import java.awt.Color;
 import java.io.IOException;
 
+import ch.jbead.BeadSymbols;
+
 public class DbbMemento extends Memento {
 
     private static final int DBB_FIELD_SIZE = 25000;
@@ -61,6 +63,7 @@ public class DbbMemento extends Memento {
         // selected tool is not saved
         // draw colors flag not saved
         // draw symbols flag not saved
+        // symbols string not saved
     }
 
     @Override
@@ -88,6 +91,7 @@ public class DbbMemento extends Memento {
         reportVisible = true;
         drawColors = true;
         drawSymbols = false;
+        symbols = BeadSymbols.SAVED_SYMBOLS;
         selectedTool = "pencil";
         author = "";
         organization = "";

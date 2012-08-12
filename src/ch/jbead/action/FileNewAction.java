@@ -45,9 +45,10 @@ public class FileNewAction extends BaseAction {
                 frame.getAction("file.save").actionPerformed(e);
             }
         }
+        frame.selectDefaultColor();
+        frame.initDefaultSymbols();
         selection.clear();
         model.clear();
-        frame.selectDefaultColor();
         frame.updateScrollbar();
     }
 

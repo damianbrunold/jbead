@@ -22,6 +22,7 @@ public class BeadSymbols {
     public static final String MIDDLE_DOT = "\u00b7";
     public static final String DEFAULT_SYMBOLS = MIDDLE_DOT + "abcdefghijklmnopqrstuvwxyz+-/\\*";
     public static String SYMBOLS = DEFAULT_SYMBOLS;
+    public static String SAVED_SYMBOLS = DEFAULT_SYMBOLS;
 
     static {
         reloadSymbols();
@@ -34,7 +35,8 @@ public class BeadSymbols {
     public static void reloadSymbols() {
         Settings settings = new Settings();
         settings.setCategory("view");
-        SYMBOLS = settings.loadString("symbols", DEFAULT_SYMBOLS);
+        SAVED_SYMBOLS = settings.loadString("symbols", DEFAULT_SYMBOLS);
+        SYMBOLS = SAVED_SYMBOLS;
     }
 
     public static String get(byte index) {

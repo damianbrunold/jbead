@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.jbead.BeadSymbols;
 import ch.jbead.storage.Node;
 import ch.jbead.storage.ObjectModel;
 
@@ -64,6 +65,7 @@ public class JBeadMemento extends Memento {
         om.add("view/shift", shift);
         om.add("view/draw-colors", drawColors);
         om.add("view/draw-symbols", drawSymbols);
+        om.add("view/symbols", symbols);
     }
 
     private void savePattern(ObjectModel om) {
@@ -114,6 +116,7 @@ public class JBeadMemento extends Memento {
         shift = om.getIntValue("view/shift", 0);
         drawColors = om.getBoolValue("view/draw-colors", true);
         drawSymbols = om.getBoolValue("view/draw-symbols", false);
+        symbols = om.getStringValue("view/symbols", BeadSymbols.SAVED_SYMBOLS);
     }
 
     private void loadPattern(ObjectModel om) {

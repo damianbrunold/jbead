@@ -651,6 +651,10 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         viewReport.setVisible(visible);
     }
 
+    public void initDefaultSymbols() {
+        BeadSymbols.SYMBOLS = BeadSymbols.SAVED_SYMBOLS;
+    }
+
     public void selectDefaultColor() {
         colors.selectDefaultColor();
     }
@@ -1146,6 +1150,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         memento.setSelectedTool(getSelectedTool());
         memento.setDrawColors(isDrawColors());
         memento.setDrawSymbols(isDrawSymbols());
+        memento.setSymbols(BeadSymbols.SYMBOLS);
     }
 
     public void loadFrom(Memento memento) {
@@ -1155,6 +1160,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         setReportVisible(memento.isReportVisible());
         updateVisibility();
         setSelectedTool(memento.getSelectedTool());
+        BeadSymbols.SYMBOLS = memento.getSymbols();
         viewDrawColors.setSelected(memento.isDrawColors());
         fireDrawColorsChanged();
         viewDrawSymbols.setSelected(memento.isDrawSymbols());
