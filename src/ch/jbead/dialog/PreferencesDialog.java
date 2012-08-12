@@ -32,18 +32,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import ch.jbead.BeadSymbols;
 import ch.jbead.Localization;
 import ch.jbead.Model;
 import ch.jbead.Settings;
+import ch.jbead.View;
 
 public class PreferencesDialog extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private JTextField author;
     private JTextField organization;
+    private JTextField symbols;
     private JCheckBox disablestartcheck;
 
-    public PreferencesDialog(Localization localization, final Model model) {
+    public PreferencesDialog(Localization localization, final Model model, final View view) {
         setTitle(localization.getString("preferences.title"));
         JPanel main = new JPanel();
         main.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
@@ -84,11 +87,27 @@ public class PreferencesDialog extends JDialog {
         form.add(organization = new JTextField(settings.loadString("organization")), constraints);
         organization.setColumns(20);
 
-        settings.setCategory("update");
+        settings.setCategory("view");
 
         constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 2;
+        constraints.ipadx = 3;
+        constraints.anchor = GridBagConstraints.WEST;
+        form.add(new JLabel(localization.getString("preferences.symbols")), constraints);
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        form.add(symbols = new JTextField(settings.loadString("symbols", BeadSymbols.SYMBOLS)), constraints);
+        symbols.setColumns(33);
+
+        settings.setCategory("update");
+
+        constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = 3;
         constraints.gridwidth = 2;
         constraints.anchor = GridBagConstraints.WEST;
         form.add(disablestartcheck = new JCheckBox(localization.getString("preferences.disablestartcheck")), constraints);
@@ -112,6 +131,16 @@ public class PreferencesDialog extends JDialog {
                 settings.setCategory("user");
                 settings.saveString("author", author.getText());
                 settings.saveString("organization", organization.getText());
+                settings.setCategory("view");
+                if (symbols.getText().length() == 0) {
+                    settings.remove("symbols");
+                } else {
+                    settings.saveString("symbols", symbols.getText());
+                }
+                if (!BeadSymbols.SYMBOLS.equals(symbols.getText())) {
+                    BeadSymbols.reloadSymbols();
+                    view.refresh();
+                }
                 settings.setCategory("update");
                 settings.saveBoolean("check_at_start", !disablestartcheck.isSelected());
                 if (!model.getAuthor().equals(author.getText())) {

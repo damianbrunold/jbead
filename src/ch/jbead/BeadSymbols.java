@@ -20,9 +20,25 @@ package ch.jbead;
 public class BeadSymbols {
 
     public static final String MIDDLE_DOT = "\u00b7";
-    public static final String SYMBOLS = MIDDLE_DOT + "abcdefghijklmnopqrstuvwxyz+-/\\*=";
+    public static final String DEFAULT_SYMBOLS = MIDDLE_DOT + "abcdefghijklmnopqrstuvwxyz+-/\\*";
+    public static String SYMBOLS = DEFAULT_SYMBOLS;
+
+    static {
+        reloadSymbols();
+    }
+
+    public static void restoreDefaults() {
+        SYMBOLS = DEFAULT_SYMBOLS;
+    }
+
+    public static void reloadSymbols() {
+        Settings settings = new Settings();
+        settings.setCategory("view");
+        SYMBOLS = settings.loadString("symbols", DEFAULT_SYMBOLS);
+    }
 
     public static String get(byte index) {
+        if (index >= SYMBOLS.length()) return " ";
         return SYMBOLS.substring(index, index + 1);
     }
 

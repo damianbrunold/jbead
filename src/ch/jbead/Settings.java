@@ -79,6 +79,10 @@ public class Settings {
 		preferences.node(category).put(name, value);
 	}
 
+    public void remove(String name) {
+        preferences.node(category).remove(name);
+    }
+
 	public void flush() throws BackingStoreException {
 		preferences.flush();
 	}

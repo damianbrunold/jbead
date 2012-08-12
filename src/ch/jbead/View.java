@@ -29,4 +29,5 @@ public interface View {
     public boolean isSimulationVisible();
     public boolean isReportVisible();
 
+    public void refresh();
 }

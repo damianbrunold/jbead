@@ -35,7 +35,7 @@ public class PatternPreferencesAction extends BaseAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        PreferencesDialog dialog = new PreferencesDialog(frame, model);
+        PreferencesDialog dialog = new PreferencesDialog(frame, model, frame);
         dialog.setVisible(true);
     }
 

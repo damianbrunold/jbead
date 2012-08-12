@@ -1201,4 +1201,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         return viewDrawSymbols.isSelected();
     }
 
+    public void refresh() {
+        fireDrawSymbolsChanged();
+    }
 }
