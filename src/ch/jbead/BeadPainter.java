@@ -66,7 +66,7 @@ public class BeadPainter {
             g.drawString(BeadSymbols.get(c), x + (gridx - g.getFontMetrics().stringWidth(BeadSymbols.get(c))) / 2 - dx, y + symbolfont.getSize());
         }
         if (drawBorder) {
-            g.setColor(Color.DARK_GRAY);
+            g.setColor(Color.BLACK);
             g.drawRect(x - dx, y, gridx, gridy);
         }
     }
