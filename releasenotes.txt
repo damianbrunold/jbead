@@ -5,3 +5,5 @@
 - Add flags for bead colors and bead symbols
 - Restore panel visibility when loading file
 - Fix problem with arranging when pattern was scrolled down
+- Only ask once daily about upgrade to new version
+- More infos in Techinfos Dialog
