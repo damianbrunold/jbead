@@ -19,7 +19,7 @@ package ch.jbead.version;
 
 public interface VersionListener {
 
-    public void versionAvailabe(Version version);
+    public void versionAvailable(Version version);
     public void versionUpToDate();
     public void failure(String msg);
 

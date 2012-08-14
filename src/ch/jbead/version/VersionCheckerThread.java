@@ -42,7 +42,7 @@ public class VersionCheckerThread extends Thread {
             try {
                 String latestversion = reader.readLine();
                 if (Version.getInstance().isOlderThan(latestversion)) {
-                    listener.versionAvailabe(new Version(latestversion));
+                    listener.versionAvailable(new Version(latestversion));
                 } else {
                     listener.versionUpToDate();
                 }

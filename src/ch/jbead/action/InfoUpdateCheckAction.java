@@ -43,7 +43,7 @@ public class InfoUpdateCheckAction extends BaseAction implements VersionListener
         new VersionChecker(this).check();
     }
 
-    public void versionAvailabe(final Version version) {
+    public void versionAvailable(final Version version) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JOptionPane.showMessageDialog(frame, localization.getString("updatecheck.updateavailable").replace("{1}", version.getVersionString()));

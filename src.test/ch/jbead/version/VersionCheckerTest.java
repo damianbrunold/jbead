@@ -71,7 +71,7 @@ public class VersionCheckerTest extends TestCase {
 
     private void checkVersion(URL url, final String[] result) throws Exception {
         VersionChecker checker = new FakeVersionChecker(new VersionListener() {
-            public void versionAvailabe(Version version) {
+            public void versionAvailable(Version version) {
                 synchronized (result) {
                     result[0] = "new version " + version.getVersionString();
                 }

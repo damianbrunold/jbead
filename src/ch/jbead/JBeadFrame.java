@@ -1185,7 +1185,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         toolsGroup.selectTool(tool);
     }
 
-    public void versionAvailabe(final Version version) {
+    public void versionAvailable(final Version version) {
         settings.setCategory("update");
         long lastCheck = settings.loadLong("lastcheck");
         if (elapsedSince(lastCheck) < ONE_DAY) return;
