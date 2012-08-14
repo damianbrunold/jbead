@@ -51,6 +51,14 @@ public class Settings {
 		return preferences.node(category).getInt(name, defaultvalue);
 	}
 
+    public long loadLong(String name) {
+        return loadLong(name, 0);
+    }
+
+    public long loadLong(String name, long defaultvalue) {
+        return preferences.node(category).getLong(name, defaultvalue);
+    }
+
     public boolean loadBoolean(String name) {
         return loadBoolean(name, false);
     }
@@ -70,6 +78,10 @@ public class Settings {
 	public void saveInt(String name, int value) {
 		preferences.node(category).putInt(name, value);
 	}
+
+    public void saveLong(String name, long value) {
+        preferences.node(category).putLong(name, value);
+    }
 
     public void saveBoolean(String name, boolean value) {
         preferences.node(category).putBoolean(name, value);

@@ -130,6 +130,8 @@ import ch.jbead.view.SimulationPanel;
 
 public class JBeadFrame extends JFrame implements Localization, View, ModelListener, VersionListener {
 
+    private static final int ONE_DAY = 86400;
+
     private static final long serialVersionUID = 1L;
 
     private static final int SHIFTING_INTERVAL = 150;
@@ -1184,11 +1186,19 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
     }
 
     public void versionAvailabe(final Version version) {
+        settings.setCategory("update");
+        long lastCheck = settings.loadLong("lastcheck");
+        if (elapsedSince(lastCheck) < ONE_DAY) return;
+        settings.saveLong("lastcheck", System.currentTimeMillis());
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 JOptionPane.showMessageDialog(JBeadFrame.this, getString("updatecheck.updateavailable").replace("{1}", version.getVersionString()));
             }
         });
+    }
+
+    private long elapsedSince(long time) {
+        return System.currentTimeMillis() - time;
     }
 
     public void versionUpToDate() {
