@@ -98,6 +98,7 @@ public class TechInfosDialog extends JDialog {
         addInfo(infos, localization.getString("techinfos.osversion"), System.getProperty("os.version"));
         addInfo(infos, localization.getString("techinfos.screensize"), getScreenSize());
         addInfo(infos, localization.getString("techinfos.screenresolution"), getScreenResolution());
+        addInfo(infos, localization.getString("techinfos.cpucores"), Runtime.getRuntime().availableProcessors());
         return infos.toString().trim();
     }
 
