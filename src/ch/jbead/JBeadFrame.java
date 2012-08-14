@@ -249,6 +249,18 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
             }
         });
 
+        setupUpdateTimer();
+
+        handleCommandLineArgs(args);
+
+        checkVersionUpdate();
+
+        if (Platform.isMacOSX()) {
+            initMacOSX();
+        }
+    }
+
+    private void setupUpdateTimer() {
         updateTimer = new Timer("updateTimer", true);
         updateTimer.schedule(new TimerTask() {
             @Override
@@ -256,9 +268,9 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
                 updateHandler();
             }
         }, UPDATE_INTERVAL, UPDATE_INTERVAL);
+    }
 
-        handleCommandLineArgs(args);
-
+    private void checkVersionUpdate() {
         settings.setCategory("update");
         if (settings.loadBoolean("check_at_start", true)) {
             Timer timer = new Timer("updatecheck");
@@ -268,10 +280,6 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
                     new VersionChecker(JBeadFrame.this).check();
                 }
             }, 2000);
-        }
-
-        if (Platform.isMacOSX()) {
-            initMacOSX();
         }
     }
 
