@@ -30,6 +30,10 @@ public interface View {
     public boolean isReportVisible();
 
     public String getSelectedTool();
+    public boolean isDragging();
+    public void setDragging(boolean dragging);
+    public Selection getSelection();
+    public void selectColor(byte colorIndex);
 
     public void refresh();
 }

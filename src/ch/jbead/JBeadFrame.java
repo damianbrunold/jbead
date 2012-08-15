@@ -792,83 +792,12 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         return false;
     }
 
-    private void draftLinePreview() {
-        if (!toolsGroup.isSelected("pencil")) return;
-        if (!selection.isActive()) return;
-        draft.linePreview(selection.getOrigin(), selection.getLineDest());
+    public boolean isDragging() {
+        return dragging;
     }
 
-    private void drawPrepress() {
-        if (toolsGroup.isSelected("pencil")) {
-            draft.drawPrepress(selection.getOrigin());
-        }
-    }
-
-    public void draftMouseDown(MouseEvent event) {
-        if (dragging) return;
-        Point pt = new Point(event.getX(), event.getY());
-        if (event.getButton() == MouseEvent.BUTTON1) {
-            pt = draft.mouseToField(pt);
-            if (pt == null) return;
-            dragging = true;
-            selection.init(pt);
-            drawPrepress();
-            draftLinePreview();
-        }
-    }
-
-    public void draftMouseMove(MouseEvent event) {
-        Point pt = new Point(event.getX(), event.getY());
-        if (dragging) {
-            pt = draft.mouseToField(pt);
-            if (pt == null) return;
-            draftLinePreview();
-            selection.update(pt);
-            draftLinePreview();
-        }
-    }
-
-    public void draftMouseUp(MouseEvent event) {
-        Point pt = new Point(event.getX(), event.getY());
-        if (dragging) {
-            pt = draft.mouseToField(pt);
-            if (pt == null) return;
-            draftLinePreview();
-            selection.update(pt);
-            dragging = false;
-            if (toolsGroup.isSelected("pencil")) {
-                if (!selection.isActive()) {
-                    setPoint(selection.getOrigin());
-                } else {
-                    drawLine(selection.getOrigin(), selection.getLineDest());
-                }
-            } else if (toolsGroup.isSelected("fill")) {
-                fillLine(selection.getOrigin());
-            } else if (toolsGroup.isSelected("pipette")) {
-                selectColorFrom(selection.getOrigin());
-            } else if (toolsGroup.isSelected("select")) {
-                if (!selection.isActive()) {
-                    setPoint(selection.getOrigin());
-                }
-            }
-        }
-    }
-
-    private void selectColorFrom(Point pt) {
-        byte colorIndex = model.get(pt.scrolled(model.getScroll()));
-        colors.selectColor(colorIndex);
-    }
-
-    private void drawLine(Point begin, Point end) {
-        model.drawLine(begin, end);
-    }
-
-    private void fillLine(Point pt) {
-        model.fillLine(pt);
-    }
-
-    private void setPoint(Point pt) {
-        model.setPoint(pt);
+    public void setDragging(boolean dragging) {
+        this.dragging = dragging;
     }
 
     public void updateVisibility() {
@@ -1207,5 +1136,9 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
 
     public void refresh() {
         fireDrawSymbolsChanged();
+    }
+
+    public void selectColor(byte colorIndex) {
+        colors.selectColor(colorIndex);
     }
 }

@@ -54,22 +54,102 @@ public class DraftPanel extends BasePanel implements SelectionListener, Coordina
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                frame.draftMouseDown(e);
+                handleMouseDown(e);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                frame.draftMouseUp(e);
+                handleMouseUp(e);
             }
         });
         addMouseMotionListener(new MouseMotionListener() {
             public void mouseDragged(MouseEvent e) {
-                frame.draftMouseMove(e);
+                handleMouseMove(e);
             }
             public void mouseMoved(MouseEvent e) {
                 // empty
             }
         });
+    }
+
+    private void draftLinePreview() {
+        if (!view.getSelectedTool().equals("pencil")) return;
+        if (!selection.isActive()) return;
+        linePreview(selection.getOrigin(), selection.getLineDest());
+    }
+
+    private void drawPrepress() {
+        if (view.getSelectedTool().equals("pencil")) {
+            drawPrepress(selection.getOrigin());
+        }
+    }
+
+    public void handleMouseDown(MouseEvent event) {
+        if (view.isDragging()) return;
+        Point pt = new Point(event.getX(), event.getY());
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            pt = mouseToField(pt);
+            if (pt == null) return;
+            view.setDragging(true);
+            selection.init(pt);
+            drawPrepress();
+            draftLinePreview();
+        }
+    }
+
+    public void handleMouseMove(MouseEvent event) {
+        Point pt = new Point(event.getX(), event.getY());
+        if (view.isDragging()) {
+            pt = mouseToField(pt);
+            if (pt == null) return;
+            draftLinePreview();
+            selection.update(pt);
+            draftLinePreview();
+        }
+    }
+
+    private void handleMouseUp(MouseEvent event) {
+        Point pt = new Point(event.getX(), event.getY());
+        if (view.isDragging()) {
+            pt = mouseToField(pt);
+            if (pt == null) return;
+            draftLinePreview();
+            selection.update(pt);
+            view.setDragging(false);
+            String tool = view.getSelectedTool();
+            if (tool.equals("pencil")) {
+                if (!selection.isActive()) {
+                    setPoint(selection.getOrigin());
+                } else {
+                    drawLine(selection.getOrigin(), selection.getLineDest());
+                }
+            } else if (tool.equals("fill")) {
+                fillLine(selection.getOrigin());
+            } else if (tool.equals("pipette")) {
+                selectColorFrom(selection.getOrigin());
+            } else if (tool.equals("select")) {
+                if (!selection.isActive()) {
+                    setPoint(selection.getOrigin());
+                }
+            }
+        }
+    }
+
+    private void selectColorFrom(Point pt) {
+        byte colorIndex = model.get(pt.scrolled(model.getScroll()));
+        view.selectColor(colorIndex);
+    }
+
+    private void drawLine(Point begin, Point end) {
+        model.drawLine(begin, end);
+    }
+
+    private void fillLine(Point pt) {
+        model.fillLine(pt);
+    }
+
+    private void setPoint(Point pt) {
+        model.setPoint(pt);
     }
 
     @Override
