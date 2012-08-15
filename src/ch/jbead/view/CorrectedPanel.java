@@ -45,10 +45,20 @@ public class CorrectedPanel extends BasePanel implements CoordinateCalculator {
         super(model, frame, selection);
         addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                frame.correctedMouseUp(e);
+            public void mouseReleased(MouseEvent event) {
+                handleMouseClick(event);
             }
         });
+    }
+
+    public void handleMouseClick(MouseEvent event) {
+        if (event.getButton() == MouseEvent.BUTTON1) {
+            if (view.getSelectedTool().equals("fill")) {
+                fillLine(new Point(event.getX(), event.getY()));
+            } else {
+                togglePoint(new Point(event.getX(), event.getY()));
+            }
+        }
     }
 
     @Override
