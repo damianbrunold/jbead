@@ -864,16 +864,6 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         }
     }
 
-    public void simulationMouseUp(MouseEvent event) {
-        if (event.getButton() == MouseEvent.BUTTON1) {
-            if (toolsGroup.isSelected("fill")) {
-                simulation.fillLine(new Point(event.getX(), event.getY()));
-            } else {
-                simulation.togglePoint(new Point(event.getX(), event.getY()));
-            }
-        }
-    }
-
     private void selectColorFrom(Point pt) {
         byte colorIndex = model.get(pt.scrolled(model.getScroll()));
         colors.selectColor(colorIndex);

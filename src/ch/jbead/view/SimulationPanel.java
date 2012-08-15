@@ -23,10 +23,10 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import ch.jbead.JBeadFrame;
 import ch.jbead.Model;
 import ch.jbead.Point;
 import ch.jbead.Selection;
+import ch.jbead.View;
 
 public class SimulationPanel extends BasePanel {
 
@@ -36,14 +36,24 @@ public class SimulationPanel extends BasePanel {
     private int left;
     private int w;
 
-    public SimulationPanel(Model model, Selection selection, final JBeadFrame frame) {
-        super(model, frame, selection);
+    public SimulationPanel(Model model, Selection selection, View view) {
+        super(model, view, selection);
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
-                frame.simulationMouseUp(e);
+                handleMouseClick(e);
             }
         });
+    }
+
+    private void handleMouseClick(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (view.getSelectedTool().equals("fill")) {
+                fillLine(new Point(e.getX(), e.getY()));
+            } else {
+                togglePoint(new Point(e.getX(), e.getY()));
+            }
+        }
     }
 
     @Override
