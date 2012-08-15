@@ -630,35 +630,35 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
     }
 
     public boolean isDraftVisible() {
-        return viewDraft.isVisible();
+        return viewDraft.isSelected();
     }
 
     public boolean isCorrectedVisible() {
-        return viewCorrected.isVisible();
+        return viewCorrected.isSelected();
     }
 
     public boolean isSimulationVisible() {
-        return viewSimulation.isVisible();
+        return viewSimulation.isSelected();
     }
 
     public boolean isReportVisible() {
-        return viewReport.isVisible();
+        return viewReport.isSelected();
     }
 
     public void setDraftVisible(boolean visible) {
-        viewDraft.setVisible(visible);
+        viewDraft.setSelected(visible);
     }
 
     public void setCorrectedVisible(boolean visible) {
-        viewCorrected.setVisible(visible);
+        viewCorrected.setSelected(visible);
     }
 
     public void setSimulationVisible(boolean visible) {
-        viewSimulation.setVisible(visible);
+        viewSimulation.setSelected(visible);
     }
 
     public void setReportVisible(boolean visible) {
-        viewReport.setVisible(visible);
+        viewReport.setSelected(visible);
     }
 
     public void initDefaultSymbols() {
