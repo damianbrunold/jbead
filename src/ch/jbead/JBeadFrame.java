@@ -776,7 +776,7 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
             FileFormat oldFileFormat = fileformat;
             updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
             File file = dialog.getSelectedFile();
-            if (file.getName().indexOf('.') == -1) {
+            if (!file.getName().endsWith(fileformat.getExtension())) {
                 file = new File(file.getParentFile(), file.getName() + fileformat.getExtension());
             }
             if (fileSaveClick(true, file)) {

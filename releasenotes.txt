@@ -1,3 +1,7 @@
+1.0.23
+
+- Ensure correct file extension is used (.jbb or .dbb)
+
 1.0.22
 
 - Restore zoom setting when loading file
