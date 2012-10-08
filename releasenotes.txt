@@ -1,6 +1,7 @@
 1.0.23
 
 - Ensure correct file extension is used (.jbb or .dbb)
+- Fix missing overwrite warning if file extension is automatically added
 
 1.0.22
 

@@ -766,18 +766,18 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         dialog.setMultiSelectionEnabled(false);
         setSaveFileFilters(dialog);
         if (dialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            if (dialog.getSelectedFile().exists()) {
-                String msg = getString("fileexists");
-                msg = msg.replace("{1}", dialog.getSelectedFile().getName());
-                if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-                    return false;
-                }
-            }
             FileFormat oldFileFormat = fileformat;
             updateFileFormat(dialog.getFileFilter(), dialog.getSelectedFile());
             File file = dialog.getSelectedFile();
             if (!file.getName().endsWith(fileformat.getExtension())) {
                 file = new File(file.getParentFile(), file.getName() + fileformat.getExtension());
+            }
+            if (file.exists()) {
+                String msg = getString("fileexists");
+                msg = msg.replace("{1}", file.getName());
+                if (JOptionPane.showConfirmDialog(this, msg, "Overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                    return false;
+                }
             }
             if (fileSaveClick(true, file)) {
                 model.setFile(file);
