@@ -107,3 +107,7 @@ selection can be extended or reduced. On the other hand, this makes the
 usage rather difficult.
 
 Add context menu providing convenient access to mirror, rotate, etc.
+
+Add menu toggle for display/hide of color counts and beads per color count.
+This was requested by a user and it adds some flexibility without costing
+much.
