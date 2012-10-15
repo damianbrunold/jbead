@@ -49,7 +49,7 @@ public class JBeadMemento extends Memento {
 
     private void saveColors(ObjectModel om) {
         for (Color color: colors) {
-            om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue());
+            om.add("colors/rgb", color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         }
     }
 
@@ -139,7 +139,12 @@ public class JBeadMemento extends Memento {
         int red = color.asLeaf().getIntValue(0);
         int green = color.asLeaf().getIntValue(1);
         int blue = color.asLeaf().getIntValue(2);
-        return new Color(red, green, blue);
+        if (color.asLeaf().size() == 4) {
+            int alpha = color.asLeaf().getIntValue(3);
+            return new Color(red, green, blue, alpha);
+        } else {
+            return new Color(red, green, blue);
+        }
     }
 
 }
