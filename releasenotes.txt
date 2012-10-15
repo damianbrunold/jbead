@@ -2,6 +2,7 @@
 
 - Ensure correct file extension is used (.jbb or .dbb)
 - Fix missing overwrite warning if file extension is automatically added
+- Fix support for color alpha channel on java 7
 
 1.0.22
 
