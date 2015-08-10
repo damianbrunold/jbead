@@ -2,6 +2,14 @@
 
 <project default="jbead" basedir=".">
 
+	<property file="build.properties" />
+	<property environment="env"/>
+	
+	<taskdef 
+	    name="bundleapp" 
+	    classname="com.oracle.appbundler.AppBundlerTask" 
+	    classpath="lib/appbundler-1.0.jar" />
+
 	<path id="emma.lib">
 		<pathelement location="lib/emma.jar" />
 		<pathelement location="lib/emma_ant.jar" />
@@ -164,6 +172,33 @@
 	</target>
 	
 	<target name="package_macosx">
+		<mkdir dir="dist" />
+	    <bundleapp 
+	        outputdirectory="dist" 
+	        name="jbead" 
+	        displayname="JBead"
+	    	icon="starter_macosx/jbead.icns"
+	        identifier="ch.jbead.JBeadApp" 
+	        shortversion="1.0"
+	        applicationCategory="public.app-category.graphics-design"
+	        mainclassname="ch.jbead.JBeadApp">
+	    	<runtime dir="${env.JAVA_HOME}" />
+	        <classpath file="jbead.jar" />
+	    </bundleapp>
+		<chmod file="dist/jbead.app/Contents/MacOS/JavaAppLauncher" perm="755" />
+        <tar destfile="setup/jbead_${version}_macosx.tar.gz" compression="gzip">
+          <tarfileset dir="dist/jbead.app" prefix="jbead.app" filemode="755">
+            <include name="Contents/MacOS/JavaAppLauncher"/>
+          </tarfileset>
+          <tarfileset dir="dist/jbead.app" prefix="jbead.app">
+            <include name="**"/>
+            <exclude name="Contents/MacOS/JavaAppLauncher"/>
+          </tarfileset>
+        </tar>
+		<delete dir="dist" />
+	</target>
+	
+	<target name="package_macosx_old">
         <property file="build.properties" />
 		<mkdir dir="dist" />
 		<mkdir dir="dist/jbead.app" />
