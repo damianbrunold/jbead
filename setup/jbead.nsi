@@ -5,8 +5,8 @@ Name "jbead"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\German.nlf"
 
-OutFile "jbead_1.0.25_setup.exe"
-InstallDir $PROGRAMFILES\jbead
+OutFile "jbead_1.1.0_setup.exe"
+InstallDir $PROGRAMFILES64\jbead
 InstallDirRegKey HKLM "Software\bsoft\jbead" "Install_Dir"
 
 Page directory
@@ -24,6 +24,9 @@ Section "jbead"
   File ..\jbead.jar
   File ..\LICENSE.txt
   
+  SetOutPath $INSTDIR\jre_win
+  File /r ..\jre_win\*.*
+
   SetOutPath $INSTDIR\samples
   File ..\samples\*.*
   
@@ -74,6 +77,7 @@ Section "Uninstall"
 
   RMDir "$SMPROGRAMS\jbead"
   RMDir /r /REBOOTOK "$INSTDIR\samples"
+  RMDir /r /REBOOTOK "$INSTDIR\jre_win"
   RMDir "$INSTDIR"
 
 SectionEnd
