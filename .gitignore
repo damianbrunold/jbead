@@ -5,4 +5,12 @@ testreport/
 jbead.jar
 jbead.exe
 setup/jbead_*
-
+dist_win/
+dist_linux/
+dist_macos/
+jre_win/
+jre_linux/
+jre_macos/
+jdk_win_full/
+jdk_linux_full/
+jdk_macos_full/
