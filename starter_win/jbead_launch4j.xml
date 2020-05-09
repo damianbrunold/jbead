@@ -20,11 +20,11 @@
     <jdkPreference>preferJre</jdkPreference>
   </jre>
   <versionInfo>
-    <fileVersion>1.0.0.25</fileVersion>
+    <fileVersion>1.1.0.0</fileVersion>
     <txtFileVersion>1.0</txtFileVersion>
     <fileDescription>jbead</fileDescription>
-    <copyright>(c) 2013 Brunold Software</copyright>
-    <productVersion>1.0.0.25</productVersion>
+    <copyright>(c) 2020 Brunold Software</copyright>
+    <productVersion>1.1.0.0</productVersion>
     <txtProductVersion>1.0</txtProductVersion>
     <productName>jbead</productName>
     <companyName>brunold software</companyName>

@@ -24,7 +24,7 @@ import javax.swing.KeyStroke;
 import junit.framework.TestCase;
 
 public class BeadListTest extends TestCase implements Localization {
-
+    
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
     private Model model = new Model(this);
 

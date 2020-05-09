@@ -5,16 +5,6 @@
 	<property file="build.properties" />
 	<property environment="env"/>
 	
-	<taskdef 
-	    name="bundleapp" 
-	    classname="com.oracle.appbundler.AppBundlerTask" 
-	    classpath="lib/appbundler-1.0.jar" />
-
-	<path id="emma.lib">
-		<pathelement location="lib/emma.jar" />
-		<pathelement location="lib/emma_ant.jar" />
-	</path>
-
 	<path id="run.classpath">
 		<pathelement path="build/classes" />
 	</path>
@@ -25,41 +15,24 @@
 		<pathelement path="lib/junit-addons-1.4.jar" />
 	</path>
 
-	<taskdef resource="emma_ant.properties" classpathref="emma.lib" />
-
 	<target name="jbead">
 		<antcall target="clean" />
 		<antcall target="compile" />
 		<antcall target="test" />
 		<antcall target="jar" />
-		<mkdir dir="setup"/>
-		<antcall target="package_linux" />
-        <antcall target="package_macosx" />
 	</target>
 
 	<target name="clean">
 		<delete dir="build" />
 		<delete dir="dist" />
 		<delete dir="testreport" />
-		<delete dir="coverage" />
 		<delete file="jbead.jar" />
 	</target>
 
 	<target name="compile">
-        <antcall target="compile_src.dummymac" />
 		<antcall target="compile_src" />
 		<antcall target="compile_src.test" />
 	</target>
-
-    <target name="compile_src.dummymac">
-        <mkdir dir="build/classes.dummymac" />
-        <copy todir="build/classes.dummymac">
-            <fileset dir="src.dummymac">
-                <exclude name="**/*.java" />
-            </fileset>
-        </copy>
-        <javac srcdir="src.dummymac" destdir="build/classes.dummymac" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
-    </target>
 
 	<target name="compile_src">
 		<mkdir dir="build/classes" />
@@ -68,11 +41,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-		<javac srcdir="src" destdir="build/classes" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
-            <classpath>
-                <pathelement path="build/classes.dummymac" />
-            </classpath>
-		</javac>			
+		<javac srcdir="src" destdir="build/classes" debug="true" debuglevel="source,lines,vars" includeantruntime="false" />
 	</target>
 
 	<target name="compile_src.test">
@@ -82,7 +51,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-		<javac srcdir="src.test" destdir="build/classes.test" source="5" target="5" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
+		<javac srcdir="src.test" destdir="build/classes.test" debug="true" debuglevel="source,lines,vars" includeantruntime="false">
 			<classpath>
 				<pathelement path="build/classes" />
 				<pathelement path="lib/junit.jar" />
@@ -92,29 +61,13 @@
 	</target>
 
 	<target name="test">
-		<antcall target="test_coverage_prepare" />
-		<antcall target="test_run" />
-		<antcall target="test_coverage_report" />
-	</target>
-	
-	<target name="test_coverage_prepare">
-		<mkdir dir="build/classes.coverage" />
-		<emma enabled="true">
-			<instr instrpathref="run.classpath" destdir="build/classes.coverage" metadatafile="coverage/metadata.emma" merge="true" />
-		</emma>
-	</target>
-		
-	<target name="test_run">
 		<mkdir dir="testreport" />
 		<junit printsummary="yes" fork="yes" forkmode="once" haltonfailure="yes" haltonerror="yes">
-			<jvmarg value="-Demma.coverage.out.file=coverage/coverage.emma" />
-			<jvmarg value="-Demma.coverage.out.merge=true" />
 			<classpath>
 				<pathelement path="build/classes.coverage" />
 				<pathelement path="build/classes.test" />
 				<path refid="run.classpath" />
 				<path refid="lib.classpath" />
-				<path refid="emma.lib" />
 				<pathelement path="${java.class.path}" />
 			</classpath>
 			<formatter type="plain" />
@@ -126,18 +79,6 @@
 		</junit>
 	</target>
 		
-	<target name="test_coverage_report">
-		<emma enabled="yes">
-			<report sourcepath="src">
-				<fileset dir="coverage">
-					<include name="*.emma" />
-				</fileset>
-				<txt outfile="coverage/coverage.txt" />
-				<html outfile="coverage/index.html" />
-			</report>
-		</emma>
-	</target>
-			
 	<target name="jar">
 		<jar destfile="jbead.jar" basedir="build/classes">
 			<manifest>
@@ -147,94 +88,18 @@
 		</jar>
 	</target>
 			
-	<target name="package_linux">
-		<property file="build.properties" />
-		<mkdir dir="dist" />
-		<mkdir dir="dist/jbead_${version}" />
-		<copy file="jbead.jar" todir="dist/jbead_${version}" />
-		<copy file="LICENSE.txt" todir="dist/jbead_${version}" />
-		<copy file="starter_linux/jbead" todir="dist/jbead_${version}" />
-		<chmod file="dist/jbead_${version}/jbead" perm="755" />
-		<mkdir dir="dist/jbead_${version}/samples" />
-		<copy todir="dist/jbead_${version}/samples">
-			<fileset dir="samples"/>
-		</copy>	
-		<tar destfile="setup/jbead_${version}_linux.tar.gz" compression="gzip">
-		  <tarfileset dir="dist/jbead_${version}" prefix="jbead_${version}" filemode="755">
-		    <include name="jbead"/>
-		  </tarfileset>
-		  <tarfileset dir="dist/jbead_${version}" prefix="jbead_${version}">
-		    <include name="**"/>
-		    <exclude name="jbead"/>
-		  </tarfileset>
-		</tar>
-		<delete dir="dist" />
-	</target>
-	
-	<target name="package_macosx">
-		<mkdir dir="dist" />
-	    <bundleapp 
-	        outputdirectory="dist" 
-	        name="jbead" 
-	        displayname="JBead"
-	    	icon="starter_macosx/jbead.icns"
-	        identifier="ch.jbead.JBeadApp" 
-	        shortversion="1.0"
-	        applicationCategory="public.app-category.graphics-design"
-	        mainclassname="ch.jbead.JBeadApp">
-	    	<runtime dir="${env.JAVA_HOME}" />
-	        <classpath file="jbead.jar" />
-	    </bundleapp>
-		<chmod file="dist/jbead.app/Contents/MacOS/JavaAppLauncher" perm="755" />
-        <tar destfile="setup/jbead_${version}_macosx.tar.gz" compression="gzip">
-          <tarfileset dir="dist/jbead.app" prefix="jbead.app" filemode="755">
-            <include name="Contents/MacOS/JavaAppLauncher"/>
-          </tarfileset>
-          <tarfileset dir="dist/jbead.app" prefix="jbead.app">
-            <include name="**"/>
-            <exclude name="Contents/MacOS/JavaAppLauncher"/>
-          </tarfileset>
-        </tar>
-		<delete dir="dist" />
-	</target>
-	
-	<target name="package_macosx_old">
-        <property file="build.properties" />
-		<mkdir dir="dist" />
-		<mkdir dir="dist/jbead.app" />
-		<mkdir dir="dist/jbead.app/Contents" />
-        <mkdir dir="dist/jbead.app/Contents/MacOS" />
-        <mkdir dir="dist/jbead.app/Contents/Resources" />
-        <mkdir dir="dist/jbead.app/Contents/Resources/Java" />
-		<copy file="jbead.jar" todir="dist/jbead.app/Contents/Resources/Java" />
-		<copy file="starter_macosx/Info.plist" todir="dist/jbead.app/Contents" />
-        <copy file="starter_macosx/JavaApplicationStub" todir="dist/jbead.app/Contents/MacOS" />
-        <copy file="starter_macosx/PkgInfo" todir="dist/jbead.app/Contents" />
-        <copy file="starter_macosx/jbead.icns" todir="dist/jbead.app/Contents/Resources" />
-        <tar destfile="setup/jbead_${version}_macosx.tar.gz" compression="gzip">
-          <tarfileset dir="dist/jbead.app" prefix="jbead.app" filemode="755">
-            <include name="Contents/MacOS/JavaApplicationStub"/>
-          </tarfileset>
-          <tarfileset dir="dist/jbead.app" prefix="jbead.app">
-            <include name="**"/>
-            <exclude name="Contents/MacOS/JavaApplicationStub"/>
-          </tarfileset>
-        </tar>
-		<delete dir="dist" />
-	</target>
-
 	<target name="release">
-        <java classname="ch.jbead.util.BuildVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+        <java classname="ch.jbead.util.BuildVersionBumper" classpath="build/classes" fork="true" />
 		<copy file="src/version.txt" todir="build/classes" />
 	</target>
 
 	<target name="releaseminor">
-        <java classname="ch.jbead.util.MinorVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+        <java classname="ch.jbead.util.MinorVersionBumper" classpath="build/classes" fork="true" />
 		<copy file="src/version.txt" todir="build/classes" />
 	</target>
 
     <target name="releasemajor">
-        <java classname="ch.jbead.util.MajorVersionBumper" classpath="build/classes" fork="true" jvmversion="1.6" />
+        <java classname="ch.jbead.util.MajorVersionBumper" classpath="build/classes" fork="true" />
 		<copy file="src/version.txt" todir="build/classes" />
     </target>
 

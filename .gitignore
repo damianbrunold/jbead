@@ -1,8 +1,7 @@
-bin/
+out/
 build/
 dist/
 testreport/
-coverage/
 jbead.jar
 jbead.exe
 setup/jbead_*

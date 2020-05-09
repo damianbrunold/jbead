@@ -39,15 +39,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
@@ -137,6 +129,9 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
     private static final int SHIFTING_INTERVAL = 150;
     private static final int UPDATE_INTERVAL = 500;
 
+    static {
+        Locale.setDefault(Locale.ENGLISH);
+    }
     private ResourceBundle bundle = ResourceBundle.getBundle("jbead");
 
     private List<ViewListener> listeners = new ArrayList<ViewListener>();
@@ -254,10 +249,6 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
         handleCommandLineArgs(args);
 
         checkVersionUpdate();
-
-        if (Platform.isMacOSX()) {
-            initMacOSX();
-        }
     }
 
     private void setupUpdateTimer() {
@@ -281,10 +272,6 @@ public class JBeadFrame extends JFrame implements Localization, View, ModelListe
                 }
             }, 2000);
         }
-    }
-
-    private void initMacOSX() {
-        new MacOSXInitializer().initialize(this);
     }
 
     public boolean isConfigMaximized() {

@@ -1,3 +1,8 @@
+1.1.0
+
+- Use Intellij IDEA for development
+- Remove obsolete apple classes
+
 1.0.23
 
 - Ensure correct file extension is used (.jbb or .dbb)
