@@ -1,6 +1,32 @@
 Todo and Smells
 ---------------
 
+It is maybe best to abandon the mac os version and port the
+code to swift to provide a native mac version. This also
+would help in creating a iOS version for use on iPhone and
+iPad.
+
+Add dark mode, or at least use dark background if configured
+in OS.
+
+On dark gnome UI, the row numbers are not legible, better use
+black/white depending on white/dark mode.
+
+Add "cloud" storage, i.e. possibility to store patterns on
+jbead-server. Create account using email and password, use
+HTTPS requests to transfer data. Simple protocol:
+- list files
+- store file
+- get file
+- delete file
+Also store a thumbnail: bitmap containing width by height,
+where height is 1.5 times the width, of the pattern. This
+should give a reasonable impression of the pattern. Show this
+when selecting files.
+
+Maybe add the thumbnail to the fileformat? Then it would also be
+possible to show the thumbnail locally.
+
 Unify Panel drawing and printing code. Currently, e.g. the corrected
 grid is drawn in the CorrectedPanel and the CorrectedPrinter. The code is
 very similar and core elements have to be exactly the same, otherwise
