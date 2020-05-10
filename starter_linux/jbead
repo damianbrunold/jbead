@@ -14,4 +14,4 @@ done
 
 PRGDIR=`dirname "$PRG"`
 
-java -jar $PRGDIR/jbead.jar "$@"
+$PRGDIR/jre_linux/bin/java -jar $PRGDIR/jbead.jar "$@"
