@@ -21,13 +21,20 @@ public class CustomBeadCatalog
 
     public event Action? Changed;
 
+    /// Raised once for each bead that leaves a catalog — single-bead removals
+    /// fire once, catalog-level removals fire once per contained bead. Listeners
+    /// (e.g. the palette) use this to drop stale CatalogSource links.
+    public event Action<string, Bead>? BeadRemoved;
+
     public async Task EnsureLoadedAsync()
     {
-        if (loaded) return;
-        loaded = true;
+        if (loaded) {
+			return;
+		}
+		loaded = true;
         try
         {
-            var json = await js.InvokeAsync<string?>("jbeadStorage.get", StorageKey);
+            string? json = await js.InvokeAsync<string?>("jbeadStorage.get", StorageKey);
             if (!string.IsNullOrEmpty(json))
             {
                 var dto = JsonSerializer.Deserialize<List<CatalogDto>>(json);
@@ -62,8 +69,10 @@ public class CustomBeadCatalog
     public async Task AddBeadAsync(string catalogName, Bead bead)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == catalogName);
-        if (cat is null) return;
-        cat.Beads.Add(bead.Clone());
+        if (cat is null) {
+			return;
+		}
+		cat.Beads.Add(bead.Clone());
         await SaveAsync();
         Changed?.Invoke();
     }
@@ -71,17 +80,23 @@ public class CustomBeadCatalog
     public async Task RemoveBeadAsync(string catalogName, int index)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == catalogName);
-        if (cat is null || index < 0 || index >= cat.Beads.Count) return;
+        if (cat is null || index < 0 || index >= cat.Beads.Count) {
+			return;
+		}
+		var removed = cat.Beads[index];
         cat.Beads.RemoveAt(index);
         await SaveAsync();
+        BeadRemoved?.Invoke(catalogName, removed);
         Changed?.Invoke();
     }
 
     public async Task ReplaceBeadAsync(string catalogName, int index, Bead bead)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == catalogName);
-        if (cat is null || index < 0 || index >= cat.Beads.Count) return;
-        cat.Beads[index] = bead.Clone();
+        if (cat is null || index < 0 || index >= cat.Beads.Count) {
+			return;
+		}
+		cat.Beads[index] = bead.Clone();
         await SaveAsync();
         Changed?.Invoke();
     }
@@ -89,11 +104,17 @@ public class CustomBeadCatalog
     public async Task RenameCatalogAsync(string oldName, string newName)
     {
         newName = newName.Trim();
-        if (string.IsNullOrEmpty(newName)) return;
-        if (catalogs.Any(c => c.Name == newName)) return; // must be unique
-        var cat = catalogs.FirstOrDefault(c => c.Name == oldName);
-        if (cat is null || !cat.IsRemovable) return; // Session can't be renamed
-        cat.Name = newName;
+        if (string.IsNullOrEmpty(newName)) {
+			return;
+		}
+		if (catalogs.Any(c => c.Name == newName)) {
+			return; // must be unique
+		}
+		var cat = catalogs.FirstOrDefault(c => c.Name == oldName);
+        if (cat is null || !cat.IsRemovable) {
+			return; // Session can't be renamed
+		}
+		cat.Name = newName;
         await SaveAsync();
         Changed?.Invoke();
     }
@@ -103,11 +124,15 @@ public class CustomBeadCatalog
     public async Task UpdateCatalogMetadataAsync(string name, string displayName, string author)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == name);
-        if (cat is null) return;
-        var trimmed = (displayName ?? "").Trim();
-        var trimmedAuthor = (author ?? "").Trim();
-        if (cat.DisplayName == trimmed && cat.Author == trimmedAuthor) return;
-        cat.DisplayName = trimmed;
+        if (cat is null) {
+			return;
+		}
+		string trimmed = (displayName ?? "").Trim();
+        string trimmedAuthor = (author ?? "").Trim();
+        if (cat.DisplayName == trimmed && cat.Author == trimmedAuthor) {
+			return;
+		}
+		cat.DisplayName = trimmed;
         cat.Author = trimmedAuthor;
         await SaveAsync();
         Changed?.Invoke();
@@ -116,17 +141,25 @@ public class CustomBeadCatalog
     public async Task RemoveCatalogAsync(string name)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == name);
-        if (cat is null || !cat.IsRemovable) return;
+        if (cat is null || !cat.IsRemovable) {
+			return;
+		}
+		var removedBeads = cat.Beads.ToList();
         catalogs.Remove(cat);
         await SaveAsync();
-        Changed?.Invoke();
+        foreach (var b in removedBeads) {
+			BeadRemoved?.Invoke(name, b);
+		}
+		Changed?.Invoke();
     }
 
     public string ExportJson(string name)
     {
         var cat = catalogs.FirstOrDefault(c => c.Name == name);
-        if (cat is null) return "{}";
-        // Export format: metadata + bead list. Legacy bare-array .jbeadcat files
+        if (cat is null) {
+			return "{}";
+		}
+		// Export format: metadata + bead list. Legacy bare-array .jbeadcat files
         // (from older versions) are still accepted by ImportJsonAsync.
         var opts = new JsonSerializerOptions { WriteIndented = true };
         return JsonSerializer.Serialize(new ExportedCatalogDto
@@ -166,11 +199,15 @@ public class CustomBeadCatalog
             try { beadDtos = JsonSerializer.Deserialize<List<BeadDto>>(json); }
             catch (JsonException) { return; }
         }
-        if (beadDtos is null) return;
+        if (beadDtos is null) {
+			return;
+		}
 
-        var baseName = SanitizeName(suggestedFileName);
-        if (string.IsNullOrWhiteSpace(displayName)) displayName = baseName;
-        var name = UniqueName(baseName);
+		string baseName = SanitizeName(suggestedFileName);
+        if (string.IsNullOrWhiteSpace(displayName)) {
+			displayName = baseName;
+		}
+		string name = UniqueName(baseName);
         catalogs.Add(new BeadCatalog
         {
             Name = name,
@@ -185,27 +222,33 @@ public class CustomBeadCatalog
 
     private string UniqueName(string baseName)
     {
-        if (!catalogs.Any(c => c.Name == baseName)) return baseName;
-        for (var i = 2; i < 1000; i++)
+        if (!catalogs.Any(c => c.Name == baseName)) {
+			return baseName;
+		}
+		for (int i = 2; i < 1000; i++)
         {
-            var candidate = $"{baseName} ({i})";
-            if (!catalogs.Any(c => c.Name == candidate)) return candidate;
-        }
+            string candidate = $"{baseName} ({i})";
+            if (!catalogs.Any(c => c.Name == candidate)) {
+				return candidate;
+			}
+		}
         return baseName + " (new)";
     }
 
     private static string SanitizeName(string name)
     {
-        var dot = name.LastIndexOf('.');
-        if (dot > 0) name = name.Substring(0, dot);
-        name = name.Trim();
+        int dot = name.LastIndexOf('.');
+        if (dot > 0) {
+			name = name.Substring(0, dot);
+		}
+		name = name.Trim();
         return string.IsNullOrEmpty(name) ? "Imported" : name;
     }
 
     private async Task SaveAsync()
     {
         var dto = catalogs.Select(ToDto).ToList();
-        var json = JsonSerializer.Serialize(dto);
+        string json = JsonSerializer.Serialize(dto);
         await js.InvokeVoidAsync("jbeadStorage.set", StorageKey, json);
     }
 
@@ -264,18 +307,27 @@ public class CustomBeadCatalog
 
     private static Bead FromBeadDto(BeadDto d)
     {
-        var finish = Enum.TryParse<BeadFinish>(d.Finish, out var f) ? f : BeadFinish.Opaque;
+        // Route through BeadFinishConverter so legacy compound names
+        // ("TransparentGloss" / "TransparentMatte") from older .jbeadcat files
+        // still resolve to the new combined flag values.
+        var finish = BeadFinishConverter.FromString(d.Finish);
         return new Bead(ParseHex(d.Color), d.Manufacturer ?? "", d.Id ?? "", finish);
     }
 
     private static Color ParseHex(string hex)
     {
-        if (string.IsNullOrEmpty(hex)) return Color.Black;
-        if (hex[0] == '#') hex = hex.Substring(1);
-        if (hex.Length != 6) return Color.Black;
-        var r = Convert.ToByte(hex.Substring(0, 2), 16);
-        var g = Convert.ToByte(hex.Substring(2, 2), 16);
-        var b = Convert.ToByte(hex.Substring(4, 2), 16);
+        if (string.IsNullOrEmpty(hex)) {
+			return Color.Black;
+		}
+		if (hex[0] == '#') {
+			hex = hex.Substring(1);
+		}
+		if (hex.Length != 6) {
+			return Color.Black;
+		}
+		byte r = Convert.ToByte(hex.Substring(0, 2), 16);
+        byte g = Convert.ToByte(hex.Substring(2, 2), 16);
+        byte b = Convert.ToByte(hex.Substring(4, 2), 16);
         return Color.FromArgb(r, g, b);
     }
 }

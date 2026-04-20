@@ -13,16 +13,18 @@ public static class JBeadYamlFileFormat
 
     public static byte[] Save(BeadModel model)
     {
-        var w = model.Width;
-        var h = model.Height;
-        var raw = model.Field.RawData;
+        int w = model.Width;
+        int h = model.Height;
+        byte[] raw = model.Field.RawData;
 
         // Collect used indices and build the remap (same logic as JBeadFileFormat).
         var used = new SortedSet<byte> { 0, model.SelectedColor };
-        for (var i = 0; i < w * h; i++) used.Add(raw[i]);
-        var map = new byte[256];
+        for (int i = 0; i < w * h; i++) {
+			used.Add(raw[i]);
+		}
+		byte[] map = new byte[256];
         byte next = 0;
-        foreach (var old in used)
+        foreach (byte old in used)
         {
             if (old < model.ColorCount) { map[old] = next; next++; }
         }
@@ -54,29 +56,37 @@ public static class JBeadYamlFileFormat
             Rows = BuildRows(raw, w, h, map),
         };
 
-        var yaml = Yaml.Serialize(dto);
+        string yaml = Yaml.Serialize(dto);
         return Encoding.UTF8.GetBytes(yaml);
     }
 
     public static void Load(BeadModel model, byte[] data)
     {
-        var text = Encoding.UTF8.GetString(data);
+        string text = Encoding.UTF8.GetString(data);
         var dto = Yaml.Deserialize<PatternDto>(text);
-        if (dto is null) return;
+        if (dto is null) {
+			return;
+		}
 
-        model.Clear();
+		model.Clear();
         model.Author = dto.Author;
         model.Organization = dto.Organization;
         model.Notes = dto.Notes;
 
         var beads = dto.Beads.Select(b =>
             new Bead(b.Color, b.Manufacturer, b.Id, b.Finish, b.CatalogSource)).ToList();
-        if (beads.Count > 0) model.ReplaceBeadsInternal(beads);
+        if (beads.Count > 0) {
+			model.ReplaceBeadsInternal(beads);
+		}
 
-        if (dto.GridSize > 0) model.ApplyLoadedGridSize(dto.GridSize);
-        if (!dto.StringColor.IsEmpty) model.StringColor = dto.StringColor;
+		if (dto.GridSize > 0) {
+			model.ApplyLoadedGridSize(dto.GridSize);
+		}
+		if (!dto.StringColor.IsEmpty) {
+			model.StringColor = dto.StringColor;
+		}
 
-        // Prefer the explicit `size: { rows, columns }` header when present;
+		// Prefer the explicit `size: { rows, columns }` header when present;
         // otherwise infer dimensions from the row data shape.
         int width, height;
         if (dto.Size is { Rows: > 0, Columns: > 0 })
@@ -94,28 +104,34 @@ public static class JBeadYamlFileFormat
             model.IsModified = false; model.IsSaved = true; return;
         }
 
-        var raw = new byte[width * height];
-        for (var j = 0; j < dto.Rows.Count && j < height; j++)
+        byte[] raw = new byte[width * height];
+        for (int j = 0; j < dto.Rows.Count && j < height; j++)
         {
             var row = dto.Rows[j];
-            for (var i = 0; i < width && i < row.Count; i++) raw[j * width + i] = (byte)row[i];
-        }
+            for (int i = 0; i < width && i < row.Count; i++) {
+				raw[j * width + i] = (byte)row[i];
+			}
+		}
         model.Field.LoadRawData(width, height, raw);
-        var usedH = model.GetUsedHeight();
-        var target = Math.Max(usedH + 20, 50);
-        if (target < height) model.SetHeight(target);
-        model.IsModified = false;
+        int usedH = model.GetUsedHeight();
+        int target = Math.Max(usedH + 20, 50);
+        if (target < height) {
+			model.SetHeight(target);
+		}
+		model.IsModified = false;
         model.IsSaved = true;
     }
 
     private static List<List<int>> BuildRows(byte[] raw, int w, int h, byte[] map)
     {
         var rows = new List<List<int>>(h);
-        for (var j = 0; j < h; j++)
+        for (int j = 0; j < h; j++)
         {
             var row = new List<int>(w);
-            for (var i = 0; i < w; i++) row.Add(map[raw[j * w + i]]);
-            rows.Add(row);
+            for (int i = 0; i < w; i++) {
+				row.Add(map[raw[j * w + i]]);
+			}
+			rows.Add(row);
         }
         return rows;
     }
@@ -152,8 +168,21 @@ public static class JBeadYamlFileFormat
         public Color Color { get; set; } = Color.White;
         public string Manufacturer { get; set; } = "";
         public string Id { get; set; } = "";
+        [YamlConverter(typeof(FinishConverter))]
         public BeadFinish Finish { get; set; } = BeadFinish.Opaque;
         public string CatalogSource { get; set; } = "";
+    }
+
+    /// Reads finish strings through BeadFinishConverter so legacy compound
+    /// names ("TransparentGloss") and the current comma-separated flag form
+    /// both round-trip. Write emits the canonical flag string.
+    public sealed class FinishConverter : YamlConverter<BeadFinish>
+    {
+        public override BeadFinish Read(object? node) =>
+            node is string s ? BeadFinishConverter.FromString(s) : BeadFinish.Opaque;
+
+        public override object? Write(BeadFinish value) =>
+            BeadFinishConverter.ToCanonicalString(value);
     }
 
     /// Emits #RRGGBB and reads the same. Keeps files human-readable.
@@ -161,13 +190,19 @@ public static class JBeadYamlFileFormat
     {
         public override Color Read(object? node)
         {
-            if (node is not string s || s.Length == 0) return Color.Black;
-            if (s[0] == '#') s = s.Substring(1);
-            if (s.Length != 6 && s.Length != 8) return Color.Black;
-            var r = Convert.ToByte(s.Substring(0, 2), 16);
-            var g = Convert.ToByte(s.Substring(2, 2), 16);
-            var b = Convert.ToByte(s.Substring(4, 2), 16);
-            var a = s.Length == 8 ? Convert.ToByte(s.Substring(6, 2), 16) : (byte)255;
+            if (node is not string s || s.Length == 0) {
+				return Color.Black;
+			}
+			if (s[0] == '#') {
+				s = s.Substring(1);
+			}
+			if (s.Length != 6 && s.Length != 8) {
+				return Color.Black;
+			}
+			byte r = Convert.ToByte(s.Substring(0, 2), 16);
+            byte g = Convert.ToByte(s.Substring(2, 2), 16);
+            byte b = Convert.ToByte(s.Substring(4, 2), 16);
+            byte a = s.Length == 8 ? Convert.ToByte(s.Substring(6, 2), 16) : (byte)255;
             return Color.FromArgb(a, r, g, b);
         }
 

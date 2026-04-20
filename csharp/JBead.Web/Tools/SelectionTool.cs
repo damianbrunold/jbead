@@ -11,8 +11,10 @@ public class SelectionTool : ITool
     // the selection active for follow-up ops (rotate/mirror/arrange — not yet ported).
     public void OnPointerRelease(BeadModel model, Selection selection, Point origin)
     {
-        if (!selection.IsActive) model.SetPoint(origin);
-    }
+        if (!selection.IsActive) {
+			model.SetPoint(origin);
+		}
+	}
 
     // The dashed selection rectangle is drawn universally by DraftPreview when
     // Selection.IsNormal, so no extra shape needed here.

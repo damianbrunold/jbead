@@ -33,7 +33,7 @@
     // Only the two buttons whose selection actually flips render; the rest no-op.
     private void OnSelectedChanged(ITool newTool)
     {
-        var next = ReferenceEquals(newTool, Value);
+        bool next = ReferenceEquals(newTool, Value);
         if (next == isSelected) return;
         isSelected = next;
         StateHasChanged();

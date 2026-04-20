@@ -19,17 +19,17 @@
     // matches the current pattern.
     m.UpdateRepeat();
 
-    var width = m.Width;
-    var usedHeight = m.GetUsedHeight();
-    var totalBeads = usedHeight * width;
+    int width = m.Width;
+    int usedHeight = m.GetUsedHeight();
+    int totalBeads = usedHeight * width;
     var usage = m.GetMergedBeadUsage();
-    var nonBackgroundTotal = usage.Sum(u => u.Count);
+    int nonBackgroundTotal = usage.Sum(u => u.Count);
     // Anything in the used rectangle that isn't in the per-bead usage list is a
     // background cell — include it in the shopping list so the total matches.
-    var backgroundCount = Math.Max(0, totalBeads - nonBackgroundTotal);
+    int backgroundCount = Math.Max(0, totalBeads - nonBackgroundTotal);
     var bgBead = m.ColorCount > 0 ? m.GetBead(0) : null;
     var runs = m.GetThreadingRuns();
-    var runTotal = runs.Sum(r => r.Count);
+    int runTotal = runs.Sum(r => r.Count);
 
     // --- Bead legend ---
     // Assign a stable 1-based label to each distinct bead shown in the table, and
@@ -39,7 +39,7 @@
     // entries by descending count.
     var labels = new Dictionary<byte, int>();
     var labelsByUsage = new Dictionary<BeadUsage, int>();
-    var nextLabel = 1;
+    int nextLabel = 1;
     if (backgroundCount > 0 && bgBead is not null)
     {
         labels[0] = nextLabel++;
@@ -48,7 +48,7 @@
     foreach (var u in orderedUsage)
     {
         labelsByUsage[u] = nextLabel;
-        foreach (var palIdx in u.MergedIndices)
+        foreach (byte palIdx in u.MergedIndices)
         {
             labels[palIdx] = nextLabel;
         }
@@ -66,7 +66,7 @@
     // the same motif appearing twice in different parts of the thread shows up
     // as "A" both times and is described only once.
     var compactItems = BuildCompactSequence(runs);
-    var hasRepeat = compactItems.Any(i => i is CompactBlock);
+    bool hasRepeat = compactItems.Any(i => i is CompactBlock);
 
     // Cluster consecutive CompactRuns into role-labelled groups. A "starter" is
     // the first group (only when it appears before any block); a "finisher" is
@@ -135,10 +135,10 @@
         <h2>@Loc["print.layout"]</h2>
         <div class="ctrl-row">
             <span class="ctrl-label">@Loc["print.imageheight"]</span>
-            @foreach (var (labelKey, v) in new[] { ("print.size.small", ImageHeight.Small), ("print.size.medium", ImageHeight.Medium), ("print.size.large", ImageHeight.Large) })
+            @foreach ((string labelKey, ImageHeight v) in new[] { ("print.size.small", ImageHeight.Small), ("print.size.medium", ImageHeight.Medium), ("print.size.large", ImageHeight.Large) })
             {
                 var size = v;
-                var key = labelKey;
+                string key = labelKey;
                 <label class="ctrl-radio">
                     <input type="radio" name="imgheight" checked="@(imageHeight == size)"
                            @onchange="() => imageHeight = size" />
@@ -157,9 +157,9 @@
         </div>
         <div class="ctrl-row">
             <span class="ctrl-label">@Loc["print.threadingcols"]</span>
-            @foreach (var opt in new[] { 1, 2, 3, 4 })
+            @foreach (int opt in new[] { 1, 2, 3, 4 })
             {
-                var v = opt;
+                int v = opt;
                 <label class="ctrl-radio">
                     <input type="radio" name="cols" value="@v" checked="@(threadColumns == v)"
                            @onchange="() => threadColumns = v" />
@@ -255,7 +255,7 @@
                             </td>
                             <td>@OrDash(bgBead.Manufacturer)</td>
                             <td>@OrDash(bgBead.Id) <span class="bg-tag">@Loc["print.background.mark"]</span></td>
-                            <td>@bgBead.Finish</td>
+                            <td>@(bgBead.Finish == BeadFinish.Opaque ? "" : BeadFinishConverter.ToCanonicalString(bgBead.Finish))</td>
                             <td class="num">@backgroundCount</td>
                         </tr>
                     }
@@ -268,7 +268,7 @@
                             </td>
                             <td>@OrDash(u.Manufacturer)</td>
                             <td>@OrDash(u.Id)</td>
-                            <td>@u.Finish</td>
+                            <td>@(u.Finish == BeadFinish.Opaque ? "" : BeadFinishConverter.ToCanonicalString(u.Finish))</td>
                             <td class="num">@u.Count</td>
                         </tr>
                     }
@@ -303,7 +303,7 @@
             {
                 if (seg is RunGroupSegment rg)
                 {
-                    var beads = rg.Runs.Sum(r => r.Count);
+                    int beads = rg.Runs.Sum(r => r.Count);
                     <div class="compact-block @rg.Role">
                         <div class="block-label">
                             @Loc["print.group.summary",
@@ -322,8 +322,8 @@
                 else if (seg is BlockSegment bs)
                 {
                     var b = bs.Block;
-                    var isFirst = firstBlockOccurrence.Contains(bs);
-                    var totalBlockBeads = b.Runs.Sum(r => r.Count) * b.Repeats;
+                    bool isFirst = firstBlockOccurrence.Contains(bs);
+                    int totalBlockBeads = b.Runs.Sum(r => r.Count) * b.Repeats;
                     <div class="compact-block block-ref @(isFirst ? "block-def" : "block-recall")">
                         <div class="block-label">
                             @((MarkupString)Loc["print.block.title", [blockLabels[b.Key], b.Repeats.ToString()]])
@@ -432,7 +432,7 @@
         await using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
-        var mime = string.IsNullOrWhiteSpace(file.ContentType) ? "image/png" : file.ContentType;
+        string mime = string.IsNullOrWhiteSpace(file.ContentType) ? "image/png" : file.ContentType;
         customImageData = $"data:{mime};base64,{Convert.ToBase64String(ms.ToArray())}";
         customImageName = file.Name;
     }
@@ -455,10 +455,10 @@
     private RenderFragment RenderRun((byte Color, int Count) run, BeadModel m, Dictionary<byte, int> labels) => builder =>
     {
         var bead = run.Color < m.ColorCount ? m.GetBead(run.Color) : null;
-        var hex = bead is null ? "#cccccc" : ColorHex(bead.Color);
-        var finishCls = bead is null ? "" : FinishClass(bead.Finish);
-        var labelText = labels.TryGetValue(run.Color, out var n) ? $"#{n}" : "#?";
-        var seq = 0;
+        string hex = bead is null ? "#cccccc" : ColorHex(bead.Color);
+        string finishCls = bead is null ? "" : FinishClass(bead.Finish);
+        string labelText = labels.TryGetValue(run.Color, out int n) ? $"#{n}" : "#?";
+        int seq = 0;
         builder.OpenElement(seq++, "li");
         builder.OpenElement(seq++, "span");
         builder.AddAttribute(seq++, "class", $"swatch small {finishCls}");
@@ -484,21 +484,21 @@
     {
         if (width == 0 || usedHeight == 0) return ("", 1);
         const int CELL = 10; // internal SVG units; scales via aspect-ratio wrapper.
-        var svgW = width * CELL;
-        var svgH = usedHeight * CELL;
+        int svgW = width * CELL;
+        int svgH = usedHeight * CELL;
         var sb = new System.Text.StringBuilder();
         sb.Append($"<svg class=\"pattern-svg\" viewBox=\"0 0 {svgW} {svgH}\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\">");
         sb.Append($"<rect x=\"0\" y=\"0\" width=\"{svgW}\" height=\"{svgH}\" fill=\"#f0f0f0\" />");
-        for (var y = 0; y < usedHeight; y++)
+        for (int y = 0; y < usedHeight; y++)
         {
-            for (var x = 0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
-                var ci = m.Get(new Point(x, y));
+                byte ci = m.Get(new Point(x, y));
                 var bead = ci < m.ColorCount ? m.GetBead(ci) : null;
-                var fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
+                string fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
                 // Flip y so row 0 ends up at the bottom, matching the editor.
-                var py = (usedHeight - 1 - y) * CELL;
-                var px = x * CELL;
+                int py = (usedHeight - 1 - y) * CELL;
+                int px = x * CELL;
                 sb.Append($"<rect x=\"{px}\" y=\"{py}\" width=\"{CELL}\" height=\"{CELL}\" fill=\"{fill}\" stroke=\"#999\" stroke-width=\"0.3\" />");
             }
         }
@@ -516,18 +516,18 @@
         if (width == 0 || usedHeight == 0) return ("", 1);
         const int GX = 14;   // bead width in SVG units; scales via CSS.
         const int GY = 14;   // bead height.
-        var visibleWidth = width / 2;
+        int visibleWidth = width / 2;
 
         // Re-index every bead into "rope" coordinates via the alternating-row
         // mapping (Java's Model.correct). Only front-facing beads (rx <= visibleWidth)
         // are kept — the back of the rope isn't visible anyway.
         var beads = new List<(int Rx, int Ry, byte Color)>(width * usedHeight);
-        var maxRy = 0;
-        for (var y = 0; y < usedHeight; y++)
+        int maxRy = 0;
+        for (int y = 0; y < usedHeight; y++)
         {
-            for (var x = 0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
-                var (rx, ry) = CorrectToRope(x, y, width);
+                (int rx, int ry) = CorrectToRope(x, y, width);
                 if (rx > visibleWidth) continue;
                 beads.Add((rx, ry, m.Get(new Point(x, y))));
                 if (ry > maxRy) maxRy = ry;
@@ -535,19 +535,19 @@
         }
         if (beads.Count == 0) return ("", 1);
 
-        var rows = maxRy + 1;
+        int rows = maxRy + 1;
         // +1 bead of margin on the right so the half-bead at rx==visibleWidth isn't clipped.
-        var svgW = (visibleWidth + 1) * GX;
-        var svgH = rows * GY;
+        int svgW = (visibleWidth + 1) * GX;
+        int svgH = rows * GY;
 
         var sb = new System.Text.StringBuilder();
         sb.Append($"<svg class=\"pattern-svg sim-svg\" viewBox=\"0 0 {svgW} {svgH}\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\">");
         sb.Append($"<rect x=\"0\" y=\"0\" width=\"{svgW}\" height=\"{svgH}\" fill=\"#e8e8e8\" />");
 
-        foreach (var (rx, ry, ci) in beads)
+        foreach ((int rx, int ry, byte ci) in beads)
         {
             var bead = ci < m.ColorCount ? m.GetBead(ci) : null;
-            var fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
+            string fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
             int bx, bw;
             if ((ry & 1) == 0)
             {
@@ -565,7 +565,7 @@
                 else { bx = rx * GX - GX / 2; bw = GX; }
             }
             // Row 0 at the bottom, matching the editor's orientation.
-            var by = (rows - 1 - ry) * GY;
+            int by = (rows - 1 - ry) * GY;
             sb.Append($"<rect x=\"{bx}\" y=\"{by}\" width=\"{bw}\" height=\"{GY}\" fill=\"{fill}\" stroke=\"#444\" stroke-width=\"0.3\" />");
         }
         sb.Append("</svg>");
@@ -577,20 +577,20 @@
     // juggling in CSS, and the browser never lets the image exceed its bounds.
     private string BuildPatternSvgDataUrl(BeadModel m, int width, int usedHeight)
     {
-        var (svg, _) = BuildPatternSvg(m, width, usedHeight);
+        (string svg, _) = BuildPatternSvg(m, width, usedHeight);
         return ToSvgDataUrl(svg);
     }
 
     private string BuildSimulationSvgDataUrl(BeadModel m, int width, int usedHeight)
     {
-        var (svg, _) = BuildSimulationSvg(m, width, usedHeight);
+        (string svg, _) = BuildSimulationSvg(m, width, usedHeight);
         return ToSvgDataUrl(svg);
     }
 
     private static string ToSvgDataUrl(string svg)
     {
         if (string.IsNullOrEmpty(svg)) return "";
-        var b64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg));
+        string b64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg));
         return $"data:image/svg+xml;base64,{b64}";
     }
 
@@ -599,11 +599,11 @@
     // beads to account for the brick-stitch offset. scroll is 0 on the print page.
     private static (int Rx, int Ry) CorrectToRope(int x, int y, int width)
     {
-        var idx = x + y * width;
-        var m1 = width;
-        var m2 = m1 + 1;
-        var k = 0;
-        var m = m1;
+        int idx = x + y * width;
+        int m1 = width;
+        int m2 = m1 + 1;
+        int k = 0;
+        int m = m1;
         while (idx >= m)
         {
             idx -= m;
@@ -613,27 +613,14 @@
         return (idx, k);
     }
 
-    private static string FinishClass(BeadFinish f) => f switch
-    {
-        BeadFinish.Transparent        => "finish-transparent",
-        BeadFinish.Matte              => "finish-matte",
-        BeadFinish.Shiny              => "finish-shiny",
-        BeadFinish.Pearl              => "finish-pearl",
-        BeadFinish.SilverLined        => "finish-silverlined",
-        BeadFinish.Metallic           => "finish-metallic",
-        BeadFinish.TransparentGloss   => "finish-transparentgloss",
-        BeadFinish.TransparentMatte   => "finish-transparentmatte",
-        BeadFinish.Iridescent         => "finish-iridescent",
-        BeadFinish.Galvanized         => "finish-galvanized",
-        _                             => ""
-    };
+    private static string FinishClass(BeadFinish f) => BeadFinishConverter.ToCssClass(f);
 
     private static string DescribeBeadFromBead(Bead b, bool isBackground)
     {
         var parts = new List<string>();
         if (!string.IsNullOrWhiteSpace(b.Manufacturer)) parts.Add(b.Manufacturer);
         if (!string.IsNullOrWhiteSpace(b.Id)) parts.Add(b.Id);
-        if (b.Finish != BeadFinish.Opaque) parts.Add(b.Finish.ToString());
+        if (b.Finish != BeadFinish.Opaque) parts.Add(BeadFinishConverter.ToCanonicalString(b.Finish));
         if (isBackground) parts.Add("(background)");
         return parts.Count == 0
             ? (isBackground ? $"{ColorHex(b.Color)} (background)" : ColorHex(b.Color))
@@ -657,12 +644,12 @@
             return Loc["print.repeat.beads", [repeat.ToString()]];
         if (repeat % width == 0)
         {
-            var rows = repeat / width;
+            int rows = repeat / width;
             return Loc["print.repeat.beads.rows",
                 [repeat.ToString(), rows.ToString(), RowWord(rows)]];
         }
-        var r = repeat / width;
-        var b = repeat % width;
+        int r = repeat / width;
+        int b = repeat % width;
         return Loc["print.repeat.beads.rowsbeads",
             [repeat.ToString(), r.ToString(), RowWord(r), b.ToString(), BeadWord(b)]];
     }
@@ -673,7 +660,7 @@
     private string BeadsInRows(int beads, int width)
     {
         if (beads <= 0 || width <= 0 || beads % width != 0) return "";
-        var rows = beads / width;
+        int rows = beads / width;
         return " " + Loc["print.beadsinrows", [rows.ToString(), RowWord(rows)]];
     }
 
@@ -727,11 +714,11 @@
     private static List<CompactItem> BuildCompactSequence(List<(byte Color, int Count)> runs)
     {
         var items = new List<CompactItem>();
-        var n = runs.Count;
-        var i = 0;
+        int n = runs.Count;
+        int i = 0;
         while (i < n)
         {
-            var (k, r) = FindRepeatAt(runs, i);
+            (int k, int r) = FindRepeatAt(runs, i);
             if (k >= 2 && r >= 2)
             {
                 var block = runs.GetRange(i, k);
@@ -757,21 +744,21 @@
     // Returns (0, 0) if no such k exists in the remainder.
     private static (int BlockLen, int Repeats) FindRepeatAt(List<(byte Color, int Count)> runs, int i)
     {
-        var n = runs.Count;
-        for (var k = 2; i + 2 * k <= n; k++)
+        int n = runs.Count;
+        for (int k = 2; i + 2 * k <= n; k++)
         {
-            var match = true;
-            for (var j = 0; j < k; j++)
+            bool match = true;
+            for (int j = 0; j < k; j++)
             {
                 if (!runs[i + j].Equals(runs[i + k + j])) { match = false; break; }
             }
             if (!match) continue;
-            var repeats = 2;
+            int repeats = 2;
             while (i + (repeats + 1) * k <= n)
             {
-                var baseIdx = i + repeats * k;
-                var ok = true;
-                for (var j = 0; j < k; j++)
+                int baseIdx = i + repeats * k;
+                bool ok = true;
+                for (int j = 0; j < k; j++)
                 {
                     if (!runs[i + j].Equals(runs[baseIdx + j])) { ok = false; break; }
                 }
@@ -830,9 +817,9 @@
         // "compact" path isn't even taken (hasRepeat would be false), so here
         // we can assume at least one BlockSegment — the role distinction is
         // meaningful.
-        var firstBlockIdx = -1;
-        var lastBlockIdx = -1;
-        for (var i = 0; i < segs.Count; i++)
+        int firstBlockIdx = -1;
+        int lastBlockIdx = -1;
+        for (int i = 0; i < segs.Count; i++)
         {
             if (segs[i] is BlockSegment)
             {
@@ -840,7 +827,7 @@
                 lastBlockIdx = i;
             }
         }
-        for (var i = 0; i < segs.Count; i++)
+        for (int i = 0; i < segs.Count; i++)
         {
             if (segs[i] is RunGroupSegment rg)
             {
@@ -957,15 +944,13 @@
     .swatch.finish-pearl { background-image: radial-gradient(circle at 33% 33%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%); }
     .swatch.finish-silverlined { box-shadow: inset 0 0 0 2px #c8c8d0; }
     .swatch.finish-metallic { background-image: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.3) 100%); }
-    .swatch.finish-transparentgloss { opacity: 0.6; background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%); }
-    .swatch.finish-transparentmatte { opacity: 0.5; filter: saturate(0.85); }
     .swatch.finish-iridescent { background-image: linear-gradient(135deg, rgba(255,128,192,0.4) 0%, rgba(128,208,255,0.4) 50%, rgba(255,255,128,0.4) 100%); }
     .swatch.finish-galvanized { background-image: linear-gradient(135deg, rgba(255,224,138,0.6) 0%, rgba(90,64,32,0.3) 100%); }
 
     /* Thread list — column count is driven by inline style (user control), so no
        fixed `columns` value here. column-gap keeps a predictable gutter. */
     ol.run-list { list-style: decimal; padding-left: 28px; margin: 0; column-gap: 28px; }
-    ol.run-list li { padding: 2px 0; break-inside: avoid; font-size: 13px; }
+    ol.run-list li { padding: 2px 0; break-inside: avoid; font-size: 13px; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
     ol.run-list .run-count { font-weight: bold; font-variant-numeric: tabular-nums; margin-right: 4px; }
     ol.run-list .run-ref { color: #1a57b3; font-weight: 600; font-variant-numeric: tabular-nums; }
     ol.run-list .run-label { color: #444; }

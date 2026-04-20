@@ -1,16 +1,26 @@
 @inject AppState State
 @inject IJSRuntime JS
 @inject LocalizationService Loc
+@inject HttpClient Http
 @implements IDisposable
 
 @* Top bar: file operations + filename only. Everything view-specific lives in
    ViewBar.razor below it. *@
 <div class="toolbar">
     <button @onclick="NewFile" title="@(Loc["action.file.new.description"])">@Loc["action.file.new"]</button>
-    <label class="upload-btn">
-        @Loc["action.file.open"]
-        <InputFile OnChange="OnOpen" accept=".jbb,.jbby" style="display:none" />
-    </label>
+    <div class="open-stepper">
+        <label class="upload-btn">
+            @Loc["action.file.open"]
+            <InputFile OnChange="OnOpen" accept=".jbb,.jbby" style="display:none" />
+        </label>
+        <div class="open-stepper-popup">
+            <div class="open-stepper-header">@Loc["ui.examples"]</div>
+            @foreach (var ex in Examples)
+            {
+                <button type="button" @onclick="() => LoadExample(ex.File)">@Loc[ex.LabelKey]</button>
+            }
+        </div>
+    </div>
     <button @onclick="SaveAs" title="@(Loc["action.file.saveas.description"])">@Loc["action.file.saveas"]</button>
     <button @onclick="OpenPrint" title="@(Loc["action.file.print.description"])">@Loc["action.file.print"]</button>
     <span class="sep"></span>
@@ -23,7 +33,7 @@
     @foreach (var mode in Enum.GetValues<ViewMode>())
     {
         var m = mode;
-        var css = State.ViewMode == m ? "view-mode selected" : "view-mode";
+        string css = State.ViewMode == m ? "view-mode selected" : "view-mode";
         <button class="@css" @onclick="() => SetViewMode(m)">@ViewModeLabel(m)</button>
     }
 </div>
@@ -83,8 +93,8 @@
         // JS opens the native picker with both formats; once the user picks a
         // filename, JS calls back into C# with the chosen extension, we serialize
         // with the matching format, and JS writes the bytes.
-        var baseName = string.IsNullOrEmpty(State.Model.FileName) ? "pattern" : State.Model.FileName;
-        var dot = baseName.LastIndexOf('.');
+        string baseName = string.IsNullOrEmpty(State.Model.FileName) ? "pattern" : State.Model.FileName;
+        int dot = baseName.LastIndexOf('.');
         if (dot > 0) baseName = baseName.Substring(0, dot);
         await JS.InvokeAsync<bool>("jbeadSaveMerged", baseName, selfRef);
     }
@@ -106,6 +116,41 @@
         return Convert.ToBase64String(bytes);
     }
 
+    private record Example(string File, string LabelKey);
+
+    private static readonly Example[] Examples =
+    {
+        new("hearts.jbb", "ui.example.hearts"),
+        new("small_hearts.jbb", "ui.example.small_hearts"),
+        new("stripes.jbb", "ui.example.stripes"),
+        new("spiral.jbby", "ui.example.spiral"),
+        new("stars.jbby", "ui.example.stars"),
+        new("green_yellow_diagonal.jbb", "ui.example.green_yellow_diagonal"),
+    };
+
+    private async Task LoadExample(string fileName)
+    {
+        loadError = null;
+        try
+        {
+            byte[] bytes = await Http.GetByteArrayAsync($"samples/{fileName}");
+            if (LooksLikeSExpression(bytes) ||
+                fileName.EndsWith(".jbb", StringComparison.OrdinalIgnoreCase))
+            {
+                JBeadFileFormat.Load(State.Model, bytes);
+            }
+            else
+            {
+                JBeadYamlFileFormat.Load(State.Model, bytes);
+            }
+            State.Model.FileName = fileName;
+        }
+        catch (Exception ex)
+        {
+            loadError = Loc["ui.loadfailed", [ex.Message]];
+        }
+    }
+
     private async Task OnOpen(InputFileChangeEventArgs args)
     {
         loadError = null;
@@ -114,7 +159,7 @@
         await using var stream = file.OpenReadStream(maxAllowedSize: 16 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
-        var bytes = ms.ToArray();
+        byte[] bytes = ms.ToArray();
         try
         {
             if (LooksLikeSExpression(bytes) ||
@@ -136,9 +181,9 @@
 
     private static bool LooksLikeSExpression(byte[] bytes)
     {
-        for (var i = 0; i < bytes.Length; i++)
+        for (int i = 0; i < bytes.Length; i++)
         {
-            var b = bytes[i];
+            byte b = bytes[i];
             if (b == ' ' || b == '\t' || b == '\r' || b == '\n') continue;
             return b == (byte)'(';
         }

@@ -25,13 +25,13 @@ public static class BeadReferenceCatalog
     public static Bead? FindClosest(Color color, int tolerance = 2500)
     {
         Bead? best = null;
-        var bestDist = int.MaxValue;
+        int bestDist = int.MaxValue;
         foreach (var entry in Entries)
         {
-            var dr = entry.Color.R - color.R;
-            var dg = entry.Color.G - color.G;
-            var db = entry.Color.B - color.B;
-            var d = dr * dr + dg * dg + db * db;
+            int dr = entry.Color.R - color.R;
+            int dg = entry.Color.G - color.G;
+            int db = entry.Color.B - color.B;
+            int d = dr * dr + dg * dg + db * db;
             if (d < bestDist)
             {
                 bestDist = d;

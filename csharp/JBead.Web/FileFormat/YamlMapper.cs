@@ -36,31 +36,49 @@ public static class YamlMapper
         var underlying = Nullable.GetUnderlyingType(targetType);
         if (underlying is not null)
         {
-            if (node is null) return null;
-            return ConvertFromTree(node, underlying);
+            if (node is null) {
+				return null;
+			}
+			return ConvertFromTree(node, underlying);
         }
 
         // Custom converter attribute on the *declared* type.
         var typeConverter = GetConverterAttr(targetType);
         if (typeConverter is not null)
         {
-            var inst = Activator.CreateInstance(typeConverter.ConverterType);
+            object? inst = Activator.CreateInstance(typeConverter.ConverterType);
             return InvokeConverterRead(inst!, node);
         }
 
-        if (targetType == typeof(object)) return node;
-        if (node is null) return GetDefault(targetType);
+        if (targetType == typeof(object)) {
+			return node;
+		}
+		if (node is null) {
+			return GetDefault(targetType);
+		}
 
-        // Primitives / strings.
-        if (targetType == typeof(string)) return node is string s ? s : node.ToString() ?? "";
-        if (targetType == typeof(bool)) return CoerceBool(node);
-        if (targetType.IsEnum) return CoerceEnum(node, targetType);
-        if (IsNumeric(targetType)) return CoerceNumeric(node, targetType);
-        if (targetType == typeof(DateTime)) return CoerceDateTime(node);
+		// Primitives / strings.
+        if (targetType == typeof(string)) {
+			return node is string s ? s : node.ToString() ?? "";
+		}
+		if (targetType == typeof(bool)) {
+			return CoerceBool(node);
+		}
+		if (targetType.IsEnum) {
+			return CoerceEnum(node, targetType);
+		}
+		if (IsNumeric(targetType)) {
+			return CoerceNumeric(node, targetType);
+		}
+		if (targetType == typeof(DateTime)) {
+			return CoerceDateTime(node);
+		}
 
-        // Collections.
-        if (targetType.IsArray) return CoerceArray(node, targetType);
-        if (TryGetEnumerableElementType(targetType, out var elemType))
+		// Collections.
+        if (targetType.IsArray) {
+			return CoerceArray(node, targetType);
+		}
+		if (TryGetEnumerableElementType(targetType, out var elemType))
         {
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
@@ -76,14 +94,18 @@ public static class YamlMapper
 
     private static object? CoerceObject(object? node, Type t)
     {
-        if (node is not IDictionary<string, object?> src) return GetDefault(t);
+        if (node is not IDictionary<string, object?> src) {
+			return GetDefault(t);
+		}
 
-        var instance = Activator.CreateInstance(t)
+		object instance = Activator.CreateInstance(t)
             ?? throw new InvalidOperationException($"Cannot instantiate {t}");
         foreach (var member in GetMembers(t))
         {
-            if (!src.TryGetValue(member.SerializedName, out var raw)) continue;
-            object? val;
+            if (!src.TryGetValue(member.SerializedName, out object? raw)) {
+				continue;
+			}
+			object? val;
             if (member.Converter is not null)
             {
                 val = InvokeConverterRead(member.Converter, raw);
@@ -102,21 +124,28 @@ public static class YamlMapper
         var list = (IList)Activator.CreateInstance(listType)!;
         if (node is IEnumerable seq && node is not string)
         {
-            foreach (var item in seq) list.Add(ConvertFromTree(item, elemType));
-        }
+            foreach (object? item in seq) {
+				list.Add(ConvertFromTree(item, elemType));
+			}
+		}
         return list;
     }
 
     private static object? CoerceArray(object? node, Type arrayType)
     {
         var elemType = arrayType.GetElementType()!;
-        if (node is not IEnumerable seq || node is string)
-            return Array.CreateInstance(elemType, 0);
-        var tmp = new List<object?>();
-        foreach (var item in seq) tmp.Add(ConvertFromTree(item, elemType));
-        var arr = Array.CreateInstance(elemType, tmp.Count);
-        for (var i = 0; i < tmp.Count; i++) arr.SetValue(tmp[i], i);
-        return arr;
+        if (node is not IEnumerable seq || node is string) {
+			return Array.CreateInstance(elemType, 0);
+		}
+		var tmp = new List<object?>();
+        foreach (object? item in seq) {
+			tmp.Add(ConvertFromTree(item, elemType));
+		}
+		var arr = Array.CreateInstance(elemType, tmp.Count);
+        for (int i = 0; i < tmp.Count; i++) {
+			arr.SetValue(tmp[i], i);
+		}
+		return arr;
     }
 
     private static object? CoerceDictionary(object? node, Type keyType, Type valueType)
@@ -127,8 +156,8 @@ public static class YamlMapper
         {
             foreach (var kv in src)
             {
-                var k = ConvertFromTree(kv.Key, keyType);
-                var v = ConvertFromTree(kv.Value, valueType);
+                object? k = ConvertFromTree(kv.Key, keyType);
+                object? v = ConvertFromTree(kv.Value, valueType);
                 dict[k!] = v;
             }
         }
@@ -138,32 +167,40 @@ public static class YamlMapper
     private static bool CoerceBool(object? node) => node switch
     {
         bool b => b,
-        string s when bool.TryParse(s, out var b) => b,
+        string s when bool.TryParse(s, out bool b) => b,
         int i => i != 0,
         _ => false,
     };
 
     private static object CoerceEnum(object? node, Type enumType)
     {
-        if (node is string s && Enum.TryParse(enumType, s, ignoreCase: true, out var parsed) && parsed is not null)
-            return parsed;
-        if (node is int i) return Enum.ToObject(enumType, i);
-        if (node is long l) return Enum.ToObject(enumType, l);
-        return Activator.CreateInstance(enumType)!;
+        if (node is string s && Enum.TryParse(enumType, s, ignoreCase: true, out object? parsed) && parsed is not null) {
+			return parsed;
+		}
+		if (node is int i) {
+			return Enum.ToObject(enumType, i);
+		}
+		if (node is long l) {
+			return Enum.ToObject(enumType, l);
+		}
+		return Activator.CreateInstance(enumType)!;
     }
 
     private static object CoerceNumeric(object? node, Type t)
     {
-        var s = node?.ToString() ?? "0";
+        string s = node?.ToString() ?? "0";
         return Convert.ChangeType(s, t, CultureInfo.InvariantCulture);
     }
 
     private static object CoerceDateTime(object? node)
     {
-        if (node is DateTime dt) return dt;
-        if (node is string s && DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed))
-            return parsed;
-        return default(DateTime);
+        if (node is DateTime dt) {
+			return dt;
+		}
+		if (node is string s && DateTime.TryParse(s, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed)) {
+			return parsed;
+		}
+		return default(DateTime);
     }
 
     // ----------------------------------------------------------------------
@@ -172,27 +209,36 @@ public static class YamlMapper
 
     private static object? ConvertToTree(object? value, Type declaredType)
     {
-        if (value is null) return null;
+        if (value is null) {
+			return null;
+		}
 
-        var underlying = Nullable.GetUnderlyingType(declaredType);
-        if (underlying is not null) declaredType = underlying;
+		var underlying = Nullable.GetUnderlyingType(declaredType);
+        if (underlying is not null) {
+			declaredType = underlying;
+		}
 
-        var typeConverter = GetConverterAttr(declaredType);
+		var typeConverter = GetConverterAttr(declaredType);
         if (typeConverter is not null)
         {
-            var inst = Activator.CreateInstance(typeConverter.ConverterType);
+            object? inst = Activator.CreateInstance(typeConverter.ConverterType);
             return InvokeConverterWrite(inst!, value);
         }
 
         var valueType = value.GetType();
 
         // Primitives emitted as-is; writer will format them.
-        if (valueType.IsPrimitive || valueType == typeof(string) || valueType == typeof(decimal))
-            return value;
-        if (valueType.IsEnum) return value.ToString();
-        if (valueType == typeof(DateTime)) return ((DateTime)value).ToString("o", CultureInfo.InvariantCulture);
+        if (valueType.IsPrimitive || valueType == typeof(string) || valueType == typeof(decimal)) {
+			return value;
+		}
+		if (valueType.IsEnum) {
+			return value.ToString();
+		}
+		if (valueType == typeof(DateTime)) {
+			return ((DateTime)value).ToString("o", CultureInfo.InvariantCulture);
+		}
 
-        // Dictionary<string, T>.
+		// Dictionary<string, T>.
         if (value is IDictionary dict && IsStringKeyedDictionary(valueType, out var dictValueType))
         {
             var map = new Dictionary<string, object?>();
@@ -208,22 +254,27 @@ public static class YamlMapper
         {
             var elem = TryGetEnumerableElementType(valueType, out var et) ? et! : typeof(object);
             var list = new List<object?>();
-            foreach (var item in seq) list.Add(ConvertToTree(item, elem));
-            return list;
+            foreach (object? item in seq) {
+				list.Add(ConvertToTree(item, elem));
+			}
+			return list;
         }
 
         // Complex object — reflect members.
         var treeMap = new Dictionary<string, object?>();
         foreach (var member in GetMembers(valueType))
         {
-            var v = member.Getter(value);
+            object? v = member.Getter(value);
             object? subTree = member.Converter is not null
                 ? InvokeConverterWrite(member.Converter, v)
                 : ConvertToTree(v, member.MemberType);
-            if (member.IgnoreEmpty && IsEmpty(subTree)) continue;
-            if (member.Format.HasValue)
-                subTree = new Yaml.FormattedNode(member.Format.Value, subTree);
-            treeMap[member.SerializedName] = subTree;
+            if (member.IgnoreEmpty && IsEmpty(subTree)) {
+				continue;
+			}
+			if (member.Format.HasValue) {
+				subTree = new Yaml.FormattedNode(member.Format.Value, subTree);
+			}
+			treeMap[member.SerializedName] = subTree;
         }
         return treeMap;
     }
@@ -264,11 +315,17 @@ public static class YamlMapper
         var list = new List<MemberBinding>();
         foreach (var p in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (p.GetCustomAttribute<YamlIgnoreAttribute>() is not null) continue;
-            if (!p.CanRead || !p.CanWrite) continue;
-            if (p.GetIndexParameters().Length > 0) continue;
+            if (p.GetCustomAttribute<YamlIgnoreAttribute>() is not null) {
+				continue;
+			}
+			if (!p.CanRead || !p.CanWrite) {
+				continue;
+			}
+			if (p.GetIndexParameters().Length > 0) {
+				continue;
+			}
 
-            var nameAttr = p.GetCustomAttribute<YamlPropertyNameAttribute>();
+			var nameAttr = p.GetCustomAttribute<YamlPropertyNameAttribute>();
             var convAttr = p.GetCustomAttribute<YamlConverterAttribute>();
             var fmtAttr = p.GetCustomAttribute<YamlFormatAttribute>();
             var emptyAttr = p.GetCustomAttribute<YamlIgnoreEmptyAttribute>();
@@ -285,8 +342,10 @@ public static class YamlMapper
         }
         foreach (var f in t.GetFields(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (f.GetCustomAttribute<YamlIgnoreAttribute>() is not null) continue;
-            var nameAttr = f.GetCustomAttribute<YamlPropertyNameAttribute>();
+            if (f.GetCustomAttribute<YamlIgnoreAttribute>() is not null) {
+				continue;
+			}
+			var nameAttr = f.GetCustomAttribute<YamlPropertyNameAttribute>();
             var convAttr = f.GetCustomAttribute<YamlConverterAttribute>();
             var fmtAttr = f.GetCustomAttribute<YamlFormatAttribute>();
             var emptyAttr = f.GetCustomAttribute<YamlIgnoreEmptyAttribute>();
@@ -376,8 +435,12 @@ public static class YamlMapper
 
     private static string ToCamelCase(string name)
     {
-        if (string.IsNullOrEmpty(name)) return name;
-        if (name.Length == 1) return name.ToLowerInvariant();
-        return char.ToLowerInvariant(name[0]) + name.Substring(1);
+        if (string.IsNullOrEmpty(name)) {
+			return name;
+		}
+		if (name.Length == 1) {
+			return name.ToLowerInvariant();
+		}
+		return char.ToLowerInvariant(name[0]) + name.Substring(1);
     }
 }

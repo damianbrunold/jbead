@@ -24,9 +24,9 @@
         <div class="lang-menu" role="listbox">
             @foreach (var lang in Loc.Supported)
             {
-                var code = lang.Code;
-                var label = lang.NativeName;
-                var flag = lang.FlagUrl;
+                string code = lang.Code;
+                string label = lang.NativeName;
+                string flag = lang.FlagUrl;
                 <button type="button" role="option"
                         class="lang-option @(code == Loc.Language ? "selected" : "")"
                         aria-selected="@(code == Loc.Language ? "true" : "false")"

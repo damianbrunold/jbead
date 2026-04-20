@@ -45,8 +45,10 @@ internal sealed class SegmentIterator : IEnumerator<Point>
 
     public bool MoveNext()
     {
-        if (next is null) return false;
-        current = next.Value;
+        if (next is null) {
+			return false;
+		}
+		current = next.Value;
         if (current.Equals(end))
         {
             next = null;

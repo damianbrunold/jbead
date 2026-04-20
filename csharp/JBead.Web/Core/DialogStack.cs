@@ -18,6 +18,8 @@ public class DialogStack
 
     public void Release()
     {
-        if (count > 0) count--;
-    }
+        if (count > 0) {
+			count--;
+		}
+	}
 }

@@ -7,7 +7,7 @@
 <div class="palette-root">
     <StringColorPicker />
     <div class="color-palette">
-        @for (var i = 0; i < State.Model.ColorCount; i++) {
+        @for (int i = 0; i < State.Model.ColorCount; i++) {
             int constI = i;
             <ColorPaleteButton @key="constI" Index="@constI"
                                OnReplace="() => StartReplace(constI)" />
@@ -85,7 +85,7 @@
         var sessionBead = new Bead(c, catalogSource: CustomBeadCatalog.SessionName);
         await CustomCatalog.EnsureLoadedAsync();
         await CustomCatalog.AddBeadAsync(CustomBeadCatalog.SessionName, sessionBead);
-        var idx = State.Model.AddBead(sessionBead.Clone());
+        int idx = State.Model.AddBead(sessionBead.Clone());
         State.Model.SelectedColor = (byte)idx;
     }
 
@@ -108,7 +108,7 @@
         }
         else
         {
-            var idx = State.Model.AddBead(linked);
+            int idx = State.Model.AddBead(linked);
             State.Model.SelectedColor = (byte)idx;
         }
     }
@@ -146,7 +146,7 @@
         }
         else
         {
-            var idx = State.Model.AddBead(r.Bead);
+            int idx = State.Model.AddBead(r.Bead);
             State.Model.SelectedColor = (byte)idx;
             if (r.SaveToLibrary)
             {

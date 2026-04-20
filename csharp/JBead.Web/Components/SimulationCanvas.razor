@@ -102,13 +102,13 @@
     private async Task PushData()
     {
         var m = State.Model;
-        var count = m.Width * m.Height;
+        int count = m.Width * m.Height;
         var beads = new List<object>(count);
-        for (var j = 0; j < m.Height; j++)
+        for (int j = 0; j < m.Height; j++)
         {
-            for (var i = 0; i < m.Width; i++)
+            for (int i = 0; i < m.Width; i++)
             {
-                var ci = m.Get(new Point(i, j));
+                byte ci = m.Get(new Point(i, j));
                 string hex;
                 bool transparent;
                 int finish;
@@ -116,16 +116,14 @@
                 {
                     var b = m.GetBead(ci);
                     hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
-                    transparent = b.Finish is BeadFinish.Transparent
-                               or BeadFinish.TransparentGloss
-                               or BeadFinish.TransparentMatte;
+                    transparent = b.Finish.HasFlag(BeadFinish.Transparent);
                     finish = (int)b.Finish;
                 }
                 else { hex = "#cccccc"; transparent = false; finish = (int)BeadFinish.Opaque; }
                 beads.Add(new { c = hex, t = transparent, f = finish });
             }
         }
-        var stringHex = $"#{m.StringColor.R:X2}{m.StringColor.G:X2}{m.StringColor.B:X2}";
+        string stringHex = $"#{m.StringColor.R:X2}{m.StringColor.G:X2}{m.StringColor.B:X2}";
         var data = new { width = m.Width, height = m.Height, diameter = State.SimulationGridPx, beads, @string = stringHex };
         try { await JS.InvokeVoidAsync("jbeadSim.setPattern", canvasRef, JsonSerializer.Serialize(data)); }
         catch { }

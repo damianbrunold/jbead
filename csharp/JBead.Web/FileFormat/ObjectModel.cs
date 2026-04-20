@@ -11,15 +11,17 @@ public class ObjectModel
     {
         var path = new PathRef(pathStr);
         var current = root;
-        foreach (var node in path.Nodes) current = current.GetOrAdd(node);
-        current.Add(new Leaf(path.Leaf, values));
+        foreach (string node in path.Nodes) {
+			current = current.GetOrAdd(node);
+		}
+		current.Add(new Leaf(path.Leaf, values));
     }
 
     public Node Get(string pathStr)
     {
         var path = new PathRef(pathStr);
         var current = root;
-        foreach (var node in path)
+        foreach (string node in path)
         {
             current = current.Get(node) ?? throw new JBeadFileFormatException($"Path {pathStr} cannot be resolved, node {node} not found");
         }
@@ -30,7 +32,7 @@ public class ObjectModel
     {
         var path = new PathRef(pathStr);
         var current = root;
-        foreach (var node in path.Nodes)
+        foreach (string node in path.Nodes)
         {
             current = current.Get(node) ?? throw new JBeadFileFormatException($"Path {pathStr} cannot be resolved, node {node} not found");
         }

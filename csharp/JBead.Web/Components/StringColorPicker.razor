@@ -44,9 +44,9 @@
         if (e.Value is not string s || s.Length == 0) return;
         if (s[0] == '#') s = s.Substring(1);
         if (s.Length != 6) return;
-        var r = Convert.ToByte(s.Substring(0, 2), 16);
-        var g = Convert.ToByte(s.Substring(2, 2), 16);
-        var b = Convert.ToByte(s.Substring(4, 2), 16);
+        byte r = Convert.ToByte(s.Substring(0, 2), 16);
+        byte g = Convert.ToByte(s.Substring(2, 2), 16);
+        byte b = Convert.ToByte(s.Substring(4, 2), 16);
         State.Model.StringColor = Color.FromArgb(r, g, b);
     }
 }

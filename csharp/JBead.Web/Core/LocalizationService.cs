@@ -31,6 +31,9 @@ public class LocalizationService
         ("cs", "Čeština"),
         ("ja", "日本語"),
         ("zh", "中文"),
+        ("es", "Español"),
+        ("ru", "Русский"),
+        ("uk", "Українська"),
     };
 
     public IReadOnlyList<LanguageOption> Supported { get; private set; } = Array.Empty<LanguageOption>();
@@ -66,9 +69,11 @@ public class LocalizationService
             return (s.Code, Catalog: cat ?? new Dictionary<string, string>());
         });
         var results = await Task.WhenAll(tasks);
-        foreach (var (code, cat) in results) allCatalogs[code] = cat;
+        foreach ((string code, Dictionary<string, string> cat) in results) {
+			allCatalogs[code] = cat;
+		}
 
-        fallback = allCatalogs.TryGetValue(DefaultCode, out var fb) ? fb : new Dictionary<string, string>();
+		fallback = allCatalogs.TryGetValue(DefaultCode, out var fb) ? fb : new Dictionary<string, string>();
 
         // Build Supported from the catalogs so FlagUrl can come from the
         // properties files (language.flag key) instead of hard-coded C#.
@@ -79,11 +84,13 @@ public class LocalizationService
                 FlagUrlFor(s.Code)))
             .ToList();
 
-        var stored = await TryGetStoredLanguageAsync();
-        var detected = stored ?? await DetectBrowserLanguageAsync() ?? DefaultCode;
-        if (!IsSupported(detected)) detected = DefaultCode;
+        string? stored = await TryGetStoredLanguageAsync();
+        string detected = stored ?? await DetectBrowserLanguageAsync() ?? DefaultCode;
+        if (!IsSupported(detected)) {
+			detected = DefaultCode;
+		}
 
-        Language = detected;
+		Language = detected;
         current = allCatalogs.TryGetValue(detected, out var c) ? c : fallback;
 
         LanguageChanged?.Invoke();
@@ -91,16 +98,22 @@ public class LocalizationService
 
     public async Task SetLanguageAsync(string code)
     {
-        if (code == Language) return;
-        if (!IsSupported(code)) return;
+        if (code == Language) {
+			return;
+		}
+		if (!IsSupported(code)) {
+			return;
+		}
 
-        if (!allCatalogs.TryGetValue(code, out var next))
+		if (!allCatalogs.TryGetValue(code, out var next))
         {
             // Preload should cover every supported code, but stay defensive:
             // lazy-load if something slipped through.
             var loaded = await TryLoadCatalogAsync(code);
-            if (loaded is null) return;
-            allCatalogs[code] = loaded;
+            if (loaded is null) {
+				return;
+			}
+			allCatalogs[code] = loaded;
             next = loaded;
         }
 
@@ -116,15 +129,15 @@ public class LocalizationService
     /// (`language.flag` key). Returns empty string when unknown — the <img>
     /// element renders empty without breaking the picker layout.
     public string FlagUrlFor(string code) =>
-        allCatalogs.TryGetValue(code, out var cat) && cat.TryGetValue("language.flag", out var url)
+        allCatalogs.TryGetValue(code, out var cat) && cat.TryGetValue("language.flag", out string? url)
             ? url
             : string.Empty;
 
     /// Returns the localized string; falls back to English, then to the raw key
     /// so missing translations are visible in the UI rather than crashing.
     public string this[string key] =>
-        current.TryGetValue(key, out var v) ? v
-            : fallback.TryGetValue(key, out var f) ? f
+        current.TryGetValue(key, out string? v) ? v
+            : fallback.TryGetValue(key, out string? f) ? f
             : key;
 
     /// Same lookup, with `{0}`, `{1}`, … placeholder substitution — C# style, so
@@ -137,9 +150,11 @@ public class LocalizationService
     {
         get
         {
-            var s = this[key];
-            for (int i = 0; i < args.Length; i++) s = s.Replace("{" + i + "}", args[i]);
-            return s;
+            string s = this[key];
+            for (int i = 0; i < args.Length; i++) {
+				s = s.Replace("{" + i + "}", args[i]);
+			}
+			return s;
         }
     }
 
@@ -151,7 +166,7 @@ public class LocalizationService
     {
         try
         {
-            var val = await js.InvokeAsync<string?>("jbeadStorage.get", StorageKey);
+            string? val = await js.InvokeAsync<string?>("jbeadStorage.get", StorageKey);
             return string.IsNullOrWhiteSpace(val) ? null : val;
         }
         catch { return null; }
@@ -161,7 +176,7 @@ public class LocalizationService
     {
         try
         {
-            var val = await js.InvokeAsync<string?>("jbeadEnv.browserLanguage");
+            string? val = await js.InvokeAsync<string?>("jbeadEnv.browserLanguage");
             return string.IsNullOrWhiteSpace(val) ? null : val;
         }
         catch { return null; }
@@ -175,8 +190,8 @@ public class LocalizationService
 
     private async Task<Dictionary<string, string>> LoadCatalogAsync(string code)
     {
-        var fileName = code == DefaultCode ? "jbead.properties" : $"jbead_{code}.properties";
-        var text = await http.GetStringAsync($"i18n/{fileName}");
+        string fileName = code == DefaultCode ? "jbead.properties" : $"jbead_{code}.properties";
+        string text = await http.GetStringAsync($"i18n/{fileName}");
         return PropertiesParser.Parse(text);
     }
 }
@@ -190,15 +205,17 @@ internal static class PropertiesParser
     public static Dictionary<string, string> Parse(string text)
     {
         var result = new Dictionary<string, string>();
-        var lines = text.Replace("\r\n", "\n").Split('\n');
-        var i = 0;
+        string[] lines = text.Replace("\r\n", "\n").Split('\n');
+        int i = 0;
         while (i < lines.Length)
         {
-            var line = StripLeadingWhitespace(lines[i]);
+            string line = StripLeadingWhitespace(lines[i]);
             i++;
-            if (line.Length == 0 || line[0] == '#' || line[0] == '!') continue;
+            if (line.Length == 0 || line[0] == '#' || line[0] == '!') {
+				continue;
+			}
 
-            var logical = new StringBuilder(line);
+			var logical = new StringBuilder(line);
             while (EndsWithOddBackslashes(logical) && i < lines.Length)
             {
                 logical.Length--;
@@ -206,24 +223,30 @@ internal static class PropertiesParser
                 i++;
             }
 
-            SplitKeyValue(logical.ToString(), out var key, out var value);
-            if (!string.IsNullOrEmpty(key)) result[key] = Unescape(value);
-        }
+            SplitKeyValue(logical.ToString(), out string key, out string value);
+            if (!string.IsNullOrEmpty(key)) {
+				result[key] = Unescape(value);
+			}
+		}
         return result;
     }
 
     private static string StripLeadingWhitespace(string s)
     {
-        var idx = 0;
-        while (idx < s.Length && (s[idx] == ' ' || s[idx] == '\t' || s[idx] == '\f')) idx++;
-        return idx == 0 ? s : s[idx..];
+        int idx = 0;
+        while (idx < s.Length && (s[idx] == ' ' || s[idx] == '\t' || s[idx] == '\f')) {
+			idx++;
+		}
+		return idx == 0 ? s : s[idx..];
     }
 
     private static bool EndsWithOddBackslashes(StringBuilder sb)
     {
         int count = 0;
-        for (int j = sb.Length - 1; j >= 0 && sb[j] == '\\'; j--) count++;
-        return count % 2 == 1;
+        for (int j = sb.Length - 1; j >= 0 && sb[j] == '\\'; j--) {
+			count++;
+		}
+		return count % 2 == 1;
     }
 
     private static void SplitKeyValue(string line, out string key, out string value)
@@ -232,7 +255,7 @@ internal static class PropertiesParser
         bool hasExplicitDelimiter = false;
         for (int j = 0; j < line.Length; j++)
         {
-            var c = line[j];
+            char c = line[j];
             if (c == '\\') { j++; continue; }
             if (c == '=' || c == ':') { sepIdx = j; hasExplicitDelimiter = true; break; }
             if (c == ' ' || c == '\t' || c == '\f') { sepIdx = j; break; }
@@ -240,14 +263,18 @@ internal static class PropertiesParser
         if (sepIdx < 0) { key = UnescapeKey(line); value = string.Empty; return; }
 
         key = UnescapeKey(line[..sepIdx]);
-        var rest = line[(sepIdx + (hasExplicitDelimiter ? 1 : 0))..];
+        string rest = line[(sepIdx + (hasExplicitDelimiter ? 1 : 0))..];
         int k = 0;
-        while (k < rest.Length && (rest[k] == ' ' || rest[k] == '\t' || rest[k] == '\f')) k++;
-        if (!hasExplicitDelimiter && k < rest.Length && (rest[k] == '=' || rest[k] == ':'))
+        while (k < rest.Length && (rest[k] == ' ' || rest[k] == '\t' || rest[k] == '\f')) {
+			k++;
+		}
+		if (!hasExplicitDelimiter && k < rest.Length && (rest[k] == '=' || rest[k] == ':'))
         {
             k++;
-            while (k < rest.Length && (rest[k] == ' ' || rest[k] == '\t' || rest[k] == '\f')) k++;
-        }
+            while (k < rest.Length && (rest[k] == ' ' || rest[k] == '\t' || rest[k] == '\f')) {
+				k++;
+			}
+		}
         value = rest[k..];
     }
 
@@ -255,13 +282,15 @@ internal static class PropertiesParser
 
     private static string Unescape(string s)
     {
-        if (!s.Contains('\\')) return s;
-        var sb = new StringBuilder(s.Length);
+        if (!s.Contains('\\')) {
+			return s;
+		}
+		var sb = new StringBuilder(s.Length);
         for (int i = 0; i < s.Length; i++)
         {
-            var c = s[i];
+            char c = s[i];
             if (c != '\\' || i + 1 >= s.Length) { sb.Append(c); continue; }
-            var n = s[++i];
+            char n = s[++i];
             switch (n)
             {
                 case 'n': sb.Append('\n'); break;
@@ -271,13 +300,15 @@ internal static class PropertiesParser
                 case 'u':
                     if (i + 4 < s.Length
                         && ushort.TryParse(s.Substring(i + 1, 4), NumberStyles.HexNumber,
-                            CultureInfo.InvariantCulture, out var code))
+                            CultureInfo.InvariantCulture, out ushort code))
                     {
                         sb.Append((char)code);
                         i += 4;
                     }
-                    else sb.Append(n);
-                    break;
+                    else {
+						sb.Append(n);
+					}
+					break;
                 default: sb.Append(n); break;
             }
         }

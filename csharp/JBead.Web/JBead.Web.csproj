@@ -12,14 +12,4 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
   </ItemGroup>
 
-  <!-- Copy the Java Swing app's translation files into wwwroot/i18n/ before build,
-       so they're served as normal static web assets. A single source of truth for
-       both UIs: edit src/jbead_*.properties and the change propagates here. -->
-  <Target Name="CopyPropertiesToWwwroot" BeforeTargets="BeforeBuild">
-    <ItemGroup>
-      <JBeadProperties Include="..\..\src\jbead*.properties" />
-    </ItemGroup>
-    <Copy SourceFiles="@(JBeadProperties)" DestinationFolder="wwwroot\i18n\" SkipUnchangedFiles="true" />
-  </Target>
-
 </Project>

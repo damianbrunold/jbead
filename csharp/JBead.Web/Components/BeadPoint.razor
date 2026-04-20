@@ -45,10 +45,7 @@
 
     private bool isBackground => colorIndex == 0;
 
-    private bool IsTransparentFinish =>
-        finish == BeadFinish.Transparent ||
-        finish == BeadFinish.TransparentGloss ||
-        finish == BeadFinish.TransparentMatte;
+    private bool IsTransparentFinish => finish.HasFlag(BeadFinish.Transparent);
 
     // Transparent beads paint at reduced opacity so the canvas shows through.
     private string BaseOpacity => IsTransparentFinish && !isBackground ? "0.55" : "1";
@@ -78,7 +75,7 @@
     // typically the old-selected cells and the new-selected cells.
     private void OnSelectedColorChanged(byte newSelected)
     {
-        var next = colorIndex == newSelected;
+        bool next = colorIndex == newSelected;
         if (next == matchesSelection) return;
         matchesSelection = next;
         StateHasChanged();
@@ -117,7 +114,7 @@
     {
         if (!IsInBounds) return;
         if (p.X != Col || p.Y != DisplayRow) return;
-        var newCi = State.Model.Get(p);
+        byte newCi = State.Model.Get(p);
         if (newCi == colorIndex) return;
         colorIndex = newCi;
         matchesSelection = colorIndex == State.Model.SelectedColor;
@@ -136,7 +133,7 @@
         if (colorIndex >= State.Model.ColorCount) return;
         var b = State.Model.GetBead(colorIndex);
         var c = b.Color;
-        var newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        string newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
         if (newFill == fill && b.Finish == finish) return;
         fill = newFill;
         finish = b.Finish;
@@ -149,15 +146,18 @@
         if (colorIndex >= State.Model.ColorCount) return;
         var b = State.Model.GetBead(colorIndex);
         var c = b.Color;
-        var newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        string newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
         if (newFill == fill && b.Finish == finish) return;
         fill = newFill;
         finish = b.Finish;
         StateHasChanged();
     }
 
-    // Emits an SVG overlay suggesting the bead finish. Kept lightweight — one to two
-    // extra shapes per non-opaque cell, no SVG filters (cheaper in WASM).
+    // Emits an SVG overlay suggesting the bead finish. One overlay per primitive
+    // flag, stacked in enum-declaration order so compound finishes like
+    // (Transparent | Shiny) render as base-transparency (via BaseOpacity) plus
+    // the gloss highlight on top. Pure Transparent contributes no overlay — the
+    // lower BaseOpacity is the whole visual.
     private string FinishOverlay()
     {
         static string Highlight(int x, int y, int w, int h, double opacity) =>
@@ -165,34 +165,44 @@
         static string MatteVeil(int x, int y, int w, int h) =>
             $"<rect x=\"{x + 1}\" y=\"{y + 1}\" width=\"{w - 2}\" height=\"{h - 2}\" fill=\"#000\" fill-opacity=\"0.08\" pointer-events=\"none\" />";
 
-        return finish switch
+        var sb = new System.Text.StringBuilder();
+        foreach (var flag in BeadFinishConverter.Flags(finish))
         {
-            BeadFinish.Shiny => Highlight(X, Y, W, H, 0.65),
-            BeadFinish.Pearl =>
-                $"<ellipse cx=\"{X + W / 3}\" cy=\"{Y + H / 3}\" rx=\"{Math.Max(1, W / 4)}\" ry=\"{Math.Max(1, H / 4)}\" fill=\"#fff\" fill-opacity=\"0.5\" pointer-events=\"none\" />",
-            BeadFinish.SilverLined =>
-                $"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"{H - 4}\" fill=\"none\" stroke=\"#c8c8d0\" stroke-width=\"1.5\" pointer-events=\"none\" />",
-            BeadFinish.Matte => MatteVeil(X, Y, W, H),
-            BeadFinish.Metallic =>
-                // Bright top-left highlight + dark bottom-right shadow for a chrome feel.
-                Highlight(X, Y, W, H, 0.55)
-                + $"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#000\" fill-opacity=\"0.28\" pointer-events=\"none\" />",
-            BeadFinish.TransparentGloss =>
-                // Transparent base (handled by BaseOpacity) + small gloss highlight.
-                Highlight(X, Y, W, H, 0.55),
-            BeadFinish.TransparentMatte =>
-                // Transparent base + subtle matte veil to dull the glass.
-                MatteVeil(X, Y, W, H),
-            BeadFinish.Iridescent =>
-                // Two thin stripes in pink/cyan to hint at AB (aurora borealis) sheen.
-                $"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"2\" fill=\"#ff80c0\" fill-opacity=\"0.45\" pointer-events=\"none\" />"
-                + $"<rect x=\"{X + 2}\" y=\"{Y + H - 4}\" width=\"{W - 4}\" height=\"2\" fill=\"#80d0ff\" fill-opacity=\"0.45\" pointer-events=\"none\" />",
-            BeadFinish.Galvanized =>
-                // Shiny metallic but with a warmer (golden) tint.
-                $"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{Math.Max(2, W / 3)}\" height=\"{Math.Max(2, H / 3)}\" fill=\"#ffe08a\" fill-opacity=\"0.6\" pointer-events=\"none\" />"
-                + $"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#5a4020\" fill-opacity=\"0.22\" pointer-events=\"none\" />",
-            _ => ""
-        };
+            switch (flag)
+            {
+                case BeadFinish.Transparent:
+                    // Handled by BaseOpacity — no overlay shape needed.
+                    break;
+                case BeadFinish.Matte:
+                    sb.Append(MatteVeil(X, Y, W, H));
+                    break;
+                case BeadFinish.Shiny:
+                    sb.Append(Highlight(X, Y, W, H, 0.65));
+                    break;
+                case BeadFinish.Pearl:
+                    sb.Append($"<ellipse cx=\"{X + W / 3}\" cy=\"{Y + H / 3}\" rx=\"{Math.Max(1, W / 4)}\" ry=\"{Math.Max(1, H / 4)}\" fill=\"#fff\" fill-opacity=\"0.5\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.SilverLined:
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"{H - 4}\" fill=\"none\" stroke=\"#c8c8d0\" stroke-width=\"1.5\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Metallic:
+                    // Bright top-left highlight + dark bottom-right shadow for chrome feel.
+                    sb.Append(Highlight(X, Y, W, H, 0.55));
+                    sb.Append($"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#000\" fill-opacity=\"0.28\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Iridescent:
+                    // Two thin stripes in pink/cyan to hint at AB (aurora borealis) sheen.
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"2\" fill=\"#ff80c0\" fill-opacity=\"0.45\" pointer-events=\"none\" />");
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + H - 4}\" width=\"{W - 4}\" height=\"2\" fill=\"#80d0ff\" fill-opacity=\"0.45\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Galvanized:
+                    // Warmer (golden) metallic feel.
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{Math.Max(2, W / 3)}\" height=\"{Math.Max(2, H / 3)}\" fill=\"#ffe08a\" fill-opacity=\"0.6\" pointer-events=\"none\" />");
+                    sb.Append($"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#5a4020\" fill-opacity=\"0.22\" pointer-events=\"none\" />");
+                    break;
+            }
+        }
+        return sb.ToString();
     }
 
     private Point Here => new(Col, DisplayRow);

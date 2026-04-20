@@ -69,7 +69,7 @@
         hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
         if (!string.IsNullOrEmpty(b.Manufacturer)) lines.Add(new(Loc["sidebar.manufacturer"], b.Manufacturer));
         if (!string.IsNullOrEmpty(b.Id)) lines.Add(new(Loc["sidebar.id"], b.Id));
-        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], b.Finish.ToString()));
+        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], BeadFinishConverter.ToCanonicalString(b.Finish)));
         if (!string.IsNullOrEmpty(b.CatalogSource)) lines.Add(new(Loc["sidebar.from"], b.CatalogSource));
     }
 }

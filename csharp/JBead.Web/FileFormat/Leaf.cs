@@ -24,8 +24,10 @@ public class Leaf : Node
     {
         var sb = new StringBuilder();
         sb.Append(indent).Append('(').Append(name);
-        foreach (var v in values) sb.Append(' ').Append(FormatValue(v));
-        sb.Append(")\n");
+        foreach (object v in values) {
+			sb.Append(' ').Append(FormatValue(v));
+		}
+		sb.Append(")\n");
         return sb.ToString();
     }
 
@@ -47,7 +49,7 @@ public class Leaf : Node
 
     public int GetIntValue(int index)
     {
-        var v = values[index];
+        object v = values[index];
         return v switch
         {
             int i => i,
@@ -58,14 +60,18 @@ public class Leaf : Node
 
     public string GetStringValue(int index)
     {
-        if (values[index] is string s) return s;
-        throw new JBeadFileFormatException($"Expected string value but got {values[index]}");
+        if (values[index] is string s) {
+			return s;
+		}
+		throw new JBeadFileFormatException($"Expected string value but got {values[index]}");
     }
 
     public bool GetBoolValue(int index)
     {
-        if (values[index] is bool b) return b;
-        throw new JBeadFileFormatException($"Expected boolean value but got {values[index]}");
+        if (values[index] is bool b) {
+			return b;
+		}
+		throw new JBeadFileFormatException($"Expected boolean value but got {values[index]}");
     }
 
     public IReadOnlyList<object> Values => values;
@@ -74,8 +80,10 @@ public class Leaf : Node
     {
         var sb = new StringBuilder();
         sb.Append('(').Append(name);
-        foreach (var v in values) sb.Append(' ').Append(v);
-        sb.Append(')');
+        foreach (object v in values) {
+			sb.Append(' ').Append(v);
+		}
+		sb.Append(')');
         return sb.ToString();
     }
 }

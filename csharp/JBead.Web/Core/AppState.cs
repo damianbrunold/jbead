@@ -18,8 +18,10 @@ public class AppState
         get => hoveredColorIndex;
         set
         {
-            if (hoveredColorIndex == value) return;
-            hoveredColorIndex = value;
+            if (hoveredColorIndex == value) {
+				return;
+			}
+			hoveredColorIndex = value;
             HoveredChanged?.Invoke(value);
         }
     }
@@ -31,8 +33,10 @@ public class AppState
         get => viewMode;
         set
         {
-            if (viewMode == value) return;
-            viewMode = value;
+            if (viewMode == value) {
+				return;
+			}
+			viewMode = value;
             ViewModeChanged?.Invoke(value);
         }
     }
@@ -48,8 +52,10 @@ public class AppState
         get => printDialogOpen;
         set
         {
-            if (printDialogOpen == value) return;
-            printDialogOpen = value;
+            if (printDialogOpen == value) {
+				return;
+			}
+			printDialogOpen = value;
             PrintDialogOpenChanged?.Invoke(value);
         }
     }
@@ -66,17 +72,27 @@ public class AppState
         get => selectedTool;
         set
         {
-            if (ReferenceEquals(selectedTool, value)) return;
-            selectedTool = value;
+            if (ReferenceEquals(selectedTool, value)) {
+				return;
+			}
+			selectedTool = value;
             SelectedToolChanged?.Invoke(value);
         }
     }
 
-    public AppState(IEnumerable<ITool> tools)
+    public AppState(IEnumerable<ITool> tools, CustomBeadCatalog customCatalog)
     {
         Tools = tools.ToList();
-        if (Tools.Count == 0) throw new InvalidOperationException("No ITool registered in DI.");
-        selectedTool = Tools[0];
+        if (Tools.Count == 0) {
+			throw new InvalidOperationException("No ITool registered in DI.");
+		}
+		selectedTool = Tools[0];
+
+        // Keep palette beads and catalog entries in sync: when a catalog entry is
+        // removed, sever the CatalogSource link on any palette slot that was
+        // pointing at that specific entry.
+        customCatalog.BeadRemoved += (catalogName, bead) =>
+            Model.UnlinkFromCatalog(catalogName, bead.Manufacturer, bead.Id);
     }
 
     // ---- Clipboard / selection actions ----
@@ -95,21 +111,27 @@ public class AppState
 
     public void CopySelection()
     {
-        if (!HasUsableSelection) return;
-        clipboard = Model.CopyRect(Selection);
+        if (!HasUsableSelection) {
+			return;
+		}
+		clipboard = Model.CopyRect(Selection);
         ClipboardChanged?.Invoke();
     }
 
     public void PasteSelection()
     {
-        if (!CanPaste) return;
-        Model.PasteRect(Selection, clipboard!);
+        if (!CanPaste) {
+			return;
+		}
+		Model.PasteRect(Selection, clipboard!);
     }
 
     public void FillSelection()
     {
-        if (!HasUsableSelection) return;
-        Model.FillRect(Selection);
+        if (!HasUsableSelection) {
+			return;
+		}
+		Model.FillRect(Selection);
     }
 
     /// Re-evaluate which selection-action buttons should be enabled. Components
@@ -130,9 +152,11 @@ public class AppState
         get => simulationGridPx;
         set
         {
-            var clamped = Math.Clamp(value, SimulationMinGridPx, SimulationMaxGridPx);
-            if (simulationGridPx == clamped) return;
-            simulationGridPx = clamped;
+            int clamped = Math.Clamp(value, SimulationMinGridPx, SimulationMaxGridPx);
+            if (simulationGridPx == clamped) {
+				return;
+			}
+			simulationGridPx = clamped;
             SimulationGridPxChanged?.Invoke(clamped);
         }
     }

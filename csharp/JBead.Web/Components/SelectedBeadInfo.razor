@@ -79,11 +79,11 @@
         // Heuristic: once the palette holds more than ~16 beads the tile grid grows
         // enough that the info panel would squeeze it — collapse by default.
         // User's manual toggle overrides.
-        var shouldAutoCollapse = State.Model.ColorCount > 16;
+        bool shouldAutoCollapse = State.Model.ColorCount > 16;
         expanded = userExpanded ?? !shouldAutoCollapse;
 
         lines.Clear();
-        var idx = State.Model.SelectedColor;
+        byte idx = State.Model.SelectedColor;
         if (idx >= State.Model.ColorCount)
         {
             title = Loc["bead.nr.unset", [idx.ToString()]];
@@ -96,7 +96,7 @@
 
         if (!string.IsNullOrEmpty(b.Manufacturer)) lines.Add(new(Loc["sidebar.manufacturer"], b.Manufacturer));
         if (!string.IsNullOrEmpty(b.Id)) lines.Add(new(Loc["sidebar.id"], b.Id));
-        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], b.Finish.ToString()));
+        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], BeadFinishConverter.ToCanonicalString(b.Finish)));
         if (!string.IsNullOrEmpty(b.CatalogSource)) lines.Add(new(Loc["sidebar.from"], b.CatalogSource));
         if (idx == 0) lines.Add(new(Loc["sidebar.role"], Loc["sidebar.role.erase"]));
     }

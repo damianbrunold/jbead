@@ -17,8 +17,10 @@ public class Node
 
     public Leaf AsLeaf()
     {
-        if (this is Leaf leaf) return leaf;
-        throw new JBeadFileFormatException("Expected leaf but got node " + name);
+        if (this is Leaf leaf) {
+			return leaf;
+		}
+		throw new JBeadFileFormatException("Expected leaf but got node " + name);
     }
 
     public Node Add(Node node)
@@ -31,8 +33,10 @@ public class Node
     {
         foreach (var child in children)
         {
-            if (child.Name == nodeName) return child;
-        }
+            if (child.Name == nodeName) {
+				return child;
+			}
+		}
         var added = new Node(nodeName);
         children.Add(added);
         return added;
@@ -42,8 +46,10 @@ public class Node
     {
         foreach (var child in children)
         {
-            if (child.Name == nodeName) return child;
-        }
+            if (child.Name == nodeName) {
+				return child;
+			}
+		}
         return null;
     }
 
@@ -52,8 +58,10 @@ public class Node
         var result = new List<Node>();
         foreach (var child in children)
         {
-            if (child.Name == nodeName) result.Add(child);
-        }
+            if (child.Name == nodeName) {
+				result.Add(child);
+			}
+		}
         return result;
     }
 
@@ -61,9 +69,13 @@ public class Node
     {
         var sb = new StringBuilder();
         sb.Append(indent).Append('(').Append(name).Append('\n');
-        foreach (var child in children) sb.Append(child.Format(indent + Indentation));
-        if (sb.Length > 0 && sb[^1] == '\n') sb.Length--;
-        sb.Append(")\n");
+        foreach (var child in children) {
+			sb.Append(child.Format(indent + Indentation));
+		}
+		if (sb.Length > 0 && sb[^1] == '\n') {
+			sb.Length--;
+		}
+		sb.Append(")\n");
         return sb.ToString();
     }
 
@@ -71,8 +83,10 @@ public class Node
     {
         var sb = new StringBuilder();
         sb.Append('(').Append(name);
-        foreach (var child in children) sb.Append(' ').Append(child);
-        sb.Append(')');
+        foreach (var child in children) {
+			sb.Append(' ').Append(child);
+		}
+		sb.Append(')');
         return sb.ToString();
     }
 }

@@ -48,7 +48,7 @@
         var sel = State.Selection;
         if (sel.IsNormal)
         {
-            var (x, y) = CellTopLeft(new Point(sel.Begin.X, sel.End.Y));
+            (int x, int y) = CellTopLeft(new Point(sel.Begin.X, sel.End.Y));
             sb.Append($"<rect x=\"{x}\" y=\"{y}\" width=\"{sel.Width * GridX}\" height=\"{sel.Height * GridY}\" fill=\"none\" stroke=\"#d00\" stroke-width=\"2\" pointer-events=\"none\" />");
         }
 
@@ -58,23 +58,23 @@
             switch (shape)
             {
                 case PreviewLine line:
-                    var (x1, y1) = CellCenter(line.From);
-                    var (x2, y2) = CellCenter(line.To);
+                    (int x1, int y1) = CellCenter(line.From);
+                    (int x2, int y2) = CellCenter(line.To);
                     sb.Append($"<line x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" stroke=\"#111\" stroke-width=\"2\" stroke-linecap=\"round\" pointer-events=\"none\" />");
                     break;
                 case PreviewRect pr:
                     {
-                        var left = Math.Min(pr.From.X, pr.To.X);
-                        var right = Math.Max(pr.From.X, pr.To.X);
-                        var bottom = Math.Min(pr.From.Y, pr.To.Y);
-                        var top = Math.Max(pr.From.Y, pr.To.Y);
-                        var (rx, ry) = CellTopLeft(new Point(left, top));
+                        int left = Math.Min(pr.From.X, pr.To.X);
+                        int right = Math.Max(pr.From.X, pr.To.X);
+                        int bottom = Math.Min(pr.From.Y, pr.To.Y);
+                        int top = Math.Max(pr.From.Y, pr.To.Y);
+                        (int rx, int ry) = CellTopLeft(new Point(left, top));
                         sb.Append($"<rect x=\"{rx}\" y=\"{ry}\" width=\"{(right - left + 1) * GridX}\" height=\"{(top - bottom + 1) * GridY}\" fill=\"none\" stroke=\"#05a\" stroke-width=\"1\" stroke-dasharray=\"4 2\" pointer-events=\"none\" />");
                         break;
                     }
                 case PreviewCell pc:
                     {
-                        var (cx, cy) = CellTopLeft(pc.At);
+                        (int cx, int cy) = CellTopLeft(pc.At);
                         sb.Append($"<rect x=\"{cx}\" y=\"{cy}\" width=\"{GridX}\" height=\"{GridY}\" fill=\"none\" stroke=\"#111\" stroke-width=\"2\" pointer-events=\"none\" />");
                         break;
                     }

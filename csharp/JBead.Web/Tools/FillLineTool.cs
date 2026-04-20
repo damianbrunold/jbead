@@ -29,7 +29,9 @@ public class FillLineTool : ITool
 
     public IEnumerable<PreviewShape> GetPreview(BeadModel model, Selection selection)
     {
-        if (!selection.IsSet) yield break;
-        yield return new PreviewCell(selection.Origin);
+        if (!selection.IsSet) {
+			yield break;
+		}
+		yield return new PreviewCell(selection.Origin);
     }
 }

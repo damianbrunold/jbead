@@ -33,8 +33,8 @@ public class BeadField
 
     public void SetWidth(int newWidth)
     {
-        var next = new byte[newWidth * height];
-        for (var j = 0; j < height; j++)
+        byte[] next = new byte[newWidth * height];
+        for (int j = 0; j < height; j++)
         {
             Array.Copy(cells, j * width, next, j * newWidth, Math.Min(newWidth, width));
         }
@@ -44,8 +44,10 @@ public class BeadField
 
     public void SetHeight(int newHeight)
     {
-        if (height == newHeight) return;
-        var next = new byte[width * newHeight];
+        if (height == newHeight) {
+			return;
+		}
+		byte[] next = new byte[width * newHeight];
         Array.Copy(cells, 0, next, 0, width * Math.Min(height, newHeight));
         height = newHeight;
         cells = next;
@@ -68,16 +70,16 @@ public class BeadField
 
     public void Swap(Point a, Point b)
     {
-        var t = Get(a);
+        byte t = Get(a);
         Set(a, Get(b));
         Set(b, t);
     }
 
     public void MirrorHorizontal(Rect rect)
     {
-        for (var j = rect.Bottom; j <= rect.Top; j++)
+        for (int j = rect.Bottom; j <= rect.Top; j++)
         {
-            for (var i = rect.Left; i <= (rect.Left + rect.Right) / 2; i++)
+            for (int i = rect.Left; i <= (rect.Left + rect.Right) / 2; i++)
             {
                 Swap(new Point(i, j), new Point(rect.Right - (i - rect.Left), j));
             }
@@ -86,9 +88,9 @@ public class BeadField
 
     public void MirrorVertical(Rect rect)
     {
-        for (var i = rect.Left; i <= rect.Right; i++)
+        for (int i = rect.Left; i <= rect.Right; i++)
         {
-            for (var j = rect.Bottom; j <= (rect.Bottom + rect.Top) / 2; j++)
+            for (int j = rect.Bottom; j <= (rect.Bottom + rect.Top) / 2; j++)
             {
                 Swap(new Point(i, j), new Point(i, rect.Top - (j - rect.Bottom)));
             }
@@ -97,10 +99,10 @@ public class BeadField
 
     public byte[] CopyOf(Rect rect)
     {
-        var data = new byte[rect.Size];
-        for (var j = 0; j < rect.Height; j++)
+        byte[] data = new byte[rect.Size];
+        for (int j = 0; j < rect.Height; j++)
         {
-            for (var i = 0; i < rect.Width; i++)
+            for (int i = 0; i < rect.Width; i++)
             {
                 data[j * rect.Width + i] = Get(new Point(rect.Left + i, rect.Bottom + j));
             }
@@ -110,14 +112,16 @@ public class BeadField
 
     public void Rotate(Rect rect)
     {
-        if (!rect.IsSquare) return;
-        var buffer = CopyOf(rect);
-        for (var j = 0; j < rect.Height; j++)
+        if (!rect.IsSquare) {
+			return;
+		}
+		byte[] buffer = CopyOf(rect);
+        for (int j = 0; j < rect.Height; j++)
         {
-            for (var i = 0; i < rect.Width; i++)
+            for (int i = 0; i < rect.Width; i++)
             {
-                var x = j;
-                var y = rect.Height - 1 - i;
+                int x = j;
+                int y = rect.Height - 1 - i;
                 Set(new Point(rect.Left + x, rect.Bottom + y), buffer[j * rect.Width + i]);
             }
         }
@@ -125,34 +129,40 @@ public class BeadField
 
     public void Delete(Rect rect)
     {
-        foreach (var p in rect) Set(p, 0);
-    }
+        foreach (var p in rect) {
+			Set(p, 0);
+		}
+	}
 
     public void InsertRow()
     {
-        for (var j = height - 1; j > 0; j--)
+        for (int j = height - 1; j > 0; j--)
         {
-            for (var i = 0; i < width; i++)
+            for (int i = 0; i < width; i++)
             {
                 var p = new Point(i, j);
                 Set(p, Get(p.NextBelow()));
             }
         }
-        for (var i = 0; i < width; i++) Set(new Point(i, 0), 0);
-    }
+        for (int i = 0; i < width; i++) {
+			Set(new Point(i, 0), 0);
+		}
+	}
 
     public void DeleteRow()
     {
-        for (var j = 0; j < height - 1; j++)
+        for (int j = 0; j < height - 1; j++)
         {
-            for (var i = 0; i < width; i++)
+            for (int i = 0; i < width; i++)
             {
                 var p = new Point(i, j);
                 Set(p, Get(p.NextAbove()));
             }
         }
-        for (var i = 0; i < width; i++) Set(new Point(i, height - 1), 0);
-    }
+        for (int i = 0; i < width; i++) {
+			Set(new Point(i, height - 1), 0);
+		}
+	}
 
     public void LoadRawData(int newWidth, int newHeight, byte[] data)
     {
@@ -163,9 +173,11 @@ public class BeadField
 
     public void Replace(byte oldColor, byte newColor)
     {
-        for (var i = 0; i < cells.Length; i++)
+        for (int i = 0; i < cells.Length; i++)
         {
-            if (cells[i] == oldColor) cells[i] = newColor;
-        }
+            if (cells[i] == oldColor) {
+				cells[i] = newColor;
+			}
+		}
     }
 }

@@ -20,14 +20,19 @@
                 <label for="bed-id">@Loc["ui.beadid"]</label>
                 <input id="bed-id" type="text" value="@beadId" @onchange="OnId" placeholder="@(Loc["ui.beadid.placeholder"])" />
             </div>
-            <div class="form-row">
-                <label for="bed-finish">@Loc["ui.finish"]</label>
-                <select id="bed-finish" @onchange="OnFinish">
-                    @foreach (var f in Enum.GetValues<BeadFinish>())
+            <div class="form-row finish-row">
+                <span class="finish-label">@Loc["ui.finish"]</span>
+                <div class="finish-flags">
+                    @foreach (var f in FinishFlags)
                     {
-                        <option value="@((int)f)" selected="@(finish == f)">@f.ToString()</option>
+                        var flag = f;
+                        <label class="finish-flag">
+                            <input type="checkbox" checked="@(finish.HasFlag(flag))"
+                                   @onchange="e => ToggleFinishFlag(flag, e)" />
+                            @flag.ToString()
+                        </label>
                     }
-                </select>
+                </div>
             </div>
             @if (ShowSaveToLibrary)
             {
@@ -114,9 +119,25 @@
     private void OnMfr(ChangeEventArgs e) => mfr = e.Value?.ToString() ?? "";
     private void OnId(ChangeEventArgs e) => beadId = e.Value?.ToString() ?? "";
 
-    private void OnFinish(ChangeEventArgs e)
+    // Only the primitive flags are editable — Opaque is the zero state (no box
+    // checked). Combined finishes like "Transparent + Shiny" come from ticking
+    // both boxes.
+    private static readonly BeadFinish[] FinishFlags =
     {
-        if (int.TryParse(e.Value?.ToString(), out var v)) finish = (BeadFinish)v;
+        BeadFinish.Transparent,
+        BeadFinish.Matte,
+        BeadFinish.Shiny,
+        BeadFinish.Pearl,
+        BeadFinish.SilverLined,
+        BeadFinish.Metallic,
+        BeadFinish.Iridescent,
+        BeadFinish.Galvanized,
+    };
+
+    private void ToggleFinishFlag(BeadFinish flag, ChangeEventArgs e)
+    {
+        bool on = e.Value is bool v && v;
+        finish = on ? (finish | flag) : (finish & ~flag);
     }
 
     private Task Save() =>
@@ -129,9 +150,9 @@
     {
         if (hex[0] == '#') hex = hex.Substring(1);
         if (hex.Length != 6) return Color.Black;
-        var r = Convert.ToByte(hex.Substring(0, 2), 16);
-        var g = Convert.ToByte(hex.Substring(2, 2), 16);
-        var b = Convert.ToByte(hex.Substring(4, 2), 16);
+        byte r = Convert.ToByte(hex.Substring(0, 2), 16);
+        byte g = Convert.ToByte(hex.Substring(2, 2), 16);
+        byte b = Convert.ToByte(hex.Substring(4, 2), 16);
         return Color.FromArgb(r, g, b);
     }
 }

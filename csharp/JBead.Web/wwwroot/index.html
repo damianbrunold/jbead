@@ -330,18 +330,25 @@
                 let sheen = null;        // optional radial gradient overlay
                 let tint = null;         // optional iridescent rainbow shift
 
-                switch (finish) {
-                    case 1:  alpha = 0.55; highlight = 0; rim = 0.2; break;            // Transparent
-                    case 2:  highlight = 0; rim = 0.35; break;                          // Matte
-                    case 3:  highlight = 0.85; highlightSize = 0.28; break;             // Shiny
-                    case 4:  sheen = 'pearl'; highlight = 0.4; break;                   // Pearl
-                    case 5:  sheen = 'silverlined'; highlight = 0.55; break;            // SilverLined
-                    case 6:  sheen = 'metallic'; highlight = 0.75; highlightSize = 0.3; break; // Metallic
-                    case 7:  alpha = 0.6; highlight = 0.7; highlightSize = 0.26; rim = 0.15; break; // TransparentGloss
-                    case 8:  alpha = 0.5; highlight = 0; rim = 0.25; break;             // TransparentMatte
-                    case 9:  tint = 'iridescent'; highlight = 0.6; sheen = 'pearl'; break; // Iridescent
-                    case 10: sheen = 'metallic'; highlight = 0.65; tint = 'galvanized'; break; // Galvanized
-                    default: highlight = shade > 0.55 ? 0.45 : 0; break;                // Opaque
+                // finish is now a BeadFinish bitmask (C# v4+): combinations like
+                // (Transparent | Shiny) replace what used to be TransparentGloss.
+                // Each flag contributes its own effect; later flags may raise the
+                // strength of earlier ones (Math.max) so combined finishes look
+                // like a blend rather than only-the-last-flag.
+                const F_TRANSPARENT = 1, F_MATTE = 2, F_SHINY = 4, F_PEARL = 8,
+                      F_SILVERLINED = 16, F_METALLIC = 32,
+                      F_IRIDESCENT = 64, F_GALVANIZED = 128;
+                if (finish === 0) {
+                    highlight = shade > 0.55 ? 0.45 : 0;                                    // Opaque
+                } else {
+                    if (finish & F_TRANSPARENT) { alpha = 0.55; rim = Math.max(rim, 0.2); }
+                    if (finish & F_MATTE)       { highlight = 0; rim = Math.max(rim, 0.35); }
+                    if (finish & F_SHINY)       { highlight = 0.85; highlightSize = 0.28; }
+                    if (finish & F_PEARL)       { sheen = 'pearl'; highlight = Math.max(highlight, 0.4); }
+                    if (finish & F_SILVERLINED) { sheen = 'silverlined'; highlight = Math.max(highlight, 0.55); }
+                    if (finish & F_METALLIC)    { sheen = 'metallic'; highlight = Math.max(highlight, 0.75); highlightSize = 0.3; }
+                    if (finish & F_IRIDESCENT)  { tint = 'iridescent'; highlight = Math.max(highlight, 0.6); sheen = sheen || 'pearl'; }
+                    if (finish & F_GALVANIZED)  { sheen = 'metallic'; highlight = Math.max(highlight, 0.65); tint = 'galvanized'; }
                 }
 
                 ctx.globalAlpha = alpha;

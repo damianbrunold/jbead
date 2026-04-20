@@ -65,10 +65,14 @@ public class BeadModel
 
     public void UpdateBead(int index, string manufacturer, string id, BeadFinish finish, string catalogSource = "")
     {
-        if (index < 0 || index >= beads.Count) return;
-        var b = beads[index];
-        if (b.Manufacturer == manufacturer && b.Id == id && b.Finish == finish && b.CatalogSource == catalogSource) return;
-        Snapshot();
+        if (index < 0 || index >= beads.Count) {
+			return;
+		}
+		var b = beads[index];
+        if (b.Manufacturer == manufacturer && b.Id == id && b.Finish == finish && b.CatalogSource == catalogSource) {
+			return;
+		}
+		Snapshot();
         b.Manufacturer = manufacturer;
         b.Id = id;
         b.Finish = finish;
@@ -77,12 +81,41 @@ public class BeadModel
         ColorChanged?.Invoke(index);
     }
 
+    /// Clears CatalogSource on every palette slot whose (CatalogSource, Manufacturer, Id)
+    /// matched the passed triple — used when a catalog entry (or its whole catalog) is
+    /// removed so the swatch tooltip and saved file stop claiming a link that no longer
+    /// exists. Manufacturer/Id/Finish on the palette bead are kept so any manual edits
+    /// aren't lost. Does nothing if manufacturer and id are both empty (no unique match).
+    public void UnlinkFromCatalog(string catalogName, string manufacturer, string id)
+    {
+        if (string.IsNullOrEmpty(manufacturer) && string.IsNullOrEmpty(id)) {
+			return;
+		}
+		bool snapshotted = false;
+        for (int i = 0; i < beads.Count; i++)
+        {
+            var b = beads[i];
+            if (b.CatalogSource != catalogName) {
+				continue;
+			}
+			if (b.Manufacturer != manufacturer || b.Id != id) {
+				continue;
+			}
+			if (!snapshotted) { Snapshot(); snapshotted = true; }
+            b.CatalogSource = "";
+            ColorChanged?.Invoke(i);
+        }
+        if (snapshotted) {
+			SetModified();
+		}
+	}
+
     public int AddBead(Bead bead)
     {
         Snapshot();
         beads.Add(bead);
         SetModified();
-        var idx = beads.Count - 1;
+        int idx = beads.Count - 1;
         BeadAdded?.Invoke(idx);
         return idx;
     }
@@ -92,14 +125,19 @@ public class BeadModel
     /// higher index get decremented so existing patterns stay visually consistent.
     public bool RemoveBeadAt(int index)
     {
-        if (index <= 0 || index >= beads.Count) return false;
-        Snapshot();
-        for (var i = 0; i <= grid.LastIndex; i++)
+        if (index <= 0 || index >= beads.Count) {
+			return false;
+		}
+		Snapshot();
+        for (int i = 0; i <= grid.LastIndex; i++)
         {
-            var c = grid.Get(i);
-            if (c == index) grid.Set(i, 0);
-            else if (c > index) grid.Set(i, (byte)(c - 1));
-        }
+            byte c = grid.Get(i);
+            if (c == index) {
+				grid.Set(i, 0);
+			} else if (c > index) {
+				grid.Set(i, (byte)(c - 1));
+			}
+		}
         beads.RemoveAt(index);
         if (colorIndex == index) { colorIndex = 0; SelectedColorChanged?.Invoke(0); }
         else if (colorIndex > index) { colorIndex = (byte)(colorIndex - 1); SelectedColorChanged?.Invoke(colorIndex); }
@@ -114,8 +152,10 @@ public class BeadModel
         get => colorIndex;
         set
         {
-            if (colorIndex == value) return;
-            colorIndex = value;
+            if (colorIndex == value) {
+				return;
+			}
+			colorIndex = value;
             SelectedColorChanged?.Invoke(value);
         }
     }
@@ -194,21 +234,25 @@ public class BeadModel
     {
         Snapshot();
         SetModified();
-        var color = colorIndex;
-        var background = grid.Get(pt);
-        var start = grid.GetIndex(pt);
-        for (var i = start; i >= 0; i--)
+        byte color = colorIndex;
+        byte background = grid.Get(pt);
+        int start = grid.GetIndex(pt);
+        for (int i = start; i >= 0; i--)
         {
             var p = grid.GetPoint(i);
-            if (grid.Get(p) != background) break;
-            Set(p, color);
+            if (grid.Get(p) != background) {
+				break;
+			}
+			Set(p, color);
         }
-        var last = grid.GetIndex(new Point(Width - 1, GetUsedHeight() - 1));
-        for (var i = start + 1; i <= last; i++)
+        int last = grid.GetIndex(new Point(Width - 1, GetUsedHeight() - 1));
+        for (int i = start + 1; i <= last; i++)
         {
             var p = grid.GetPoint(i);
-            if (grid.Get(p) != background) break;
-            Set(p, color);
+            if (grid.Get(p) != background) {
+				break;
+			}
+			Set(p, color);
         }
         SetRepeatDirty();
     }
@@ -222,26 +266,36 @@ public class BeadModel
     /// the whole operation.
     public void FillLineBounded(int originX, int yMin, int yMax)
     {
-        if (originX < 0 || originX >= Width) return;
-        var lo = Math.Max(0, yMin);
-        var hi = Math.Min(Height - 1, yMax);
-        if (lo > hi) return;
-        var color = colorIndex;
+        if (originX < 0 || originX >= Width) {
+			return;
+		}
+		int lo = Math.Max(0, yMin);
+        int hi = Math.Min(Height - 1, yMax);
+        if (lo > hi) {
+			return;
+		}
+		byte color = colorIndex;
         Snapshot();
         SetModified();
-        for (var y = lo; y <= hi; y++)
+        for (int y = lo; y <= hi; y++)
         {
-            var seed = grid.Get(new Point(originX, y));
-            if (seed == color) continue;
-            for (var x = originX; x >= 0; x--)
+            byte seed = grid.Get(new Point(originX, y));
+            if (seed == color) {
+				continue;
+			}
+			for (int x = originX; x >= 0; x--)
             {
-                if (grid.Get(new Point(x, y)) != seed) break;
-                grid.Set(new Point(x, y), color);
+                if (grid.Get(new Point(x, y)) != seed) {
+					break;
+				}
+				grid.Set(new Point(x, y), color);
             }
-            for (var x = originX + 1; x < Width; x++)
+            for (int x = originX + 1; x < Width; x++)
             {
-                if (grid.Get(new Point(x, y)) != seed) break;
-                grid.Set(new Point(x, y), color);
+                if (grid.Get(new Point(x, y)) != seed) {
+					break;
+				}
+				grid.Set(new Point(x, y), color);
             }
         }
         SetRepeatDirty();
@@ -254,31 +308,39 @@ public class BeadModel
     /// No-op if the seed already has the selected colour.
     public void ReplaceColor(Point seed, Rect? bounds = null)
     {
-        if (seed.X < 0 || seed.X >= Width || seed.Y < 0 || seed.Y >= Height) return;
-        var target = grid.Get(seed);
-        var color = colorIndex;
-        if (target == color) return;
-        Snapshot();
+        if (seed.X < 0 || seed.X >= Width || seed.Y < 0 || seed.Y >= Height) {
+			return;
+		}
+		byte target = grid.Get(seed);
+        byte color = colorIndex;
+        if (target == color) {
+			return;
+		}
+		Snapshot();
         SetModified();
         if (bounds is null)
         {
-            for (var i = 0; i <= grid.LastIndex; i++)
+            for (int i = 0; i <= grid.LastIndex; i++)
             {
-                if (grid.Get(i) == target) Set(i, color);
-            }
+                if (grid.Get(i) == target) {
+					Set(i, color);
+				}
+			}
         }
         else
         {
-            var l = Math.Max(0, bounds.Left);
-            var r = Math.Min(Width - 1, bounds.Right);
-            var b = Math.Max(0, bounds.Bottom);
-            var t = Math.Min(Height - 1, bounds.Top);
-            for (var y = b; y <= t; y++)
-                for (var x = l; x <= r; x++)
+            int l = Math.Max(0, bounds.Left);
+            int r = Math.Min(Width - 1, bounds.Right);
+            int b = Math.Max(0, bounds.Bottom);
+            int t = Math.Min(Height - 1, bounds.Top);
+            for (int y = b; y <= t; y++)
+                for (int x = l; x <= r; x++)
                 {
                     var p = new Point(x, y);
-                    if (grid.Get(p) == target) Set(p, color);
-                }
+                    if (grid.Get(p) == target) {
+						Set(p, color);
+					}
+				}
         }
         SetRepeatDirty();
     }
@@ -287,32 +349,38 @@ public class BeadModel
     /// clipped to the grid; an empty rect is a no-op.
     public void FillRect(Rect rect)
     {
-        var l = Math.Max(0, rect.Left);
-        var r = Math.Min(Width - 1, rect.Right);
-        var b = Math.Max(0, rect.Bottom);
-        var t = Math.Min(Height - 1, rect.Top);
-        if (l > r || b > t) return;
-        Snapshot();
+        int l = Math.Max(0, rect.Left);
+        int r = Math.Min(Width - 1, rect.Right);
+        int b = Math.Max(0, rect.Bottom);
+        int t = Math.Min(Height - 1, rect.Top);
+        if (l > r || b > t) {
+			return;
+		}
+		Snapshot();
         SetModified();
-        var color = colorIndex;
-        for (var y = b; y <= t; y++)
-            for (var x = l; x <= r; x++) Set(new Point(x, y), color);
-        SetRepeatDirty();
+        byte color = colorIndex;
+        for (int y = b; y <= t; y++)
+            for (int x = l; x <= r; x++) {
+				Set(new Point(x, y), color);
+			}
+			SetRepeatDirty();
     }
 
     /// Snapshot the bytes inside rect into a [width,height] array. Used by Copy.
     public byte[,] CopyRect(Rect rect)
     {
-        var l = Math.Max(0, rect.Left);
-        var r = Math.Min(Width - 1, rect.Right);
-        var b = Math.Max(0, rect.Bottom);
-        var t = Math.Min(Height - 1, rect.Top);
-        var w = Math.Max(0, r - l + 1);
-        var h = Math.Max(0, t - b + 1);
-        var data = new byte[w, h];
-        for (var y = 0; y < h; y++)
-            for (var x = 0; x < w; x++) data[x, y] = grid.Get(new Point(l + x, b + y));
-        return data;
+        int l = Math.Max(0, rect.Left);
+        int r = Math.Min(Width - 1, rect.Right);
+        int b = Math.Max(0, rect.Bottom);
+        int t = Math.Min(Height - 1, rect.Top);
+        int w = Math.Max(0, r - l + 1);
+        int h = Math.Max(0, t - b + 1);
+        byte[,] data = new byte[w, h];
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++) {
+				data[x, y] = grid.Get(new Point(l + x, b + y));
+			}
+			return data;
     }
 
     /// Paste source once, anchored at target's bottom-left corner. Empty
@@ -323,19 +391,25 @@ public class BeadModel
     /// events would scale O(paste × cells) and lock up large grids.
     public void PasteRect(Rect target, byte[,] source)
     {
-        var sw = source.GetLength(0);
-        var sh = source.GetLength(1);
-        if (sw == 0 || sh == 0) return;
-        var l = Math.Max(0, target.Left);
-        var b = Math.Max(0, target.Bottom);
-        if (l >= Width || b >= Height) return;
-        var r = Math.Min(Width - 1, l + sw - 1);
-        var t = Math.Min(Height - 1, b + sh - 1);
+        int sw = source.GetLength(0);
+        int sh = source.GetLength(1);
+        if (sw == 0 || sh == 0) {
+			return;
+		}
+		int l = Math.Max(0, target.Left);
+        int b = Math.Max(0, target.Bottom);
+        if (l >= Width || b >= Height) {
+			return;
+		}
+		int r = Math.Min(Width - 1, l + sw - 1);
+        int t = Math.Min(Height - 1, b + sh - 1);
         Snapshot();
         SetModified();
-        for (var y = b; y <= t; y++)
-            for (var x = l; x <= r; x++) grid.Set(new Point(x, y), source[x - l, y - b]);
-        SetRepeatDirty();
+        for (int y = b; y <= t; y++)
+            for (int x = l; x <= r; x++) {
+				grid.Set(new Point(x, y), source[x - l, y - b]);
+			}
+			SetRepeatDirty();
         FireModelChanged();
     }
 
@@ -353,7 +427,7 @@ public class BeadModel
     {
         get
         {
-            var h = GetUsedHeight();
+            int h = GetUsedHeight();
             return h == 0 ? Rect.Empty : grid.GetRect(0, h - 1);
         }
     }
@@ -396,9 +470,13 @@ public class BeadModel
 
     public void NormalizeShift()
     {
-        while (shift < 0) shift += Width;
-        while (shift > Width) shift -= Width;
-    }
+        while (shift < 0) {
+			shift += Width;
+		}
+		while (shift > Width) {
+			shift -= Width;
+		}
+	}
 
     public void Clear()
     {
@@ -443,15 +521,19 @@ public class BeadModel
     public void Undo()
     {
         var s = undo.Undo(grid, beads, colorIndex, modified);
-        if (s is null) return;
-        RestoreFrom(s);
+        if (s is null) {
+			return;
+		}
+		RestoreFrom(s);
     }
 
     public void Redo()
     {
         var s = undo.Redo(grid, beads, colorIndex, modified);
-        if (s is null) return;
-        RestoreFrom(s);
+        if (s is null) {
+			return;
+		}
+		RestoreFrom(s);
     }
 
     private void RestoreFrom(ModelSnapshot s)
@@ -494,8 +576,10 @@ public class BeadModel
     public void SetGridSize(int px)
     {
         px = Math.Clamp(px, MinGridSize, MaxGridSize);
-        if (gridx == px && gridy == px) return;
-        gridx = gridy = px;
+        if (gridx == px && gridy == px) {
+			return;
+		}
+		gridx = gridy = px;
         zoomIndex = SyntheticZoomIndex(px);
         ZoomChanged?.Invoke(gridx, gridy);
     }
@@ -508,16 +592,23 @@ public class BeadModel
     /// can still carry something useful in the `view/zoom` field.
     private static int SyntheticZoomIndex(int px)
     {
-        for (var i = 0; i < ZoomTable.Length; i++)
-            if (ZoomTable[i] == px) return i;
-        // Not on the legacy table — clamp to nearest entry.
-        if (px < ZoomTable[0]) return 0;
-        if (px > ZoomTable[^1]) return ZoomTable.Length - 1;
-        var best = 0;
-        var bestD = int.MaxValue;
-        for (var i = 0; i < ZoomTable.Length; i++)
+        for (int i = 0; i < ZoomTable.Length; i++) {
+			if (ZoomTable[i] == px) {
+				return i;
+			}
+		}
+		// Not on the legacy table — clamp to nearest entry.
+        if (px < ZoomTable[0]) {
+			return 0;
+		}
+		if (px > ZoomTable[^1]) {
+			return ZoomTable.Length - 1;
+		}
+		int best = 0;
+        int bestD = int.MaxValue;
+        for (int i = 0; i < ZoomTable.Length; i++)
         {
-            var d = Math.Abs(ZoomTable[i] - px);
+            int d = Math.Abs(ZoomTable[i] - px);
             if (d < bestD) { bestD = d; best = i; }
         }
         return best;
@@ -525,7 +616,7 @@ public class BeadModel
 
     public void UpdateRepeat()
     {
-        var h = GetUsedHeight();
+        int h = GetUsedHeight();
         SetRepeat(h == 0 ? 0 : CalcRepeat(h));
     }
 
@@ -538,12 +629,12 @@ public class BeadModel
 
     private int CalcRepeat(int usedHeight)
     {
-        for (var i = 1; i < usedHeight * Width; i++)
+        for (int i = 1; i < usedHeight * Width; i++)
         {
             if (grid.Get(i) == grid.Get(0))
             {
-                var ok = true;
-                for (var k = i + 1; k < usedHeight * Width; k++)
+                bool ok = true;
+                for (int k = i + 1; k < usedHeight * Width; k++)
                 {
                     if (grid.Get((k - i) % i) != grid.Get(k))
                     {
@@ -551,19 +642,23 @@ public class BeadModel
                         break;
                     }
                 }
-                if (ok) return i;
-            }
+                if (ok) {
+					return i;
+				}
+			}
         }
         return usedHeight * Width;
     }
 
     public int GetUsedHeight()
     {
-        var usedHeight = 0;
+        int usedHeight = 0;
         foreach (var p in grid.FullRect)
         {
-            if (grid.Get(p) > 0) usedHeight = p.Y + 1;
-        }
+            if (grid.Get(p) > 0) {
+				usedHeight = p.Y + 1;
+			}
+		}
         return usedHeight;
     }
 
@@ -592,8 +687,10 @@ public class BeadModel
         get => stringColor;
         set
         {
-            if (stringColor.ToArgb() == value.ToArgb()) return;
-            stringColor = value;
+            if (stringColor.ToArgb() == value.ToArgb()) {
+				return;
+			}
+			stringColor = value;
             SetModified();
             StringColorChanged?.Invoke();
         }
@@ -608,19 +705,23 @@ public class BeadModel
     public List<BeadUsage> GetMergedBeadUsage()
     {
         // Count cells per palette index first.
-        var counts = new int[ColorCount];
-        for (var i = 0; i <= grid.LastIndex; i++)
+        int[] counts = new int[ColorCount];
+        for (int i = 0; i <= grid.LastIndex; i++)
         {
-            var c = grid.Get(i);
-            if (c < counts.Length) counts[c]++;
-        }
+            byte c = grid.Get(i);
+            if (c < counts.Length) {
+				counts[c]++;
+			}
+		}
 
         var result = new List<BeadUsage>();
-        var handled = new bool[ColorCount];
-        for (var i = 1; i < ColorCount; i++) // skip background
+        bool[] handled = new bool[ColorCount];
+        for (int i = 1; i < ColorCount; i++) // skip background
         {
-            if (handled[i] || counts[i] == 0) continue;
-            var bead = beads[i];
+            if (handled[i] || counts[i] == 0) {
+				continue;
+			}
+			var bead = beads[i];
             var usage = new BeadUsage
             {
                 RepresentativeColor = bead.Color,
@@ -636,10 +737,12 @@ public class BeadModel
             // coincidence, not a real identity).
             if (!string.IsNullOrEmpty(bead.Manufacturer) && !string.IsNullOrEmpty(bead.Id))
             {
-                for (var j = i + 1; j < ColorCount; j++)
+                for (int j = i + 1; j < ColorCount; j++)
                 {
-                    if (handled[j] || counts[j] == 0) continue;
-                    var other = beads[j];
+                    if (handled[j] || counts[j] == 0) {
+						continue;
+					}
+					var other = beads[j];
                     if (other.Manufacturer == bead.Manufacturer && other.Id == bead.Id)
                     {
                         usage.Count += counts[j];
@@ -659,15 +762,17 @@ public class BeadModel
     /// pattern). Returns an empty list if the pattern is empty.
     public List<(byte Color, int Count)> GetThreadingRuns()
     {
-        var h = GetUsedHeight();
-        if (h == 0) return new List<(byte, int)>();
-        var last = h * Width - 1;
+        int h = GetUsedHeight();
+        if (h == 0) {
+			return new List<(byte, int)>();
+		}
+		int last = h * Width - 1;
         var runs = new List<(byte, int)>();
-        var color = grid.Get(last);
-        var count = 1;
-        for (var i = last - 1; i >= 0; i--)
+        byte color = grid.Get(last);
+        int count = 1;
+        for (int i = last - 1; i >= 0; i--)
         {
-            var c = grid.Get(i);
+            byte c = grid.Get(i);
             if (c == color)
             {
                 count++;
@@ -686,14 +791,16 @@ public class BeadModel
     internal void ReplaceBeadsInternal(List<Bead> newBeads)
     {
         beads = newBeads;
-        if (beads.Count == 0) beads.Add(new Bead(Color.White));
-        ColorsChanged?.Invoke();
+        if (beads.Count == 0) {
+			beads.Add(new Bead(Color.White));
+		}
+		ColorsChanged?.Invoke();
     }
 
     internal void ApplyLoadedZoomIndex(int value)
     {
         // Legacy: file stores an index into the old ZoomTable. Map it to a pixel size.
-        var idx = Math.Clamp(value, 0, ZoomTable.Length - 1);
+        int idx = Math.Clamp(value, 0, ZoomTable.Length - 1);
         zoomIndex = idx;
         gridx = gridy = ZoomTable[idx];
         ZoomChanged?.Invoke(gridx, gridy);

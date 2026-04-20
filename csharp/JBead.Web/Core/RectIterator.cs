@@ -21,11 +21,15 @@ public sealed class RectIterator : IEnumerator<Point>
 
     public bool MoveNext()
     {
-        if (next is null) return false;
-        current = next.Value;
+        if (next is null) {
+			return false;
+		}
+		current = next.Value;
         var advanced = current.NextRight();
-        if (advanced.X > end.X) advanced = new Point(begin.X, advanced.Y + 1);
-        next = advanced.Y > end.Y ? null : advanced;
+        if (advanced.X > end.X) {
+			advanced = new Point(begin.X, advanced.Y + 1);
+		}
+		next = advanced.Y > end.Y ? null : advanced;
         return true;
     }
 

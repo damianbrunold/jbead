@@ -4,13 +4,13 @@
 
 @{
     var model = State.Model;
-    var gridx = model.GridX;
-    var gridy = model.GridY;
+    int gridx = model.GridX;
+    int gridy = model.GridY;
     // Viewport height is exactly model.Height — grown/shrunk only via the toolbar buttons.
-    var renderedRows = model.Height;
-    var svgHeight = renderedRows * gridy + 8;
-    var svgWidth = MarkerWidth + Gap + model.Width * gridx + 4;
-    var offsetx = MarkerWidth + Gap;
+    int renderedRows = model.Height;
+    int svgHeight = renderedRows * gridy + 8;
+    int svgWidth = MarkerWidth + Gap + model.Width * gridx + 4;
+    int offsetx = MarkerWidth + Gap;
 }
 
 <div class="draft-host" @onpointerup="OnPointerUpFallback" @onpointerleave="OnPointerUpFallback">
@@ -22,26 +22,26 @@
          xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="@svgWidth" height="@svgHeight" fill="#d3d3d3" />
         @* Beads — row 0 at the bottom of the SVG, matching the Java layout. *@
-        @for (var j = 0; j < renderedRows; j++)
+        @for (int j = 0; j < renderedRows; j++)
         {
-            for (var i = 0; i < model.Width; i++)
+            for (int i = 0; i < model.Width; i++)
             {
-                var col = i;
-                var row = j;
-                var x = offsetx + col * gridx;
-                var y = svgHeight - 1 - (row + 1) * gridy;
+                int col = i;
+                int row = j;
+                int x = offsetx + col * gridx;
+                int y = svgHeight - 1 - (row + 1) * gridy;
                 <BeadPoint @key="@(col * 10000 + row)" Col="@col" DisplayRow="@row"
                            X="@x" Y="@y" W="@gridx" H="@gridy" />
             }
         }
         @* Row markers every 10 rows + a final marker at the used-height cap. *@
-        @for (var j = 0; j < renderedRows; j++)
+        @for (int j = 0; j < renderedRows; j++)
         {
             if (j % 10 == 0)
             {
-                var ly = svgHeight - 1 - j * gridy;
-                var lineLeft = offsetx - Gap - MarkerWidth;
-                var lineRight = offsetx - Gap;
+                int ly = svgHeight - 1 - j * gridy;
+                int lineLeft = offsetx - Gap - MarkerWidth;
+                int lineRight = offsetx - Gap;
                 <line x1="@lineLeft" y1="@ly" x2="@lineRight" y2="@ly" stroke="#444" stroke-width="1" />
                 @((MarkupString)$"<text x=\"{offsetx - Gap - 4}\" y=\"{ly - 2}\" text-anchor=\"end\" font-family=\"system-ui, sans-serif\" font-size=\"11\" fill=\"#444\">{j}</text>")
             }

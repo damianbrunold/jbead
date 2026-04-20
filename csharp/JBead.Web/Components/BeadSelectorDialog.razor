@@ -20,9 +20,9 @@
                         @onclick="() => SetTab(DefaultTab)">@Loc["ui.default"]</button>
                 @foreach (var cat in CustomCatalog.Catalogs)
                 {
-                    var name = cat.Name;
-                    var label = cat.Label;
-                    var tabTooltip = string.IsNullOrEmpty(cat.Author) ? label : $"{label} — by {cat.Author}";
+                    string name = cat.Name;
+                    string label = cat.Label;
+                    string tabTooltip = string.IsNullOrEmpty(cat.Author) ? label : $"{label} — by {cat.Author}";
                     <button type="button" class="catalog-tab @(activeTab == name ? "active" : "")"
                             title="@tabTooltip"
                             @onclick="() => SetTab(name)">
@@ -44,10 +44,10 @@
                 @if (activeTab == DefaultTab)
                 {
                     <div class="bead-catalog">
-                        @for (var i = 0; i < DefaultColors.Palette.Length; i++)
+                        @for (int i = 0; i < DefaultColors.Palette.Length; i++)
                         {
                             var c = DefaultColors.Palette[i];
-                            var hex = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+                            string hex = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
                             <button type="button" class="catalog-tile" style="background:@hex" title="@hex"
                                     @onclick="() => PickDefault(c)"></button>
                         }
@@ -67,14 +67,12 @@
                             <div class="catalog-author">by <strong>@cat.Author</strong></div>
                         }
                         <div class="bead-catalog">
-                            @for (var i = 0; i < cat.Beads.Count; i++)
+                            @for (int i = 0; i < cat.Beads.Count; i++)
                             {
-                                var idx = i;
+                                int idx = i;
                                 var b = cat.Beads[i];
-                                var hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
-                                var finishCss = b.Finish == BeadFinish.Opaque
-                                    ? ""
-                                    : $"finish-{b.Finish.ToString().ToLowerInvariant()}";
+                                string hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
+                                string finishCss = BeadFinishConverter.ToCssClass(b.Finish);
                                 // background-color (not shorthand) so finish CSS classes can
                                 // layer background-image gradients on top.
                                 <button type="button" class="catalog-tile @finishCss"
@@ -210,7 +208,7 @@
         var parts = new List<string>();
         if (!string.IsNullOrEmpty(b.Manufacturer)) parts.Add(b.Manufacturer);
         if (!string.IsNullOrEmpty(b.Id)) parts.Add(b.Id);
-        if (b.Finish != BeadFinish.Opaque) parts.Add(b.Finish.ToString());
+        if (b.Finish != BeadFinish.Opaque) parts.Add(BeadFinishConverter.ToCanonicalString(b.Finish));
         return parts.Count > 0 ? string.Join(" ", parts) : Loc["ui.custombead"];
     }
 
@@ -298,10 +296,10 @@
 
     private async Task ExportTab(string catalogName)
     {
-        var json = CustomCatalog.ExportJson(catalogName);
-        var b64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        string json = CustomCatalog.ExportJson(catalogName);
+        string b64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
         var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
-        var baseName = cat is null ? catalogName : cat.Label;
+        string baseName = cat is null ? catalogName : cat.Label;
         await JS.InvokeAsync<bool>("jbeadSave", $"{SafeFileName(baseName)}.jbeadcat", b64);
     }
 
@@ -309,16 +307,16 @@
     {
         var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
         if (cat is null) return;
-        var newDisplay = await JS.InvokeAsync<string?>("prompt", "Display name:", cat.Label);
+        string? newDisplay = await JS.InvokeAsync<string?>("prompt", "Display name:", cat.Label);
         if (newDisplay is null) return;
-        var newAuthor = await JS.InvokeAsync<string?>("prompt", "Author:", cat.Author);
+        string? newAuthor = await JS.InvokeAsync<string?>("prompt", "Author:", cat.Author);
         if (newAuthor is null) return;
         await CustomCatalog.UpdateCatalogMetadataAsync(catalogName, newDisplay, newAuthor);
     }
 
     private async Task RemoveTab(string catalogName)
     {
-        var ok = await JS.InvokeAsync<bool>("confirm", Loc["dialog.catalog.delete.confirm", [catalogName]]);
+        bool ok = await JS.InvokeAsync<bool>("confirm", Loc["dialog.catalog.delete.confirm", [catalogName]]);
         if (!ok) return;
         await CustomCatalog.RemoveCatalogAsync(catalogName);
         if (activeTab == catalogName) activeTab = CustomBeadCatalog.SessionName;
@@ -331,15 +329,15 @@
         await using var stream = file.OpenReadStream(maxAllowedSize: 1 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
-        var json = Encoding.UTF8.GetString(ms.ToArray());
+        string json = Encoding.UTF8.GetString(ms.ToArray());
         await CustomCatalog.ImportJsonAsync(json, file.Name);
         activeTab = CustomCatalog.Catalogs.Last().Name;
     }
 
     private static string SafeFileName(string s)
     {
-        var invalid = System.IO.Path.GetInvalidFileNameChars();
-        foreach (var ch in invalid) s = s.Replace(ch, '_');
+        char[] invalid = System.IO.Path.GetInvalidFileNameChars();
+        foreach (char ch in invalid) s = s.Replace(ch, '_');
         return string.IsNullOrWhiteSpace(s) ? "catalog" : s;
     }
 }

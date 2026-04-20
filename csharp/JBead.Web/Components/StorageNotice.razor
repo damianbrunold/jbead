@@ -21,7 +21,7 @@
     {
         try
         {
-            var v = await JS.InvokeAsync<string?>("jbeadStorage.get", DismissKey);
+            string? v = await JS.InvokeAsync<string?>("jbeadStorage.get", DismissKey);
             visible = v != "1";
         }
         catch

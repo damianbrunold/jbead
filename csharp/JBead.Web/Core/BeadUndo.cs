@@ -11,8 +11,10 @@ public class BeadUndo
 
     public BeadUndo()
     {
-        for (var i = 0; i < MaxUndo; i++) snaps[i] = new ModelSnapshot();
-    }
+        for (int i = 0; i < MaxUndo; i++) {
+			snaps[i] = new ModelSnapshot();
+		}
+	}
 
     public bool CanUndo => current != first;
     public bool CanRedo => current != last;
@@ -28,28 +30,36 @@ public class BeadUndo
     {
         snaps[current].Store(field, beads, selectedColor, modified);
         current = (current + 1) % MaxUndo;
-        if (current == first) first = (first + 1) % MaxUndo;
-        last = current;
+        if (current == first) {
+			first = (first + 1) % MaxUndo;
+		}
+		last = current;
     }
 
     public void PrepareSnapshot(BeadField field, IReadOnlyList<Bead> beads, byte selectedColor, bool modified)
     {
-        if (!modified) return;
-        snaps[current].Store(field, beads, selectedColor, modified);
+        if (!modified) {
+			return;
+		}
+		snaps[current].Store(field, beads, selectedColor, modified);
     }
 
     public ModelSnapshot? Undo(BeadField liveField, IReadOnlyList<Bead> liveBeads, byte liveSelected, bool liveModified)
     {
-        if (current == first) return null;
-        snaps[current].Store(liveField, liveBeads, liveSelected, liveModified);
+        if (current == first) {
+			return null;
+		}
+		snaps[current].Store(liveField, liveBeads, liveSelected, liveModified);
         current = (current - 1 + MaxUndo) % MaxUndo;
         return snaps[current];
     }
 
     public ModelSnapshot? Redo(BeadField liveField, IReadOnlyList<Bead> liveBeads, byte liveSelected, bool liveModified)
     {
-        if (current == last) return null;
-        current = (current + 1) % MaxUndo;
+        if (current == last) {
+			return null;
+		}
+		current = (current + 1) % MaxUndo;
         return snaps[current];
     }
 }

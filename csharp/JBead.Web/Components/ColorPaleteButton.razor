@@ -2,6 +2,7 @@
 @inject AppState State
 @inject DialogStack DialogStack
 @inject LocalizationService Loc
+@inject CustomBeadCatalog CustomCatalog
 @implements IDisposable
 
 @* Selected ring lives on the wrap so it survives Bootstrap's button reset and the
@@ -29,13 +30,34 @@
          @oncontextmenu:preventDefault="true"></div>
     <div class="ctx-menu" style="top:@(menuY)px; left:@(menuX)px; z-index:@(menuZ + 1)"
          @onclick:stopPropagation="true">
-        <button type="button" @onclick="ReplaceFromMenu">@Loc["ui.replacecolor"]</button>
+        <button type="button" @onclick="ReplaceFromMenu">@Loc["ui.replacebead"]</button>
+        @if (CustomCatalog.Catalogs.Count > 0)
+        {
+            <div class="ctx-submenu-wrap">
+                <button type="button" class="has-submenu">@Loc["ui.add.category"]</button>
+                <div class="ctx-submenu">
+                    @foreach (var cat in CustomCatalog.Catalogs)
+                    {
+                        string name = cat.Name;
+                        <button type="button" @onclick="() => OpenRegisterDialog(name)">@CatalogDisplayName(cat)</button>
+                    }
+                </div>
+            </div>
+        }
         @if (Index > 0)
         {
             <button type="button" class="danger" @onclick="DeleteFromMenu">@Loc["ui.delete"]</button>
         }
     </div>
 }
+
+<BeadEditDialog IsOpen="@registerDialogOpen"
+                Title="@registerDialogTitle"
+                InitialBead="@registerInitialBead"
+                ShowSaveToLibrary="false"
+                CanDelete="false"
+                OnSave="OnRegisterSave"
+                OnClose="CloseRegisterDialog" />
 
 @code {
     [Parameter] public int Index { get; set; }
@@ -58,6 +80,11 @@
     private int menuY;
     private int menuZ;
 
+    private bool registerDialogOpen;
+    private string registerTargetName = "";
+    private string registerDialogTitle = "";
+    private Bead? registerInitialBead;
+
     protected override void OnInitialized()
     {
         Refresh();
@@ -66,7 +93,18 @@
         State.Model.ColorChanged += OnColorChanged;
         State.Model.ColorsChanged += OnColorsChanged;
         Loc.LanguageChanged += OnLanguageChanged;
+        CustomCatalog.Changed += OnCatalogChanged;
+        // Fire-and-forget load; the context menu re-renders once the catalogs arrive.
+        _ = EnsureCatalogLoaded();
     }
+
+    private async Task EnsureCatalogLoaded()
+    {
+        await CustomCatalog.EnsureLoadedAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnCatalogChanged() => InvokeAsync(StateHasChanged);
 
     public void Dispose()
     {
@@ -74,6 +112,7 @@
         State.Model.ColorChanged -= OnColorChanged;
         State.Model.ColorsChanged -= OnColorsChanged;
         Loc.LanguageChanged -= OnLanguageChanged;
+        CustomCatalog.Changed -= OnCatalogChanged;
         if (contextMenuVisible) DialogStack.Release();
     }
 
@@ -101,7 +140,7 @@
             isUnset = false;
             css = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
         }
-        finishClass = b.Finish == BeadFinish.Opaque ? "" : $"finish-{b.Finish.ToString().ToLowerInvariant()}";
+        finishClass = BeadFinishConverter.ToCssClass(b.Finish);
         // Tooltip includes all known metadata for this slot, regardless of whether it's
         // the background slot or a regular bead. Background still gets an extra hint
         // about its "paint to erase" role.
@@ -109,7 +148,7 @@
         parts.Add(Index == 0 ? Loc["bead.background"] : Loc["bead.nr", [Index.ToString()]]);
         if (!string.IsNullOrEmpty(b.Manufacturer)) parts.Add(b.Manufacturer);
         if (!string.IsNullOrEmpty(b.Id)) parts.Add(b.Id);
-        if (b.Finish != BeadFinish.Opaque) parts.Add(b.Finish.ToString());
+        if (b.Finish != BeadFinish.Opaque) parts.Add(BeadFinishConverter.ToCanonicalString(b.Finish));
         if (!string.IsNullOrEmpty(b.CatalogSource)) parts.Add(b.CatalogSource);
         if (Index == 0) parts.Add(Loc["bead.erase.hint"]);
         tooltip = string.Join(" — ", parts);
@@ -117,7 +156,7 @@
 
     private void OnSelectedChanged(byte newIndex)
     {
-        var next = newIndex == Index;
+        bool next = newIndex == Index;
         if (next == isSelected) return;
         isSelected = next;
         StateHasChanged();
@@ -168,5 +207,39 @@
     {
         CloseContextMenu();
         State.Model.RemoveBeadAt(Index);
+    }
+
+    private string CatalogDisplayName(BeadCatalog cat)
+    {
+        if (cat.Name == CustomBeadCatalog.SessionName) return Loc["catalog.session"];
+        return string.IsNullOrWhiteSpace(cat.DisplayName) ? cat.Name : cat.DisplayName;
+    }
+
+    private void OpenRegisterDialog(string catalogName)
+    {
+        CloseContextMenu();
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
+        if (cat is null) return;
+        registerTargetName = catalogName;
+        registerDialogTitle = Loc["ui.add.title", [CatalogDisplayName(cat)]];
+        registerInitialBead = State.Model.GetBead(Index).Clone();
+        registerDialogOpen = true;
+    }
+
+    private async Task OnRegisterSave(BeadEditResult result)
+    {
+        var edited = result.Bead;
+        // Push the edited metadata back onto the palette slot so the swatch tooltip
+        // and any later save reflect what the user just entered.
+        State.Model.SetColor(Index, edited.Color);
+        State.Model.UpdateBead(Index, edited.Manufacturer, edited.Id, edited.Finish, registerTargetName);
+        await CustomCatalog.AddBeadAsync(registerTargetName, new Bead(edited.Color, edited.Manufacturer, edited.Id, edited.Finish, registerTargetName));
+        CloseRegisterDialog();
+    }
+
+    private void CloseRegisterDialog()
+    {
+        registerDialogOpen = false;
+        registerInitialBead = null;
     }
 }

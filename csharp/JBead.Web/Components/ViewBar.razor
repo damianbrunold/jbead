@@ -25,13 +25,33 @@
         <button @onclick="OpenZoomDialog" title="@(Loc["ui.zoom.set"])">@(DraftZoomPercent)%</button>
         <button @onclick="() => State.Model.ZoomIn()" disabled="@(!CanZoomIn)" title="@(Loc["ui.zoom.in"])">+</button>
         <span class="sep"></span>
-        <button @onclick="NarrowWidth" disabled="@(!CanNarrow)" title="@(Loc["ui.cols.minus.tip"])">@Loc["ui.cols.minus"]</button>
-        <span class="rowcount" title="@(Loc["ui.patternwidth"])">@State.Model.Width</span>
-        <button @onclick="WidenWidth" disabled="@(!CanWiden)" title="@(Loc["ui.cols.plus.tip"])">@Loc["ui.cols.plus"]</button>
+        <div class="count-stepper" title="@(Loc["ui.patternwidth"])">
+            <input type="number" class="count-stepper-input" min="@MinCols" max="@MaxCols"
+                   @bind="WidthInput" @bind:event="onchange" />
+            <span class="count-stepper-label">@Loc["ui.cols"]</span>
+            <div class="count-stepper-popup">
+                <button @onclick="() => ChangeCols(-10)" disabled="@(!CanNarrowBy(10))">-10</button>
+                <button @onclick="() => ChangeCols(-5)" disabled="@(!CanNarrowBy(5))">-5</button>
+                <button @onclick="() => ChangeCols(-1)" disabled="@(!CanNarrowBy(1))">-1</button>
+                <button @onclick="() => ChangeCols(1)" disabled="@(!CanWidenBy(1))">+1</button>
+                <button @onclick="() => ChangeCols(5)" disabled="@(!CanWidenBy(5))">+5</button>
+                <button @onclick="() => ChangeCols(10)" disabled="@(!CanWidenBy(10))">+10</button>
+            </div>
+        </div>
         <span class="sep"></span>
-        <button @onclick="RemoveRows" disabled="@(!CanShrink)" title="@(Loc["ui.rows.minus.tip"])">@Loc["ui.rows.minus"]</button>
-        <span class="rowcount" title="@(Loc["ui.patternheight"])">@State.Model.Height</span>
-        <button @onclick="AddRows" title="@(Loc["ui.rows.plus.tip"])">@Loc["ui.rows.plus"]</button>
+        <div class="count-stepper" title="@(Loc["ui.patternheight"])">
+            <input type="number" class="count-stepper-input" min="@MinRows"
+                   @bind="HeightInput" @bind:event="onchange" />
+            <span class="count-stepper-label">@Loc["ui.rows"]</span>
+            <div class="count-stepper-popup">
+                <button @onclick="() => ChangeRows(-10)" disabled="@(!CanShrinkBy(10))">-10</button>
+                <button @onclick="() => ChangeRows(-5)" disabled="@(!CanShrinkBy(5))">-5</button>
+                <button @onclick="() => ChangeRows(-1)" disabled="@(!CanShrinkBy(1))">-1</button>
+                <button @onclick="() => ChangeRows(1)">+1</button>
+                <button @onclick="() => ChangeRows(5)">+5</button>
+                <button @onclick="() => ChangeRows(10)">+10</button>
+            </div>
+        </div>
         <span class="sep"></span>
         <button @onclick="() => State.Model.Undo()" disabled="@(!State.Model.CanUndo)">@Loc["ui.undo"]</button>
         <button @onclick="() => State.Model.Redo()" disabled="@(!State.Model.CanRedo)">@Loc["ui.redo"]</button>
@@ -83,33 +103,44 @@
 
     private async Task OpenZoomDialog()
     {
-        var minPct = (int)Math.Round(BeadModel.MinGridSize * 100.0 / BasePx);
-        var maxPct = (int)Math.Round(BeadModel.MaxGridSize * 100.0 / BasePx);
-        var entered = await JS.InvokeAsync<string?>("prompt",
+        int minPct = (int)Math.Round(BeadModel.MinGridSize * 100.0 / BasePx);
+        int maxPct = (int)Math.Round(BeadModel.MaxGridSize * 100.0 / BasePx);
+        string? entered = await JS.InvokeAsync<string?>("prompt",
             $"Zoom % ({minPct}–{maxPct}, 100 % = {BasePx} px):",
             DraftZoomPercent.ToString());
         if (entered is null) return;
-        var trimmed = entered.Trim().TrimEnd('%').Trim();
-        if (int.TryParse(trimmed, out var pct))
+        string trimmed = entered.Trim().TrimEnd('%').Trim();
+        if (int.TryParse(trimmed, out int pct))
         {
-            var px = (int)Math.Round(pct * BasePx / 100.0);
+            int px = (int)Math.Round(pct * BasePx / 100.0);
             State.Model.SetGridSize(px);
         }
     }
 
     // ---- Rows ----
 
-    private const int RowStep = 10;
     private const int MinRows = 10;
 
-    private bool CanShrink => State.Model.Height > MinRows;
+    private bool CanShrinkBy(int delta) => State.Model.Height - delta >= MinRows;
 
-    private void AddRows() => State.Model.SetHeight(State.Model.Height + RowStep);
-
-    private void RemoveRows()
+    private void ChangeRows(int delta)
     {
-        var target = Math.Max(MinRows, State.Model.Height - RowStep);
+        int target = Math.Max(MinRows, State.Model.Height + delta);
         if (target != State.Model.Height) State.Model.SetHeight(target);
+    }
+
+    // Two-way binding with clamp-on-commit. The setter always calls
+    // StateHasChanged on the snap-back path so out-of-range entries (e.g. "5")
+    // reset the input to the clamped model value instead of lingering.
+    private int HeightInput
+    {
+        get => State.Model.Height;
+        set
+        {
+            int target = Math.Max(MinRows, value);
+            if (target != State.Model.Height) State.Model.SetHeight(target);
+            else StateHasChanged();
+        }
     }
 
     // ---- Cols ----
@@ -117,9 +148,23 @@
     private const int MinCols = 5;
     private const int MaxCols = 500;
 
-    private bool CanNarrow => State.Model.Width > MinCols;
-    private bool CanWiden => State.Model.Width < MaxCols;
+    private bool CanNarrowBy(int delta) => State.Model.Width - delta >= MinCols;
+    private bool CanWidenBy(int delta) => State.Model.Width + delta <= MaxCols;
 
-    private void WidenWidth() { if (CanWiden) State.Model.SetWidth(State.Model.Width + 1); }
-    private void NarrowWidth() { if (CanNarrow) State.Model.SetWidth(State.Model.Width - 1); }
+    private void ChangeCols(int delta)
+    {
+        int target = Math.Clamp(State.Model.Width + delta, MinCols, MaxCols);
+        if (target != State.Model.Width) State.Model.SetWidth(target);
+    }
+
+    private int WidthInput
+    {
+        get => State.Model.Width;
+        set
+        {
+            int target = Math.Clamp(value, MinCols, MaxCols);
+            if (target != State.Model.Width) State.Model.SetWidth(target);
+            else StateHasChanged();
+        }
+    }
 }

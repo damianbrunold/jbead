@@ -27,8 +27,10 @@ public class Selection : Rect
 
     public void ClearSelection()
     {
-        if (!isSet && !active) return;
-        var snap = Snapshot();
+        if (!isSet && !active) {
+			return;
+		}
+		var snap = Snapshot();
         active = false;
         isSet = false;
         Deleted?.Invoke(snap);
@@ -45,8 +47,10 @@ public class Selection : Rect
 
     public void Update(Point newEnd)
     {
-        if (end.Equals(newEnd) && active == !begin.Equals(newEnd)) return;
-        var before = Snapshot();
+        if (end.Equals(newEnd) && active == !begin.Equals(newEnd)) {
+			return;
+		}
+		var before = Snapshot();
         end = newEnd;
         active = !begin.Equals(newEnd);
         Updated?.Invoke(before, Snapshot());
@@ -63,14 +67,19 @@ public class Selection : Rect
     {
         get
         {
-            var x = end.X;
-            var y = end.Y;
-            var ax = Math.Abs(DeltaX);
-            var ay = Math.Abs(DeltaY);
-            if (ax == 0 || ay == 0) return end;
-            if (ax > ay) x = begin.X + ay * Dx;
-            else y = begin.Y + ax * Dy;
-            return new Point(x, y);
+            int x = end.X;
+            int y = end.Y;
+            int ax = Math.Abs(DeltaX);
+            int ay = Math.Abs(DeltaY);
+            if (ax == 0 || ay == 0) {
+				return end;
+			}
+			if (ax > ay) {
+				x = begin.X + ay * Dx;
+			} else {
+				y = begin.Y + ax * Dy;
+			}
+			return new Point(x, y);
         }
     }
 
