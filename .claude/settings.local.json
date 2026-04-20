@@ -6,7 +6,8 @@
       "Bash(dotnet csharp/JBead.SmokeTest/bin/SmokeBuild/JBead.SmokeTest.dll)",
       "Bash(mkdir -p csharp/JBead.SmokeTest/bin/SmokeBuild)",
       "Bash(cp -r samples csharp/samples)",
-      "Bash(dotnet --version)"
+      "Bash(dotnet --version)",
+      "Bash(dotnet publish *)"
     ]
   }
 }

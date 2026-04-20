@@ -20,3 +20,6 @@ csharp/JBead.SmokeTest/bin/
 csharp/JBead.SmokeTest/obj/
 csharp/JBead.Web/bin/
 csharp/JBead.Web/obj/
+!csharp/JBead.Web/wwwroot/lib/
+!csharp/JBead.Web/wwwroot/lib/**/dist/
+!csharp/JBead.Web/wwwroot/lib/**/dist/**
