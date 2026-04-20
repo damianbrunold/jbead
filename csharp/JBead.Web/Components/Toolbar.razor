@@ -76,7 +76,7 @@
         State.Model.FileName = "unnamed.jbb";
     }
 
-    private void OpenPrint() => Nav.NavigateTo("/jbead/print");
+    private void OpenPrint() => State.PrintDialogOpen = true;
 
     private async Task SaveAs()
     {
