@@ -1,0 +1,343 @@
+@using System.Drawing
+@using System.Text
+@inject AppState State
+@inject CustomBeadCatalog CustomCatalog
+@inject IJSRuntime JS
+@inject DialogStack DialogStack
+@inject LocalizationService Loc
+@implements IDisposable
+
+@if (IsOpen)
+{
+    <div class="jb-modal-backdrop" style="z-index:@dialogZ" @onclick="Cancel">
+        <div class="jb-modal selector" @onclick:stopPropagation="true">
+            <h3>@Loc["ui.addbead"]</h3>
+
+            @* Tabs strip — horizontally scrollable when the dialog hits its width cap
+               and there are too many catalogs to fit. *@
+            <div class="catalog-tabs">
+                <button type="button" class="catalog-tab @(activeTab == DefaultTab ? "active" : "")"
+                        @onclick="() => SetTab(DefaultTab)">@Loc["ui.default"]</button>
+                @foreach (var cat in CustomCatalog.Catalogs)
+                {
+                    string name = cat.Name;
+                    string label = cat.Label;
+                    string tabTooltip = string.IsNullOrEmpty(cat.Author) ? label : $"{label} — by {cat.Author}";
+                    <button type="button" class="catalog-tab @(activeTab == name ? "active" : "")"
+                            title="@tabTooltip"
+                            @onclick="() => SetTab(name)">
+                        @label
+                        @if (cat.IsRemovable)
+                        {
+                            <span class="tab-count">(@cat.Beads.Count)</span>
+                        }
+                    </button>
+                }
+                @* "Import" behaves like a + tab — file input hidden behind a label. *@
+                <label class="catalog-tab import-tab" title="@(Loc["dialog.catalog.importtip"])">
+                    @Loc["ui.import"]
+                    <InputFile OnChange="OnImport" accept=".jbeadcat,.json" style="display:none" />
+                </label>
+            </div>
+
+            <div class="catalog-body">
+                @if (activeTab == DefaultTab)
+                {
+                    <div class="bead-catalog">
+                        @for (int i = 0; i < DefaultColors.Palette.Length; i++)
+                        {
+                            var c = DefaultColors.Palette[i];
+                            string hex = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+                            <button type="button" class="catalog-tile" style="background:@hex" title="@hex"
+                                    @onclick="() => PickDefault(c)"></button>
+                        }
+                    </div>
+                }
+                else
+                {
+                    var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == activeTab);
+                    if (cat is null)
+                    {
+                        <div class="empty-hint">@Loc["dialog.catalog.notexist"]</div>
+                    }
+                    else
+                    {
+                        @if (!string.IsNullOrEmpty(cat.Author))
+                        {
+                            <div class="catalog-author">by <strong>@cat.Author</strong></div>
+                        }
+                        <div class="bead-catalog">
+                            @for (int i = 0; i < cat.Beads.Count; i++)
+                            {
+                                int idx = i;
+                                var b = cat.Beads[i];
+                                string hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
+                                string finishCss = BeadFinishConverter.ToCssClass(b.Finish);
+                                // background-color (not shorthand) so finish CSS classes can
+                                // layer background-image gradients on top.
+                                <button type="button" class="catalog-tile @finishCss"
+                                        style="background-color:@hex"
+                                        title="@TileTitle(b)"
+                                        @onclick="() => PickCustom(b)"
+                                        @oncontextmenu="e => OpenTileContextMenu(e, cat.Name, idx)"
+                                        @oncontextmenu:preventDefault="true"></button>
+                            }
+                            @* Trailing "+" tile — add a new bead to THIS catalog. *@
+                            <button type="button" class="catalog-tile add-new" title="@(Loc["dialog.catalog.newbead"])"
+                                    @onclick="() => StartCatalogAdd(cat.Name)">+</button>
+                        </div>
+                    }
+                }
+            </div>
+
+            @* Actions pinned to the bottom — catalog-level Export/Info/Delete live here,
+               so the tile body stays clean. They apply to the active tab. *@
+            <div class="actions selector-actions">
+                @{
+                    var active = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == activeTab);
+                }
+                @if (active is not null)
+                {
+                    <button type="button" class="small" @onclick="() => ExportTab(active.Name)">@Loc["ui.export"]</button>
+                    <button type="button" class="small" @onclick="() => EditInfoTab(active.Name)">
+                        @(active.IsRemovable ? Loc["ui.editinfo"] : Loc["ui.author"])
+                    </button>
+                    @if (active.IsRemovable)
+                    {
+                        <button type="button" class="small danger" @onclick="() => RemoveTab(active.Name)">@Loc["ui.deletecatalog"]</button>
+                    }
+                }
+                <div class="spacer"></div>
+                <button type="button" @onclick="Cancel">@Loc["cancel"]</button>
+                <button type="button" class="primary" @onclick="OpenCustom">@Loc["ui.custom"]</button>
+            </div>
+        </div>
+    </div>
+}
+
+@* Tile context menu — appears at the click position; dismissed by clicking outside.
+   Acquires a higher z-index than the parent modal so it always paints on top. *@
+@if (tileMenuVisible)
+{
+    <div class="ctx-menu-backdrop" style="z-index:@tileMenuZ"
+         @onclick="CloseTileContextMenu"
+         @oncontextmenu="CloseTileContextMenu"
+         @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="top:@(tileMenuY)px; left:@(tileMenuX)px; z-index:@(tileMenuZ + 1)"
+         @onclick:stopPropagation="true">
+        <button type="button" @onclick="EditTileFromMenu">@Loc["ui.edit"]</button>
+        <button type="button" class="danger" @onclick="DeleteTileFromMenu">@Loc["ui.delete"]</button>
+    </div>
+}
+
+@* Shared edit dialog used to add a new bead to a catalog or edit an existing one. *@
+<BeadEditDialog IsOpen="@catEditOpen"
+                Title="@catEditTitle"
+                InitialBead="@catEditBead"
+                CanDelete="@(catEditIndex >= 0)"
+                ShowSaveToLibrary="false"
+                OnSave="HandleCatalogSave"
+                OnDelete="HandleCatalogDelete"
+                OnClose="CloseCatalogEdit" />
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<Color> OnPickDefault { get; set; }
+    [Parameter] public EventCallback<Bead> OnPickCustomBead { get; set; }
+    [Parameter] public EventCallback OnPickCustom { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private const string DefaultTab = "__default__";
+    private string activeTab = CustomBeadCatalog.SessionName;
+    private bool wasOpen;
+    private int dialogZ;
+
+    // Tile context menu state.
+    private bool tileMenuVisible;
+    private int tileMenuX;
+    private int tileMenuY;
+    private int tileMenuZ;
+    private string? tileMenuCatalog;
+    private int tileMenuIndex;
+
+    // In-catalog add/edit state.
+    private bool catEditOpen;
+    private string catEditTitle = "";
+    private Bead? catEditBead;
+    private string? catEditCatalog;
+    private int catEditIndex = -1; // -1 = new in catalog
+
+    protected override void OnInitialized()
+    {
+        CustomCatalog.Changed += OnCatalogChanged;
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    public void Dispose()
+    {
+        CustomCatalog.Changed -= OnCatalogChanged;
+        Loc.LanguageChanged -= OnLanguageChanged;
+        if (wasOpen) DialogStack.Release();
+        if (tileMenuVisible) DialogStack.Release();
+    }
+
+    private void OnCatalogChanged() => InvokeAsync(StateHasChanged);
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen && !wasOpen)
+        {
+            dialogZ = DialogStack.Acquire();
+            await CustomCatalog.EnsureLoadedAsync();
+            if (activeTab != DefaultTab && CustomCatalog.Catalogs.All(c => c.Name != activeTab))
+                activeTab = CustomBeadCatalog.SessionName;
+        }
+        else if (!IsOpen && wasOpen)
+        {
+            DialogStack.Release();
+            if (tileMenuVisible) { tileMenuVisible = false; DialogStack.Release(); }
+        }
+        wasOpen = IsOpen;
+    }
+
+    private void SetTab(string name) => activeTab = name;
+
+    private string TileTitle(Bead b)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(b.Manufacturer)) parts.Add(b.Manufacturer);
+        if (!string.IsNullOrEmpty(b.Id)) parts.Add(b.Id);
+        if (b.Finish != BeadFinish.Opaque) parts.Add(BeadFinishConverter.ToCanonicalString(b.Finish));
+        return parts.Count > 0 ? string.Join(" ", parts) : Loc["ui.custombead"];
+    }
+
+    private Task PickDefault(Color c) => OnPickDefault.InvokeAsync(c);
+    private Task PickCustom(Bead b) => OnPickCustomBead.InvokeAsync(b);
+    private Task OpenCustom() => OnPickCustom.InvokeAsync();
+    private Task Cancel() => OnCancel.InvokeAsync();
+
+    // ---- Tile context menu ----
+
+    private void OpenTileContextMenu(MouseEventArgs e, string catalogName, int index)
+    {
+        tileMenuCatalog = catalogName;
+        tileMenuIndex = index;
+        tileMenuX = (int)e.ClientX;
+        tileMenuY = (int)e.ClientY;
+        tileMenuZ = DialogStack.Acquire();
+        tileMenuVisible = true;
+    }
+
+    private void CloseTileContextMenu()
+    {
+        if (tileMenuVisible) { tileMenuVisible = false; DialogStack.Release(); }
+    }
+
+    private void EditTileFromMenu()
+    {
+        CloseTileContextMenu();
+        if (tileMenuCatalog is null) return;
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == tileMenuCatalog);
+        if (cat is null || tileMenuIndex < 0 || tileMenuIndex >= cat.Beads.Count) return;
+        catEditCatalog = tileMenuCatalog;
+        catEditIndex = tileMenuIndex;
+        catEditBead = cat.Beads[tileMenuIndex].Clone();
+        catEditTitle = $"Edit bead in {cat.Label}";
+        catEditOpen = true;
+    }
+
+    private async Task DeleteTileFromMenu()
+    {
+        CloseTileContextMenu();
+        if (tileMenuCatalog is null) return;
+        await CustomCatalog.RemoveBeadAsync(tileMenuCatalog, tileMenuIndex);
+    }
+
+    // ---- Catalog add ("+" tile) ----
+
+    private void StartCatalogAdd(string catalogName)
+    {
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
+        if (cat is null) return;
+        catEditCatalog = catalogName;
+        catEditIndex = -1;
+        catEditBead = new Bead(Color.FromArgb(160, 160, 160));
+        catEditTitle = $"New bead in {cat.Label}";
+        catEditOpen = true;
+    }
+
+    private async Task HandleCatalogSave(BeadEditResult r)
+    {
+        if (catEditCatalog is null) { CloseCatalogEdit(); return; }
+        if (catEditIndex >= 0)
+            await CustomCatalog.ReplaceBeadAsync(catEditCatalog, catEditIndex, r.Bead);
+        else
+            await CustomCatalog.AddBeadAsync(catEditCatalog, r.Bead);
+        CloseCatalogEdit();
+    }
+
+    private async Task HandleCatalogDelete()
+    {
+        if (catEditCatalog is null || catEditIndex < 0) { CloseCatalogEdit(); return; }
+        await CustomCatalog.RemoveBeadAsync(catEditCatalog, catEditIndex);
+        CloseCatalogEdit();
+    }
+
+    private void CloseCatalogEdit()
+    {
+        catEditOpen = false;
+        catEditCatalog = null;
+        catEditIndex = -1;
+        catEditBead = null;
+    }
+
+    // ---- Catalog-level actions ----
+
+    private async Task ExportTab(string catalogName)
+    {
+        string json = CustomCatalog.ExportJson(catalogName);
+        string b64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
+        string baseName = cat is null ? catalogName : cat.Label;
+        await JS.InvokeAsync<bool>("jbeadSave", $"{SafeFileName(baseName)}.jbeadcat", b64);
+    }
+
+    private async Task EditInfoTab(string catalogName)
+    {
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
+        if (cat is null) return;
+        string? newDisplay = await JS.InvokeAsync<string?>("prompt", "Display name:", cat.Label);
+        if (newDisplay is null) return;
+        string? newAuthor = await JS.InvokeAsync<string?>("prompt", "Author:", cat.Author);
+        if (newAuthor is null) return;
+        await CustomCatalog.UpdateCatalogMetadataAsync(catalogName, newDisplay, newAuthor);
+    }
+
+    private async Task RemoveTab(string catalogName)
+    {
+        bool ok = await JS.InvokeAsync<bool>("confirm", Loc["dialog.catalog.delete.confirm", [catalogName]]);
+        if (!ok) return;
+        await CustomCatalog.RemoveCatalogAsync(catalogName);
+        if (activeTab == catalogName) activeTab = CustomBeadCatalog.SessionName;
+    }
+
+    private async Task OnImport(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        if (file is null) return;
+        await using var stream = file.OpenReadStream(maxAllowedSize: 1 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        string json = Encoding.UTF8.GetString(ms.ToArray());
+        await CustomCatalog.ImportJsonAsync(json, file.Name);
+        activeTab = CustomCatalog.Catalogs.Last().Name;
+    }
+
+    private static string SafeFileName(string s)
+    {
+        char[] invalid = System.IO.Path.GetInvalidFileNameChars();
+        foreach (char ch in invalid) s = s.Replace(ch, '_');
+        return string.IsNullOrWhiteSpace(s) ? "catalog" : s;
+    }
+}

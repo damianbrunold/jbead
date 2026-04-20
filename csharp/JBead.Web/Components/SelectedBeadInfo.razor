@@ -1,0 +1,110 @@
+@inject AppState State
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Shows metadata for the currently selected bead. Pins to the bottom of the palette
+   sidebar. Default-collapsed when the tile grid would otherwise be squeezed, but
+   the user can toggle by clicking the header. *@
+<div class="bead-info @(expanded ? "expanded" : "collapsed")">
+    <button type="button" class="bead-info-header" @onclick="Toggle">
+        <span class="bead-info-chevron">@(expanded ? "▾" : "▸")</span>
+        <span class="bead-info-title">
+            @Loc["sidebar.selected"] @title
+        </span>
+    </button>
+    @if (expanded)
+    {
+        <div class="bead-info-body">
+            <div class="bead-info-swatch" style="background-color:@hex" title="@hex"></div>
+            <div class="bead-info-details">
+                @foreach (var line in lines)
+                {
+                    <div class="bead-info-line">
+                        <span class="bead-info-key">@line.Key</span>
+                        <span class="bead-info-value">@line.Value</span>
+                    </div>
+                }
+                @if (lines.Count == 0)
+                {
+                    <div class="bead-info-line bead-info-empty">@Loc["sidebar.nometadata"]</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    // User's manual choice wins once they toggle. Null means "follow the heuristic".
+    private bool? userExpanded;
+    private bool expanded;
+    private string title = "";
+    private string hex = "#cccccc";
+    private readonly List<KeyValuePair<string, string>> lines = new();
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+        State.Model.SelectedColorChanged += OnSelectionOrColorChanged;
+        State.Model.ColorChanged += OnColorChanged;
+        State.Model.ColorsChanged += OnColorsChanged;
+        State.Model.BeadAdded += OnBeadsChanged;
+        State.Model.BeadRemoved += OnBeadsChanged;
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    public void Dispose()
+    {
+        State.Model.SelectedColorChanged -= OnSelectionOrColorChanged;
+        State.Model.ColorChanged -= OnColorChanged;
+        State.Model.ColorsChanged -= OnColorsChanged;
+        State.Model.BeadAdded -= OnBeadsChanged;
+        State.Model.BeadRemoved -= OnBeadsChanged;
+        Loc.LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() { Refresh(); InvokeAsync(StateHasChanged); }
+
+    private void OnSelectionOrColorChanged(byte _) { Refresh(); StateHasChanged(); }
+    private void OnColorChanged(int idx)
+    {
+        if (idx != State.Model.SelectedColor) return;
+        Refresh();
+        StateHasChanged();
+    }
+    private void OnColorsChanged() { Refresh(); StateHasChanged(); }
+    private void OnBeadsChanged(int _) { Refresh(); StateHasChanged(); }
+
+    private void Refresh()
+    {
+        // Heuristic: once the palette holds more than ~16 beads the tile grid grows
+        // enough that the info panel would squeeze it — collapse by default.
+        // User's manual toggle overrides.
+        bool shouldAutoCollapse = State.Model.ColorCount > 16;
+        expanded = userExpanded ?? !shouldAutoCollapse;
+
+        lines.Clear();
+        byte idx = State.Model.SelectedColor;
+        if (idx >= State.Model.ColorCount)
+        {
+            title = Loc["bead.nr.unset", [idx.ToString()]];
+            hex = "#cccccc";
+            return;
+        }
+        var b = State.Model.GetBead(idx);
+        title = idx == 0 ? Loc["sidebar.background"] : "#" + idx;
+        hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
+
+        if (!string.IsNullOrEmpty(b.Manufacturer)) lines.Add(new(Loc["sidebar.manufacturer"], b.Manufacturer));
+        if (!string.IsNullOrEmpty(b.Id)) lines.Add(new(Loc["sidebar.id"], b.Id));
+        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], BeadFinishConverter.ToCanonicalString(b.Finish)));
+        if (!string.IsNullOrEmpty(b.CatalogSource)) lines.Add(new(Loc["sidebar.from"], b.CatalogSource));
+        if (idx == 0) lines.Add(new(Loc["sidebar.role"], Loc["sidebar.role.erase"]));
+    }
+
+    private void Toggle()
+    {
+        // Once the user toggles we follow their choice; auto-heuristic stops.
+        userExpanded = !expanded;
+        expanded = userExpanded.Value;
+    }
+}

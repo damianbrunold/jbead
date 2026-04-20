@@ -1,0 +1,86 @@
+@inject AppState State
+@implements IDisposable
+
+@* Emitted as a single MarkupString so the SVG elements nest directly inside the parent <svg>
+   and don't trip over Razor's <text>/<line> tag handling. *@
+@((MarkupString)BuildSvg())
+
+@code {
+    [Parameter] public int GridX { get; set; }
+    [Parameter] public int GridY { get; set; }
+    [Parameter] public int OffsetX { get; set; }
+    [Parameter] public int SvgHeight { get; set; }
+
+    private Action<Selection, Selection>? onSelectionUpdated;
+    private Action<Selection>? onSelectionDeleted;
+    private Action<ITool>? onToolChanged;
+
+    protected override void OnInitialized()
+    {
+        onSelectionUpdated = (_, _) => StateHasChanged();
+        onSelectionDeleted = _ => StateHasChanged();
+        onToolChanged = _ => StateHasChanged();
+        State.Selection.Updated += onSelectionUpdated;
+        State.Selection.Deleted += onSelectionDeleted;
+        State.SelectedToolChanged += onToolChanged;
+    }
+
+    public void Dispose()
+    {
+        if (onSelectionUpdated is not null) State.Selection.Updated -= onSelectionUpdated;
+        if (onSelectionDeleted is not null) State.Selection.Deleted -= onSelectionDeleted;
+        if (onToolChanged is not null) State.SelectedToolChanged -= onToolChanged;
+    }
+
+    private (int x, int y) CellCenter(Point p) =>
+        (OffsetX + p.X * GridX + GridX / 2,
+         SvgHeight - 1 - p.Y * GridY - GridY / 2);
+
+    private (int x, int y) CellTopLeft(Point p) =>
+        (OffsetX + p.X * GridX,
+         SvgHeight - 1 - (p.Y + 1) * GridY);
+
+    private string BuildSvg()
+    {
+        var sb = new System.Text.StringBuilder();
+
+        // Selection rectangle — shown for every tool when the user has dragged out a rect.
+        var sel = State.Selection;
+        if (sel.IsNormal)
+        {
+            (int x, int y) = CellTopLeft(new Point(sel.Begin.X, sel.End.Y));
+            sb.Append($"<rect x=\"{x}\" y=\"{y}\" width=\"{sel.Width * GridX}\" height=\"{sel.Height * GridY}\" fill=\"none\" stroke=\"#d00\" stroke-width=\"2\" pointer-events=\"none\" />");
+        }
+
+        // Tool-specific preview.
+        foreach (var shape in State.SelectedTool.GetPreview(State.Model, sel))
+        {
+            switch (shape)
+            {
+                case PreviewLine line:
+                    (int x1, int y1) = CellCenter(line.From);
+                    (int x2, int y2) = CellCenter(line.To);
+                    sb.Append($"<line x1=\"{x1}\" y1=\"{y1}\" x2=\"{x2}\" y2=\"{y2}\" stroke=\"#111\" stroke-width=\"2\" stroke-linecap=\"round\" pointer-events=\"none\" />");
+                    break;
+                case PreviewRect pr:
+                    {
+                        int left = Math.Min(pr.From.X, pr.To.X);
+                        int right = Math.Max(pr.From.X, pr.To.X);
+                        int bottom = Math.Min(pr.From.Y, pr.To.Y);
+                        int top = Math.Max(pr.From.Y, pr.To.Y);
+                        (int rx, int ry) = CellTopLeft(new Point(left, top));
+                        sb.Append($"<rect x=\"{rx}\" y=\"{ry}\" width=\"{(right - left + 1) * GridX}\" height=\"{(top - bottom + 1) * GridY}\" fill=\"none\" stroke=\"#05a\" stroke-width=\"1\" stroke-dasharray=\"4 2\" pointer-events=\"none\" />");
+                        break;
+                    }
+                case PreviewCell pc:
+                    {
+                        (int cx, int cy) = CellTopLeft(pc.At);
+                        sb.Append($"<rect x=\"{cx}\" y=\"{cy}\" width=\"{GridX}\" height=\"{GridY}\" fill=\"none\" stroke=\"#111\" stroke-width=\"2\" pointer-events=\"none\" />");
+                        break;
+                    }
+            }
+        }
+
+        return sb.ToString();
+    }
+}

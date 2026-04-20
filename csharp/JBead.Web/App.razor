@@ -1,0 +1,28 @@
+@inject LocalizationService Loc
+
+@if (!initialized)
+{
+    <div class="loading-fallback">Loading…</div>
+}
+else
+{
+    <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+    </Router>
+}
+
+@code {
+    private bool initialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // JS interop (used by LocalizationService for localStorage and
+        // navigator.language) is ready by the time OnInitializedAsync fires,
+        // so this is the first safe spot to load the starting language.
+        await Loc.InitializeAsync();
+        initialized = true;
+    }
+}

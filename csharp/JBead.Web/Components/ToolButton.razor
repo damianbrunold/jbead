@@ -1,0 +1,46 @@
+@inject AppState State
+@inject LocalizationService Loc
+@implements IDisposable
+
+<button type="button"
+        class="tool @(isSelected ? "selected" : "")"
+        @onclick="OnClickHandler">@Label</button>
+
+@code {
+    [Parameter] public ITool Value { get; set; } = default!;
+
+    private bool isSelected;
+
+    // Prefer the localized string; fall back to the hardcoded Name when the tool
+    // doesn't carry a translation key (so new tools work out of the box).
+    private string Label => Value.NameKey is string key ? Loc[key] : Value.Name;
+
+    protected override void OnInitialized()
+    {
+        isSelected = ReferenceEquals(State.SelectedTool, Value);
+        State.SelectedToolChanged += OnSelectedChanged;
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    public void Dispose()
+    {
+        State.SelectedToolChanged -= OnSelectedChanged;
+        Loc.LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    // Only the two buttons whose selection actually flips render; the rest no-op.
+    private void OnSelectedChanged(ITool newTool)
+    {
+        bool next = ReferenceEquals(newTool, Value);
+        if (next == isSelected) return;
+        isSelected = next;
+        StateHasChanged();
+    }
+
+    private void OnClickHandler()
+    {
+        State.SelectedTool = Value;
+    }
+}

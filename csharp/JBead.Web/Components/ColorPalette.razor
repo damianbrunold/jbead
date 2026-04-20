@@ -1,0 +1,165 @@
+@using System.Drawing
+@inject AppState State
+@inject CustomBeadCatalog CustomCatalog
+@inject LocalizationService Loc
+@implements IDisposable
+
+<div class="palette-root">
+    <StringColorPicker />
+    <div class="color-palette">
+        @for (int i = 0; i < State.Model.ColorCount; i++) {
+            int constI = i;
+            <ColorPaleteButton @key="constI" Index="@constI"
+                               OnReplace="() => StartReplace(constI)" />
+        }
+        <button type="button" class="swatch add-bead" title="@(Loc["ui.addbead"])" @onclick="OpenSelector">+</button>
+    </div>
+    <SelectedBeadInfo />
+    <HoveredBeadInfo />
+</div>
+
+<BeadSelectorDialog IsOpen="@selectorOpen"
+                    OnPickDefault="PickDefault"
+                    OnPickCustomBead="PickCustomBead"
+                    OnPickCustom="OpenCustomNew"
+                    OnCancel="CloseSelector" />
+
+<BeadEditDialog IsOpen="@editOpen"
+                Title="@(editIndex >= 0 ? Loc["ui.editbead", [editIndex.ToString()]] : Loc["ui.newbead"])"
+                InitialBead="@editBead"
+                CanDelete="@(editIndex > 0)"
+                ShowSaveToLibrary="@(editIndex < 0)"
+                OnSave="HandleEditSave"
+                OnDelete="HandleEditDelete"
+                OnClose="CloseEdit" />
+
+@code {
+    private bool selectorOpen;
+    private bool editOpen;
+    private int editIndex = -1;
+    private Bead? editBead;
+    private int replaceIndex = -1;
+
+    protected override void OnInitialized() {
+        State.Model.BeadAdded += OnBeadsChanged;
+        State.Model.BeadRemoved += OnBeadsChanged;
+        State.Model.ColorsChanged += OnBulkChanged;
+        Loc.LanguageChanged += OnBulkChanged;
+    }
+
+    public void Dispose() {
+        State.Model.BeadAdded -= OnBeadsChanged;
+        State.Model.BeadRemoved -= OnBeadsChanged;
+        State.Model.ColorsChanged -= OnBulkChanged;
+        Loc.LanguageChanged -= OnBulkChanged;
+    }
+
+    private void OnBeadsChanged(int _) => StateHasChanged();
+    private void OnBulkChanged() => InvokeAsync(StateHasChanged);
+
+    private void StartReplace(int index)
+    {
+        replaceIndex = index;
+        selectorOpen = true;
+    }
+
+    private void OpenSelector() => selectorOpen = true;
+    private void CloseSelector()
+    {
+        selectorOpen = false;
+        replaceIndex = -1;
+    }
+
+    // Picking a default color also creates a Session bead — that way the bead is
+    // editable from the Session catalog later instead of being an anonymous swatch.
+    private async Task PickDefault(Color c)
+    {
+        selectorOpen = false;
+        if (replaceIndex >= 0)
+        {
+            State.Model.SetColor(replaceIndex, c);
+            replaceIndex = -1;
+            return;
+        }
+
+        var sessionBead = new Bead(c, catalogSource: CustomBeadCatalog.SessionName);
+        await CustomCatalog.EnsureLoadedAsync();
+        await CustomCatalog.AddBeadAsync(CustomBeadCatalog.SessionName, sessionBead);
+        int idx = State.Model.AddBead(sessionBead.Clone());
+        State.Model.SelectedColor = (byte)idx;
+    }
+
+    // User picked one of their own saved beads — reuse color + metadata and track
+    // which catalog it came from, so the pattern file can record the source.
+    private void PickCustomBead(Bead b)
+    {
+        selectorOpen = false;
+        var linked = b.Clone();
+        if (string.IsNullOrEmpty(linked.CatalogSource))
+        {
+            // If the catalog tile itself didn't carry a source (older data), assume Session.
+            linked.CatalogSource = CustomBeadCatalog.SessionName;
+        }
+        if (replaceIndex >= 0)
+        {
+            State.Model.SetColor(replaceIndex, linked.Color);
+            State.Model.UpdateBead(replaceIndex, linked.Manufacturer, linked.Id, linked.Finish, linked.CatalogSource);
+            replaceIndex = -1;
+        }
+        else
+        {
+            int idx = State.Model.AddBead(linked);
+            State.Model.SelectedColor = (byte)idx;
+        }
+    }
+
+    private void OpenCustomNew()
+    {
+        selectorOpen = false;
+        if (replaceIndex >= 0)
+        {
+            editIndex = replaceIndex;
+            editBead = State.Model.GetBead(replaceIndex).Clone();
+            replaceIndex = -1;
+        }
+        else
+        {
+            editIndex = -1;
+            editBead = new Bead(Color.FromArgb(160, 160, 160));
+        }
+        editOpen = true;
+    }
+
+    private void CloseEdit()
+    {
+        editOpen = false;
+        editIndex = -1;
+        editBead = null;
+    }
+
+    private async Task HandleEditSave(BeadEditResult r)
+    {
+        if (editIndex >= 0)
+        {
+            State.Model.SetColor(editIndex, r.Bead.Color);
+            State.Model.UpdateBead(editIndex, r.Bead.Manufacturer, r.Bead.Id, r.Bead.Finish, r.Bead.CatalogSource);
+        }
+        else
+        {
+            int idx = State.Model.AddBead(r.Bead);
+            State.Model.SelectedColor = (byte)idx;
+            if (r.SaveToLibrary)
+            {
+                await CustomCatalog.EnsureLoadedAsync();
+                await CustomCatalog.AddBeadAsync(CustomBeadCatalog.SessionName, r.Bead);
+            }
+        }
+        CloseEdit();
+    }
+
+    private void HandleEditDelete()
+    {
+        if (editIndex > 0) State.Model.RemoveBeadAt(editIndex);
+        CloseEdit();
+    }
+}

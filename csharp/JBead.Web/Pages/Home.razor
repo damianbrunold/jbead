@@ -1,0 +1,332 @@
+@page "/"
+@using JBead.Web.Components
+@inject AppState State
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>@Loc["page.title"]</PageTitle>
+
+<div class="app-root">
+    <StorageNotice />
+    <Toolbar />
+    <ViewBar />
+    <div class="workspace">
+        <ColorPalette />
+        @if (State.ViewMode != ViewMode.Simulation)
+        {
+            <div class="canvas-wrap">
+                <div class="canvas-stage">
+                    <DraftView />
+                </div>
+            </div>
+        }
+        @if (State.ViewMode != ViewMode.Draft)
+        {
+            <div class="canvas-wrap sim-wrap">
+                <SimulationCanvas />
+            </div>
+        }
+    </div>
+    <footer class="app-footer">
+        <span class="footer-section">
+            <LanguagePicker />
+        </span>
+        <span class="footer-section">
+            @((MarkupString)Loc["translation.feedback",
+                ["<a href=\"https://github.com/DeznekCZ/jbead\" target=\"_blank\" rel=\"noopener\">github.com/DeznekCZ/jbead</a>"]])
+        </span>
+        <span class="footer-section">
+            Web port by
+            <a href="https://ko-fi.com/deznekcz" target="_blank" rel="noopener">
+                <img src="https://www.google.com/s2/favicons?domain=ko-fi.com&amp;sz=16" alt="" width="14" height="14" />
+                DeznekCZ (Ko-Fi)
+            </a>,
+            assisted by
+            <a href="https://claude.ai" target="_blank" rel="noopener">
+                <img src="https://www.google.com/s2/favicons?domain=claude.ai&amp;sz=16" alt="" width="14" height="14" />
+                Claude
+            </a>.
+        </span>
+        <span class="footer-section">
+            Original jbead by
+            <a href="https://github.com/damianbrunold/" target="_blank" rel="noopener">
+                <img src="https://www.google.com/s2/favicons?domain=github.com&amp;sz=16" alt="" width="14" height="14" />
+                Damian Brunold
+            </a>
+            —
+            <a href="https://github.com/damianbrunold/jbead" target="_blank" rel="noopener">
+                <img src="https://www.google.com/s2/favicons?domain=github.com&amp;sz=16" alt="" width="14" height="14" />
+                source repo
+            </a>.
+        </span>
+    </footer>
+    <PrintDialog IsOpen="State.PrintDialogOpen" OnClose="() => State.PrintDialogOpen = false" />
+</div>
+
+@code {
+    private bool initialModeChecked;
+    private bool zoomRestored;
+    private DotNetObjectReference<Home>? selfRef;
+
+    // localStorage keys for the per-view zoom levels.
+    private const string DraftZoomKey = "jbead.zoom.draft";
+    private const string SimZoomKey = "jbead.zoom.simulation";
+
+    protected override void OnInitialized()
+    {
+        State.ViewModeChanged += _ => InvokeAsync(StateHasChanged);
+        // Re-render when the print dialog flips so the overlay mounts / unmounts.
+        State.PrintDialogOpenChanged += _ => InvokeAsync(StateHasChanged);
+        // Persist zoom changes after the initial restore — saving before restore
+        // would write the default over a stored user preference.
+        State.Model.ZoomChanged += (gx, _) => { if (zoomRestored) PersistDraftZoom(gx); };
+        State.SimulationGridPxChanged += px => { if (zoomRestored) PersistSimZoom(px); };
+        // Re-render the translated footer when the user picks a new language.
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !initialModeChecked)
+        {
+            initialModeChecked = true;
+            try
+            {
+                bool wideNonMobile = await JS.InvokeAsync<bool>("jbeadEnv.isWideNonMobile");
+                if (wideNonMobile && State.ViewMode == ViewMode.Draft)
+                {
+                    State.ViewMode = ViewMode.Both;
+                    StateHasChanged();
+                }
+            }
+            catch { /* JS not available yet — stay in Draft mode */ }
+
+            await RestoreZoomFromStorage();
+
+            // Wire global Ctrl+C / Ctrl+V shortcuts. Registration is one-shot —
+            // the JS side keeps the listener alive for the page lifetime.
+            try
+            {
+                selfRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("jbeadKeys.register", selfRef);
+            }
+            catch { /* JS not available — shortcuts disabled, buttons still work */ }
+        }
+    }
+
+    [JSInvokable] public void OnCopyShortcut()  => State.CopySelection();
+    [JSInvokable] public void OnPasteShortcut() => State.PasteSelection();
+
+    private async Task RestoreZoomFromStorage()
+    {
+        try
+        {
+            string? draft = await JS.InvokeAsync<string?>("jbeadStorage.get", DraftZoomKey);
+            if (int.TryParse(draft, out int draftPx)) State.Model.SetGridSize(draftPx);
+
+            string? sim = await JS.InvokeAsync<string?>("jbeadStorage.get", SimZoomKey);
+            if (int.TryParse(sim, out int simPx)) State.SimulationGridPx = simPx;
+        }
+        catch { /* localStorage not available — keep defaults */ }
+        finally { zoomRestored = true; }
+    }
+
+    private void PersistDraftZoom(int px) =>
+        InvokeAsync(async () => { try { await JS.InvokeVoidAsync("jbeadStorage.set", DraftZoomKey, px.ToString()); } catch { } });
+
+    private void PersistSimZoom(int px) =>
+        InvokeAsync(async () => { try { await JS.InvokeVoidAsync("jbeadStorage.set", SimZoomKey, px.ToString()); } catch { } });
+
+    public void Dispose()
+    {
+        selfRef?.Dispose();
+        Loc.LanguageChanged -= OnLanguageChanged;
+    }
+}
+
+<style>
+    .app-root { display: flex; flex-direction: column; height: 100vh; font-family: system-ui, sans-serif; }
+    .toolbar { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #efefef; border-bottom: 1px solid #ccc; }
+    .view-bar { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f6f6f6; border-bottom: 1px solid #ccc; flex-wrap: wrap; }
+    .view-bar button { padding: 3px 8px; background: white; border: 1px solid #bbb; border-radius: 3px; cursor: pointer; font: 12px system-ui, sans-serif; }
+    .view-bar button.selected, .view-bar button.tool.selected { background: #4c9aff; color: white; border-color: #3a84eb; }
+    .view-bar .sep { width: 1px; height: 18px; background: #bbb; margin: 0 4px; }
+    .view-bar .rowcount { min-width: 30px; text-align: center; color: #333; font: 12px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+    .view-bar .count-stepper { position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border: 1px solid transparent; border-radius: 3px; }
+    .view-bar .count-stepper:hover, .view-bar .count-stepper:focus-within { background: white; border-color: #bbb; }
+    .view-bar .count-stepper-input { width: 48px; padding: 2px 4px; border: 1px solid #bbb; border-radius: 3px; font: 12px system-ui, sans-serif; text-align: right; font-variant-numeric: tabular-nums; background: white; }
+    .view-bar .count-stepper-input::-webkit-inner-spin-button, .view-bar .count-stepper-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .view-bar .count-stepper-input { -moz-appearance: textfield; appearance: textfield; }
+    .view-bar .count-stepper-label { color: #666; font: 11px system-ui, sans-serif; }
+    .view-bar .count-stepper-popup { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); background: white; border: 1px solid #bbb; border-radius: 3px; padding: 4px; gap: 3px; z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.15); white-space: nowrap; }
+    .view-bar .count-stepper:hover .count-stepper-popup { display: flex; }
+    .view-bar .count-stepper-popup button { padding: 3px 6px; min-width: 32px; font: 12px system-ui, sans-serif; }
+    .view-bar .group-label { color: #666; font: 11px system-ui, sans-serif; margin-left: 4px; margin-right: 2px; }
+    .toolbar button { padding: 4px 8px; background: white; border: 1px solid #bbb; border-radius: 3px; cursor: pointer; }
+    .toolbar button.selected, .toolbar button.tool.selected { background: #4c9aff; color: white; border-color: #3a84eb; }
+    .toolbar .sep { width: 1px; height: 20px; background: #bbb; margin: 0 6px; }
+    .toolbar .spacer { flex: 1; }
+    .toolbar .rowcount { min-width: 36px; text-align: center; color: #333; font-variant-numeric: tabular-nums; }
+    .toolbar button.view-mode { padding: 4px 10px; background: white; border: 1px solid #bbb; border-radius: 3px; cursor: pointer; font: inherit; }
+    .toolbar button.view-mode.selected { background: #4c9aff; color: white; border-color: #3a84eb; }
+    .toolbar .filename { margin-left: auto; color: #555; font-style: italic; }
+    .upload-btn { padding: 4px 8px; background: white; border: 1px solid #bbb; border-radius: 3px; cursor: pointer; color: inherit; text-decoration: none; font: inherit; display: inline-block; }
+    .toolbar .open-stepper { position: relative; display: inline-block; }
+    .toolbar .open-stepper-popup { display: none; position: absolute; top: 100%; left: 0; margin-top: 0; background: white; border: 1px solid #bbb; border-radius: 3px; padding: 4px; z-index: 20; box-shadow: 0 2px 6px rgba(0,0,0,0.15); min-width: 180px; flex-direction: column; gap: 2px; }
+    .toolbar .open-stepper:hover .open-stepper-popup { display: flex; }
+    .toolbar .open-stepper-header { color: #666; font: 11px system-ui, sans-serif; padding: 2px 6px 4px 6px; border-bottom: 1px solid #eee; margin-bottom: 2px; }
+    .toolbar .open-stepper-popup button { text-align: left; padding: 4px 8px; background: white; border: 1px solid transparent; border-radius: 3px; cursor: pointer; font: inherit; }
+    .toolbar .open-stepper-popup button:hover { background: #f0f5ff; border-color: #bbb; }
+    .toolbar .error { color: #b00020; margin-left: auto; }
+    .workspace { display: flex; flex: 1; min-height: 0; }
+    /* 4 cells × 32 + 3 gaps × 4 = 140 grid width, + 16 padding = 156 content,
+       + ~17 scrollbar = ~173. Rounding up gives us 180 px with headroom. */
+    .palette-root { width: 180px; background: #f6f6f6; border-right: 1px solid #ccc; display: flex; flex-direction: column; min-height: 0; }
+    .bead-info { border-top: 1px solid #ccc; background: #fafafa; font: 12px system-ui, sans-serif; flex-shrink: 0; }
+    .bead-info-header { width: 100%; padding: 5px 8px; background: none; border: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #444; font: inherit; }
+    .bead-info-header:hover { background: #eee; }
+    .bead-info-chevron { width: 10px; text-align: center; color: #888; }
+    .bead-info-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bead-info-body { display: flex; gap: 8px; padding: 0 8px 8px 8px; }
+    .bead-info-swatch { width: 28px; height: 28px; border: 1px solid #888; flex-shrink: 0; }
+    .bead-info-details { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .bead-info-line { display: flex; gap: 6px; font-size: 11px; }
+    .bead-info-key { color: #777; min-width: 70px; flex-shrink: 0; }
+    .bead-info-value { color: #222; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bead-info-empty { color: #999; font-style: italic; }
+    /* flex: 1 lets the tile grid own all spare vertical space in the sidebar,
+       so SelectedBeadInfo naturally pins to the bottom. */
+    .color-palette { flex: 1; padding: 8px; display: grid; grid-template-columns: repeat(4, 32px); gap: 4px; overflow-x: hidden; overflow-y: auto; align-content: flex-start; }
+    .color-palette .add-bead { background: #fff; color: #333; font: bold 16px/1 system-ui, sans-serif; border: 1px dashed #888; width: 32px; height: 32px; padding: 0; }
+    /* Dashed border on the background slot marks it as the "erase" position. */
+    .swatch.is-background { border-style: dashed; border-color: #666; }
+    /* jb- prefix avoids collision with Bootstrap's own .modal / .modal-backdrop classes,
+       which default to display: none and would hide our dialogs. z-index is assigned
+       dynamically by DialogStack so later-opened modals always paint on top. */
+    .jb-modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
+    .jb-modal { background: white; padding: 14px 18px; border-radius: 4px; min-width: 260px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font: 13px system-ui, sans-serif; }
+    .jb-modal.wide { min-width: 320px; }
+    .jb-modal h3 { margin: 0 0 10px 0; font-size: 15px; }
+    .jb-modal .hint { color: #888; font-size: 12px; margin: 0 0 10px 0; }
+    .jb-modal .form-row { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+    .jb-modal .form-row label { font-size: 11px; color: #555; }
+    .jb-modal .form-row input[type=text] { padding: 4px 6px; border: 1px solid #bbb; border-radius: 2px; font: inherit; }
+    .jb-modal .form-row input[type=color] { width: 50px; height: 28px; padding: 0; border: 1px solid #bbb; cursor: pointer; }
+    .jb-modal .finish-row .finish-label { font-size: 11px; color: #555; }
+    .jb-modal .finish-flags { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 12px; margin-top: 2px; }
+    .jb-modal .finish-flag { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #333; cursor: pointer; }
+    .jb-modal .finish-flag input[type=checkbox] { margin: 0; }
+    .jb-modal .actions { display: flex; gap: 6px; margin-top: 12px; align-items: center; }
+    .jb-modal .actions .spacer { flex: 1; }
+    .jb-modal .actions button { padding: 4px 10px; background: #fff; border: 1px solid #bbb; border-radius: 2px; cursor: pointer; font: inherit; }
+    .jb-modal .actions button.primary { background: #4c9aff; color: white; border-color: #3a84eb; }
+    .jb-modal .actions button.danger { background: #fff; color: #b00020; border-color: #b00020; }
+    /* Match the palette swatch footprint (32 px outer, 1 px border) so the selector
+       tiles and palette tiles read as the same size. */
+    .bead-catalog { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; }
+    .catalog-tile { width: 32px; height: 32px; border: 1px solid #888; cursor: pointer; padding: 0; box-sizing: border-box; display: block; }
+    .catalog-tile.add-new { background: #fff; color: #333; font: bold 16px/1 system-ui, sans-serif; border-style: dashed; }
+    /* Bead selector dialog — cap width at 50 vw so tabs collapse (via horizontal
+       scroll on the tabs strip) instead of stretching the dialog across the screen. */
+    .jb-modal.selector { max-width: 50vw; min-width: 360px; }
+    .catalog-tabs { display: flex; gap: 2px; margin-bottom: 8px; border-bottom: 1px solid #ccc; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; }
+    .catalog-tab { padding: 5px 10px; background: #f0f0f0; border: 1px solid #ccc; border-bottom: none; border-radius: 3px 3px 0 0; cursor: pointer; font: 12px system-ui, sans-serif; color: #444; margin-bottom: -1px; white-space: nowrap; flex-shrink: 0; }
+    .catalog-tab.active { background: #fff; color: #000; font-weight: 600; }
+    .catalog-tab .tab-count { color: #888; font-weight: 400; margin-left: 4px; font-size: 11px; }
+    .catalog-tab.import-tab { background: #eaf4ff; border-color: #7db4e0; color: #0a52a0; }
+    .catalog-tab.import-tab:hover { background: #d8e9fb; }
+    .catalog-body { min-height: 120px; max-height: 320px; overflow-y: auto; margin-bottom: 8px; }
+    .selector-actions { border-top: 1px solid #eee; padding-top: 10px; }
+    .selector-actions .small { padding: 3px 8px; font-size: 12px; }
+    .selector-actions .danger { color: #b00020; border-color: #b00020; }
+    .empty-hint { color: #888; font-size: 12px; font-style: italic; padding: 16px; text-align: center; }
+    .catalog-author { color: #666; font-size: 12px; margin-top: 6px; }
+    .form-row-checkbox label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .form-row-checkbox input { margin: 0; }
+    .upload-btn.small { padding: 3px 8px; font-size: 12px; }
+    /* One-time storage notice banner, styled to be noticeable but not alarming. */
+    .storage-notice { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fff8d8; border-bottom: 1px solid #e7cf78; font: 13px system-ui, sans-serif; color: #7a5f0d; }
+    .storage-notice-icon { font-size: 16px; }
+    .storage-notice-text { flex: 1; }
+    .storage-notice-dismiss { padding: 3px 10px; background: #f4e6a6; color: #5c4a0a; border: 1px solid #d4b952; border-radius: 3px; cursor: pointer; font: inherit; }
+    /* Wrap is exactly one grid cell (32×32); padding gives a 2px space that the yellow
+       background fills when selected. box-sizing: border-box so we fit the grid cell
+       regardless of Bootstrap's global reset. */
+    .swatch-wrap { position: relative; display: block; width: 32px; height: 32px; padding: 2px; box-sizing: border-box; border-radius: 4px; background: transparent; line-height: 0; }
+    .swatch-wrap.selected { background: #ffcc00; }
+    .swatch { width: 28px; height: 28px; border: 1px solid #888; cursor: pointer; padding: 0; display: block; box-sizing: border-box; }
+    .swatch.unset { background: #cccccc !important; cursor: not-allowed; opacity: 0.5; }
+    /* Finish hints — pure CSS layered on top of the inline background-color.
+       Applied to both the palette swatches and the selector catalog tiles so a
+       bead looks the same everywhere. */
+    .swatch.finish-transparent, .catalog-tile.finish-transparent { opacity: 0.55; }
+    .swatch.finish-matte, .catalog-tile.finish-matte { filter: saturate(0.85) brightness(0.95); }
+    .swatch.finish-shiny, .catalog-tile.finish-shiny { background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-pearl, .catalog-tile.finish-pearl { background-image: radial-gradient(circle at 33% 33%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-silverlined, .catalog-tile.finish-silverlined { box-shadow: inset 0 0 0 2px #c8c8d0; }
+    .swatch.finish-metallic, .catalog-tile.finish-metallic { background-image: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.3) 100%); }
+    .swatch.finish-transparentgloss, .catalog-tile.finish-transparentgloss { opacity: 0.6; background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-transparentmatte, .catalog-tile.finish-transparentmatte { opacity: 0.5; filter: saturate(0.85); }
+    .swatch.finish-iridescent, .catalog-tile.finish-iridescent { background-image: linear-gradient(135deg, rgba(255,128,192,0.4) 0%, rgba(128,208,255,0.4) 50%, rgba(255,255,128,0.4) 100%); }
+    .swatch.finish-galvanized, .catalog-tile.finish-galvanized { background-image: linear-gradient(135deg, rgba(255,224,138,0.6) 0%, rgba(90,64,32,0.3) 100%); }
+    .swatch-edit { position: absolute; top: -4px; right: -4px; width: 14px; height: 14px; background: #fff; border: 1px solid #888; border-radius: 3px; font: 10px/12px system-ui, sans-serif; text-align: center; cursor: pointer; padding: 0; display: none; }
+    .swatch-wrap:hover .swatch-edit { display: block; }
+    /* Right-click context menu. z-index assigned dynamically by DialogStack so the
+       menu always paints above the dialog that opened it, regardless of nesting. */
+    .ctx-menu-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+    .ctx-menu { position: fixed; background: white; border: 1px solid #888; border-radius: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); padding: 4px 0; min-width: 120px; font: 13px system-ui, sans-serif; }
+    .ctx-menu button { display: block; width: 100%; padding: 6px 14px; background: none; border: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+    .ctx-menu button:hover { background: #eef3ff; }
+    .ctx-menu button.danger { color: #b00020; }
+    .ctx-menu button.danger:hover { background: #ffecec; }
+    .ctx-menu .ctx-submenu-wrap { position: relative; }
+    .ctx-menu .has-submenu::after { content: "▸"; float: right; color: #888; margin-left: 10px; }
+    .ctx-menu .ctx-submenu { display: none; position: absolute; left: 100%; top: -4px; margin-left: 1px; background: white; border: 1px solid #888; border-radius: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.25); padding: 4px 0; min-width: 140px; }
+    .ctx-menu .ctx-submenu-wrap:hover .ctx-submenu, .ctx-menu .ctx-submenu:hover { display: block; }
+    .ctx-menu .ctx-submenu-wrap:hover > .has-submenu { background: #eef3ff; }
+    .canvas-wrap { flex: 1; background: #d0d0d0; overflow: auto; min-height: 0; min-width: 0; }
+    /* Simulation pane now fills its share of the workspace (half in Both, full in
+       Simulation-only). overflow: hidden so the canvas fills exactly. */
+    .canvas-wrap.sim-wrap { flex: 1; background: #dedede; border-left: 1px solid #bbb; overflow: hidden; display: flex; }
+    @@media (max-width: 900px) {
+        /* On phones / narrow tablets, "Both" stops making sense. Hide sim-wrap
+           when space is tight; user can flip to the Sim tab explicitly. */
+        .canvas-wrap.sim-wrap { display: none; }
+    }
+    .sim-host { background: #e8e8e8; padding: 8px; box-sizing: border-box; position: relative; touch-action: none; user-select: none; cursor: grab; }
+    .sim-host:active { cursor: grabbing; }
+    .sim-svg { display: block; margin: 0 auto; }
+    /* Canvas simulation fills the whole sim-wrap. JS owns the backing-store size
+       (DPR-aware) via ResizeObserver. */
+    .sim-canvas-host { position: relative; flex: 1; min-height: 0; min-width: 0; }
+    .sim-canvas { display: block; width: 100%; height: 100%; background: #e8e8e8; touch-action: none; user-select: none; cursor: grab; }
+    .sim-canvas:active { cursor: grabbing; }
+    .canvas-unsupported { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.9); padding: 20px; text-align: center; font: 13px system-ui, sans-serif; color: #333; }
+    .canvas-unsupported strong { color: #b00020; margin-bottom: 8px; }
+    .string-color-row { padding: 8px 10px; background: #f0f0f0; border-bottom: 1px solid #ccc; font: 12px system-ui, sans-serif; color: #444; }
+    .string-color-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .string-color-row input[type=color] { width: 28px; height: 22px; padding: 0; border: 1px solid #888; border-radius: 3px; cursor: pointer; }
+    .sim-controls { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 6px; font: 10px system-ui, sans-serif; color: #666; }
+    .sim-controls button { min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid #888; background: #fff; border-radius: 3px; cursor: pointer; font: 13px system-ui, sans-serif; }
+    .sim-hint { white-space: nowrap; background: rgba(255,255,255,0.85); padding: 2px 6px; border-radius: 3px; }
+    /* Footer credit line. Stays quiet — small font, muted colors, hugs the bottom. */
+    .app-footer { background: #efefef; border-top: 1px solid #ccc; padding: 6px 12px; font: 11px system-ui, sans-serif; color: #666; display: flex; gap: 20px; flex-wrap: wrap; flex-shrink: 0; justify-content: center; text-align: center; }
+    .app-footer a { color: #3a6ea8; text-decoration: none; white-space: nowrap; }
+    .app-footer a:hover { text-decoration: underline; }
+    .app-footer a img { vertical-align: middle; margin-right: 3px; margin-bottom: 1px; }
+    .app-footer .footer-section { white-space: nowrap; }
+    /* Hover popup now lives in the sidebar below SelectedBeadInfo. Keeps the
+       canvas area clean (no floating overlay or scrollbar interference). */
+    .hovered-bead-info { border-top: 1px dashed #bbb; background: #f0f4fb; padding: 6px 8px; font: 11px system-ui, sans-serif; flex-shrink: 0; }
+    .hovered-bead-info .bead-info-title { font-weight: 600; margin-bottom: 3px; color: #1a57b3; }
+    .hovered-bead-info .bead-info-body { display: flex; gap: 8px; }
+    .hovered-bead-info .bead-info-swatch { width: 24px; height: 24px; border: 1px solid #888; flex-shrink: 0; }
+    /* Stage uses min-height/width 100% so the flex centering kicks in when the SVG is smaller
+       than the viewport, and falls back to normal overflow-scroll when it's larger. */
+    .canvas-stage { min-height: 100%; min-width: 100%; padding: 10px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+    .draft-host { background: #d3d3d3; touch-action: none; user-select: none; }
+    .draft-svg { display: block; }
+</style>

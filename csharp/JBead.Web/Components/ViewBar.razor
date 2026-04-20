@@ -1,0 +1,170 @@
+@inject AppState State
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Secondary bar: controls that apply to the currently visible view(s). Tool picker
+   and grid-size live here when the Draft is showing; simulation-specific controls
+   appear when the Simulation is showing. View toggle always visible. *@
+<div class="view-bar">
+    @if (ShowDraftControls)
+    {
+        @foreach (var tool in State.Tools)
+        {
+            <ToolButton @key="tool" Value="@tool" />
+        }
+        <span class="sep"></span>
+        <button @onclick="OnFillSquare" disabled="@(!HasSelection)"
+                title="@(Loc["ui.fillsquare.tip"])">@Loc["ui.fillsquare"]</button>
+        <button @onclick="OnCopy" disabled="@(!HasSelection)"
+                title="@(Loc["ui.copy.tip"])">@Loc["ui.copy"]</button>
+        <button @onclick="OnPaste" disabled="@(!State.CanPaste)"
+                title="@(Loc["ui.paste.tip"])">@Loc["ui.paste"]</button>
+        <span class="sep"></span>
+        <button @onclick="() => State.Model.ZoomOut()" disabled="@(!CanZoomOut)" title="@(Loc["ui.zoom.out"])">-</button>
+        <button @onclick="OpenZoomDialog" title="@(Loc["ui.zoom.set"])">@(DraftZoomPercent)%</button>
+        <button @onclick="() => State.Model.ZoomIn()" disabled="@(!CanZoomIn)" title="@(Loc["ui.zoom.in"])">+</button>
+        <span class="sep"></span>
+        <div class="count-stepper" title="@(Loc["ui.patternwidth"])">
+            <input type="number" class="count-stepper-input" min="@MinCols" max="@MaxCols"
+                   @bind="WidthInput" @bind:event="onchange" />
+            <span class="count-stepper-label">@Loc["ui.cols"]</span>
+            <div class="count-stepper-popup">
+                <button @onclick="() => ChangeCols(-10)" disabled="@(!CanNarrowBy(10))">-10</button>
+                <button @onclick="() => ChangeCols(-5)" disabled="@(!CanNarrowBy(5))">-5</button>
+                <button @onclick="() => ChangeCols(-1)" disabled="@(!CanNarrowBy(1))">-1</button>
+                <button @onclick="() => ChangeCols(1)" disabled="@(!CanWidenBy(1))">+1</button>
+                <button @onclick="() => ChangeCols(5)" disabled="@(!CanWidenBy(5))">+5</button>
+                <button @onclick="() => ChangeCols(10)" disabled="@(!CanWidenBy(10))">+10</button>
+            </div>
+        </div>
+        <span class="sep"></span>
+        <div class="count-stepper" title="@(Loc["ui.patternheight"])">
+            <input type="number" class="count-stepper-input" min="@MinRows"
+                   @bind="HeightInput" @bind:event="onchange" />
+            <span class="count-stepper-label">@Loc["ui.rows"]</span>
+            <div class="count-stepper-popup">
+                <button @onclick="() => ChangeRows(-10)" disabled="@(!CanShrinkBy(10))">-10</button>
+                <button @onclick="() => ChangeRows(-5)" disabled="@(!CanShrinkBy(5))">-5</button>
+                <button @onclick="() => ChangeRows(-1)" disabled="@(!CanShrinkBy(1))">-1</button>
+                <button @onclick="() => ChangeRows(1)">+1</button>
+                <button @onclick="() => ChangeRows(5)">+5</button>
+                <button @onclick="() => ChangeRows(10)">+10</button>
+            </div>
+        </div>
+        <span class="sep"></span>
+        <button @onclick="() => State.Model.Undo()" disabled="@(!State.Model.CanUndo)">@Loc["ui.undo"]</button>
+        <button @onclick="() => State.Model.Redo()" disabled="@(!State.Model.CanRedo)">@Loc["ui.redo"]</button>
+    }
+
+</div>
+
+@code {
+    private bool ShowDraftControls => State.ViewMode != ViewMode.Simulation;
+
+    protected override void OnInitialized()
+    {
+        State.Model.ModelChanged += Rerender;
+        State.Model.PointChanged += _ => Rerender();
+        State.Model.ZoomChanged += (_, _) => Rerender();
+        State.ViewModeChanged += _ => Rerender();
+        State.SelectionActionsChanged += Rerender;
+        State.ClipboardChanged += Rerender;
+        Loc.LanguageChanged += Rerender;
+    }
+
+    public void Dispose()
+    {
+        State.Model.ModelChanged -= Rerender;
+        State.SelectionActionsChanged -= Rerender;
+        State.ClipboardChanged -= Rerender;
+        Loc.LanguageChanged -= Rerender;
+    }
+
+    private void Rerender() => StateHasChanged();
+
+    // ---- Selection actions ----
+
+    private bool HasSelection => State.HasUsableSelection;
+
+    private void OnFillSquare() => State.FillSelection();
+    private void OnCopy()       => State.CopySelection();
+    private void OnPaste()      => State.PasteSelection();
+
+
+    // ---- Zoom ----
+    // 20 px = 100 %; min/max derived from the model's pixel range.
+
+    private const int BasePx = 20;
+
+    private bool CanZoomOut => State.Model.GridX > BeadModel.MinGridSize;
+    private bool CanZoomIn => State.Model.GridX < BeadModel.MaxGridSize;
+    private int DraftZoomPercent => (int)Math.Round(State.Model.GridX * 100.0 / BasePx);
+
+    private async Task OpenZoomDialog()
+    {
+        int minPct = (int)Math.Round(BeadModel.MinGridSize * 100.0 / BasePx);
+        int maxPct = (int)Math.Round(BeadModel.MaxGridSize * 100.0 / BasePx);
+        string? entered = await JS.InvokeAsync<string?>("prompt",
+            $"Zoom % ({minPct}–{maxPct}, 100 % = {BasePx} px):",
+            DraftZoomPercent.ToString());
+        if (entered is null) return;
+        string trimmed = entered.Trim().TrimEnd('%').Trim();
+        if (int.TryParse(trimmed, out int pct))
+        {
+            int px = (int)Math.Round(pct * BasePx / 100.0);
+            State.Model.SetGridSize(px);
+        }
+    }
+
+    // ---- Rows ----
+
+    private const int MinRows = 10;
+
+    private bool CanShrinkBy(int delta) => State.Model.Height - delta >= MinRows;
+
+    private void ChangeRows(int delta)
+    {
+        int target = Math.Max(MinRows, State.Model.Height + delta);
+        if (target != State.Model.Height) State.Model.SetHeight(target);
+    }
+
+    // Two-way binding with clamp-on-commit. The setter always calls
+    // StateHasChanged on the snap-back path so out-of-range entries (e.g. "5")
+    // reset the input to the clamped model value instead of lingering.
+    private int HeightInput
+    {
+        get => State.Model.Height;
+        set
+        {
+            int target = Math.Max(MinRows, value);
+            if (target != State.Model.Height) State.Model.SetHeight(target);
+            else StateHasChanged();
+        }
+    }
+
+    // ---- Cols ----
+
+    private const int MinCols = 5;
+    private const int MaxCols = 500;
+
+    private bool CanNarrowBy(int delta) => State.Model.Width - delta >= MinCols;
+    private bool CanWidenBy(int delta) => State.Model.Width + delta <= MaxCols;
+
+    private void ChangeCols(int delta)
+    {
+        int target = Math.Clamp(State.Model.Width + delta, MinCols, MaxCols);
+        if (target != State.Model.Width) State.Model.SetWidth(target);
+    }
+
+    private int WidthInput
+    {
+        get => State.Model.Width;
+        set
+        {
+            int target = Math.Clamp(value, MinCols, MaxCols);
+            if (target != State.Model.Width) State.Model.SetWidth(target);
+            else StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,94 @@
+@using JBead.Web.Tools
+@inject AppState State
+@implements IDisposable
+
+@{
+    var model = State.Model;
+    int gridx = model.GridX;
+    int gridy = model.GridY;
+    // Viewport height is exactly model.Height — grown/shrunk only via the toolbar buttons.
+    int renderedRows = model.Height;
+    int svgHeight = renderedRows * gridy + 8;
+    int svgWidth = MarkerWidth + Gap + model.Width * gridx + 4;
+    int offsetx = MarkerWidth + Gap;
+}
+
+<div class="draft-host" @onpointerup="OnPointerUpFallback" @onpointerleave="OnPointerUpFallback">
+    <svg class="draft-svg"
+         width="@svgWidth"
+         height="@svgHeight"
+         viewBox="0 0 @svgWidth @svgHeight"
+         shape-rendering="crispEdges"
+         xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="@svgWidth" height="@svgHeight" fill="#d3d3d3" />
+        @* Beads — row 0 at the bottom of the SVG, matching the Java layout. *@
+        @for (int j = 0; j < renderedRows; j++)
+        {
+            for (int i = 0; i < model.Width; i++)
+            {
+                int col = i;
+                int row = j;
+                int x = offsetx + col * gridx;
+                int y = svgHeight - 1 - (row + 1) * gridy;
+                <BeadPoint @key="@(col * 10000 + row)" Col="@col" DisplayRow="@row"
+                           X="@x" Y="@y" W="@gridx" H="@gridy" />
+            }
+        }
+        @* Row markers every 10 rows + a final marker at the used-height cap. *@
+        @for (int j = 0; j < renderedRows; j++)
+        {
+            if (j % 10 == 0)
+            {
+                int ly = svgHeight - 1 - j * gridy;
+                int lineLeft = offsetx - Gap - MarkerWidth;
+                int lineRight = offsetx - Gap;
+                <line x1="@lineLeft" y1="@ly" x2="@lineRight" y2="@ly" stroke="#444" stroke-width="1" />
+                @((MarkupString)$"<text x=\"{offsetx - Gap - 4}\" y=\"{ly - 2}\" text-anchor=\"end\" font-family=\"system-ui, sans-serif\" font-size=\"11\" fill=\"#444\">{j}</text>")
+            }
+        }
+        @* Preview overlay — selection rectangle + per-tool shapes. Renders on its own
+           cadence via Selection/Tool events so the bead grid stays untouched during drags. *@
+        <DraftPreview GridX="@gridx" GridY="@gridy" OffsetX="@offsetx" SvgHeight="@svgHeight" />
+    </svg>
+</div>
+
+@code {
+    private const int Gap = 6;
+    private const int MarkerWidth = 30;
+
+    protected override void OnInitialized()
+    {
+        // Structural / bulk changes → rebuild the grid (re-renders DraftView which
+        // adds or removes BeadPoints when model.Height changes via toolbar buttons).
+        // Selection/tool drag updates go through DraftPreview, not DraftView, so this
+        // component does NOT re-render on every pointerenter during a drag.
+        State.Model.ModelChanged += RequestRender;
+        State.Model.ColorsChanged += RequestRender;
+        State.Model.ColorChanged += _ => RequestRender();
+        State.Model.ZoomChanged += OnZoom;
+    }
+
+    public void Dispose()
+    {
+        State.Model.ModelChanged -= RequestRender;
+        State.Model.ColorsChanged -= RequestRender;
+        State.Model.ZoomChanged -= OnZoom;
+    }
+
+    private void RequestRender() => StateHasChanged();
+    private void OnZoom(int x, int y) => StateHasChanged();
+
+    // Cells handle their own pointer events (see BeadPoint). This fallback catches the
+    // case where the pointer is released over empty SVG area or leaves the viewport
+    // altogether, so a drag never stays "stuck" in IsDragging=true.
+    private void OnPointerUpFallback(PointerEventArgs e)
+    {
+        if (!State.IsDragging) return;
+        State.IsDragging = false;
+        // Apply the tool at the last known selection position.
+        State.SelectedTool.OnPointerRelease(State.Model, State.Selection, State.Selection.Origin);
+        if (State.SelectedTool is not SelectionTool || !State.Selection.IsActive)
+            State.Selection.ClearSelection();
+        State.NotifySelectionActionsChanged();
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "DisplayName": "",
+  "Author": "",
+  "Beads": [
+    {
+      "Color": "#A0A0A0",
+      "Manufacturer": "",
+      "Id": "",
+      "Finish": "Iridescent"
+    },
+    {
+      "Color": "#B35E03",
+      "Manufacturer": "",
+      "Id": "",
+      "Finish": "Matte"
+    },
+    {
+      "Color": "#FFFFFF",
+      "Manufacturer": "",
+      "Id": "",
+      "Finish": "TransparentMatte"
+    },
+    {
+      "Color": "#7E7CFE",
+      "Manufacturer": "",
+      "Id": "",
+      "Finish": "Shiny"
+    }
+  ]
+}

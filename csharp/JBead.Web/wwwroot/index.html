@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JBead.Web</title>
+    <base href="/" />
+    <link rel="preload" id="webassembly" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="JBead.Web.styles.css" rel="stylesheet" />
+    <script type="importmap"></script>
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script>
+        // Tiny localStorage shim for Blazor WASM. Cookies would also work but they
+        // ship on every request and are size-limited; localStorage is a better fit
+        // for a per-user bead catalog.
+        // Tiny env helper — used at app startup to pick a sensible default view mode.
+        window.jbeadEnv = {
+            isWideNonMobile: function () {
+                try {
+                    const mobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini/i.test(navigator.userAgent);
+                    return !mobile && window.innerWidth >= 600;
+                } catch { return false; }
+            },
+            // navigator.language returns tags like "cs-CZ" — strip the region because
+            // the .properties files are keyed by the 2-letter language code only.
+            browserLanguage: function () {
+                try {
+                    const lang = navigator.language || (navigator.languages && navigator.languages[0]) || 'en';
+                    return String(lang).split('-')[0].toLowerCase();
+                } catch { return 'en'; }
+            }
+        };
+
+        window.jbeadStorage = {
+            get: function (key) { return localStorage.getItem(key); },
+            set: function (key, value) { localStorage.setItem(key, value); },
+            remove: function (key) { localStorage.removeItem(key); }
+        };
+
+        // Suppress the browser context menu app-wide. The pattern editor uses
+        // the right mouse button for its own actions (e.g. erase / pick colour),
+        // so the native menu would just get in the way.
+        window.addEventListener('contextmenu', function (e) { e.preventDefault(); }, { capture: true });
+
+        // Editor keyboard shortcuts. The Blazor side registers a DotNetObjectReference
+        // (Home.razor) and we forward Ctrl/Cmd+C and Ctrl/Cmd+V into it. Keys typed in
+        // text fields are left to the browser so users can still copy/paste in inputs.
+        window.jbeadKeys = {
+            register: function (dotNetRef) {
+                document.addEventListener('keydown', function (e) {
+                    var t = e.target;
+                    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+                    if (!(e.ctrlKey || e.metaKey)) return;
+                    var k = e.key && e.key.toLowerCase();
+                    if (k === 'c') { e.preventDefault(); dotNetRef.invokeMethodAsync('OnCopyShortcut'); }
+                    else if (k === 'v') { e.preventDefault(); dotNetRef.invokeMethodAsync('OnPasteShortcut'); }
+                });
+            }
+        };
+
+        // Canvas-2D rope simulation. Keeps geometry + rotation state JS-side so drag
+        // rotation doesn't round-trip through .NET; Blazor only pushes pattern data
+        // whenever the model changes.
+        window.jbeadSim = (function () {
+            const states = new WeakMap();
+
+            function isSupported() {
+                try {
+                    const c = document.createElement('canvas');
+                    return !!(c.getContext && c.getContext('2d'));
+                } catch { return false; }
+            }
+
+            function attach(canvas) {
+                if (!canvas || states.has(canvas)) return;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                const state = {
+                    canvas, ctx, data: null,
+                    rotX: 0, rotY: 0, rotZ: 0,
+                    drag: null, resizeObserver: null, dpr: 1
+                };
+                states.set(canvas, state);
+
+                function fit() {
+                    const dpr = window.devicePixelRatio || 1;
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = Math.max(50, Math.floor(rect.width * dpr));
+                    canvas.height = Math.max(50, Math.floor(rect.height * dpr));
+                    state.dpr = dpr;
+                    draw(state);
+                }
+                state.resizeObserver = new ResizeObserver(fit);
+                state.resizeObserver.observe(canvas);
+                fit();
+
+                canvas.addEventListener('pointerdown', (e) => {
+                    state.drag = {
+                        x: e.clientX, y: e.clientY,
+                        rx: state.rotX, ry: state.rotY, rz: state.rotZ,
+                        shift: e.shiftKey
+                    };
+                    try { canvas.setPointerCapture(e.pointerId); } catch { }
+                    e.preventDefault();
+                });
+                canvas.addEventListener('pointermove', (e) => {
+                    if (!state.drag) return;
+                    const dx = e.clientX - state.drag.x;
+                    const dy = e.clientY - state.drag.y;
+                    const s = 1 / 150;
+                    if (state.drag.shift) state.rotZ = state.drag.rz + dx * s;
+                    else {
+                        state.rotY = state.drag.ry + dx * s;
+                        state.rotX = state.drag.rx + dy * s;
+                    }
+                    draw(state);
+                });
+                const endDrag = (e) => {
+                    if (!state.drag) return;
+                    state.drag = null;
+                    try { canvas.releasePointerCapture(e.pointerId); } catch { }
+                };
+                canvas.addEventListener('pointerup', endDrag);
+                canvas.addEventListener('pointercancel', endDrag);
+                canvas.addEventListener('wheel', (e) => {
+                    state.rotZ += (e.deltaY > 0 ? 1 : -1) * 0.05;
+                    e.preventDefault();
+                    draw(state);
+                }, { passive: false });
+            }
+
+            function setPattern(canvas, dataJson) {
+                const state = states.get(canvas);
+                if (!state) return;
+                state.data = JSON.parse(dataJson);
+                draw(state);
+            }
+
+            function reset(canvas) {
+                const state = states.get(canvas);
+                if (!state) return;
+                state.rotX = state.rotY = state.rotZ = 0;
+                draw(state);
+            }
+
+            function detach(canvas) {
+                const state = states.get(canvas);
+                if (!state) return;
+                state.resizeObserver && state.resizeObserver.disconnect();
+                states.delete(canvas);
+            }
+
+            function draw(state) {
+                const { canvas, ctx, data, dpr } = state;
+                const cssW = canvas.clientWidth;
+                const cssH = canvas.clientHeight;
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.fillStyle = '#e8e8e8';
+                ctx.fillRect(0, 0, cssW, cssH);
+                if (!data || !data.beads || data.beads.length === 0) return;
+
+                const cols = data.width;
+                const rows = data.height;
+                const d = data.diameter;
+                // Spiral winds as if the round had one extra bead — the missing
+                // angular slot per round gives the rope its visible diagonal lean.
+                // Radius is based on (cols + 1) so adjacent beads within a round
+                // are still exactly one bead apart on the surface.
+                const wind = cols + 1;
+                const radius = wind * d / (2 * Math.PI);
+                // Hexagonal packing vertical step.
+                const rowSpacing = d * Math.sqrt(3) / 2;
+                const halfHeight = rows * rowSpacing / 2;
+                const centerX = cssW / 2;
+                const centerY = cssH / 2;
+                const maxDepth = Math.sqrt(radius * radius + halfHeight * halfHeight);
+
+                const cX = Math.cos(state.rotX), sX = Math.sin(state.rotX);
+                const cY = Math.cos(state.rotY), sY = Math.sin(state.rotY);
+                const cZ = Math.cos(state.rotZ), sZ = Math.sin(state.rotZ);
+
+                const count = data.beads.length;
+                const xs = new Float64Array(count);
+                const ys = new Float64Array(count);
+                const zs = new Float64Array(count);
+
+                // Continuous helix. Per-bead step:
+                //   angle: 2π/cols − π/cols²  → after cols beads, one full turn
+                //          minus a half-bead lateral offset (preserves hex packing
+                //          and gives the spiral its visible diagonal lean).
+                //   height: distributed so that the first and last beads sit at the
+                //          same y as in the flat-rounds layout — the rope keeps the
+                //          original total length instead of growing by ~one row.
+                const angleStep = 2 * Math.PI / cols - Math.PI / (cols * cols);
+                const vstep = count > 1 ? (rows - 1) * rowSpacing / (count - 1) : 0;
+                for (let k = 0; k < count; k++) {
+                    const theta = angleStep * k;
+                    let x3 = radius * Math.sin(theta);
+                    let y3 = k * vstep - halfHeight;
+                    let z3 = radius * Math.cos(theta);
+
+                    const nx = x3 * cY + z3 * sY;
+                    const nz1 = -x3 * sY + z3 * cY;
+                    const ny = y3 * cX - nz1 * sX;
+                    const nz2 = y3 * sX + nz1 * cX;
+                    const fx = nx * cZ - ny * sZ;
+                    const fy = nx * sZ + ny * cZ;
+
+                    xs[k] = centerX + fx;
+                    ys[k] = centerY - fy;
+                    zs[k] = nz2;
+                }
+
+                // Rotate a point on the rope's central axis (x3 = z3 = 0) into
+                // screen space. Used to lay out pillar segments below.
+                function rotateAxisPoint(y3) {
+                    const ny = y3 * cX;
+                    const nz2 = y3 * sX;
+                    const fx = -ny * sZ;
+                    const fy = ny * cZ;
+                    return { x: centerX + fx, y: centerY - fy, z: nz2 };
+                }
+
+                // Thread — drawn underneath the beads (always behind, no depth sort).
+                ctx.strokeStyle = '#b89658';
+                ctx.lineWidth = 1.4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.globalAlpha = 0.9;
+                ctx.beginPath();
+                ctx.moveTo(xs[0], ys[0]);
+                for (let k = 1; k < count; k++) ctx.lineTo(xs[k], ys[k]);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+
+                // Pillar segments — split the central beam into N short pieces so
+                // each can be sorted by depth alongside the beads. That way beads
+                // in front of the pillar occlude it, and beads behind it are
+                // occluded by it (instead of the pillar always being a backdrop).
+                const pillarItems = [];
+                if (data.string) {
+                    const segs = 48;
+                    const yLo = -halfHeight - d / 2;
+                    const yHi = halfHeight + d / 2;
+                    const dy = (yHi - yLo) / segs;
+                    // Width: previously 2·radius + d, now 4 bead-radii (2·d) shorter
+                    // so it stays inside the bead ring even on very small ropes
+                    // (e.g. cols = 7, where the rope radius is barely above d).
+                    const pillarW = Math.max(2, 2 * radius + d - 4 * (d / 2));
+                    for (let s = 0; s < segs; s++) {
+                        const p0 = rotateAxisPoint(yLo + s * dy);
+                        const p1 = rotateAxisPoint(yLo + (s + 1) * dy);
+                        pillarItems.push({
+                            kind: 'pillar',
+                            // Bias the pillar one bead-radius deeper than its true
+                            // axis depth, so beads that share the centre line still
+                            // get sorted in front and the pillar reads as a backdrop.
+                            z: (p0.z + p1.z) / 2 - d / 2,
+                            x0: p0.x, y0: p0.y, x1: p1.x, y1: p1.y, w: pillarW,
+                        });
+                    }
+                }
+
+                // Unified depth sort: beads + pillar segments together.
+                const items = new Array(count + pillarItems.length);
+                for (let k = 0; k < count; k++) items[k] = { kind: 'bead', z: zs[k], k };
+                for (let p = 0; p < pillarItems.length; p++) items[count + p] = pillarItems[p];
+                items.sort((a, b) => a.z - b.z);
+
+                // Viewport cull margin.
+                const margin = d * 2;
+                const minX = -margin, maxX = cssW + margin;
+                const minY = -margin, maxY = cssH + margin;
+                const stringHex = data.string || '#888';
+
+                for (let oi = 0; oi < items.length; oi++) {
+                    const it = items[oi];
+                    if (it.kind === 'pillar') {
+                        ctx.globalAlpha = 1;
+                        ctx.strokeStyle = stringHex;
+                        ctx.lineWidth = it.w;
+                        ctx.lineCap = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(it.x0, it.y0);
+                        ctx.lineTo(it.x1, it.y1);
+                        ctx.stroke();
+                        continue;
+                    }
+                    const k = it.k;
+                    const x = xs[k], y = ys[k], z = zs[k];
+                    if (x < minX || x > maxX || y < minY || y > maxY) continue;
+                    const bead = data.beads[k];
+                    const shade = 0.5 + 0.5 * (z / maxDepth);
+                    const r = d * 0.5 * (0.78 + 0.22 * shade);
+                    drawBead(ctx, x, y, r, bead.c, bead.f | 0, shade);
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // BeadFinish enum (mirrors Core/BeadFinish.cs):
+            //   0 Opaque, 1 Transparent, 2 Matte, 3 Shiny, 4 Pearl,
+            //   5 SilverLined, 6 Metallic, 7 TransparentGloss, 8 TransparentMatte,
+            //   9 Iridescent, 10 Galvanized.
+            function drawBead(ctx, x, y, r, color, finish, shade) {
+                const rgb = hexToRgb(color);
+                let alpha = 1;
+                let highlight = 0;       // 0..1 strength of the white specular dot
+                let highlightSize = 0.22;
+                let rim = 0;             // 0..1 dark rim (matte/transparent edge)
+                let sheen = null;        // optional radial gradient overlay
+                let tint = null;         // optional iridescent rainbow shift
+
+                // finish is now a BeadFinish bitmask (C# v4+): combinations like
+                // (Transparent | Shiny) replace what used to be TransparentGloss.
+                // Each flag contributes its own effect; later flags may raise the
+                // strength of earlier ones (Math.max) so combined finishes look
+                // like a blend rather than only-the-last-flag.
+                const F_TRANSPARENT = 1, F_MATTE = 2, F_SHINY = 4, F_PEARL = 8,
+                      F_SILVERLINED = 16, F_METALLIC = 32,
+                      F_IRIDESCENT = 64, F_GALVANIZED = 128;
+                if (finish === 0) {
+                    highlight = shade > 0.55 ? 0.45 : 0;                                    // Opaque
+                } else {
+                    if (finish & F_TRANSPARENT) { alpha = 0.55; rim = Math.max(rim, 0.2); }
+                    if (finish & F_MATTE)       { highlight = 0; rim = Math.max(rim, 0.35); }
+                    if (finish & F_SHINY)       { highlight = 0.85; highlightSize = 0.28; }
+                    if (finish & F_PEARL)       { sheen = 'pearl'; highlight = Math.max(highlight, 0.4); }
+                    if (finish & F_SILVERLINED) { sheen = 'silverlined'; highlight = Math.max(highlight, 0.55); }
+                    if (finish & F_METALLIC)    { sheen = 'metallic'; highlight = Math.max(highlight, 0.75); highlightSize = 0.3; }
+                    if (finish & F_IRIDESCENT)  { tint = 'iridescent'; highlight = Math.max(highlight, 0.6); sheen = sheen || 'pearl'; }
+                    if (finish & F_GALVANIZED)  { sheen = 'metallic'; highlight = Math.max(highlight, 0.65); tint = 'galvanized'; }
+                }
+
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (sheen === 'metallic') {
+                    const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.05, x, y, r);
+                    g.addColorStop(0, `rgba(255,255,255,0.55)`);
+                    g.addColorStop(0.5, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+                    g.addColorStop(1, `rgba(0,0,0,0.35)`);
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                } else if (sheen === 'pearl') {
+                    const g = ctx.createRadialGradient(x, y, r * 0.1, x, y, r);
+                    g.addColorStop(0, `rgba(255,255,255,0.45)`);
+                    g.addColorStop(1, `rgba(255,255,255,0)`);
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                } else if (sheen === 'silverlined') {
+                    const g = ctx.createRadialGradient(x, y, r * 0.45, x, y, r);
+                    g.addColorStop(0, `rgba(240,240,240,0.7)`);
+                    g.addColorStop(0.7, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+                    g.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`);
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                }
+
+                if (tint === 'iridescent') {
+                    const g = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
+                    g.addColorStop(0,    'rgba(255,80,180,0.25)');
+                    g.addColorStop(0.33, 'rgba(80,200,255,0.25)');
+                    g.addColorStop(0.66, 'rgba(180,255,120,0.25)');
+                    g.addColorStop(1,    'rgba(255,200,80,0.25)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                } else if (tint === 'galvanized') {
+                    const g = ctx.createLinearGradient(x - r, y - r, x + r, y + r);
+                    g.addColorStop(0, 'rgba(255,255,255,0.25)');
+                    g.addColorStop(1, 'rgba(60,60,90,0.35)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                }
+
+                if (rim > 0) {
+                    const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r);
+                    g.addColorStop(0, 'rgba(0,0,0,0)');
+                    g.addColorStop(1, `rgba(0,0,0,${rim})`);
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                }
+
+                if (highlight > 0) {
+                    ctx.globalAlpha = highlight;
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(x - r * 0.35, y - r * 0.35, r * highlightSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 1;
+            }
+
+            function hexToRgb(hex) {
+                const h = hex.startsWith('#') ? hex.slice(1) : hex;
+                const v = parseInt(h.length === 3
+                    ? h.split('').map(c => c + c).join('')
+                    : h, 16);
+                return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+            }
+
+            return { isSupported, attach, setPattern, reset, detach };
+        })();
+    </script>
+    <script>
+        // Prompts the user for a save location via the File System Access API
+        // (Chromium-based browsers). Falls back to the classic download flow on
+        // Firefox / Safari so the Save button still works there.
+        // Merged save: opens a native save dialog with both .jbb and .jbby types.
+        // Once a filename is chosen, calls back into the Blazor component to get
+        // the bytes serialized in the right format, then writes them.
+        window.jbeadSaveMerged = async function (baseName, dotNetRef) {
+            if (!('showSaveFilePicker' in window)) {
+                // Old browser / Firefox — .jbby is the default, offer .jbb for Java round-trip.
+                const compat = window.confirm("Save in original .jbb format for compatibility with the Java jbead?\nOK = .jbb, Cancel = .jbby (default)");
+                const ext = compat ? "jbb" : "jbby";
+                const base64 = await dotNetRef.invokeMethodAsync('SerializeForExtension', ext, `${baseName}.${ext}`);
+                return window.jbeadSave(`${baseName}.${ext}`, base64);
+            }
+            try {
+                // .jbby is the native format — listed first so it's the default
+                // dropdown entry. .jbb stays for round-tripping with the original
+                // Java app. Distinct MIME types so the browser doesn't collapse them.
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: `${baseName}.jbby`,
+                    types: [
+                        { description: 'jbead pattern YAML (.jbby)',         accept: { 'application/x-jbead-yaml': ['.jbby'] } },
+                        { description: 'jbead pattern — Java compat (.jbb)', accept: { 'application/x-jbead':       ['.jbb'] } }
+                    ]
+                });
+                const name = handle.name;
+                const dot = name.lastIndexOf('.');
+                const ext = dot > 0 ? name.substring(dot + 1).toLowerCase() : 'jbb';
+                const base64 = await dotNetRef.invokeMethodAsync('SerializeForExtension', ext, name);
+                const bin = atob(base64);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                const writable = await handle.createWritable();
+                await writable.write(bytes);
+                await writable.close();
+                return true;
+            } catch (e) {
+                return false;
+            }
+        };
+
+        window.jbeadSave = async function (suggestedName, base64) {
+            const bin = atob(base64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+
+            // Derive extension + description from the suggested name so the save
+            // dialog offers the right filter (e.g. .jbb, .jbeadcat).
+            const extMatch = suggestedName.match(/\.([^.]+)$/);
+            const ext = extMatch ? extMatch[1] : 'bin';
+            const descriptions = { jbb: 'jbead pattern', jbby: 'jbead pattern (YAML)', jbeadcat: 'jbead bead catalog' };
+            const desc = descriptions[ext] || (ext + ' file');
+
+            if ('showSaveFilePicker' in window) {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: suggestedName,
+                        types: [{
+                            description: desc,
+                            accept: { 'application/octet-stream': ['.' + ext] }
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(bytes);
+                    await writable.close();
+                    return true;
+                } catch (e) {
+                    // User cancelled — treat as a no-op, not an error.
+                    return false;
+                }
+            }
+
+            // Fallback: trigger a download to the browser's default location.
+            const blob = new Blob([bytes], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = suggestedName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            return true;
+        };
+    </script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+</body>
+
+</html>

@@ -1,0 +1,255 @@
+@using JBead.Web.Tools
+@inject AppState State
+@implements IDisposable
+
+@* Wrap in a <g> so we can stack an optional finish overlay on top of the base cell.
+   Pointer events bind on the group — children don't interfere. *@
+<g @onpointerdown="OnPointerDown"
+   @onpointerdown:preventDefault="true"
+   @onpointerdown:stopPropagation="true"
+   @onpointerenter="OnPointerEnter"
+   @onpointerleave="OnPointerLeave"
+   @onpointerup="OnPointerUp"
+   @onpointerup:stopPropagation="true">
+    <rect x="@X" y="@Y" width="@W" height="@H" fill="@fill"
+          fill-opacity="@BaseOpacity"
+          stroke="#888" stroke-width="1" />
+    @if (finish != BeadFinish.Opaque && !isBackground)
+    {
+        @((MarkupString)FinishOverlay())
+    }
+    @* Marching-ants marker on cells using the currently-selected palette index.
+       Two overlapping dashed strokes — white base, black dash offset by half the
+       pattern — give the alternating b/w "spline" effect without an animation. *@
+    @if (matchesSelection)
+    {
+        <rect x="@(X + 1)" y="@(Y + 1)" width="@(W - 2)" height="@(H - 2)"
+              fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="3 3" pointer-events="none" />
+        <rect x="@(X + 1)" y="@(Y + 1)" width="@(W - 2)" height="@(H - 2)"
+              fill="none" stroke="#000" stroke-width="1" stroke-dasharray="3 3" stroke-dashoffset="3" pointer-events="none" />
+    }
+</g>
+
+@code {
+    [Parameter] public int Col { get; set; }
+    [Parameter] public int DisplayRow { get; set; }
+    [Parameter] public int X { get; set; }
+    [Parameter] public int Y { get; set; }
+    [Parameter] public int W { get; set; }
+    [Parameter] public int H { get; set; }
+
+    private byte colorIndex;
+    private string fill = "#ffffff";
+    private BeadFinish finish = BeadFinish.Opaque;
+    private bool matchesSelection;
+
+    private bool isBackground => colorIndex == 0;
+
+    private bool IsTransparentFinish => finish.HasFlag(BeadFinish.Transparent);
+
+    // Transparent beads paint at reduced opacity so the canvas shows through.
+    private string BaseOpacity => IsTransparentFinish && !isBackground ? "0.55" : "1";
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+        State.Model.PointChanged += OnPointChanged;
+        State.Model.ColorChanged += OnColorChanged;
+        State.Model.ColorsChanged += OnColorsChanged;
+        State.Model.ModelChanged += OnModelChanged;
+        State.Model.SelectedColorChanged += OnSelectedColorChanged;
+    }
+
+    protected override void OnParametersSet() => Refresh();
+
+    public void Dispose()
+    {
+        State.Model.PointChanged -= OnPointChanged;
+        State.Model.ColorChanged -= OnColorChanged;
+        State.Model.ColorsChanged -= OnColorsChanged;
+        State.Model.ModelChanged -= OnModelChanged;
+        State.Model.SelectedColorChanged -= OnSelectedColorChanged;
+    }
+
+    // Only cells whose match state actually flips re-render on a selection change —
+    // typically the old-selected cells and the new-selected cells.
+    private void OnSelectedColorChanged(byte newSelected)
+    {
+        bool next = colorIndex == newSelected;
+        if (next == matchesSelection) return;
+        matchesSelection = next;
+        StateHasChanged();
+    }
+
+    private bool IsInBounds
+    {
+        get
+        {
+            var m = State.Model;
+            return Col >= 0 && Col < m.Width && DisplayRow >= 0 && DisplayRow < m.Height;
+        }
+    }
+
+    private void OnModelChanged()
+    {
+        if (!IsInBounds) return;
+        var prev = (colorIndex, fill, finish);
+        Refresh();
+        if (prev.colorIndex != colorIndex || prev.fill != fill || prev.finish != finish) StateHasChanged();
+    }
+
+    private void Refresh()
+    {
+        if (!IsInBounds) return;
+        colorIndex = State.Model.Get(new Point(Col, DisplayRow));
+        matchesSelection = colorIndex == State.Model.SelectedColor;
+        if (colorIndex >= State.Model.ColorCount) return;
+        var b = State.Model.GetBead(colorIndex);
+        finish = b.Finish;
+        var c = b.Color;
+        fill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+    }
+
+    private void OnPointChanged(Point p)
+    {
+        if (!IsInBounds) return;
+        if (p.X != Col || p.Y != DisplayRow) return;
+        byte newCi = State.Model.Get(p);
+        if (newCi == colorIndex) return;
+        colorIndex = newCi;
+        matchesSelection = colorIndex == State.Model.SelectedColor;
+        if (newCi >= State.Model.ColorCount) return;
+        var b = State.Model.GetBead(newCi);
+        finish = b.Finish;
+        var c = b.Color;
+        fill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        StateHasChanged();
+    }
+
+    private void OnColorChanged(int index)
+    {
+        if (!IsInBounds) return;
+        if (index != colorIndex) return;
+        if (colorIndex >= State.Model.ColorCount) return;
+        var b = State.Model.GetBead(colorIndex);
+        var c = b.Color;
+        string newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        if (newFill == fill && b.Finish == finish) return;
+        fill = newFill;
+        finish = b.Finish;
+        StateHasChanged();
+    }
+
+    private void OnColorsChanged()
+    {
+        if (!IsInBounds) return;
+        if (colorIndex >= State.Model.ColorCount) return;
+        var b = State.Model.GetBead(colorIndex);
+        var c = b.Color;
+        string newFill = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        if (newFill == fill && b.Finish == finish) return;
+        fill = newFill;
+        finish = b.Finish;
+        StateHasChanged();
+    }
+
+    // Emits an SVG overlay suggesting the bead finish. One overlay per primitive
+    // flag, stacked in enum-declaration order so compound finishes like
+    // (Transparent | Shiny) render as base-transparency (via BaseOpacity) plus
+    // the gloss highlight on top. Pure Transparent contributes no overlay — the
+    // lower BaseOpacity is the whole visual.
+    private string FinishOverlay()
+    {
+        static string Highlight(int x, int y, int w, int h, double opacity) =>
+            $"<rect x=\"{x + 2}\" y=\"{y + 2}\" width=\"{Math.Max(2, w / 3)}\" height=\"{Math.Max(2, h / 3)}\" fill=\"#fff\" fill-opacity=\"{opacity.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)}\" pointer-events=\"none\" />";
+        static string MatteVeil(int x, int y, int w, int h) =>
+            $"<rect x=\"{x + 1}\" y=\"{y + 1}\" width=\"{w - 2}\" height=\"{h - 2}\" fill=\"#000\" fill-opacity=\"0.08\" pointer-events=\"none\" />";
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var flag in BeadFinishConverter.Flags(finish))
+        {
+            switch (flag)
+            {
+                case BeadFinish.Transparent:
+                    // Handled by BaseOpacity — no overlay shape needed.
+                    break;
+                case BeadFinish.Matte:
+                    sb.Append(MatteVeil(X, Y, W, H));
+                    break;
+                case BeadFinish.Shiny:
+                    sb.Append(Highlight(X, Y, W, H, 0.65));
+                    break;
+                case BeadFinish.Pearl:
+                    sb.Append($"<ellipse cx=\"{X + W / 3}\" cy=\"{Y + H / 3}\" rx=\"{Math.Max(1, W / 4)}\" ry=\"{Math.Max(1, H / 4)}\" fill=\"#fff\" fill-opacity=\"0.5\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.SilverLined:
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"{H - 4}\" fill=\"none\" stroke=\"#c8c8d0\" stroke-width=\"1.5\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Metallic:
+                    // Bright top-left highlight + dark bottom-right shadow for chrome feel.
+                    sb.Append(Highlight(X, Y, W, H, 0.55));
+                    sb.Append($"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#000\" fill-opacity=\"0.28\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Iridescent:
+                    // Two thin stripes in pink/cyan to hint at AB (aurora borealis) sheen.
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{W - 4}\" height=\"2\" fill=\"#ff80c0\" fill-opacity=\"0.45\" pointer-events=\"none\" />");
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + H - 4}\" width=\"{W - 4}\" height=\"2\" fill=\"#80d0ff\" fill-opacity=\"0.45\" pointer-events=\"none\" />");
+                    break;
+                case BeadFinish.Galvanized:
+                    // Warmer (golden) metallic feel.
+                    sb.Append($"<rect x=\"{X + 2}\" y=\"{Y + 2}\" width=\"{Math.Max(2, W / 3)}\" height=\"{Math.Max(2, H / 3)}\" fill=\"#ffe08a\" fill-opacity=\"0.6\" pointer-events=\"none\" />");
+                    sb.Append($"<rect x=\"{X + W / 2}\" y=\"{Y + H / 2}\" width=\"{W / 2 - 1}\" height=\"{H / 2 - 1}\" fill=\"#5a4020\" fill-opacity=\"0.22\" pointer-events=\"none\" />");
+                    break;
+            }
+        }
+        return sb.ToString();
+    }
+
+    private Point Here => new(Col, DisplayRow);
+
+    private void OnPointerDown(PointerEventArgs e)
+    {
+        if (e.Button != 0) return;
+        // Shift+click: extend the existing selection rather than starting a fresh
+        // one (Excel-like behaviour). Only meaningful when a selection is already set.
+        if (e.ShiftKey && State.Selection.IsSet)
+        {
+            State.IsDragging = true;
+            State.Selection.Update(Here);
+            return;
+        }
+        State.IsDragging = true;
+        State.Selection.Init(Here);
+    }
+
+    private void OnPointerEnter(PointerEventArgs e)
+    {
+        // Record hover target so the HoveredBeadInfo popup can display this cell's
+        // bead metadata. Guard with IsInBounds so stale mouse events after a grid
+        // shrink don't read past the palette.
+        if (IsInBounds) State.HoveredColorIndex = colorIndex;
+        if (!State.IsDragging) return;
+        State.Selection.Update(Here);
+    }
+
+    private void OnPointerLeave(PointerEventArgs e)
+    {
+        // Clear hover only if we're still the one being tracked — another cell's
+        // pointerenter may have already replaced us.
+        if (State.HoveredColorIndex == colorIndex) State.HoveredColorIndex = null;
+    }
+
+    private void OnPointerUp(PointerEventArgs e)
+    {
+        if (!State.IsDragging) return;
+        State.Selection.Update(Here);
+        State.IsDragging = false;
+        State.SelectedTool.OnPointerRelease(State.Model, State.Selection, State.Selection.Origin);
+        // Keep the selection rectangle alive after a SelectionTool drag so Copy /
+        // Paste / Fill Square can act on it. Other tools clear immediately to
+        // avoid a stale rectangle hanging around the canvas.
+        if (State.SelectedTool is not SelectionTool || !State.Selection.IsActive)
+            State.Selection.ClearSelection();
+        State.NotifySelectionActionsChanged();
+    }
+}

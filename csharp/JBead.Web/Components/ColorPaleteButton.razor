@@ -1,0 +1,245 @@
+@using System.Drawing
+@inject AppState State
+@inject DialogStack DialogStack
+@inject LocalizationService Loc
+@inject CustomBeadCatalog CustomCatalog
+@implements IDisposable
+
+@* Selected ring lives on the wrap so it survives Bootstrap's button reset and the
+   palette's overflow clipping. *@
+<div class="swatch-wrap @(isSelected ? "selected" : "") @(IsBackgroundSlot ? "bg-slot" : "")">
+    @* Left-click selects; right-click opens the context menu. Editing bead
+       properties happens on the catalog side (Session / imported tab). *@
+    <button type="button"
+            class="swatch @(isUnset ? "unset" : "") @(IsBackgroundSlot ? "is-background" : "") @finishClass"
+            style="background-color:@css"
+            title="@Tooltip"
+            disabled="@isUnset"
+            @onclick="OnClickHandler"
+            @oncontextmenu="OpenContextMenu"
+            @oncontextmenu:preventDefault="true"></button>
+</div>
+
+@if (contextMenuVisible)
+{
+    @* z-index acquired from DialogStack so this menu always paints above anything
+       currently open (including selector dialogs, if some future flow combines them). *@
+    <div class="ctx-menu-backdrop" style="z-index:@menuZ"
+         @onclick="CloseContextMenu"
+         @oncontextmenu="CloseContextMenu"
+         @oncontextmenu:preventDefault="true"></div>
+    <div class="ctx-menu" style="top:@(menuY)px; left:@(menuX)px; z-index:@(menuZ + 1)"
+         @onclick:stopPropagation="true">
+        <button type="button" @onclick="ReplaceFromMenu">@Loc["ui.replacebead"]</button>
+        @if (CustomCatalog.Catalogs.Count > 0)
+        {
+            <div class="ctx-submenu-wrap">
+                <button type="button" class="has-submenu">@Loc["ui.add.category"]</button>
+                <div class="ctx-submenu">
+                    @foreach (var cat in CustomCatalog.Catalogs)
+                    {
+                        string name = cat.Name;
+                        <button type="button" @onclick="() => OpenRegisterDialog(name)">@CatalogDisplayName(cat)</button>
+                    }
+                </div>
+            </div>
+        }
+        @if (Index > 0)
+        {
+            <button type="button" class="danger" @onclick="DeleteFromMenu">@Loc["ui.delete"]</button>
+        }
+    </div>
+}
+
+<BeadEditDialog IsOpen="@registerDialogOpen"
+                Title="@registerDialogTitle"
+                InitialBead="@registerInitialBead"
+                ShowSaveToLibrary="false"
+                CanDelete="false"
+                OnSave="OnRegisterSave"
+                OnClose="CloseRegisterDialog" />
+
+@code {
+    [Parameter] public int Index { get; set; }
+    [Parameter] public EventCallback OnReplace { get; set; }
+
+    private bool isSelected;
+    private bool isUnset;
+    private string css = "#cccccc";
+    private string tooltip = "";
+    private string finishClass = "";
+
+    // Index 0 is the dedicated "background / erase" slot — kept visually distinct
+    // and, in the model, protected from delete/move.
+    private bool IsBackgroundSlot => Index == 0;
+
+    private string Tooltip => tooltip;
+
+    private bool contextMenuVisible;
+    private int menuX;
+    private int menuY;
+    private int menuZ;
+
+    private bool registerDialogOpen;
+    private string registerTargetName = "";
+    private string registerDialogTitle = "";
+    private Bead? registerInitialBead;
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+        isSelected = State.Model.SelectedColor == Index;
+        State.Model.SelectedColorChanged += OnSelectedChanged;
+        State.Model.ColorChanged += OnColorChanged;
+        State.Model.ColorsChanged += OnColorsChanged;
+        Loc.LanguageChanged += OnLanguageChanged;
+        CustomCatalog.Changed += OnCatalogChanged;
+        // Fire-and-forget load; the context menu re-renders once the catalogs arrive.
+        _ = EnsureCatalogLoaded();
+    }
+
+    private async Task EnsureCatalogLoaded()
+    {
+        await CustomCatalog.EnsureLoadedAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnCatalogChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        State.Model.SelectedColorChanged -= OnSelectedChanged;
+        State.Model.ColorChanged -= OnColorChanged;
+        State.Model.ColorsChanged -= OnColorsChanged;
+        Loc.LanguageChanged -= OnLanguageChanged;
+        CustomCatalog.Changed -= OnCatalogChanged;
+        if (contextMenuVisible) DialogStack.Release();
+    }
+
+    private void OnLanguageChanged() { Refresh(); InvokeAsync(StateHasChanged); }
+
+    private void Refresh()
+    {
+        if (Index >= State.Model.ColorCount)
+        {
+            isUnset = true;
+            css = "#cccccc";
+            tooltip = Loc["bead.nr.unset", [Index.ToString()]];
+            finishClass = "";
+            return;
+        }
+        var b = State.Model.GetBead(Index);
+        var c = b.Color;
+        if (c.IsEmpty || c.A == 0)
+        {
+            isUnset = true;
+            css = "#cccccc";
+        }
+        else
+        {
+            isUnset = false;
+            css = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        }
+        finishClass = BeadFinishConverter.ToCssClass(b.Finish);
+        // Tooltip includes all known metadata for this slot, regardless of whether it's
+        // the background slot or a regular bead. Background still gets an extra hint
+        // about its "paint to erase" role.
+        var parts = new List<string>();
+        parts.Add(Index == 0 ? Loc["bead.background"] : Loc["bead.nr", [Index.ToString()]]);
+        if (!string.IsNullOrEmpty(b.Manufacturer)) parts.Add(b.Manufacturer);
+        if (!string.IsNullOrEmpty(b.Id)) parts.Add(b.Id);
+        if (b.Finish != BeadFinish.Opaque) parts.Add(BeadFinishConverter.ToCanonicalString(b.Finish));
+        if (!string.IsNullOrEmpty(b.CatalogSource)) parts.Add(b.CatalogSource);
+        if (Index == 0) parts.Add(Loc["bead.erase.hint"]);
+        tooltip = string.Join(" — ", parts);
+    }
+
+    private void OnSelectedChanged(byte newIndex)
+    {
+        bool next = newIndex == Index;
+        if (next == isSelected) return;
+        isSelected = next;
+        StateHasChanged();
+    }
+
+    private void OnColorChanged(int index)
+    {
+        if (index != Index) return;
+        var before = (css, isUnset, tooltip, finishClass);
+        Refresh();
+        if (before != (css, isUnset, tooltip, finishClass)) StateHasChanged();
+    }
+
+    private void OnColorsChanged()
+    {
+        var before = (css, isUnset, tooltip, finishClass);
+        Refresh();
+        if (before != (css, isUnset, tooltip, finishClass)) StateHasChanged();
+    }
+
+    private void OnClickHandler()
+    {
+        if (isUnset) return;
+        State.Model.SelectedColor = (byte)Index;
+    }
+
+    private void OpenContextMenu(MouseEventArgs e)
+    {
+        if (isUnset) return;
+        menuX = (int)e.ClientX;
+        menuY = (int)e.ClientY;
+        menuZ = DialogStack.Acquire();
+        contextMenuVisible = true;
+    }
+
+    private void CloseContextMenu()
+    {
+        if (contextMenuVisible) { contextMenuVisible = false; DialogStack.Release(); }
+    }
+
+    private async Task ReplaceFromMenu()
+    {
+        CloseContextMenu();
+        await OnReplace.InvokeAsync();
+    }
+
+    private void DeleteFromMenu()
+    {
+        CloseContextMenu();
+        State.Model.RemoveBeadAt(Index);
+    }
+
+    private string CatalogDisplayName(BeadCatalog cat)
+    {
+        if (cat.Name == CustomBeadCatalog.SessionName) return Loc["catalog.session"];
+        return string.IsNullOrWhiteSpace(cat.DisplayName) ? cat.Name : cat.DisplayName;
+    }
+
+    private void OpenRegisterDialog(string catalogName)
+    {
+        CloseContextMenu();
+        var cat = CustomCatalog.Catalogs.FirstOrDefault(c => c.Name == catalogName);
+        if (cat is null) return;
+        registerTargetName = catalogName;
+        registerDialogTitle = Loc["ui.add.title", [CatalogDisplayName(cat)]];
+        registerInitialBead = State.Model.GetBead(Index).Clone();
+        registerDialogOpen = true;
+    }
+
+    private async Task OnRegisterSave(BeadEditResult result)
+    {
+        var edited = result.Bead;
+        // Push the edited metadata back onto the palette slot so the swatch tooltip
+        // and any later save reflect what the user just entered.
+        State.Model.SetColor(Index, edited.Color);
+        State.Model.UpdateBead(Index, edited.Manufacturer, edited.Id, edited.Finish, registerTargetName);
+        await CustomCatalog.AddBeadAsync(registerTargetName, new Bead(edited.Color, edited.Manufacturer, edited.Id, edited.Finish, registerTargetName));
+        CloseRegisterDialog();
+    }
+
+    private void CloseRegisterDialog()
+    {
+        registerDialogOpen = false;
+        registerInitialBead = null;
+    }
+}

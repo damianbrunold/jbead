@@ -1,0 +1,158 @@
+@using System.Drawing
+@inject DialogStack DialogStack
+@inject LocalizationService Loc
+@implements IDisposable
+
+@if (IsOpen)
+{
+    <div class="jb-modal-backdrop" style="z-index:@zIndex" @onclick="Cancel">
+        <div class="jb-modal" @onclick:stopPropagation="true">
+            <h3>@Title</h3>
+            <div class="form-row">
+                <label for="bed-color">@Loc["ui.color"]</label>
+                <input id="bed-color" type="color" value="@colorHex" @onchange="OnColor" />
+            </div>
+            <div class="form-row">
+                <label for="bed-mfr">@Loc["ui.manufacturer"]</label>
+                <input id="bed-mfr" type="text" value="@mfr" @onchange="OnMfr" placeholder="@(Loc["ui.manufacturer.placeholder"])" />
+            </div>
+            <div class="form-row">
+                <label for="bed-id">@Loc["ui.beadid"]</label>
+                <input id="bed-id" type="text" value="@beadId" @onchange="OnId" placeholder="@(Loc["ui.beadid.placeholder"])" />
+            </div>
+            <div class="form-row finish-row">
+                <span class="finish-label">@Loc["ui.finish"]</span>
+                <div class="finish-flags">
+                    @foreach (var f in FinishFlags)
+                    {
+                        var flag = f;
+                        <label class="finish-flag">
+                            <input type="checkbox" checked="@(finish.HasFlag(flag))"
+                                   @onchange="e => ToggleFinishFlag(flag, e)" />
+                            @flag.ToString()
+                        </label>
+                    }
+                </div>
+            </div>
+            @if (ShowSaveToLibrary)
+            {
+                <div class="form-row form-row-checkbox">
+                    <label>
+                        <input type="checkbox" @bind="saveToLibrary" />
+                        @Loc["ui.savetolib"]
+                    </label>
+                </div>
+            }
+            <div class="actions">
+                @if (CanDelete)
+                {
+                    <button type="button" class="danger" @onclick="Delete">@Loc["ui.delete"]</button>
+                }
+                <div class="spacer"></div>
+                <button type="button" @onclick="Cancel">@Loc["cancel"]</button>
+                <button type="button" class="primary" @onclick="Save">@Loc["ui.save"]</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "Edit bead";
+    [Parameter] public Bead? InitialBead { get; set; }
+    [Parameter] public bool CanDelete { get; set; } = false;
+    [Parameter] public bool ShowSaveToLibrary { get; set; } = false;
+    [Parameter] public EventCallback<BeadEditResult> OnSave { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private Color color = Color.FromArgb(160, 160, 160);
+    private string mfr = "";
+    private string beadId = "";
+    private BeadFinish finish = BeadFinish.Opaque;
+    private string colorHex = "#a0a0a0";
+    private bool saveToLibrary = true;
+
+    private bool wasOpen;
+    private int zIndex;
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    protected override void OnParametersSet()
+    {
+        if (IsOpen && !wasOpen)
+        {
+            zIndex = DialogStack.Acquire();
+            var b = InitialBead ?? new Bead(Color.FromArgb(160, 160, 160));
+            color = b.Color;
+            mfr = b.Manufacturer;
+            beadId = b.Id;
+            finish = b.Finish;
+            colorHex = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            saveToLibrary = true;
+        }
+        else if (!IsOpen && wasOpen)
+        {
+            DialogStack.Release();
+        }
+        wasOpen = IsOpen;
+    }
+
+    public void Dispose()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        if (wasOpen) DialogStack.Release();
+    }
+
+    private void OnColor(ChangeEventArgs e)
+    {
+        if (e.Value is not string hex || hex.Length == 0) return;
+        colorHex = hex;
+        color = ParseHex(hex);
+    }
+
+    private void OnMfr(ChangeEventArgs e) => mfr = e.Value?.ToString() ?? "";
+    private void OnId(ChangeEventArgs e) => beadId = e.Value?.ToString() ?? "";
+
+    // Only the primitive flags are editable — Opaque is the zero state (no box
+    // checked). Combined finishes like "Transparent + Shiny" come from ticking
+    // both boxes.
+    private static readonly BeadFinish[] FinishFlags =
+    {
+        BeadFinish.Transparent,
+        BeadFinish.Matte,
+        BeadFinish.Shiny,
+        BeadFinish.Pearl,
+        BeadFinish.SilverLined,
+        BeadFinish.Metallic,
+        BeadFinish.Iridescent,
+        BeadFinish.Galvanized,
+    };
+
+    private void ToggleFinishFlag(BeadFinish flag, ChangeEventArgs e)
+    {
+        bool on = e.Value is bool v && v;
+        finish = on ? (finish | flag) : (finish & ~flag);
+    }
+
+    private Task Save() =>
+        OnSave.InvokeAsync(new BeadEditResult(new Bead(color, mfr, beadId, finish), saveToLibrary));
+
+    private Task Delete() => OnDelete.InvokeAsync();
+    private Task Cancel() => OnClose.InvokeAsync();
+
+    private static Color ParseHex(string hex)
+    {
+        if (hex[0] == '#') hex = hex.Substring(1);
+        if (hex.Length != 6) return Color.Black;
+        byte r = Convert.ToByte(hex.Substring(0, 2), 16);
+        byte g = Convert.ToByte(hex.Substring(2, 2), 16);
+        byte b = Convert.ToByte(hex.Substring(4, 2), 16);
+        return Color.FromArgb(r, g, b);
+    }
+}

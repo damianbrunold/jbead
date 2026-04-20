@@ -1,0 +1,43 @@
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Shown once per browser. Dismissal persisted in localStorage (same storage as the
+   thing we're notifying about). *@
+@if (visible)
+{
+    <div class="storage-notice">
+        <span class="storage-notice-icon">ℹ</span>
+        <span class="storage-notice-text">@Loc["ui.storagenotice"]</span>
+        <button type="button" class="storage-notice-dismiss" @onclick="Dismiss">@Loc["ui.gotit"]</button>
+    </div>
+}
+
+@code {
+    private const string DismissKey = "jbeadStorageNoticeDismissed";
+    private bool visible;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            string? v = await JS.InvokeAsync<string?>("jbeadStorage.get", DismissKey);
+            visible = v != "1";
+        }
+        catch
+        {
+            visible = true;
+        }
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private async Task Dismiss()
+    {
+        visible = false;
+        try { await JS.InvokeVoidAsync("jbeadStorage.set", DismissKey, "1"); } catch { }
+    }
+}
