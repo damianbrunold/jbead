@@ -61,6 +61,7 @@
             </a>.
         </span>
     </footer>
+    <PrintDialog IsOpen="State.PrintDialogOpen" OnClose="() => State.PrintDialogOpen = false" />
 </div>
 
 @code {
@@ -75,6 +76,8 @@
     protected override void OnInitialized()
     {
         State.ViewModeChanged += _ => InvokeAsync(StateHasChanged);
+        // Re-render when the print dialog flips so the overlay mounts / unmounts.
+        State.PrintDialogOpenChanged += _ => InvokeAsync(StateHasChanged);
         // Persist zoom changes after the initial restore — saving before restore
         // would write the default over a stored user preference.
         State.Model.ZoomChanged += (gx, _) => { if (zoomRestored) PersistDraftZoom(gx); };

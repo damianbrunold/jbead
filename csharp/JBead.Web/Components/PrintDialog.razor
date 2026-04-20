@@ -1,11 +1,17 @@
-@page "/print"
 @inject AppState State
 @inject IJSRuntime JS
-@inject NavigationManager Nav
 @inject LocalizationService Loc
+@inject DialogStack DialogStack
 @implements IDisposable
 
-<PageTitle>jbead - print @State.Model.FileName</PageTitle>
+@* Shown as a modal overlay (same backdrop pattern as BeadEditDialog) so the
+   editor stays behind while the user previews/prints. The print CSS at the
+   bottom of the file hides every other element on the page so only this
+   dialog's contents end up on the paper. *@
+@if (!IsOpen)
+{
+    return;
+}
 
 @{
     var m = State.Model;
@@ -95,10 +101,11 @@
     if (!compactOverride.HasValue) showCompact = hasRepeat;
 }
 
+<div class="print-dialog-backdrop" style="z-index:@zIndex" @onclick="Close">
+<div class="print-dialog-modal" @onclick:stopPropagation="true">
 <div class="print-root">
     <div class="print-toolbar no-print">
         <button class="btn" @onclick="DoPrint" title="@(Loc["print.tip.open"])">@Loc["ui.print"]</button>
-        <button class="btn" @onclick="Back" title="@(Loc["print.tip.back"])">@Loc["ui.backtoedit"]</button>
     </div>
 
     <header class="print-header">
@@ -353,8 +360,13 @@
         }
     </section>
 </div>
+</div>
+</div>
 
 @code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
     // Images sit side-by-side; individual width is driven by the flex row, not
     // per-image %. A single height picker limits their VERTICAL extent so tall
     // narrow patterns don't overflow the page.
@@ -378,16 +390,32 @@
     // page from auto-switching back to compact on subsequent re-renders.
     private bool? compactOverride;
 
+    private bool wasOpen;
+    private int zIndex;
+
     protected override void OnInitialized()
     {
         Loc.LanguageChanged += OnLanguageChanged;
     }
 
+    protected override void OnParametersSet()
+    {
+        // Acquire / release a z-index slot via DialogStack so we always paint
+        // above any editor-level modal that's still open, same as BeadEditDialog.
+        if (IsOpen && !wasOpen) zIndex = DialogStack.Acquire();
+        else if (!IsOpen && wasOpen) DialogStack.Release();
+        wasOpen = IsOpen;
+    }
+
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
 
-    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+    public void Dispose()
+    {
+        Loc.LanguageChanged -= OnLanguageChanged;
+        if (wasOpen) DialogStack.Release();
+    }
 
-    private void Back() => Nav.NavigateTo("/");
+    private Task Close() => OnClose.InvokeAsync();
 
     private async Task DoPrint()
     {
@@ -849,6 +877,11 @@
 }
 
 <style>
+    /* Dialog wrapper — fixed backdrop over the editor. Clicking outside the
+       modal invokes Close (the click handler is bound on the backdrop div). */
+    .print-dialog-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.45); display: flex; align-items: flex-start; justify-content: center; padding: 30px 20px; box-sizing: border-box; overflow-y: auto; }
+    .print-dialog-modal { background: white; border-radius: 6px; box-shadow: 0 8px 30px rgba(0,0,0,0.35); max-width: 880px; width: 100%; max-height: calc(100vh - 60px); overflow: auto; }
+
     .print-root { max-width: 780px; margin: 0 auto; padding: 20px 28px; color: #222; font: 14px/1.4 system-ui, sans-serif; }
     .print-toolbar { display: flex; gap: 8px; margin-bottom: 16px; }
     .print-toolbar .btn { padding: 6px 14px; background: #fff; border: 1px solid #888; border-radius: 3px; cursor: pointer; font: inherit; }
@@ -971,6 +1004,30 @@
     @@media print {
         html, body, .print-root {
             -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+        }
+        /* Hide everything on the page except this dialog's contents. Classic
+           "modal-only print" trick: wipe visibility globally, re-enable it on
+           the dialog subtree, and flatten the overlay so the printer sees a
+           plain full-page document. */
+        body * { visibility: hidden !important; }
+        .print-dialog-backdrop, .print-dialog-backdrop * { visibility: visible !important; }
+        .print-dialog-backdrop {
+            position: absolute !important;
+            inset: 0 !important;
+            background: transparent !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+        .print-dialog-modal {
+            position: static !important;
+            background: white !important;
+            max-width: none !important;
+            width: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
         }
         .no-print { display: none !important; }
         .print-root { max-width: none; padding: 0; }

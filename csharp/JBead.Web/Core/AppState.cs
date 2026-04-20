@@ -37,6 +37,23 @@ public class AppState
         }
     }
 
+    // Print dialog visibility. The dialog is a full-screen modal mounted at the
+    // page root; Toolbar's Print… button flips this, and the dialog itself calls
+    // back with false on Close. Kept on AppState (not on Home) so any component
+    // can open/close it without prop-drilling.
+    private bool printDialogOpen;
+    public event Action<bool>? PrintDialogOpenChanged;
+    public bool PrintDialogOpen
+    {
+        get => printDialogOpen;
+        set
+        {
+            if (printDialogOpen == value) return;
+            printDialogOpen = value;
+            PrintDialogOpenChanged?.Invoke(value);
+        }
+    }
+
 
     /// All tools registered in DI, in registration order.
     public IReadOnlyList<ITool> Tools { get; }
