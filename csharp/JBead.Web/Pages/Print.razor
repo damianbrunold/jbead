@@ -1,0 +1,981 @@
+@page "/print"
+@inject AppState State
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject LocalizationService Loc
+@implements IDisposable
+
+<PageTitle>jbead - print @State.Model.FileName</PageTitle>
+
+@{
+    var m = State.Model;
+    // Repeat is only recomputed lazily — force a refresh so the printed value
+    // matches the current pattern.
+    m.UpdateRepeat();
+
+    var width = m.Width;
+    var usedHeight = m.GetUsedHeight();
+    var totalBeads = usedHeight * width;
+    var usage = m.GetMergedBeadUsage();
+    var nonBackgroundTotal = usage.Sum(u => u.Count);
+    // Anything in the used rectangle that isn't in the per-bead usage list is a
+    // background cell — include it in the shopping list so the total matches.
+    var backgroundCount = Math.Max(0, totalBeads - nonBackgroundTotal);
+    var bgBead = m.ColorCount > 0 ? m.GetBead(0) : null;
+    var runs = m.GetThreadingRuns();
+    var runTotal = runs.Sum(r => r.Count);
+
+    // --- Bead legend ---
+    // Assign a stable 1-based label to each distinct bead shown in the table, and
+    // map every palette byte to that label so the threading list can refer to
+    // beads by number ("#3") instead of repeating manufacturer/ID on every run.
+    // Ordering mirrors the table below: background first (if any), then usage
+    // entries by descending count.
+    var labels = new Dictionary<byte, int>();
+    var labelsByUsage = new Dictionary<BeadUsage, int>();
+    var nextLabel = 1;
+    if (backgroundCount > 0 && bgBead is not null)
+    {
+        labels[0] = nextLabel++;
+    }
+    var orderedUsage = usage.OrderByDescending(u => u.Count).ToList();
+    foreach (var u in orderedUsage)
+    {
+        labelsByUsage[u] = nextLabel;
+        foreach (var palIdx in u.MergedIndices)
+        {
+            labels[palIdx] = nextLabel;
+        }
+        nextLabel++;
+    }
+
+    // --- Repeat detection at the RUN level ---
+    // Walk the run list and find adjacent repeats: each position that starts a
+    // k-run block repeated ≥ 2× becomes a CompactBlock; everything else is a
+    // single CompactRun. Since runs already RLE each solid-colour stretch, an
+    // "all-one-colour" block can't occur here — uniform stretches show up as
+    // a single big run in the sequence instead of being dressed up as a block.
+    //
+    // Distinct block contents share a letter label (A, B, …) via the legend, so
+    // the same motif appearing twice in different parts of the thread shows up
+    // as "A" both times and is described only once.
+    var compactItems = BuildCompactSequence(runs);
+    var hasRepeat = compactItems.Any(i => i is CompactBlock);
+
+    // Cluster consecutive CompactRuns into role-labelled groups. A "starter" is
+    // the first group (only when it appears before any block); a "finisher" is
+    // the last group (only when it appears after all blocks); anything else
+    // between blocks is a "do once" group.
+    var segments = BuildSegments(compactItems);
+
+    var blockLabels = new Dictionary<string, string>();
+    var blockLegend = new List<CompactBlock>();
+    // Flag the first occurrence of each distinct block — only that occurrence
+    // renders the block's run list ("definition"), all later occurrences of
+    // the same block are just letter + repeat-count references.
+    var firstBlockOccurrence = new HashSet<BlockSegment>();
+    var seenBlockKeys = new HashSet<string>();
+    foreach (var seg in segments)
+    {
+        if (seg is BlockSegment bs)
+        {
+            if (!blockLabels.ContainsKey(bs.Block.Key))
+            {
+                blockLabels[bs.Block.Key] = ToLetterLabel(blockLabels.Count);
+                blockLegend.Add(bs.Block);
+            }
+            if (seenBlockKeys.Add(bs.Block.Key))
+            {
+                firstBlockOccurrence.Add(bs);
+            }
+        }
+    }
+
+    // Auto-show compact when it actually compresses; user can still override.
+    if (!compactOverride.HasValue) showCompact = hasRepeat;
+}
+
+<div class="print-root">
+    <div class="print-toolbar no-print">
+        <button class="btn" @onclick="DoPrint" title="@(Loc["print.tip.open"])">@Loc["ui.print"]</button>
+        <button class="btn" @onclick="Back" title="@(Loc["print.tip.back"])">@Loc["ui.backtoedit"]</button>
+    </div>
+
+    <header class="print-header">
+        <h1>@m.FileName</h1>
+        @if (!string.IsNullOrWhiteSpace(m.Author) || !string.IsNullOrWhiteSpace(m.Organization))
+        {
+            <p class="byline">
+                @if (!string.IsNullOrWhiteSpace(m.Author)) { <span>@m.Author</span> }
+                @if (!string.IsNullOrWhiteSpace(m.Author) && !string.IsNullOrWhiteSpace(m.Organization)) { <span> — </span> }
+                @if (!string.IsNullOrWhiteSpace(m.Organization)) { <span>@m.Organization</span> }
+            </p>
+        }
+    </header>
+
+    <aside class="about no-print">
+        <h3>@Loc["print.aboutpage"]</h3>
+        <ul>
+            <li>@((MarkupString)Loc["print.about.pattern"])</li>
+            <li>@((MarkupString)Loc["print.about.patternimage"])</li>
+            <li>@((MarkupString)Loc["print.about.beads"])</li>
+            <li>@((MarkupString)Loc["print.about.threading"])</li>
+            <li>@((MarkupString)Loc["print.about.print"])</li>
+        </ul>
+    </aside>
+
+    <section class="print-section print-controls no-print">
+        <h2>@Loc["print.layout"]</h2>
+        <div class="ctrl-row">
+            <span class="ctrl-label">@Loc["print.imageheight"]</span>
+            @foreach (var (labelKey, v) in new[] { ("print.size.small", ImageHeight.Small), ("print.size.medium", ImageHeight.Medium), ("print.size.large", ImageHeight.Large) })
+            {
+                var size = v;
+                var key = labelKey;
+                <label class="ctrl-radio">
+                    <input type="radio" name="imgheight" checked="@(imageHeight == size)"
+                           @onchange="() => imageHeight = size" />
+                    @Loc[key]
+                </label>
+            }
+        </div>
+        <div class="ctrl-row">
+            <span class="ctrl-label">@Loc["print.customimage"]</span>
+            <InputFile OnChange="OnCustomImageChanged" accept="image/*" class="file-input" />
+            @if (customImageData is not null)
+            {
+                <span class="file-hint">@customImageName</span>
+                <button class="btn small" @onclick="ClearCustomImage" title="@(Loc["print.tip.removecustom"])">@Loc["ui.remove"]</button>
+            }
+        </div>
+        <div class="ctrl-row">
+            <span class="ctrl-label">@Loc["print.threadingcols"]</span>
+            @foreach (var opt in new[] { 1, 2, 3, 4 })
+            {
+                var v = opt;
+                <label class="ctrl-radio">
+                    <input type="radio" name="cols" value="@v" checked="@(threadColumns == v)"
+                           @onchange="() => threadColumns = v" />
+                    @v
+                </label>
+            }
+        </div>
+        @if (hasRepeat)
+        {
+            <div class="ctrl-row">
+                <span class="ctrl-label">@Loc["print.threadingform"]</span>
+                <label class="ctrl-radio">
+                    <input type="radio" name="form" checked="@showCompact"
+                           @onchange="() => { showCompact = true; compactOverride = true; }" />
+                    @Loc["print.form.compact", [blockLegend.Count.ToString(), BlockWord(blockLegend.Count), segments.Count.ToString()]]
+                </label>
+                <label class="ctrl-radio">
+                    <input type="radio" name="form" checked="@(!showCompact)"
+                           @onchange="() => { showCompact = false; compactOverride = false; }" />
+                    @Loc["print.form.fulllist", [runs.Count.ToString()]]
+                </label>
+            </div>
+        }
+    </section>
+
+    <section class="print-section">
+        <h2>@Loc["print.section.pattern"]</h2>
+        <table class="kv">
+            <tbody>
+                <tr><th>@Loc["report.circumference"]</th><td>@width @Loc["print.circumference.suffix"]</td></tr>
+                <tr><th>@Loc["report.numberofrows"]</th><td>@usedHeight</td></tr>
+                <tr><th>@Loc["report.colorrepeat"]</th><td>@FormatRepeat(m.Repeat, width)</td></tr>
+                <tr class="strong"><th>@Loc["report.numberofbeads"]</th><td>@totalBeads @Loc["print.totalbeads.suffix"]</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    @if (totalBeads > 0 || customImageData is not null)
+    {
+        <section class="print-section images-section">
+            <h2>@Loc["print.section.images"]</h2>
+            <div class="images-row" style="--tile-height: @ImageHeightCss;">
+                @if (totalBeads > 0)
+                {
+                    <figure class="image-tile">
+                        <figcaption>@Loc["print.fig.pattern"]</figcaption>
+                        <img class="tile-img" src="@BuildPatternSvgDataUrl(m, width, usedHeight)" alt="@(Loc["print.alt.pattern"])" />
+                    </figure>
+
+                    <figure class="image-tile">
+                        <figcaption>@Loc["print.fig.simulation"]</figcaption>
+                        <img class="tile-img" src="@BuildSimulationSvgDataUrl(m, width, usedHeight)" alt="@(Loc["print.alt.simulation"])" />
+                    </figure>
+                }
+                @if (customImageData is not null)
+                {
+                    <figure class="image-tile">
+                        <figcaption>@(string.IsNullOrEmpty(customImageName) ? Loc["print.fig.custom"] : customImageName)</figcaption>
+                        <img class="tile-img" src="@customImageData" alt="@customImageName" />
+                    </figure>
+                }
+            </div>
+            <p class="hint">@Loc["print.images.note"]</p>
+        </section>
+    }
+
+    <section class="print-section">
+        <h2>@Loc["print.string.beads"]</h2>
+        @if (totalBeads == 0)
+        {
+            <p class="empty">@Loc["print.empty.string"]</p>
+        }
+        else
+        {
+            <table class="bead-table">
+                <thead>
+                    <tr>
+                        <th class="idx-col">@Loc["print.col.nr"]</th>
+                        <th class="swatch-col"></th>
+                        <th>@Loc["print.col.manufacturer"]</th>
+                        <th>@Loc["print.col.name"]</th>
+                        <th>@Loc["print.col.finish"]</th>
+                        <th class="num">@Loc["print.col.count"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (backgroundCount > 0 && bgBead is not null)
+                    {
+                        <tr class="bg-row">
+                            <td class="idx-col">#@labels[0]</td>
+                            <td class="swatch-col">
+                                <span class="swatch @FinishClass(bgBead.Finish)" style="background:@ColorHex(bgBead.Color)"></span>
+                            </td>
+                            <td>@OrDash(bgBead.Manufacturer)</td>
+                            <td>@OrDash(bgBead.Id) <span class="bg-tag">@Loc["print.background.mark"]</span></td>
+                            <td>@bgBead.Finish</td>
+                            <td class="num">@backgroundCount</td>
+                        </tr>
+                    }
+                    @foreach (var u in orderedUsage)
+                    {
+                        <tr>
+                            <td class="idx-col">#@labelsByUsage[u]</td>
+                            <td class="swatch-col">
+                                <span class="swatch @FinishClass(u.Finish)" style="background:@ColorHex(u.RepresentativeColor)"></span>
+                            </td>
+                            <td>@OrDash(u.Manufacturer)</td>
+                            <td>@OrDash(u.Id)</td>
+                            <td>@u.Finish</td>
+                            <td class="num">@u.Count</td>
+                        </tr>
+                    }
+                    <tr class="total-row">
+                        <td></td>
+                        <td></td>
+                        <th colspan="3">@Loc["print.col.total"]</th>
+                        <td class="num">@(backgroundCount + nonBackgroundTotal)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="hint">@((MarkupString)Loc["print.numbers.hint"])</p>
+        }
+    </section>
+
+    <section class="print-section">
+        <h2>@Loc["print.threadingorder"]</h2>
+        @if (runs.Count == 0)
+        {
+            <p class="empty">@Loc["print.empty.thread"]</p>
+        }
+        else if (showCompact && hasRepeat)
+        {
+            <p class="hint">
+                @Loc["print.compress.summary",
+                    [segments.Count.ToString(), SectionWord(segments.Count),
+                     blockLegend.Count.ToString(), BlockWord(blockLegend.Count),
+                     runs.Count.ToString(), runTotal.ToString()]]
+            </p>
+
+            @foreach (var seg in segments)
+            {
+                if (seg is RunGroupSegment rg)
+                {
+                    var beads = rg.Runs.Sum(r => r.Count);
+                    <div class="compact-block @rg.Role">
+                        <div class="block-label">
+                            @Loc["print.group.summary",
+                                [RoleTitle(rg.Role),
+                                 rg.Runs.Count.ToString(), RunWord(rg.Runs.Count),
+                                 beads.ToString(), BeadWord(beads)]]
+                        </div>
+                        <ol class="run-list" style="columns: @threadColumns;">
+                            @foreach (var r in rg.Runs)
+                            {
+                                @RenderRun(r, m, labels)
+                            }
+                        </ol>
+                    </div>
+                }
+                else if (seg is BlockSegment bs)
+                {
+                    var b = bs.Block;
+                    var isFirst = firstBlockOccurrence.Contains(bs);
+                    var totalBlockBeads = b.Runs.Sum(r => r.Count) * b.Repeats;
+                    <div class="compact-block block-ref @(isFirst ? "block-def" : "block-recall")">
+                        <div class="block-label">
+                            @((MarkupString)Loc["print.block.title", [blockLabels[b.Key], b.Repeats.ToString()]])
+                            <span class="legend-meta">
+                                @Loc[isFirst ? "print.block.meta" : "print.block.meta.recall",
+                                    [b.Runs.Count.ToString(), RunWord(b.Runs.Count),
+                                     totalBlockBeads.ToString(), BeadWord(totalBlockBeads)]]
+                            </span>
+                        </div>
+                        @if (isFirst)
+                        {
+                            <ol class="run-list block-def-runs" style="columns: @threadColumns;">
+                                @foreach (var r in b.Runs)
+                                {
+                                    @RenderRun(r, m, labels)
+                                }
+                            </ol>
+                        }
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <p class="hint">
+                @Loc["print.runs.summary", [runs.Count.ToString(), runTotal.ToString()]]
+            </p>
+            <ol class="run-list" style="columns: @threadColumns;">
+                @foreach (var r in runs)
+                {
+                    @RenderRun(r, m, labels)
+                }
+            </ol>
+        }
+    </section>
+</div>
+
+@code {
+    // Images sit side-by-side; individual width is driven by the flex row, not
+    // per-image %. A single height picker limits their VERTICAL extent so tall
+    // narrow patterns don't overflow the page.
+    private enum ImageHeight { Small, Medium, Large }
+    private ImageHeight imageHeight = ImageHeight.Medium;
+
+    private string ImageHeightCss => imageHeight switch
+    {
+        ImageHeight.Small  => "180px",
+        ImageHeight.Large  => "520px",
+        _                   => "320px",
+    };
+
+    private int threadColumns = 2;
+    // Custom user-supplied image, stored as a data URL so it's embedded in the
+    // printed page without needing network access. Cleared by clicking Remove.
+    private string? customImageData;
+    private string? customImageName;
+    private bool showCompact;
+    // True once the user has explicitly flipped the compact toggle — stops the
+    // page from auto-switching back to compact on subsequent re-renders.
+    private bool? compactOverride;
+
+    protected override void OnInitialized()
+    {
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Loc.LanguageChanged -= OnLanguageChanged;
+
+    private void Back() => Nav.NavigateTo("/");
+
+    private async Task DoPrint()
+    {
+        try { await JS.InvokeVoidAsync("window.print"); }
+        catch { /* JS not available — user can still use browser print UI */ }
+    }
+
+    private async Task OnCustomImageChanged(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        if (file is null) return;
+        // 5 MB is enough for a photo; bigger files make the data URL unwieldy and
+        // slow down print rendering.
+        await using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var mime = string.IsNullOrWhiteSpace(file.ContentType) ? "image/png" : file.ContentType;
+        customImageData = $"data:{mime};base64,{Convert.ToBase64String(ms.ToArray())}";
+        customImageName = file.Name;
+    }
+
+    private void ClearCustomImage()
+    {
+        customImageData = null;
+        customImageName = null;
+    }
+
+    private static string ColorHex(System.Drawing.Color c) =>
+        $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+
+    private static string OrDash(string s) => string.IsNullOrWhiteSpace(s) ? "—" : s;
+
+
+    // Runs reference beads by their table-row number, e.g. "12× #3", so the list
+    // stays tight even on narrow print columns. The swatch is still drawn so the
+    // reader can scan by colour without constantly jumping back to the legend.
+    private RenderFragment RenderRun((byte Color, int Count) run, BeadModel m, Dictionary<byte, int> labels) => builder =>
+    {
+        var bead = run.Color < m.ColorCount ? m.GetBead(run.Color) : null;
+        var hex = bead is null ? "#cccccc" : ColorHex(bead.Color);
+        var finishCls = bead is null ? "" : FinishClass(bead.Finish);
+        var labelText = labels.TryGetValue(run.Color, out var n) ? $"#{n}" : "#?";
+        var seq = 0;
+        builder.OpenElement(seq++, "li");
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", $"swatch small {finishCls}");
+        builder.AddAttribute(seq++, "style", $"background:{hex}");
+        builder.CloseElement();
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "run-count");
+        builder.AddContent(seq++, $"{run.Count}×");
+        builder.CloseElement();
+        builder.OpenElement(seq++, "span");
+        builder.AddAttribute(seq++, "class", "run-ref");
+        builder.AddContent(seq++, labelText);
+        builder.CloseElement();
+        builder.CloseElement();
+    };
+
+    // SVG rendering — a self-contained snapshot of the pattern. viewBox + wrapper
+    // aspect-ratio lets the image shrink proportionally so it never overflows the
+    // page, however narrow or tall the design is. Row 0 is drawn at the bottom to
+    // match the editor's DraftView orientation. Aspect ratio (w/h) is returned so
+    // the caller can size the wrapper correctly.
+    private (string Svg, double Aspect) BuildPatternSvg(BeadModel m, int width, int usedHeight)
+    {
+        if (width == 0 || usedHeight == 0) return ("", 1);
+        const int CELL = 10; // internal SVG units; scales via aspect-ratio wrapper.
+        var svgW = width * CELL;
+        var svgH = usedHeight * CELL;
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"<svg class=\"pattern-svg\" viewBox=\"0 0 {svgW} {svgH}\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\">");
+        sb.Append($"<rect x=\"0\" y=\"0\" width=\"{svgW}\" height=\"{svgH}\" fill=\"#f0f0f0\" />");
+        for (var y = 0; y < usedHeight; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var ci = m.Get(new Point(x, y));
+                var bead = ci < m.ColorCount ? m.GetBead(ci) : null;
+                var fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
+                // Flip y so row 0 ends up at the bottom, matching the editor.
+                var py = (usedHeight - 1 - y) * CELL;
+                var px = x * CELL;
+                sb.Append($"<rect x=\"{px}\" y=\"{py}\" width=\"{CELL}\" height=\"{CELL}\" fill=\"{fill}\" stroke=\"#999\" stroke-width=\"0.3\" />");
+            }
+        }
+        sb.Append("</svg>");
+        return (sb.ToString(), svgW / (double)svgH);
+    }
+
+    // 2D simulation snapshot — ports ch.jbead.print.SimulationPrinter. Shows the
+    // front half of the rope flattened out, with alternate rows shifted by half a
+    // bead (brick/hex packing). Rendered as SVG so it scales crisply on paper and
+    // doesn't depend on the interactive 3D canvas from the editor. Returns the
+    // aspect ratio so the wrapper can reserve matching space without overflow.
+    private (string Svg, double Aspect) BuildSimulationSvg(BeadModel m, int width, int usedHeight)
+    {
+        if (width == 0 || usedHeight == 0) return ("", 1);
+        const int GX = 14;   // bead width in SVG units; scales via CSS.
+        const int GY = 14;   // bead height.
+        var visibleWidth = width / 2;
+
+        // Re-index every bead into "rope" coordinates via the alternating-row
+        // mapping (Java's Model.correct). Only front-facing beads (rx <= visibleWidth)
+        // are kept — the back of the rope isn't visible anyway.
+        var beads = new List<(int Rx, int Ry, byte Color)>(width * usedHeight);
+        var maxRy = 0;
+        for (var y = 0; y < usedHeight; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var (rx, ry) = CorrectToRope(x, y, width);
+                if (rx > visibleWidth) continue;
+                beads.Add((rx, ry, m.Get(new Point(x, y))));
+                if (ry > maxRy) maxRy = ry;
+            }
+        }
+        if (beads.Count == 0) return ("", 1);
+
+        var rows = maxRy + 1;
+        // +1 bead of margin on the right so the half-bead at rx==visibleWidth isn't clipped.
+        var svgW = (visibleWidth + 1) * GX;
+        var svgH = rows * GY;
+
+        var sb = new System.Text.StringBuilder();
+        sb.Append($"<svg class=\"pattern-svg sim-svg\" viewBox=\"0 0 {svgW} {svgH}\" preserveAspectRatio=\"xMidYMid meet\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"crispEdges\">");
+        sb.Append($"<rect x=\"0\" y=\"0\" width=\"{svgW}\" height=\"{svgH}\" fill=\"#e8e8e8\" />");
+
+        foreach (var (rx, ry, ci) in beads)
+        {
+            var bead = ci < m.ColorCount ? m.GetBead(ci) : null;
+            var fill = bead is null ? "#cccccc" : ColorHex(bead.Color);
+            int bx, bw;
+            if ((ry & 1) == 0)
+            {
+                // Even rope rows: beads sit at integer columns; the last visible one
+                // (rx == visibleWidth) shows only its left half — it's the bead that
+                // wraps around to the back.
+                bx = rx * GX;
+                bw = rx == visibleWidth ? GX / 2 : GX;
+            }
+            else
+            {
+                // Odd rows are offset right by half a bead. rx == 0 shows only its
+                // right half (the wrap-in bead at the left edge).
+                if (rx == 0) { bx = 0; bw = GX / 2; }
+                else { bx = rx * GX - GX / 2; bw = GX; }
+            }
+            // Row 0 at the bottom, matching the editor's orientation.
+            var by = (rows - 1 - ry) * GY;
+            sb.Append($"<rect x=\"{bx}\" y=\"{by}\" width=\"{bw}\" height=\"{GY}\" fill=\"{fill}\" stroke=\"#444\" stroke-width=\"0.3\" />");
+        }
+        sb.Append("</svg>");
+        return (sb.ToString(), svgW / (double)svgH);
+    }
+
+    // Wrap SVG markup into an <img>-ready data URL. An <img> with a data URL sized
+    // by max-width/max-height scales proportionally out-of-the-box — no aspect-ratio
+    // juggling in CSS, and the browser never lets the image exceed its bounds.
+    private string BuildPatternSvgDataUrl(BeadModel m, int width, int usedHeight)
+    {
+        var (svg, _) = BuildPatternSvg(m, width, usedHeight);
+        return ToSvgDataUrl(svg);
+    }
+
+    private string BuildSimulationSvgDataUrl(BeadModel m, int width, int usedHeight)
+    {
+        var (svg, _) = BuildSimulationSvg(m, width, usedHeight);
+        return ToSvgDataUrl(svg);
+    }
+
+    private static string ToSvgDataUrl(string svg)
+    {
+        if (string.IsNullOrEmpty(svg)) return "";
+        var b64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg));
+        return $"data:image/svg+xml;base64,{b64}";
+    }
+
+    // Ported from ch.jbead.Model.correct: converts flat field coordinates (x,y)
+    // into rope coordinates (rx,ry) where rows alternate between width and width+1
+    // beads to account for the brick-stitch offset. scroll is 0 on the print page.
+    private static (int Rx, int Ry) CorrectToRope(int x, int y, int width)
+    {
+        var idx = x + y * width;
+        var m1 = width;
+        var m2 = m1 + 1;
+        var k = 0;
+        var m = m1;
+        while (idx >= m)
+        {
+            idx -= m;
+            k++;
+            m = (k % 2 == 0) ? m1 : m2;
+        }
+        return (idx, k);
+    }
+
+    private static string FinishClass(BeadFinish f) => f switch
+    {
+        BeadFinish.Transparent        => "finish-transparent",
+        BeadFinish.Matte              => "finish-matte",
+        BeadFinish.Shiny              => "finish-shiny",
+        BeadFinish.Pearl              => "finish-pearl",
+        BeadFinish.SilverLined        => "finish-silverlined",
+        BeadFinish.Metallic           => "finish-metallic",
+        BeadFinish.TransparentGloss   => "finish-transparentgloss",
+        BeadFinish.TransparentMatte   => "finish-transparentmatte",
+        BeadFinish.Iridescent         => "finish-iridescent",
+        BeadFinish.Galvanized         => "finish-galvanized",
+        _                             => ""
+    };
+
+    private static string DescribeBeadFromBead(Bead b, bool isBackground)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(b.Manufacturer)) parts.Add(b.Manufacturer);
+        if (!string.IsNullOrWhiteSpace(b.Id)) parts.Add(b.Id);
+        if (b.Finish != BeadFinish.Opaque) parts.Add(b.Finish.ToString());
+        if (isBackground) parts.Add("(background)");
+        return parts.Count == 0
+            ? (isBackground ? $"{ColorHex(b.Color)} (background)" : ColorHex(b.Color))
+            : string.Join(" · ", parts);
+    }
+
+    // Row / bead plural helpers — reach into the Loc service so translations can
+    // override the English singular/plural forms. Static `Plural` picks the
+    // matching string given a count.
+    private static string Plural(int n, string one, string many) => n == 1 ? one : many;
+
+    private string BeadWord(int n)    => Plural(n, Loc["ui.bead"],    Loc["ui.beads"]);
+    private string RowWord(int n)     => Plural(n, Loc["ui.row"],     Loc["ui.rows"]);
+    private string RunWord(int n)     => Plural(n, Loc["ui.run"],     Loc["ui.runs"]);
+    private string BlockWord(int n)   => Plural(n, Loc["ui.block"],   Loc["ui.blocks"]);
+    private string SectionWord(int n) => Plural(n, Loc["ui.section"], Loc["ui.sections"]);
+
+    private string FormatRepeat(int repeat, int width)
+    {
+        if (repeat == 0 || width == 0)
+            return Loc["print.repeat.beads", [repeat.ToString()]];
+        if (repeat % width == 0)
+        {
+            var rows = repeat / width;
+            return Loc["print.repeat.beads.rows",
+                [repeat.ToString(), rows.ToString(), RowWord(rows)]];
+        }
+        var r = repeat / width;
+        var b = repeat % width;
+        return Loc["print.repeat.beads.rowsbeads",
+            [repeat.ToString(), r.ToString(), RowWord(r), b.ToString(), BeadWord(b)]];
+    }
+
+    // Annotate a bead count with "(= N rows)" when it aligns to whole rows.
+    // Returns an empty string otherwise — the period no longer has to be a
+    // multiple of width, so most patterns show just the bead count.
+    private string BeadsInRows(int beads, int width)
+    {
+        if (beads <= 0 || width <= 0 || beads % width != 0) return "";
+        var rows = beads / width;
+        return " " + Loc["print.beadsinrows", [rows.ToString(), RowWord(rows)]];
+    }
+
+    // -------------------------------------------------------------------------
+    // Run-level compact representation.
+    //
+    // The threading list is compressed by looking for adjacent repeats among
+    // the runs. Each output item is either a plain CompactRun (a single run
+    // that isn't part of any repeat) or a CompactBlock (k consecutive runs
+    // repeated ≥ 2× back-to-back). The key on CompactBlock is a canonical
+    // string form of its contents so blocks with identical content can share
+    // a legend label across the whole thread.
+    // -------------------------------------------------------------------------
+
+    private abstract class CompactItem { }
+
+    private sealed class CompactRun : CompactItem
+    {
+        public byte Color;
+        public int Count;
+    }
+
+    private sealed class CompactBlock : CompactItem
+    {
+        public List<(byte Color, int Count)> Runs = new();
+        public int Repeats;
+        public string Key = "";
+    }
+
+    // A clustered, position-aware view of CompactItems. Consecutive CompactRuns
+    // become a RunGroupSegment; each CompactBlock becomes a BlockSegment. Role
+    // on RunGroupSegment is "starter" | "finisher" | "do once" based on where
+    // the group sits relative to the block segments.
+    private abstract class Segment { }
+
+    private sealed class RunGroupSegment : Segment
+    {
+        public List<(byte Color, int Count)> Runs = new();
+        public string Role = "";
+    }
+
+    private sealed class BlockSegment : Segment
+    {
+        public CompactBlock Block = new();
+    }
+
+    // Walk the run list, greedily pulling out the smallest repeated block at
+    // each position. Blocks of k=1 can't occur because GetThreadingRuns has
+    // already merged consecutive same-colour beads, so two adjacent runs are
+    // guaranteed to differ. Minimum block size is 2 runs.
+    private static List<CompactItem> BuildCompactSequence(List<(byte Color, int Count)> runs)
+    {
+        var items = new List<CompactItem>();
+        var n = runs.Count;
+        var i = 0;
+        while (i < n)
+        {
+            var (k, r) = FindRepeatAt(runs, i);
+            if (k >= 2 && r >= 2)
+            {
+                var block = runs.GetRange(i, k);
+                items.Add(new CompactBlock
+                {
+                    Runs = block,
+                    Repeats = r,
+                    Key = RunsKey(block),
+                });
+                i += k * r;
+            }
+            else
+            {
+                items.Add(new CompactRun { Color = runs[i].Color, Count = runs[i].Count });
+                i++;
+            }
+        }
+        return items;
+    }
+
+    // Smallest k starting at `i` such that runs[i..i+k-1] == runs[i+k..i+2k-1].
+    // When found, greedily extend to count additional identical copies.
+    // Returns (0, 0) if no such k exists in the remainder.
+    private static (int BlockLen, int Repeats) FindRepeatAt(List<(byte Color, int Count)> runs, int i)
+    {
+        var n = runs.Count;
+        for (var k = 2; i + 2 * k <= n; k++)
+        {
+            var match = true;
+            for (var j = 0; j < k; j++)
+            {
+                if (!runs[i + j].Equals(runs[i + k + j])) { match = false; break; }
+            }
+            if (!match) continue;
+            var repeats = 2;
+            while (i + (repeats + 1) * k <= n)
+            {
+                var baseIdx = i + repeats * k;
+                var ok = true;
+                for (var j = 0; j < k; j++)
+                {
+                    if (!runs[i + j].Equals(runs[baseIdx + j])) { ok = false; break; }
+                }
+                if (!ok) break;
+                repeats++;
+            }
+            return (k, repeats);
+        }
+        return (0, 0);
+    }
+
+    // Canonical text form for block-equality checks and legend keys. Matches the
+    // AAA-0000 style suggested by the user: colour hex + count, pipe-separated.
+    private static string RunsKey(List<(byte Color, int Count)> runs)
+    {
+        var sb = new System.Text.StringBuilder(runs.Count * 10);
+        foreach (var r in runs)
+        {
+            sb.Append('c');
+            sb.Append(r.Color.ToString("X2"));
+            sb.Append('-');
+            sb.Append(r.Count.ToString("D4"));
+            sb.Append('|');
+        }
+        return sb.ToString();
+    }
+
+    // Cluster consecutive CompactRuns, emit blocks as their own segments, and
+    // tag each run-cluster's Role by its position relative to the block segments.
+    private static List<Segment> BuildSegments(List<CompactItem> items)
+    {
+        var segs = new List<Segment>();
+        var buffer = new List<(byte Color, int Count)>();
+
+        void Flush()
+        {
+            if (buffer.Count == 0) return;
+            segs.Add(new RunGroupSegment { Runs = new List<(byte, int)>(buffer) });
+            buffer.Clear();
+        }
+
+        foreach (var it in items)
+        {
+            switch (it)
+            {
+                case CompactRun cr: buffer.Add((cr.Color, cr.Count)); break;
+                case CompactBlock cb:
+                    Flush();
+                    segs.Add(new BlockSegment { Block = cb });
+                    break;
+            }
+        }
+        Flush();
+
+        // Assign roles to RunGroupSegments. With no block segments at all, the
+        // "compact" path isn't even taken (hasRepeat would be false), so here
+        // we can assume at least one BlockSegment — the role distinction is
+        // meaningful.
+        var firstBlockIdx = -1;
+        var lastBlockIdx = -1;
+        for (var i = 0; i < segs.Count; i++)
+        {
+            if (segs[i] is BlockSegment)
+            {
+                if (firstBlockIdx < 0) firstBlockIdx = i;
+                lastBlockIdx = i;
+            }
+        }
+        for (var i = 0; i < segs.Count; i++)
+        {
+            if (segs[i] is RunGroupSegment rg)
+            {
+                if (i < firstBlockIdx) rg.Role = "starter";
+                else if (i > lastBlockIdx) rg.Role = "finisher";
+                else rg.Role = "do-once";
+            }
+        }
+        return segs;
+    }
+
+    // 0 → "A", 1 → "B", …, 25 → "Z", 26 → "AA", 27 → "AB", … Useful when a
+    // pattern has many distinct motifs; rare in practice but cheap to handle.
+    private static string ToLetterLabel(int idx)
+    {
+        var sb = new System.Text.StringBuilder();
+        idx++;
+        while (idx > 0)
+        {
+            idx--;
+            sb.Insert(0, (char)('A' + idx % 26));
+            idx /= 26;
+        }
+        return sb.ToString();
+    }
+
+    private string RoleTitle(string role) => role switch
+    {
+        "starter"  => Loc["print.role.starter"],
+        "finisher" => Loc["print.role.finisher"],
+        "do-once"  => Loc["print.role.doonce"],
+        _          => Loc["print.role.group"],
+    };
+}
+
+<style>
+    .print-root { max-width: 780px; margin: 0 auto; padding: 20px 28px; color: #222; font: 14px/1.4 system-ui, sans-serif; }
+    .print-toolbar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .print-toolbar .btn { padding: 6px 14px; background: #fff; border: 1px solid #888; border-radius: 3px; cursor: pointer; font: inherit; }
+    .print-toolbar .btn:hover { background: #f0f0f0; }
+
+    .print-header { border-bottom: 2px solid #222; padding-bottom: 10px; margin-bottom: 18px; }
+    .print-header h1 { margin: 0 0 4px 0; font-size: 22px; }
+    .print-header .byline { margin: 0; color: #555; font-size: 13px; }
+
+    .about { background: #f5f7fb; border: 1px solid #d4dbe7; border-radius: 4px; padding: 10px 14px; margin-bottom: 20px; font-size: 12.5px; color: #344; }
+    .about h3 { margin: 0 0 6px 0; font-size: 13px; color: #1a3a6b; }
+    .about ul { margin: 0; padding-left: 20px; }
+    .about li { margin-bottom: 3px; }
+    .about code { background: #e4e9f2; padding: 0 4px; border-radius: 2px; font-size: 11.5px; }
+
+    .print-controls .ctrl-row { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+    .print-controls .ctrl-label { color: #555; font-size: 12px; min-width: 150px; }
+    .print-controls .ctrl-radio { font-size: 12px; color: #333; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    .print-controls .file-input { font-size: 12px; }
+    .print-controls .file-hint { font-size: 12px; color: #555; font-style: italic; }
+    .print-controls .btn.small { padding: 2px 8px; font-size: 12px; background: #fff; border: 1px solid #888; border-radius: 3px; cursor: pointer; }
+
+
+    .print-section { margin-bottom: 22px; page-break-inside: avoid; }
+    .print-section h2 { font-size: 15px; margin: 0 0 8px 0; padding-bottom: 3px; border-bottom: 1px solid #bbb; }
+    .print-section .hint { margin: 0 0 10px 0; color: #555; font-size: 12px; }
+    .print-section .empty { margin: 0; color: #888; font-style: italic; }
+
+    table.kv { border-collapse: collapse; }
+    table.kv th, table.kv td { text-align: left; padding: 3px 14px 3px 0; font-weight: normal; }
+    table.kv th { color: #555; min-width: 170px; }
+    table.kv tr.strong th, table.kv tr.strong td { font-weight: bold; color: #000; border-top: 1px solid #bbb; padding-top: 6px; }
+
+    /* Images row: tiles sit side-by-side and flex to share available width. Each
+       image is an <img> with a data-URL SVG — browsers apply max-width + max-height
+       with proportional scaling natively (no aspect-ratio trickery), and the image
+       never overflows its tile however narrow or tall the pattern is. */
+    .images-section { page-break-inside: avoid; }
+    .images-row { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; justify-content: center; --tile-height: 320px; }
+    .image-tile { margin: 0; flex: 0 1 auto; min-width: 80px; max-width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .image-tile figcaption { font-size: 12px; color: #555; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .image-tile .tile-img {
+        display: block;
+        max-width: 100%;
+        max-height: var(--tile-height);
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        background: #fff;
+        border: 1px solid #bbb;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+    }
+
+    table.bead-table { border-collapse: collapse; width: 100%; }
+    table.bead-table th, table.bead-table td { padding: 4px 8px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+    table.bead-table thead th { border-bottom: 1px solid #bbb; color: #555; font-size: 12px; font-weight: normal; }
+    table.bead-table td.num, table.bead-table th.num { text-align: right; font-variant-numeric: tabular-nums; width: 70px; }
+    table.bead-table .idx-col { width: 34px; font-weight: bold; color: #333; font-variant-numeric: tabular-nums; }
+    table.bead-table .swatch-col { width: 26px; padding-right: 0; }
+    table.bead-table tr.total-row th, table.bead-table tr.total-row td { border-top: 1px solid #999; border-bottom: none; font-weight: bold; padding-top: 6px; }
+    table.bead-table tr.bg-row td { background: #fafafa; }
+    table.bead-table .bg-tag { color: #777; font-size: 11px; margin-left: 4px; }
+
+    .swatch {
+        display: inline-block; width: 22px; height: 22px; border: 1px solid #888;
+        vertical-align: middle; box-sizing: border-box;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+    }
+    .swatch.small { width: 14px; height: 14px; margin-right: 6px; }
+    .swatch.finish-transparent { opacity: 0.55; }
+    .swatch.finish-matte { filter: saturate(0.85) brightness(0.95); }
+    .swatch.finish-shiny { background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-pearl { background-image: radial-gradient(circle at 33% 33%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-silverlined { box-shadow: inset 0 0 0 2px #c8c8d0; }
+    .swatch.finish-metallic { background-image: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(0,0,0,0.0) 45%, rgba(0,0,0,0.3) 100%); }
+    .swatch.finish-transparentgloss { opacity: 0.6; background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 45%); }
+    .swatch.finish-transparentmatte { opacity: 0.5; filter: saturate(0.85); }
+    .swatch.finish-iridescent { background-image: linear-gradient(135deg, rgba(255,128,192,0.4) 0%, rgba(128,208,255,0.4) 50%, rgba(255,255,128,0.4) 100%); }
+    .swatch.finish-galvanized { background-image: linear-gradient(135deg, rgba(255,224,138,0.6) 0%, rgba(90,64,32,0.3) 100%); }
+
+    /* Thread list — column count is driven by inline style (user control), so no
+       fixed `columns` value here. column-gap keeps a predictable gutter. */
+    ol.run-list { list-style: decimal; padding-left: 28px; margin: 0; column-gap: 28px; }
+    ol.run-list li { padding: 2px 0; break-inside: avoid; font-size: 13px; }
+    ol.run-list .run-count { font-weight: bold; font-variant-numeric: tabular-nums; margin-right: 4px; }
+    ol.run-list .run-ref { color: #1a57b3; font-weight: 600; font-variant-numeric: tabular-nums; }
+    ol.run-list .run-label { color: #444; }
+
+    .compact-block { margin-bottom: 14px; page-break-inside: avoid; }
+    .compact-block .block-label { font-size: 12px; color: #333; margin-bottom: 6px; padding: 3px 6px; background: #eef4ff; border-left: 3px solid #3a84eb; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    /* Role tints for the non-repeating groups. "Starter" and "Finisher" pick up
+       head/tail green & yellow; "Do once" between blocks is a neutral grey so it
+       doesn't compete with the blocks for attention. */
+    .compact-block.starter  .block-label { background: #e8f5e6; border-left-color: #56a14b; }
+    .compact-block.finisher .block-label { background: #fff5e0; border-left-color: #d19b24; }
+    .compact-block.do-once  .block-label { background: #f0f0f0; border-left-color: #888; }
+    /* Inline letter chip used at the start of each block definition AND in
+       every subsequent reference. Strong-contrast pill so the eye can scan
+       between A, B, C at a glance, whether you're reading the definition or
+       just a recall. */
+    .block-chip { display: inline-block; background: #3a84eb; color: #fff; font-weight: 700; font-size: 12px; padding: 1px 7px; border-radius: 3px; min-width: 18px; text-align: center; }
+    .legend-meta { color: #666; font-size: 11px; font-weight: normal; }
+    /* Every block in the sequence is a .block-ref. First appearance
+       (.block-def) prints the run list beneath the header — that's the
+       definition. Later appearances (.block-recall) omit the runs and only
+       cite the letter, so the printed page stays terse. */
+    .compact-block.block-ref { background: #fff; border: 1px solid #d0dcee; border-radius: 3px; padding: 2px 0; margin-bottom: 10px; }
+    .compact-block.block-ref .block-label { background: #f6faff; border-left: 3px solid #3a84eb; font-size: 13px; color: #222; }
+    .compact-block.block-def .block-label { background: #eef4ff; }
+    /* Recall rows are visibly lighter — no extra runs, paler header, so the
+       reader knows to flip back to the definition if they want the detail. */
+    .compact-block.block-recall { border-style: dashed; }
+    .compact-block.block-recall .block-label { background: #fcfdff; color: #555; }
+    .block-def-runs { margin-top: 6px; padding-left: 28px; }
+    /* Head / tail use a warmer tint so the reader can distinguish them from the
+       main repeating block at a glance. */
+    .compact-block.head .block-label { background: #e8f5e6; border-left-color: #56a14b; }
+    .compact-block.tail .block-label { background: #fff5e0; border-left-color: #d19b24; }
+
+    @@media print {
+        html, body, .print-root {
+            -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact;
+        }
+        .no-print { display: none !important; }
+        .print-root { max-width: none; padding: 0; }
+        /* Keep tiles in one row on paper — don't let them wrap to the next page. */
+        .images-row { flex-wrap: nowrap; }
+        table.bead-table tr.bg-row td { background: #fafafa !important; }
+    }
+</style>

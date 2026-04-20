@@ -1,0 +1,52 @@
+@using System.Drawing
+@inject AppState State
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Configurable color for the central string / beam shown in the Simulation.
+   Sits at the top of the palette sidebar so it's obvious it belongs to the whole
+   pattern (not to a single bead). *@
+<div class="string-color-row">
+    <label>
+        @Loc["ui.string.color"]
+        <input type="color" value="@hex" @onchange="OnChange" title="@(Loc["ui.string.color.tip"])" />
+    </label>
+</div>
+
+@code {
+    private string hex = "#ffffff";
+
+    protected override void OnInitialized()
+    {
+        Refresh();
+        State.Model.StringColorChanged += OnModelChanged;
+        State.Model.ModelChanged += OnModelChanged;
+        Loc.LanguageChanged += OnModelChanged;
+    }
+
+    public void Dispose()
+    {
+        State.Model.StringColorChanged -= OnModelChanged;
+        State.Model.ModelChanged -= OnModelChanged;
+        Loc.LanguageChanged -= OnModelChanged;
+    }
+
+    private void OnModelChanged() { Refresh(); InvokeAsync(StateHasChanged); }
+
+    private void Refresh()
+    {
+        var c = State.Model.StringColor;
+        hex = $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+    }
+
+    private void OnChange(ChangeEventArgs e)
+    {
+        if (e.Value is not string s || s.Length == 0) return;
+        if (s[0] == '#') s = s.Substring(1);
+        if (s.Length != 6) return;
+        var r = Convert.ToByte(s.Substring(0, 2), 16);
+        var g = Convert.ToByte(s.Substring(2, 2), 16);
+        var b = Convert.ToByte(s.Substring(4, 2), 16);
+        State.Model.StringColor = Color.FromArgb(r, g, b);
+    }
+}

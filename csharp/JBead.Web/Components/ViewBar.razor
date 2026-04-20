@@ -1,0 +1,125 @@
+@inject AppState State
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Secondary bar: controls that apply to the currently visible view(s). Tool picker
+   and grid-size live here when the Draft is showing; simulation-specific controls
+   appear when the Simulation is showing. View toggle always visible. *@
+<div class="view-bar">
+    @if (ShowDraftControls)
+    {
+        @foreach (var tool in State.Tools)
+        {
+            <ToolButton @key="tool" Value="@tool" />
+        }
+        <span class="sep"></span>
+        <button @onclick="OnFillSquare" disabled="@(!HasSelection)"
+                title="@(Loc["ui.fillsquare.tip"])">@Loc["ui.fillsquare"]</button>
+        <button @onclick="OnCopy" disabled="@(!HasSelection)"
+                title="@(Loc["ui.copy.tip"])">@Loc["ui.copy"]</button>
+        <button @onclick="OnPaste" disabled="@(!State.CanPaste)"
+                title="@(Loc["ui.paste.tip"])">@Loc["ui.paste"]</button>
+        <span class="sep"></span>
+        <button @onclick="() => State.Model.ZoomOut()" disabled="@(!CanZoomOut)" title="@(Loc["ui.zoom.out"])">-</button>
+        <button @onclick="OpenZoomDialog" title="@(Loc["ui.zoom.set"])">@(DraftZoomPercent)%</button>
+        <button @onclick="() => State.Model.ZoomIn()" disabled="@(!CanZoomIn)" title="@(Loc["ui.zoom.in"])">+</button>
+        <span class="sep"></span>
+        <button @onclick="NarrowWidth" disabled="@(!CanNarrow)" title="@(Loc["ui.cols.minus.tip"])">@Loc["ui.cols.minus"]</button>
+        <span class="rowcount" title="@(Loc["ui.patternwidth"])">@State.Model.Width</span>
+        <button @onclick="WidenWidth" disabled="@(!CanWiden)" title="@(Loc["ui.cols.plus.tip"])">@Loc["ui.cols.plus"]</button>
+        <span class="sep"></span>
+        <button @onclick="RemoveRows" disabled="@(!CanShrink)" title="@(Loc["ui.rows.minus.tip"])">@Loc["ui.rows.minus"]</button>
+        <span class="rowcount" title="@(Loc["ui.patternheight"])">@State.Model.Height</span>
+        <button @onclick="AddRows" title="@(Loc["ui.rows.plus.tip"])">@Loc["ui.rows.plus"]</button>
+        <span class="sep"></span>
+        <button @onclick="() => State.Model.Undo()" disabled="@(!State.Model.CanUndo)">@Loc["ui.undo"]</button>
+        <button @onclick="() => State.Model.Redo()" disabled="@(!State.Model.CanRedo)">@Loc["ui.redo"]</button>
+    }
+
+</div>
+
+@code {
+    private bool ShowDraftControls => State.ViewMode != ViewMode.Simulation;
+
+    protected override void OnInitialized()
+    {
+        State.Model.ModelChanged += Rerender;
+        State.Model.PointChanged += _ => Rerender();
+        State.Model.ZoomChanged += (_, _) => Rerender();
+        State.ViewModeChanged += _ => Rerender();
+        State.SelectionActionsChanged += Rerender;
+        State.ClipboardChanged += Rerender;
+        Loc.LanguageChanged += Rerender;
+    }
+
+    public void Dispose()
+    {
+        State.Model.ModelChanged -= Rerender;
+        State.SelectionActionsChanged -= Rerender;
+        State.ClipboardChanged -= Rerender;
+        Loc.LanguageChanged -= Rerender;
+    }
+
+    private void Rerender() => StateHasChanged();
+
+    // ---- Selection actions ----
+
+    private bool HasSelection => State.HasUsableSelection;
+
+    private void OnFillSquare() => State.FillSelection();
+    private void OnCopy()       => State.CopySelection();
+    private void OnPaste()      => State.PasteSelection();
+
+
+    // ---- Zoom ----
+    // 20 px = 100 %; min/max derived from the model's pixel range.
+
+    private const int BasePx = 20;
+
+    private bool CanZoomOut => State.Model.GridX > BeadModel.MinGridSize;
+    private bool CanZoomIn => State.Model.GridX < BeadModel.MaxGridSize;
+    private int DraftZoomPercent => (int)Math.Round(State.Model.GridX * 100.0 / BasePx);
+
+    private async Task OpenZoomDialog()
+    {
+        var minPct = (int)Math.Round(BeadModel.MinGridSize * 100.0 / BasePx);
+        var maxPct = (int)Math.Round(BeadModel.MaxGridSize * 100.0 / BasePx);
+        var entered = await JS.InvokeAsync<string?>("prompt",
+            $"Zoom % ({minPct}–{maxPct}, 100 % = {BasePx} px):",
+            DraftZoomPercent.ToString());
+        if (entered is null) return;
+        var trimmed = entered.Trim().TrimEnd('%').Trim();
+        if (int.TryParse(trimmed, out var pct))
+        {
+            var px = (int)Math.Round(pct * BasePx / 100.0);
+            State.Model.SetGridSize(px);
+        }
+    }
+
+    // ---- Rows ----
+
+    private const int RowStep = 10;
+    private const int MinRows = 10;
+
+    private bool CanShrink => State.Model.Height > MinRows;
+
+    private void AddRows() => State.Model.SetHeight(State.Model.Height + RowStep);
+
+    private void RemoveRows()
+    {
+        var target = Math.Max(MinRows, State.Model.Height - RowStep);
+        if (target != State.Model.Height) State.Model.SetHeight(target);
+    }
+
+    // ---- Cols ----
+
+    private const int MinCols = 5;
+    private const int MaxCols = 500;
+
+    private bool CanNarrow => State.Model.Width > MinCols;
+    private bool CanWiden => State.Model.Width < MaxCols;
+
+    private void WidenWidth() { if (CanWiden) State.Model.SetWidth(State.Model.Width + 1); }
+    private void NarrowWidth() { if (CanNarrow) State.Model.SetWidth(State.Model.Width - 1); }
+}

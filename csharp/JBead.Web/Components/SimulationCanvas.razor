@@ -1,0 +1,144 @@
+@using System.Text.Json
+@inject AppState State
+@inject IJSRuntime JS
+@inject LocalizationService Loc
+@implements IAsyncDisposable
+
+@* Canvas-based rope simulation. Model events mark the renderer "dirty" and schedule
+   a render; the actual PushData happens once per Blazor render cycle in
+   OnAfterRenderAsync — so a 15-bead DrawLine pushes once, not 15 times, and the
+   Draft view never has to wait on simulation serialization. *@
+<div class="sim-canvas-host">
+    <canvas @ref="canvasRef" class="sim-canvas"></canvas>
+    @if (canvasChecked && !canvasSupported)
+    {
+        <div class="canvas-unsupported">
+            <strong>@Loc["sim.unavailable.title"]</strong>
+            <p>@Loc["sim.unavailable.body"]</p>
+        </div>
+    }
+    <div class="sim-controls">
+        <button type="button" @onclick="Reset" title="@(Loc["sim.reset"])">⟲</button>
+        <span class="sep"></span>
+        <button type="button" @onclick="ZoomOut" disabled="@(!CanZoomOut)" title="@(Loc["ui.zoom.out"])">−</button>
+        <button type="button" @onclick="ZoomReset" title="@(Loc["ui.zoom.reset"])">@State.SimulationZoomPercent%</button>
+        <button type="button" @onclick="ZoomIn" disabled="@(!CanZoomIn)" title="@(Loc["ui.zoom.in"])">+</button>
+        <span class="sim-hint">@Loc["sim.controls.hint"]</span>
+    </div>
+</div>
+
+@code {
+    private ElementReference canvasRef;
+    private bool attached;
+    private bool canvasSupported = true;
+    private bool canvasChecked;
+    private bool needsPush;
+
+    protected override void OnInitialized()
+    {
+        // Every relevant model event just flips the dirty flag; PushData runs once
+        // per render cycle in OnAfterRenderAsync.
+        State.Model.ModelChanged += Dirty;
+        State.Model.ColorsChanged += Dirty;
+        State.Model.ColorChanged += _ => Dirty();
+        State.Model.PointChanged += _ => Dirty();
+        State.Model.StringColorChanged += Dirty;
+        // Simulation zoom is independent of the Draft grid — listen to the
+        // simulation-specific event, not Model.ZoomChanged.
+        State.SimulationGridPxChanged += _ => { Dirty(); InvokeAsync(StateHasChanged); };
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try { canvasSupported = await JS.InvokeAsync<bool>("jbeadSim.isSupported"); }
+            catch { canvasSupported = false; }
+            canvasChecked = true;
+            if (canvasSupported)
+            {
+                try { await JS.InvokeVoidAsync("jbeadSim.attach", canvasRef); attached = true; }
+                catch { canvasSupported = false; }
+                needsPush = true;
+            }
+            StateHasChanged();
+        }
+
+        if (needsPush && attached)
+        {
+            needsPush = false;
+            await PushData();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        State.Model.ModelChanged -= Dirty;
+        State.Model.ColorsChanged -= Dirty;
+        Loc.LanguageChanged -= OnLanguageChanged;
+        if (attached)
+        {
+            try { await JS.InvokeVoidAsync("jbeadSim.detach", canvasRef); } catch { }
+        }
+    }
+
+    private void Dirty()
+    {
+        if (!attached) return;
+        needsPush = true;
+        // StateHasChanged schedules OnAfterRenderAsync to fire, where we actually push.
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Reset()
+    {
+        if (!attached) return;
+        try { await JS.InvokeVoidAsync("jbeadSim.reset", canvasRef); } catch { }
+    }
+
+    private async Task PushData()
+    {
+        var m = State.Model;
+        var count = m.Width * m.Height;
+        var beads = new List<object>(count);
+        for (var j = 0; j < m.Height; j++)
+        {
+            for (var i = 0; i < m.Width; i++)
+            {
+                var ci = m.Get(new Point(i, j));
+                string hex;
+                bool transparent;
+                int finish;
+                if (ci < m.ColorCount)
+                {
+                    var b = m.GetBead(ci);
+                    hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
+                    transparent = b.Finish is BeadFinish.Transparent
+                               or BeadFinish.TransparentGloss
+                               or BeadFinish.TransparentMatte;
+                    finish = (int)b.Finish;
+                }
+                else { hex = "#cccccc"; transparent = false; finish = (int)BeadFinish.Opaque; }
+                beads.Add(new { c = hex, t = transparent, f = finish });
+            }
+        }
+        var stringHex = $"#{m.StringColor.R:X2}{m.StringColor.G:X2}{m.StringColor.B:X2}";
+        var data = new { width = m.Width, height = m.Height, diameter = State.SimulationGridPx, beads, @string = stringHex };
+        try { await JS.InvokeVoidAsync("jbeadSim.setPattern", canvasRef, JsonSerializer.Serialize(data)); }
+        catch { }
+    }
+
+    // ---- Zoom (independent from Draft) ----
+
+    private const int ZoomStep = 1;  // 1 px = 5 % steps relative to the 20 px base.
+
+    private bool CanZoomOut => State.SimulationGridPx > AppState.SimulationMinGridPx;
+    private bool CanZoomIn  => State.SimulationGridPx < AppState.SimulationMaxGridPx;
+
+    private void ZoomIn()    => State.SimulationGridPx += ZoomStep;
+    private void ZoomOut()   => State.SimulationGridPx -= ZoomStep;
+    private void ZoomReset() => State.SimulationGridPx  = AppState.SimulationBaseGridPx;
+}

@@ -1,0 +1,75 @@
+@inject AppState State
+@inject LocalizationService Loc
+@implements IDisposable
+
+@* Floats in the top-right of the canvas area, never over the pattern grid, showing
+   the bead under the pointer. Appears only while a cell is actually hovered; hides
+   otherwise so it doesn't compete with the selected-bead panel in the sidebar. *@
+@if (visible)
+{
+    <div class="hovered-bead-info">
+        <div class="bead-info-body">
+            <div class="bead-info-swatch" style="background-color:@hex" title="@hex"></div>
+            <div class="bead-info-details">
+                <div class="bead-info-line bead-info-title">@title</div>
+                @foreach (var line in lines)
+                {
+                    <div class="bead-info-line">
+                        <span class="bead-info-key">@line.Key</span>
+                        <span class="bead-info-value">@line.Value</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool visible;
+    private string title = "";
+    private string hex = "#cccccc";
+    private readonly List<KeyValuePair<string, string>> lines = new();
+
+    protected override void OnInitialized()
+    {
+        State.HoveredChanged += OnHoverChanged;
+        State.Model.ColorChanged += OnColorChanged;
+        State.Model.ColorsChanged += OnColorsChanged;
+        Loc.LanguageChanged += OnLanguageChanged;
+    }
+
+    public void Dispose()
+    {
+        State.HoveredChanged -= OnHoverChanged;
+        State.Model.ColorChanged -= OnColorChanged;
+        State.Model.ColorsChanged -= OnColorsChanged;
+        Loc.LanguageChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged() { Refresh(State.HoveredColorIndex); InvokeAsync(StateHasChanged); }
+
+    private void OnHoverChanged(int? idx) { Refresh(idx); StateHasChanged(); }
+    private void OnColorChanged(int idx)
+    {
+        if (idx == State.HoveredColorIndex) { Refresh(State.HoveredColorIndex); StateHasChanged(); }
+    }
+    private void OnColorsChanged() { Refresh(State.HoveredColorIndex); StateHasChanged(); }
+
+    private void Refresh(int? idx)
+    {
+        lines.Clear();
+        if (idx is null || idx.Value >= State.Model.ColorCount)
+        {
+            visible = false;
+            return;
+        }
+        visible = true;
+        var b = State.Model.GetBead(idx.Value);
+        title = idx.Value == 0 ? Loc["bead.background"] : Loc["bead.nr", [idx.Value.ToString()]];
+        hex = $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}";
+        if (!string.IsNullOrEmpty(b.Manufacturer)) lines.Add(new(Loc["sidebar.manufacturer"], b.Manufacturer));
+        if (!string.IsNullOrEmpty(b.Id)) lines.Add(new(Loc["sidebar.id"], b.Id));
+        if (b.Finish != BeadFinish.Opaque) lines.Add(new(Loc["sidebar.finish"], b.Finish.ToString()));
+        if (!string.IsNullOrEmpty(b.CatalogSource)) lines.Add(new(Loc["sidebar.from"], b.CatalogSource));
+    }
+}
