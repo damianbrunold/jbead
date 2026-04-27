@@ -251,6 +251,19 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Count":                            "Anzahl",
         "Total beads (excluding background): %1":
             "Perlen insgesamt (ohne Hintergrund): %1",
+
+        "&Recent Files":                    "&Zuletzt geöffnet",
+        "(empty)":                          "(leer)",
+        "<h3>JBead %1</h3>"
+        "<p>Bead-pattern designer (Qt 6 port of the original Java/Swing app).</p>"
+        "<p>© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.</p>"
+        "<p>Built against Qt %2.</p>"
+        "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>":
+            "<h3>JBead %1</h3>"
+            "<p>Designer für Perlenmuster (Qt 6-Portierung der Java/Swing-Originalversion).</p>"
+            "<p>© 2009–2026 Damian Brunold. Lizenziert unter GPL v3 oder später.</p>"
+            "<p>Erstellt mit Qt %2.</p>"
+            "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>",
     },
     "fr": {
         "Open":         "Ouvrir",
@@ -332,6 +345,19 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Count":                            "Nombre",
         "Total beads (excluding background): %1":
             "Total des perles (hors arrière-plan) : %1",
+
+        "&Recent Files":                    "Fichiers &récents",
+        "(empty)":                          "(vide)",
+        "<h3>JBead %1</h3>"
+        "<p>Bead-pattern designer (Qt 6 port of the original Java/Swing app).</p>"
+        "<p>© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.</p>"
+        "<p>Built against Qt %2.</p>"
+        "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>":
+            "<h3>JBead %1</h3>"
+            "<p>Éditeur de patrons de perles (portage Qt 6 de l'application Java/Swing originale).</p>"
+            "<p>© 2009–2026 Damian Brunold. Sous licence GPL v3 ou ultérieure.</p>"
+            "<p>Compilé avec Qt %2.</p>"
+            "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>",
     },
 }
 

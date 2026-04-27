@@ -9,6 +9,7 @@
 class QLabel;
 class QScrollBar;
 class QSplitter;
+class QTimer;
 
 namespace jbead {
 
@@ -16,6 +17,7 @@ class ColorsToolbar;
 class CorrectedPanel;
 class DraftPanel;
 class Model;
+class MruManager;
 class ReportPanel;
 class Selection;
 class SimulationPanel;
@@ -119,6 +121,8 @@ private:
     ColorsToolbar*   m_colorsToolbar = nullptr;
     QSplitter*       m_centralSplitter = nullptr;
     QScrollBar*      m_scrollbar    = nullptr;
+    MruManager*      m_mru          = nullptr;
+    QTimer*          m_idleTimer    = nullptr;
     QLabel*          m_draftLabel       = nullptr;
     QLabel*          m_correctedLabel   = nullptr;
     QLabel*          m_simulationLabel  = nullptr;

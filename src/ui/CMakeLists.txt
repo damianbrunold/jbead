@@ -8,6 +8,7 @@ qt_add_library(jbead_ui STATIC
     draftpanel.h      draftpanel.cpp
     imagefactory.h    imagefactory.cpp
     mainwindow.h      mainwindow.cpp
+    mrumanager.h      mrumanager.cpp
     reportpanel.h     reportpanel.cpp
     simulationpanel.h simulationpanel.cpp
     ${CMAKE_SOURCE_DIR}/resources/icons/icons.qrc

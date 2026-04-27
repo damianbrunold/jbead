@@ -7,6 +7,7 @@
 #include "domain/selection.h"
 #include "draftpanel.h"
 #include "io/fileformat.h"
+#include "mrumanager.h"
 #include "print/printjob.h"
 #include "print/printsettings.h"
 #include "reportpanel.h"
@@ -29,6 +30,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStyleHints>
+#include <QTimer>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QToolBar>
@@ -110,6 +112,20 @@ MainWindow::MainWindow(QWidget* parent)
     updateScrollbar();
     updateTitle();
     updateStatusBar();
+
+    /*  Idle-timer hook for redo. BeadUndo only stores the *pre*-state
+        on snapshot(), so a single edit followed by undo cannot be
+        redone — there's nothing in the next slot. The legacy app
+        runs prepareSnapshot() periodically from a Swing Timer; this
+        is the same idea: every 500 ms we copy the current field over
+        the next slot in the ring buffer (no advance), so a
+        subsequent undo/redo can round-trip back to the post-edit
+        state. The call is a no-op when the model isn't modified.  */
+    m_idleTimer = new QTimer(this);
+    m_idleTimer->setInterval(500);
+    connect(m_idleTimer, &QTimer::timeout, this,
+            [this]() { m_model->prepareSnapshot(); });
+    m_idleTimer->start();
 
     /*  Restore window geometry + dock layout from the previous run.
         Stored under "MainWindow/" so the keys don't collide with the
@@ -201,6 +217,16 @@ void MainWindow::buildMenuBar()
     fileMenu->addAction(m_actions->action(Actions::Id::FileOpen));
     fileMenu->addAction(m_actions->action(Actions::Id::FileSave));
     fileMenu->addAction(m_actions->action(Actions::Id::FileSaveAs));
+    /*  Recent Files lives between Save As and Print, mirroring the
+        legacy menu placement. The MruManager owns its actions and
+        replaces them on every addPath() call.                     */
+    QMenu* recentMenu = fileMenu->addMenu(tr("&Recent Files"));
+    m_mru = new MruManager(recentMenu, this);
+    connect(m_mru, &MruManager::openRequested, this, [this](const QString& path) {
+        if (!maybeSave()) return;
+        loadFrom(path);
+        updateScrollbar();
+    });
     fileMenu->addSeparator();
     fileMenu->addAction(m_actions->action(Actions::Id::FilePrint));
     fileMenu->addAction(m_actions->action(Actions::Id::FilePrintPreview));
@@ -379,6 +405,7 @@ void MainWindow::setCurrentFile(const QString& path)
     m_model->setFilePath(path);
     m_model->setSaved();
     m_model->setModified(false);
+    if (m_mru) m_mru->addPath(path);
     updateTitle();
 }
 
@@ -615,11 +642,18 @@ void MainWindow::doInfoTechInfos()
 
 void MainWindow::doInfoAbout()
 {
-    QMessageBox::about(this, tr("About JBead"),
-        tr("<h3>JBead</h3>"
-           "<p>Bead-pattern designer (Qt 6 port).</p>"
-           "<p>© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.</p>"
-           "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>"));
+    /*  Pull the version from QApplication::applicationVersion()
+        (set in main.cpp from the CMake project version) and the
+        Qt version from QT_VERSION_STR so the dialog stays accurate
+        across rebuilds and Qt upgrades.                          */
+    const QString text = tr(
+        "<h3>JBead %1</h3>"
+        "<p>Bead-pattern designer (Qt 6 port of the original Java/Swing app).</p>"
+        "<p>© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.</p>"
+        "<p>Built against Qt %2.</p>"
+        "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>"
+    ).arg(QApplication::applicationVersion(), QString::fromLatin1(QT_VERSION_STR));
+    QMessageBox::about(this, tr("About JBead"), text);
 }
 
 // -----------------------------------------------------------------

@@ -78,6 +78,26 @@ private slots:
         w.selection()->clear();
         QVERIFY(!w.selection()->isActive());
     }
+
+    void redoWorksAfterPrepareSnapshot()
+    {
+        /*  prepareSnapshot() is the legacy idle-timer hook that
+            captures the post-edit state into the next ring-buffer
+            slot, so a subsequent undo/redo can round-trip. The Qt
+            port wires it to a QTimer; we exercise the underlying
+            behaviour directly here.                              */
+        MainWindow w;
+        w.model()->setSelectedColor(2);
+        w.model()->setPoint(BeadPoint(1, 1));
+        QCOMPARE(int(w.model()->get(BeadPoint(1, 1))), 2);
+        w.model()->prepareSnapshot();        // simulate one timer tick
+        QVERIFY(w.model()->canUndo());
+        w.model()->undo();
+        QCOMPARE(int(w.model()->get(BeadPoint(1, 1))), 0);
+        QVERIFY(w.model()->canRedo());
+        w.model()->redo();
+        QCOMPARE(int(w.model()->get(BeadPoint(1, 1))), 2);
+    }
 };
 
 QTEST_MAIN(TestMainWindow)

@@ -111,5 +111,5 @@ couldn't translate so they're easy to add to `MANUAL_TRANSLATIONS`.
 - Phase 4 — Qt Linguist-based i18n (de/fr seeded from `.properties`). **Done.**
 - Phase 5 — printing pipeline (port of legacy `print/`, full QPrinter
   + QPrintPreviewDialog + QPrintDialog). **Done.**
-- Phase 6 — polish, MRU, dialogs, samples.
+- Phase 6 — polish, MRU, dialogs, samples. **Done.**
 - Phase 7 — test pass.
