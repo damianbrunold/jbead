@@ -1,6 +1,15 @@
 qt_add_library(jbead_ui STATIC
-    mainwindow.cpp
-    mainwindow.h
+    actions.h         actions.cpp
+    basepanel.h       basepanel.cpp
+    beadpainter.h     beadpainter.cpp
+    colorstoolbar.h   colorstoolbar.cpp
+    correctedpanel.h  correctedpanel.cpp
+    dialogs.h         dialogs.cpp
+    draftpanel.h      draftpanel.cpp
+    imagefactory.h    imagefactory.cpp
+    mainwindow.h      mainwindow.cpp
+    reportpanel.h     reportpanel.cpp
+    simulationpanel.h simulationpanel.cpp
     ${CMAKE_SOURCE_DIR}/resources/icons/icons.qrc
 )
 

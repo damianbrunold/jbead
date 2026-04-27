@@ -19,3 +19,13 @@ target_link_libraries(test_fileformat PRIVATE Qt6::Core Qt6::Gui Qt6::Test jbead
 target_compile_definitions(test_fileformat PRIVATE
     JBEAD_SAMPLES_DIR="${CMAKE_SOURCE_DIR}/samples")
 add_test(NAME fileformat COMMAND test_fileformat)
+
+qt_add_executable(test_mainwindow test_mainwindow.cpp)
+target_link_libraries(test_mainwindow PRIVATE
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::PrintSupport Qt6::Test
+    jbead_ui jbead_io jbead_domain)
+target_compile_definitions(test_mainwindow PRIVATE
+    JBEAD_SAMPLES_DIR="${CMAKE_SOURCE_DIR}/samples")
+add_test(NAME mainwindow COMMAND test_mainwindow)
+set_tests_properties(mainwindow PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

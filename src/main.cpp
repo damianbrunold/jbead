@@ -63,8 +63,8 @@ int main(int argc, char* argv[])
         QCoreApplication::installTranslator(&appTranslator);
     }
 
-    MainWindow win;
-    win.resize(1024, 768);
+    jbead::MainWindow win;
+    win.resize(1280, 800);
     win.show();
 
     return app.exec();
