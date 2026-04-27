@@ -1,6 +1,7 @@
 qt_add_library(jbead_ui STATIC
     actions.h         actions.cpp
     basepanel.h       basepanel.cpp
+    colorscheme.h     colorscheme.cpp
     beadpainter.h     beadpainter.cpp
     colorstoolbar.h   colorstoolbar.cpp
     correctedpanel.h  correctedpanel.cpp

@@ -13,9 +13,9 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
-#include <QStyleHints>
 #include <QTranslator>
 
+#include "ui/colorscheme.h"
 #include "ui/mainwindow.h"
 
 int main(int argc, char* argv[])
@@ -53,19 +53,17 @@ int main(int argc, char* argv[])
         }
     }
 
-    /*  Apply the saved color scheme so dark-mode users get dark on
-        first paint instead of a flash of light. "system" leaves Qt
-        to follow the platform; "light" / "dark" override it.       */
+    /*  Apply the saved color scheme before any widget is built so
+        dark-mode users don't see a flash of light on launch. The
+        helper installs Fusion + a custom palette for "light" /
+        "dark" — needed because the Linux platform theme plugin
+        (Adwaita / Breeze) ignores QStyleHints::setColorScheme on
+        its own.                                                   */
     {
         QSettings settings;
-        const QString scheme = settings.value(QStringLiteral("Environment/ColorScheme"),
-                                              QStringLiteral("system")).toString();
-        if (scheme == QStringLiteral("light"))
-            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Light);
-        else if (scheme == QStringLiteral("dark"))
-            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-        else
-            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
+        jbead::applyColorScheme(
+            settings.value(QStringLiteral("Environment/ColorScheme"),
+                           QStringLiteral("system")).toString());
     }
 
     QTranslator qtTranslator;

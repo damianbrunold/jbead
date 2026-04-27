@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 
+#include "colorscheme.h"
 #include "colorstoolbar.h"
 #include "correctedpanel.h"
 #include "dialogs.h"
@@ -714,16 +715,12 @@ void MainWindow::doPatternPreferences()
     s.setValue(QStringLiteral("Environment/Language"),    dlg.language());
     s.setValue(QStringLiteral("Environment/ColorScheme"), dlg.colorScheme());
 
-    /*  Color scheme can be applied live via the style hints API
-        (Qt 6.5+); language requires a restart since QTranslator is
-        wired up before the main window is built.                  */
-    const QString scheme = dlg.colorScheme();
-    if (scheme == QStringLiteral("light"))
-        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Light);
-    else if (scheme == QStringLiteral("dark"))
-        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
-    else
-        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
+    /*  Color scheme applied live via the shared helper (Fusion
+        style + explicit palette). styleHints->setColorScheme alone
+        is ignored by the Linux platform theme plugin, so we go the
+        full dbweave route. Language still requires a restart since
+        QTranslator is wired up before the main window is built.   */
+    applyColorScheme(dlg.colorScheme());
 }
 
 // -----------------------------------------------------------------
