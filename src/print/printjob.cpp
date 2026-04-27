@@ -51,22 +51,35 @@ PrintJob::PrintJob(const Model& model, const PrintSettings& settings)
 // Print + Print Preview — multi-page MultiPageLayout.
 // -----------------------------------------------------------------
 
+/*  QPainter on a HighResolution QPrinter treats coordinates as
+    device pixels at the printer's native dpi (1200 by default).
+    The strip layout works in points, so we scale the painter once
+    by `printer.resolution() / 72` before any drawing. Combined
+    with the setPixelSize-based font sizing in strippainter.cpp,
+    the result is point-correct text and geometry on the page.   */
+static qreal painterScaleFor(const QPrinter* printer)
+{
+    const int res = printer->resolution();
+    return res > 0 ? qreal(res) / 72.0 : 1.0;
+}
+
 bool PrintJob::run(QPrinter* printer) const
 {
     PrintSettings s = m_settings;
     s.singleColumnGrids = false;            // print never clamps
 
     MultiPageLayout layout(m_model, s);
-    const QRectF page = pagePaintRectPt(printer);
-    layout.layout(QSizeF(page.width(), page.height()));
+    const QRectF pagePt = pagePaintRectPt(printer);
+    layout.layout(QSizeF(pagePt.width(), pagePt.height()));
     if (layout.pageCount() == 0) return false;
 
     QPainter p(printer);
     if (!p.isActive()) return false;
+    p.scale(painterScaleFor(printer), painterScaleFor(printer));
     for (int i = 0; i < layout.pageCount(); ++i) {
         if (i > 0) printer->newPage();
-        layout.paintPage(p, i, page.left(), page.top(),
-                         page.width(), page.height());
+        layout.paintPage(p, i, pagePt.left(), pagePt.top(),
+                         pagePt.width(), pagePt.height());
     }
     p.end();
     return true;
@@ -78,16 +91,17 @@ void PrintJob::paint(QPrinter* printer) const
     s.singleColumnGrids = false;
 
     MultiPageLayout layout(m_model, s);
-    const QRectF page = pagePaintRectPt(printer);
-    layout.layout(QSizeF(page.width(), page.height()));
+    const QRectF pagePt = pagePaintRectPt(printer);
+    layout.layout(QSizeF(pagePt.width(), pagePt.height()));
     if (layout.pageCount() == 0) return;
 
     QPainter p(printer);
     if (!p.isActive()) return;
+    p.scale(painterScaleFor(printer), painterScaleFor(printer));
     for (int i = 0; i < layout.pageCount(); ++i) {
         if (i > 0) printer->newPage();
-        layout.paintPage(p, i, page.left(), page.top(),
-                         page.width(), page.height());
+        layout.paintPage(p, i, pagePt.left(), pagePt.top(),
+                         pagePt.width(), pagePt.height());
     }
     p.end();
 }
@@ -125,9 +139,11 @@ bool PrintJob::exportPdf(const QString& path) const
         in points; map that to the printer's native pixels with a
         single uniform scale so the rest of the strip painter keeps
         working in points.                                        */
-    const QRectF pagePx = printer.pageLayout().paintRectPixels(printer.resolution());
-    const qreal  scale  = pagePx.width() / pageSizePt.width();
-    p.scale(scale, scale);
+    /*  Same scaling discipline as run/paint: map painter coords
+        from points to printer device pixels with a single uniform
+        scale, then let the strip painter draw at native point
+        coordinates.                                              */
+    p.scale(painterScaleFor(&printer), painterScaleFor(&printer));
     layout.paintNatural(p, EXPORT_MARGIN_PT, EXPORT_MARGIN_PT, NATURAL_HEIGHT);
     p.end();
     return QFileInfo(path).exists();

@@ -36,6 +36,14 @@ struct PrintSettings
     bool printReport      = true;
     bool printBeadList    = true;
 
+    /*  Match the View-menu "Draw Colors" / "Draw Symbols" toggles
+        (set from MainWindow::currentPrintSettings). drawColors
+        defaults true and drawSymbols defaults false because that's
+        what the legacy bundle's view block defaults to and what the
+        shipped sample patterns use.                                */
+    bool drawColors       = true;
+    bool drawSymbols      = false;
+
     /*  When true, grid views (Draft / Corrected / Simulation) emit
         only one column even if the pattern is taller than fits;
         used by the single-page export sketches so a 300-row

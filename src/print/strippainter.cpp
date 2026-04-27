@@ -53,25 +53,44 @@ QPoint correctYForIndex(int width, int idx)
     return QPoint(idx, y);
 }
 
-void setBodyFont(QPainter& p, qreal size = FONT_SIZE)
+/*  Font sizing rule for both helpers and the part bodies below:
+    use setPixelSize, NOT setPointSize. Two reasons:
+
+      - On a HighResolution QPrinter we apply painter.scale(s, s) to
+        map points into device pixels (s = printer.resolution() /
+        72). setPointSize converts via logicalDpi (= printer res),
+        producing a glyph already in printer-pixels — which the
+        painter transform then scales AGAIN, leaving text 17x too
+        large at 1200 dpi. setPixelSize sizes in painter coords
+        directly so the transform applies once like everything else.
+      - On the raster path (no scale, image dpi=72) the result is
+        the same as setPointSize, so this fix is invisible there. */
+void setBodyFont(QPainter& p, qreal sizePt = FONT_SIZE)
 {
     QFont f = p.font();
-    f.setPointSizeF(size);
+    f.setPixelSize(qMax<int>(4, int(std::round(sizePt))));
     p.setFont(f);
 }
 
 void drawBead(QPainter& p, qreal x, qreal y, qreal w, qreal h,
-              const QColor& color, const QString& symbol)
+              const QColor& color, const QString& symbol,
+              bool drawColors, bool drawSymbols)
 {
-    p.fillRect(QRectF(x, y, w, h), color);
+    /*  drawRect fills with the painter's *current brush* on top of
+        stroking with the pen. The previous fillRect(color) +
+        drawRect(rect) idiom inherited a stale brush from earlier
+        calls (e.g. drawPill in the report block left the brush
+        set to the last colour swatch — black for stripes.jbb),
+        which then overwrote every subsequent bead with that
+        colour. Set both brush and pen explicitly here.            */
+    p.setBrush(drawColors ? QBrush(color) : QBrush(Qt::NoBrush));
     p.setPen(Qt::black);
     p.drawRect(QRectF(x, y, w, h));
-    if (!symbol.isEmpty()) {
-        p.setPen(contrastFor(color));
+    if (drawSymbols && !symbol.isEmpty()) {
+        const QColor fill = drawColors ? color : QColor(Qt::white);
+        p.setPen(contrastFor(fill));
         QFont f = p.font();
-        /*  Symbol size scales with the cell so it always reads
-            inside the bead.                                       */
-        f.setPointSizeF(qMax<qreal>(4.0, h * 0.55));
+        f.setPixelSize(qMax<int>(4, int(std::round(h * 0.55))));
         p.setFont(f);
         p.drawText(QRectF(x, y, w, h), Qt::AlignCenter, symbol);
     }
@@ -87,7 +106,7 @@ void drawPill(QPainter& p, qreal x, qreal y, qreal w, qreal h,
     if (!label.isEmpty()) {
         p.setPen(contrastFor(fill));
         QFont f = p.font();
-        f.setPointSizeF(qMax<qreal>(5.0, h * 0.55));
+        f.setPixelSize(qMax<int>(5, int(std::round(h * 0.55))));
         p.setFont(f);
         p.drawText(QRectF(x, y, w, h), Qt::AlignCenter, label);
     }
@@ -280,12 +299,13 @@ public:
             for (int i = 0; i < m_model.width(); ++i) {
                 const std::int8_t c = m_model.get(BeadPoint(i, row));
                 drawBead(p, xGrid + i * GX, yj, GX, GY,
-                         m_model.color(c), BeadSymbols::glyph(c));
+                         m_model.color(c), BeadSymbols::glyph(c),
+                         m_settings.drawColors, m_settings.drawSymbols);
             }
         }
 
         // Row-number labels every 10 rows.
-        QFont f = p.font(); f.setPointSizeF(FONT_SIZE - 1);
+        QFont f = p.font(); f.setPixelSize(qMax<int>(4, int(FONT_SIZE - 1)));
         p.setFont(f);
         p.setPen(Qt::black);
         const QFontMetricsF fm(f);
@@ -336,7 +356,8 @@ public:
             const qreal xx = xGrid + hex.x() * GX + xoff;
             const qreal yy = y + (rpc - (hex.y() - start) - 1) * GY;
             drawBead(p, xx, yy, GX, GY, m_model.color(c),
-                     BeadSymbols::glyph(c));
+                     BeadSymbols::glyph(c),
+                     m_settings.drawColors, m_settings.drawSymbols);
         }
     }
 };

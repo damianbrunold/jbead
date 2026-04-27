@@ -462,6 +462,13 @@ PrintSettings MainWindow::currentPrintSettings() const
     s.printSimulation  = m_actions->action(Actions::Id::ViewSimulation)->isChecked();
     s.printReport      = m_actions->action(Actions::Id::ViewReport)->isChecked();
     s.printBeadList    = s.printReport;
+    /*  Honour the View-menu Draw Colors / Draw Symbols toggles in
+        print and export. stripes.jbb has draw-symbols=false so its
+        cells should render as solid colour swatches without glyphs;
+        the previous code drew symbols unconditionally, which made
+        small cells look like cluttered text overlays.              */
+    s.drawColors       = m_actions->action(Actions::Id::ViewDrawColors)->isChecked();
+    s.drawSymbols      = m_actions->action(Actions::Id::ViewDrawSymbols)->isChecked();
     return s;
 }
 
