@@ -485,18 +485,18 @@
 <context>
     <name>jbead::ArrangeDialog</name>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="16" />
+        <location filename="../src/ui/dialogs.cpp" line="27" />
         <location filename="../tests/test_i18n.cpp" line="36" />
         <source>Arrange</source>
         <translation>Anordnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="24" />
+        <location filename="../src/ui/dialogs.cpp" line="35" />
         <source>&amp;Copies:</source>
         <translation>&amp;Kopien:</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="25" />
+        <location filename="../src/ui/dialogs.cpp" line="36" />
         <source>&amp;Offset:</source>
         <translation>&amp;Versatz:</translation>
     </message>
@@ -517,209 +517,209 @@
 <context>
     <name>jbead::MainWindow</name>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="164" />
+        <location filename="../src/ui/mainwindow.cpp" line="176" />
         <source>Draft</source>
         <translation>Entwurf</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="165" />
+        <location filename="../src/ui/mainwindow.cpp" line="177" />
         <source>Corrected</source>
         <translation>Korrigiert</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="166" />
+        <location filename="../src/ui/mainwindow.cpp" line="178" />
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="167" />
+        <location filename="../src/ui/mainwindow.cpp" line="179" />
         <source>Report</source>
         <translation>Bericht</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="187" />
+        <location filename="../src/ui/mainwindow.cpp" line="199" />
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="200" />
+        <location filename="../src/ui/mainwindow.cpp" line="212" />
         <source>&amp;Edit</source>
         <translation>&amp;Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="209" />
+        <location filename="../src/ui/mainwindow.cpp" line="221" />
         <source>Ro&amp;w</source>
         <translation>&amp;Zeile</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="213" />
+        <location filename="../src/ui/mainwindow.cpp" line="225" />
         <source>&amp;View</source>
         <translation>&amp;Ansicht</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="226" />
+        <location filename="../src/ui/mainwindow.cpp" line="238" />
         <source>&amp;Tools</source>
         <translation>&amp;Werkzeug</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="232" />
+        <location filename="../src/ui/mainwindow.cpp" line="244" />
         <source>&amp;Pattern</source>
         <translation>&amp;Muster</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="238" />
+        <location filename="../src/ui/mainwindow.cpp" line="250" />
         <source>&amp;Info</source>
         <translation>&amp;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="245" />
+        <location filename="../src/ui/mainwindow.cpp" line="257" />
         <source>Main</source>
         <translation>Hauptleiste</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="291" />
+        <location filename="../src/ui/mainwindow.cpp" line="308" />
         <source>JBead</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="292" />
+        <location filename="../src/ui/mainwindow.cpp" line="309" />
         <source>The pattern has unsaved changes. Save before continuing?</source>
         <translation>Das Muster hat ungespeicherte Änderungen. Vor dem Fortfahren speichern?</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="302" />
+        <location filename="../src/ui/mainwindow.cpp" line="319" />
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="314" />
+        <location filename="../src/ui/mainwindow.cpp" line="342" />
         <source>Save failed</source>
         <translation>Speichern fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="344" />
+        <location filename="../src/ui/mainwindow.cpp" line="372" />
         <source>Open failed</source>
         <translation>Öffnen fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="369" />
+        <location filename="../src/ui/mainwindow.cpp" line="397" />
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="394" />
-        <location filename="../src/ui/mainwindow.cpp" line="404" />
+        <location filename="../src/ui/mainwindow.cpp" line="422" />
+        <location filename="../src/ui/mainwindow.cpp" line="432" />
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="405" />
+        <location filename="../src/ui/mainwindow.cpp" line="433" />
         <source>Print job produced no output.</source>
         <translation>Der Druckauftrag hat keine Ausgabe erzeugt.</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="418" />
+        <location filename="../src/ui/mainwindow.cpp" line="446" />
         <source>Print Preview</source>
         <translation>Druckvorschau</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="439" />
+        <location filename="../src/ui/mainwindow.cpp" line="467" />
         <source>Page Setup</source>
         <translation>Seite einrichten</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="453" />
-        <location filename="../src/ui/mainwindow.cpp" line="467" />
+        <location filename="../src/ui/mainwindow.cpp" line="481" />
+        <location filename="../src/ui/mainwindow.cpp" line="495" />
         <source>Export PDF</source>
         <translation>PDF exportieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="453" />
+        <location filename="../src/ui/mainwindow.cpp" line="481" />
         <source>PDF Documents (*.pdf)</source>
         <translation>PDF-Dokumente (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="468" />
+        <location filename="../src/ui/mainwindow.cpp" line="496" />
         <source>Could not write PDF to %1</source>
         <translation>PDF konnte nicht nach %1 geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="543" />
+        <location filename="../src/ui/mainwindow.cpp" line="571" />
         <source>Pattern Width</source>
         <translation>Musterbreite</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="543" />
+        <location filename="../src/ui/mainwindow.cpp" line="571" />
         <source>&amp;Width:</source>
         <translation>&amp;Breite:</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="549" />
+        <location filename="../src/ui/mainwindow.cpp" line="577" />
         <source>Pattern Height</source>
         <translation>Musterhöhe</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="549" />
+        <location filename="../src/ui/mainwindow.cpp" line="577" />
         <source>&amp;Height:</source>
         <translation>&amp;Höhe:</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="584" />
+        <location filename="../src/ui/mainwindow.cpp" line="618" />
         <source>About JBead</source>
         <translation>Über JBead</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="585" />
+        <location filename="../src/ui/mainwindow.cpp" line="619" />
         <source>&lt;h3&gt;JBead&lt;/h3&gt;&lt;p&gt;Bead-pattern designer (Qt 6 port).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</source>
         <translation>&lt;h3&gt;JBead&lt;/h3&gt;&lt;p&gt;Designer für Perlenmuster (Qt 6-Portierung).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Lizenziert unter GPL v3 oder später.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="653" />
+        <location filename="../src/ui/mainwindow.cpp" line="696" />
         <source>unnamed</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="662" />
+        <location filename="../src/ui/mainwindow.cpp" line="705" />
         <source>Sel: %1 × %2</source>
         <translation>Ausw: %1 × %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="664" />
+        <location filename="../src/ui/mainwindow.cpp" line="707" />
         <source>Sel: —</source>
         <translation>Ausw: —</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="666" />
+        <location filename="../src/ui/mainwindow.cpp" line="709" />
         <source>Scroll: %1</source>
         <translation>Scroll: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="667" />
+        <location filename="../src/ui/mainwindow.cpp" line="710" />
         <source>Repeat: %1</source>
         <translation>Rapport: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="670" />
+        <location filename="../src/ui/mainwindow.cpp" line="713" />
         <source>Pencil</source>
         <translation>Stift</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="671" />
+        <location filename="../src/ui/mainwindow.cpp" line="714" />
         <source>Select</source>
         <translation>Auswahl</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="672" />
+        <location filename="../src/ui/mainwindow.cpp" line="715" />
         <source>Fill</source>
         <translation>Füllen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="673" />
+        <location filename="../src/ui/mainwindow.cpp" line="716" />
         <source>Pipette</source>
         <translation>Pipette</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="676" />
+        <location filename="../src/ui/mainwindow.cpp" line="719" />
         <source>Tool: %1</source>
         <translation>Werkzeug: %1</translation>
     </message>
@@ -736,42 +736,42 @@
 <context>
     <name>jbead::PreferencesDialog</name>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="69" />
+        <location filename="../src/ui/dialogs.cpp" line="80" />
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="80" />
+        <location filename="../src/ui/dialogs.cpp" line="91" />
         <source>System default</source>
         <translation>Systemstandard</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="85" />
+        <location filename="../src/ui/dialogs.cpp" line="96" />
         <source>&amp;Language:</source>
         <translation>&amp;Sprache:</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="88" />
+        <location filename="../src/ui/dialogs.cpp" line="99" />
         <source>Follow system</source>
         <translation>System folgen</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="89" />
+        <location filename="../src/ui/dialogs.cpp" line="100" />
         <source>Light</source>
         <translation>Hell</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="90" />
+        <location filename="../src/ui/dialogs.cpp" line="101" />
         <source>Dark</source>
         <translation>Dunkel</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="92" />
+        <location filename="../src/ui/dialogs.cpp" line="103" />
         <source>&amp;Color scheme:</source>
         <translation>&amp;Farbschema:</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="94" />
+        <location filename="../src/ui/dialogs.cpp" line="105" />
         <source>Language changes take effect after restarting JBead.</source>
         <translation>Sprachänderungen werden erst nach einem Neustart von JBead wirksam.</translation>
     </message>
@@ -810,6 +810,74 @@
         <location filename="../src/ui/reportpanel.cpp" line="62" />
         <source>Bead list:</source>
         <translation>Perlenliste:</translation>
+    </message>
+</context>
+<context>
+    <name>jbead::TechInfosDialog</name>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="141" />
+        <source>Technical Information</source>
+        <translation>Technische Informationen</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="156" />
+        <source>unnamed</source>
+        <translation type="unfinished" />
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="157" />
+        <source>File:</source>
+        <translation>Datei:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="158" />
+        <source>Author:</source>
+        <translation>Autor:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="159" />
+        <source>Organization:</source>
+        <translation>Organisation:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="160" />
+        <source>Circumference:</source>
+        <translation>Umfang:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="161" />
+        <source>Used rows:</source>
+        <translation>Verwendete Reihen:</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="162" />
+        <source>Repeat (beads):</source>
+        <translation>Rapport (Perlen):</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="170" />
+        <source>Color</source>
+        <translation>Farbe</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="170" />
+        <source>Index</source>
+        <translation>Index</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="170" />
+        <source>Symbol</source>
+        <translation>Symbol</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="170" />
+        <source>Count</source>
+        <translation>Anzahl</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/dialogs.cpp" line="191" />
+        <source>Total beads (excluding background): %1</source>
+        <translation>Perlen insgesamt (ohne Hintergrund): %1</translation>
     </message>
 </context>
 </TS>

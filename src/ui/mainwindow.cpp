@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_actions->action(Actions::Id::PatternWidth),   &QAction::triggered, this, &MainWindow::doPatternWidth);
     connect(m_actions->action(Actions::Id::PatternHeight),  &QAction::triggered, this, &MainWindow::doPatternHeight);
     connect(m_actions->action(Actions::Id::PatternPreferences), &QAction::triggered, this, &MainWindow::doPatternPreferences);
+    connect(m_actions->action(Actions::Id::InfoTechInfos),  &QAction::triggered, this, &MainWindow::doInfoTechInfos);
     connect(m_actions->action(Actions::Id::InfoAbout),      &QAction::triggered, this, &MainWindow::doInfoAbout);
     connect(m_actions->action(Actions::Id::RotateLeft),     &QAction::triggered, this, &MainWindow::doRotateLeft);
     connect(m_actions->action(Actions::Id::RotateRight),    &QAction::triggered, this, &MainWindow::doRotateRight);
@@ -92,6 +93,16 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_model, &Model::zoomChanged,   this, &MainWindow::onZoomChanged);
     connect(m_model, &Model::repeatChanged, this, &MainWindow::onRepeatChanged);
     connect(m_model, &Model::shiftChanged,  this, &MainWindow::onShiftChanged);
+    /*  Per-cell edits and palette tweaks don't fire modelChanged
+        (see Model::setPoint / setColor — they emit pointChanged
+        and colorChanged). Title still has to grow / drop the "*"
+        marker on every modified state change, so refresh it from
+        these signals too.                                         */
+    connect(m_model, &Model::pointChanged,  this, [this](BeadPoint) {
+        updateTitle();
+        updateScrollbar();           // usedHeight may have grown
+    });
+    connect(m_model, &Model::colorChanged,  this, [this](int)       { updateTitle(); });
     connect(m_selection, &Selection::selectionUpdated, this, &MainWindow::onSelectionUpdated);
     connect(m_selection, &Selection::selectionDeleted, this, &MainWindow::onSelectionUpdated);
 
@@ -311,10 +322,21 @@ bool MainWindow::saveTo(const QString& path)
         rememberFileDirectory(picked);
         return saveTo(picked);
     }
+    /*  QFileDialog on most platforms doesn't auto-append the
+        selected filter's extension when the user types a bare
+        filename. Patch that here: anything that doesn't already
+        end in .jbb or .dbb (case-insensitive) gets ".jbb"
+        appended so the on-disk format always matches what we
+        actually wrote.                                            */
+    QString finalPath = path;
+    if (!finalPath.endsWith(QStringLiteral(".jbb"), Qt::CaseInsensitive)
+     && !finalPath.endsWith(QStringLiteral(".dbb"), Qt::CaseInsensitive)) {
+        finalPath += QStringLiteral(".jbb");
+    }
     try {
-        FileFormat::save(path, *m_model);
-        setCurrentFile(path);
-        rememberFileDirectory(path);
+        FileFormat::save(finalPath, *m_model);
+        setCurrentFile(finalPath);
+        rememberFileDirectory(finalPath);
         return true;
     } catch (const std::exception& e) {
         QMessageBox::critical(this, tr("Save failed"), QString::fromStdString(e.what()));
@@ -585,6 +607,12 @@ void MainWindow::doPatternPreferences()
 // Info
 // -----------------------------------------------------------------
 
+void MainWindow::doInfoTechInfos()
+{
+    TechInfosDialog dlg(*m_model, this);
+    dlg.exec();
+}
+
 void MainWindow::doInfoAbout()
 {
     QMessageBox::about(this, tr("About JBead"),
@@ -635,9 +663,18 @@ void MainWindow::onSelectionUpdated()                    { updateStatusBar(); }
 
 void MainWindow::updateScrollbar()
 {
-    const int rows = m_model->height();
+    /*  Cap the scroll range to the rows the user actually filled in
+        (plus a small headroom). The legacy app exposed the full
+        15x800 default field through the scrollbar, so users
+        scrolled past the highest bead into hundreds of empty rows
+        and saw only the colour-0 background — which can be e.g.
+        yellow in samples like stripes.jbb and looks like the
+        pattern was wiped. Headroom of ~10 rows lets the user
+        extend the design without immediately hitting a wall.      */
     const int gridy = qMax(1, m_model->gridy());
-    const int visible = qMin(rows, qMax(1, m_draft->height() / gridy));
+    const int visible = qMax(1, m_draft->height() / gridy);
+    const int rows = qMin(m_model->height(),
+                          qMax(visible, m_model->usedHeight() + 10));
     const int maxScroll = qMax(0, rows - visible);
     QSignalBlocker block(m_scrollbar);
     m_scrollbar->setRange(0, maxScroll);
@@ -650,7 +687,7 @@ void MainWindow::updateScrollbar()
         scrollbar value is inverted: 0 == top of pattern, max == bottom.
         Initial scroll == 0 (model default) maps to value == max,
         which puts the thumb at the bottom.                          */
-    m_scrollbar->setValue(maxScroll - m_model->scroll());
+    m_scrollbar->setValue(maxScroll - qMin(m_model->scroll(), maxScroll));
 }
 
 void MainWindow::updateTitle()

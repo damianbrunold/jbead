@@ -78,6 +78,7 @@ private slots:
     void doPatternWidth();
     void doPatternHeight();
     void doPatternPreferences();
+    void doInfoTechInfos();
     void doInfoAbout();
     void doRotateLeft();
     void doRotateRight();

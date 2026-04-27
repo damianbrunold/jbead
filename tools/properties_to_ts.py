@@ -241,6 +241,16 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Dark":                             "Dunkel",
         "Language changes take effect after restarting JBead.":
             "Sprachänderungen werden erst nach einem Neustart von JBead wirksam.",
+
+        "Technical Information":            "Technische Informationen",
+        "Used rows:":                       "Verwendete Reihen:",
+        "Repeat (beads):":                  "Rapport (Perlen):",
+        "Color":                            "Farbe",
+        "Index":                            "Index",
+        "Symbol":                           "Symbol",
+        "Count":                            "Anzahl",
+        "Total beads (excluding background): %1":
+            "Perlen insgesamt (ohne Hintergrund): %1",
     },
     "fr": {
         "Open":         "Ouvrir",
@@ -312,6 +322,16 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Dark":                             "Sombre",
         "Language changes take effect after restarting JBead.":
             "Les changements de langue prennent effet au prochain redémarrage de JBead.",
+
+        "Technical Information":            "Informations techniques",
+        "Used rows:":                       "Rangées utilisées :",
+        "Repeat (beads):":                  "Rapport (perles) :",
+        "Color":                            "Couleur",
+        "Index":                            "Index",
+        "Symbol":                           "Symbole",
+        "Count":                            "Nombre",
+        "Total beads (excluding background): %1":
+            "Total des perles (hors arrière-plan) : %1",
     },
 }
 

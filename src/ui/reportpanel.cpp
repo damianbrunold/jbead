@@ -79,7 +79,23 @@ void ReportPanel::paintEvent(QPaintEvent*)
     const int swH = qMax(22, fm.height() + 8);
     const int gap = 4;
 
-    int x = x0;
+    /*  Reading-direction arrow drawn alongside the first column of
+        beads — same idea as the textile editor: a vertical line
+        with a downward arrowhead, anchored at the top of the
+        column so the user knows the run-length sequence is read
+        top-to-bottom. The arrow's height is sized to the first
+        three pills so it scales with the bead size.              */
+    constexpr int arrowGap = 6;
+    const int arrowX = x0;
+    const int arrowTop = y;
+    const int arrowBottom = qMin(y + 3 * (swH + gap), height() - dy);
+    const int arrowHead = qMax(4, swH / 4);
+    p.setPen(QPen(borderColor, 1.2));
+    p.drawLine(arrowX, arrowTop, arrowX, arrowBottom);
+    p.drawLine(arrowX, arrowBottom, arrowX - arrowHead / 2, arrowBottom - arrowHead);
+    p.drawLine(arrowX, arrowBottom, arrowX + arrowHead / 2, arrowBottom - arrowHead);
+
+    int x = x0 + arrowGap + 4;
     const int colTop = y;
     for (const BeadRun& run : list.runs()) {
         if (y + swH > height() - dy) {

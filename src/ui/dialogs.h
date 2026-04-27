@@ -36,6 +36,21 @@ private:
     QSpinBox* m_value;
 };
 
+class Model;
+
+/*  Info -> Technical Infos dialog. Read-only summary of the
+    current pattern: file metadata (path, author, organization,
+    notes), high-level counts (circumference, used rows, total
+    beads, repeat unit), plus a per-palette-entry bead inventory
+    that mirrors what the legacy desktop's "bead overview" panel
+    showed.                                                       */
+class TechInfosDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit TechInfosDialog(const Model& model, QWidget* parent = nullptr);
+};
+
 /*  Edit / Pattern -> Preferences dialog. Two persistent settings:
 
       - UI language: "system" (follow QLocale), "en", "de", or "fr".

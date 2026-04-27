@@ -26,7 +26,14 @@ DraftPanel::DraftPanel(Model* model, Selection* selection, MainWindow* window, Q
 
 QSize DraftPanel::sizeHint() const
 {
-    return QSize(m_model->width() * m_gridx + MARKER_WIDTH + GAP, qMax(80, 3 * m_gridy));
+    /*  Left-edge layout: 3 px padding + MARKER_WIDTH (row labels) +
+        GAP, then W cells of m_gridx each, then a 1-px right border.
+        sizeHint must cover the whole strip, otherwise the splitter
+        will allocate just enough for the cells minus the marker
+        padding and the rightmost column gets clipped to a sliver. */
+    const int leftStrip = 3 + MARKER_WIDTH + GAP;
+    return QSize(leftStrip + m_model->width() * m_gridx + 1,
+                 qMax(80, 3 * m_gridy));
 }
 
 QSize DraftPanel::minimumSizeHint() const { return sizeHint(); }
@@ -70,18 +77,26 @@ void DraftPanel::paintBeads(QPainter& p)
 
 void DraftPanel::paintMarkers(QPainter& p)
 {
-    p.setPen(QColor(64, 64, 64));
+    /*  Row-number markers along the left edge: a tick + numeric
+        label every 10 rows. Pen colour comes from the active
+        palette so it stays legible under dark mode. The label for
+        row 0 sits at the very bottom of the panel where the legacy
+        layout placed it BELOW the canvas (off-screen) — shift it
+        up by one row's worth so it actually shows.                */
+    p.setPen(palette().color(QPalette::WindowText));
     const QFontMetrics fm(font());
     const int ox = offsetX();
     const int rows = maxJ();
     for (int j = 0; j < rows; ++j) {
         if ((j + m_scroll) % 10 != 0) continue;
-        const int yy = yFor(BeadPoint(0, j)) + m_gridy;
-        p.drawLine(ox - GAP - MARKER_WIDTH, yy, ox - GAP, yy);
+        const int tickY = yFor(BeadPoint(0, j)) + m_gridy;
+        p.drawLine(ox - GAP - MARKER_WIDTH, tickY, ox - GAP - 1, tickY);
         const QString label = QString::number(j + m_scroll);
         const int lw = fm.horizontalAdvance(label);
+        const int textY = qMin(tickY + fm.ascent() + 1,
+                               height() - fm.descent() - 1);
         p.drawText(ox - GAP - MARKER_WIDTH + (MARKER_WIDTH - lw) / 2,
-                   yy + fm.ascent() + 1, label);
+                   textY, label);
     }
 }
 
