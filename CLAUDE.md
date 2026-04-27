@@ -8,30 +8,35 @@ JBead is a bead-pattern designer (peyote / brick stitch / etc.) — http://www.b
 Cross-platform desktop application written in C++17 against Qt 6.5 LTS.
 Licensed under GPL v3 or later.
 
-This repository is a port of the original Java/Swing JBead (under `legacy/`)
-to C++/Qt 6, modelled on the parallel Qt 6 port of DB-WEAVE (`../dbweave`).
-The redesigned bead-list panel, straight-line drawing tool, and PDF export
-are taken from the JBead web editor in `../textile` (`static/js/jbead.js`).
+This repository is a C++/Qt 6 port of the original Java/Swing JBead,
+modelled on the parallel Qt 6 port of DB-WEAVE (`../dbweave`). The
+redesigned bead-list panel, straight-line drawing tool, and PDF export
+are taken from the JBead web editor in `../textile`
+(`static/js/jbead.js`).
 
-The Java original lives under `legacy/` while the port is in flight; once
-the port stabilises it will be moved to a `legacy` git branch (mirroring
-DB-WEAVE).
+The original Java/Swing source is preserved on the **`legacy` git
+branch** (and tagged `legacy-final`). Check it out when you need to
+diff behaviour against the historical implementation. It is not
+buildable on modern systems and shares no build files with master.
 
 ## Repository layout
 
 ```
 src/
-  domain/    # pure domain logic (Phase 2)
-  io/        # .jbb / .dbb file I/O (Phase 2)
-  ui/        # widgets, main window, dialogs (Phase 3)
-  print/     # QPrinter output (Phase 5)
-  compat/    # small residual helpers as needed
+  domain/    # pure domain logic
+  io/        # .jbb / .dbb file I/O
+  ui/        # widgets, main window, dialogs, color picker
+  print/     # QPrinter output, single-page export, multi-page print
 tests/       # Qt Test unit tests
 i18n/        # jbead_de.ts, jbead_fr.ts (Qt Linguist)
 resources/   # icons, .desktop, Info.plist template
 packaging/   # per-platform bundle scripts (linux/macos/windows)
 samples/     # .jbb sample files (used by file-I/O round-trip tests)
-legacy/      # original Java/Swing source (not built; for reference)
+tools/
+  properties_to_ts.py     # i18n bridge (see Localization below)
+  legacy-properties/      # vendored .properties from the legacy
+                          # branch — the script reads these to seed
+                          # German + French translations
 ```
 
 ## Build / run
@@ -74,11 +79,13 @@ across the project and writes/updates `<source>` entries in the two
 and fills `<translation>` entries by:
 
 1. Looking the source string up in `ENGLISH_TO_KEY` (mapping to a
-   legacy `legacy/src/jbead*.properties` key) and reading the
-   translated label + mnemonic from the German / French `.properties`
-   files. Mnemonics are reattached by inserting `&` before the letter
-   named in `<key>.mnemonic` (case-insensitive, falls back gracefully
-   if the letter doesn't appear in the translated label).
+   legacy property key like `action.file.new`) and reading the
+   translated label + mnemonic from `tools/legacy-properties/
+   jbead_de.properties` / `jbead_fr.properties` (vendored from the
+   `legacy` git branch). Mnemonics are reattached by inserting `&`
+   before the letter named in `<key>.mnemonic` (case-insensitive,
+   falls back gracefully if the letter doesn't appear in the
+   translated label).
 2. Falling back to the per-locale `MANUAL_TRANSLATIONS` table inside
    the script for strings the legacy bundle did not cover (dialog
    titles, status-bar field labels, message-box copy).
@@ -93,26 +100,30 @@ couldn't translate so they're easy to add to `MANUAL_TRANSLATIONS`.
 - Mirror DB-WEAVE conventions wherever feasible — the build/packaging
   harness, install rules, and test layout are deliberately parallel so
   that fixes can flow between projects.
-- The legacy Java implementation under `legacy/` is the source of truth
-  for behaviour. When porting a feature, diff against the original
-  `legacy/src/ch/jbead/` class.
+- The legacy Java implementation on the `legacy` branch is the
+  source of truth for behaviour. When porting / verifying a feature,
+  diff against `git show legacy:src/ch/jbead/<Class>.java`.
 - Action labels, mnemonics, shortcuts, and descriptions in
-  `legacy/src/jbead*.properties` are the contract for menubar / toolbar /
-  statusbar text. Keep them byte-identical in the port (translations
-  carry the same wording).
+  `tools/legacy-properties/jbead*.properties` are the contract for
+  menubar / toolbar / statusbar text — refresh these from the legacy
+  branch (see the header of `tools/properties_to_ts.py`) if the
+  legacy bundle ever changes.
 
 ## Phased port status
 
-- Phase 0 — move legacy code into `legacy/`. **Done.**
-- Phase 1 — skeleton CMake + Qt 6 build harness, packaging scripts,
-  empty MainWindow that builds and launches. **Done.**
+All seven phases of the original port plan are complete. The Java
+source has been moved to the `legacy` git branch (see the project
+overview above).
+
+- Phase 0 — relocate the legacy code (now archived on the `legacy` branch).
+- Phase 1 — Qt 6 build / packaging skeleton.
 - Phase 2 — domain model + .jbb / .dbb file I/O.
-- Phase 3 — main window, four pattern canvases, action registry. **Done.**
-- Phase 4 — Qt Linguist-based i18n (de/fr seeded from `.properties`). **Done.**
-- Phase 5 — printing pipeline (port of legacy `print/`, full QPrinter
-  + QPrintPreviewDialog + QPrintDialog). **Done.**
-- Phase 6 — polish, MRU, dialogs, samples. **Done.**
-- Phase 7 — test pass. **Done.**
+- Phase 3 — main window, four pattern canvases, action registry.
+- Phase 4 — Qt Linguist-based i18n (de / fr).
+- Phase 5 — printing pipeline (single-page export + multi-page print).
+- Phase 6 — polish: MRU, idle-timer redo, dialogs, custom HSV/RGB
+  colour picker.
+- Phase 7 — Model test pass + manual smoke checklist.
 
 ## Manual smoke checklist
 

@@ -3,9 +3,16 @@
 
 This script bridges the two i18n systems:
 
-  legacy/src/jbead.properties           — English source (ISO-8859-1)
-  legacy/src/jbead_de.properties        — German       (ISO-8859-1)
-  legacy/src/jbead_fr.properties        — French       (UTF-8)
+  tools/legacy-properties/jbead.properties     — English source (ISO-8859-1)
+  tools/legacy-properties/jbead_de.properties  — German        (ISO-8859-1)
+  tools/legacy-properties/jbead_fr.properties  — French        (UTF-8)
+
+Vendored from the `legacy` git branch so the script stays self-
+contained even after the legacy/ subfolder was moved out of master.
+Refresh from upstream with:
+    git show legacy:src/jbead.properties     > tools/legacy-properties/jbead.properties
+    git show legacy:src/jbead_de.properties  > tools/legacy-properties/jbead_de.properties
+    git show legacy:src/jbead_fr.properties  > tools/legacy-properties/jbead_fr.properties
 
 The Qt port wraps user-visible strings in tr(); lupdate scans those
 calls and writes them as <source> elements into i18n/jbead_de.ts and
@@ -38,7 +45,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 ROOT = Path(__file__).resolve().parent.parent
-LEGACY = ROOT / "legacy" / "src"
+LEGACY = ROOT / "tools" / "legacy-properties"
 I18N   = ROOT / "i18n"
 
 # -------------------------------------------------------------------
