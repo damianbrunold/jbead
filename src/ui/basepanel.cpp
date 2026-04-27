@@ -31,12 +31,27 @@ void BasePanel::onModelChanged()
     m_gridx  = m_model->gridx();
     m_gridy  = m_model->gridy();
     m_scroll = m_model->scroll();
+    /*  Pattern dimensions feed into sizeHint via m_gridx and the
+        model width — both can change here (load, resize, zoom),
+        so re-ask the parent splitter to honour the new minimums.
+        Without updateGeometry the splitter keeps the previous
+        allocation and zoomed-in cells get clipped on the right.  */
+    updateGeometry();
     update();
 }
 
 void BasePanel::onPointChanged(BeadPoint /*pt*/) { update(); }
 void BasePanel::onScrollChanged(int s)           { m_scroll = s; update(); }
-void BasePanel::onZoomChanged(int gx, int gy)    { m_gridx = gx; m_gridy = gy; update(); }
+void BasePanel::onZoomChanged(int gx, int gy)
+{
+    m_gridx = gx;
+    m_gridy = gy;
+    /*  sizeHint depends on m_gridx; the splitter has to re-query
+        it after a zoom or the canvas will keep its old width and
+        clip the rightmost columns.                               */
+    updateGeometry();
+    update();
+}
 void BasePanel::onShiftChanged(int)              { update(); }
 void BasePanel::onRepeatChanged(int)             { update(); }
 void BasePanel::onColorsChanged()                { update(); }
