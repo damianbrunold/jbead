@@ -82,6 +82,7 @@ private slots:
     void doViewZoomNormal();
     void doPatternWidth();
     void doPatternHeight();
+    void doPatternPalette();
     void doPatternPreferences();
     void doInfoTechInfos();
     void doInfoAbout();

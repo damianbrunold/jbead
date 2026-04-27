@@ -37,7 +37,7 @@ public:
         // Tools
         ToolPencil, ToolSelect, ToolFill, ToolPipette,
         // Pattern
-        PatternWidth, PatternHeight, PatternPreferences,
+        PatternWidth, PatternHeight, PatternPalette, PatternPreferences,
         // Info
         InfoTechInfos, InfoAbout,
         // Toolbar-only rotation

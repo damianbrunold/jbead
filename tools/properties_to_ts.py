@@ -252,6 +252,15 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Total beads (excluding background): %1":
             "Perlen insgesamt (ohne Hintergrund): %1",
 
+        "&Palette...":                      "&Farbpalette...",
+        "Edits the colour palette":         "Bearbeitet die Farbpalette",
+        "Palette":                          "Farbpalette",
+        "&Edit colour...":                  "Farbe &bearbeiten...",
+        "&Restore defaults":                "Standard &wiederherstellen",
+        "Click a swatch to select it; double-click to edit its colour.":
+            "Klick wählt eine Farbe aus, Doppelklick öffnet den Farbeditor.",
+        "Color %1 — double-click to edit":  "Farbe %1 — Doppelklick zum Bearbeiten",
+
         "&Recent Files":                    "&Zuletzt geöffnet",
         "(empty)":                          "(leer)",
         "<h3>JBead %1</h3>"
@@ -365,6 +374,15 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Count":                            "Nombre",
         "Total beads (excluding background): %1":
             "Total des perles (hors arrière-plan) : %1",
+
+        "&Palette...":                      "&Palette de couleurs...",
+        "Edits the colour palette":         "Édite la palette de couleurs",
+        "Palette":                          "Palette de couleurs",
+        "&Edit colour...":                  "&Modifier la couleur...",
+        "&Restore defaults":                "&Restaurer les valeurs par défaut",
+        "Click a swatch to select it; double-click to edit its colour.":
+            "Cliquez sur une case pour la sélectionner ; double-cliquez pour modifier sa couleur.",
+        "Color %1 — double-click to edit":  "Couleur %1 — double-clic pour modifier",
 
         "&Recent Files":                    "Fichiers &récents",
         "(empty)":                          "(vide)",

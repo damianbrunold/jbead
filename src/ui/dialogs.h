@@ -3,6 +3,7 @@
 #include <QDialog>
 
 class QComboBox;
+class QGridLayout;
 class QSpinBox;
 
 namespace jbead {
@@ -37,6 +38,33 @@ private:
 };
 
 class Model;
+
+/*  Pattern -> Palette editor. Grid of all palette entries (32
+    swatches in 8 columns x 4 rows). Single-click selects a swatch
+    in the model so the rest of the editor sees the change; double-
+    click (and the "Edit colour..." button) opens a QColorDialog to
+    pick a new RGB. "Restore defaults" rebinds every entry to the
+    DefaultColors palette. All edits route through Model::setColor
+    so they emit colorChanged and live-update every canvas behind
+    the modeless dialog (and they snapshot for undo).             */
+class PaletteEditorDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit PaletteEditorDialog(Model* model, QWidget* parent = nullptr);
+
+private slots:
+    void rebuild();
+    void editEntry(int index);
+    void selectEntry(int index);
+    void restoreDefaults();
+
+private:
+    Model*                  m_model;
+    QGridLayout*            m_grid;
+    QList<class SwatchButton*> m_buttons;
+    int                     m_selected = 0;
+};
 
 /*  Info -> Technical Infos dialog. Read-only summary of the
     current pattern: file metadata (path, author, organization,

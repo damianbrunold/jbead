@@ -3,16 +3,22 @@
 #include "beadpainter.h"
 #include "domain/beadcounts.h"
 #include "domain/beadsymbols.h"
+#include "domain/defaultcolors.h"
 #include "domain/model.h"
+#include "swatchbutton.h"
 
+#include <QColorDialog>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPainter>
 #include <QPixmap>
+#include <QPushButton>
 #include <QSettings>
 #include <QSpinBox>
 #include <QTreeWidget>
@@ -201,6 +207,128 @@ TechInfosDialog::TechInfosDialog(const Model& model, QWidget* parent)
     layout->addWidget(totals);
     layout->addWidget(btns);
     resize(440, 480);
+}
+
+// -------------------------------------------------------------------
+
+namespace {
+
+/*  Bigger swatch icon than the toolbar version — gives the editor
+    room to show colours legibly even on hidpi screens.            */
+QPixmap paletteSwatch(const QColor& color, bool selected, int size = 36)
+{
+    QPixmap pm(size, size);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.fillRect(2, 2, size - 4, size - 4, color);
+    p.setPen(selected ? QPen(Qt::red, 3) : QPen(Qt::black, 1));
+    p.drawRect(2, 2, size - 4, size - 4);
+    return pm;
+}
+
+} // namespace
+
+PaletteEditorDialog::PaletteEditorDialog(Model* model, QWidget* parent)
+    : QDialog(parent), m_model(model), m_grid(new QGridLayout)
+{
+    setWindowTitle(tr("Palette"));
+    m_selected = m_model->selectedColor();
+
+    auto* hint = new QLabel(
+        tr("Click a swatch to select it; double-click to edit its colour."), this);
+    hint->setWordWrap(true);
+
+    auto* gridHost = new QWidget(this);
+    gridHost->setLayout(m_grid);
+    rebuild();
+
+    auto* btns = new QDialogButtonBox(this);
+    auto* editBtn = btns->addButton(tr("&Edit colour..."), QDialogButtonBox::ActionRole);
+    auto* resetBtn = btns->addButton(tr("&Restore defaults"), QDialogButtonBox::ResetRole);
+    btns->addButton(QDialogButtonBox::Close);
+    connect(editBtn,  &QPushButton::clicked, this, [this]() { editEntry(m_selected); });
+    connect(resetBtn, &QPushButton::clicked, this, &PaletteEditorDialog::restoreDefaults);
+    connect(btns,     &QDialogButtonBox::rejected, this, &QDialog::accept);
+    connect(btns,     &QDialogButtonBox::accepted, this, &QDialog::accept);
+
+    auto* root = new QVBoxLayout(this);
+    root->addWidget(hint);
+    root->addWidget(gridHost, 1);
+    root->addWidget(btns);
+    resize(440, 320);
+
+    /*  Live update: if anything else changes the palette while
+        the dialog is open (e.g. the toolbar swatch double-click,
+        or a model load), refresh.                                 */
+    connect(m_model, &Model::colorChanged,  this, [this](int) { rebuild(); });
+    connect(m_model, &Model::colorsChanged, this, &PaletteEditorDialog::rebuild);
+    connect(m_model, &Model::modelChanged,  this, &PaletteEditorDialog::rebuild);
+}
+
+void PaletteEditorDialog::rebuild()
+{
+    /*  Tear down and re-create the grid each time so adding /
+        removing palette entries (via Model::loadFrom for a file
+        with fewer colours) updates the layout cleanly.            */
+    while (auto* item = m_grid->takeAt(0)) {
+        if (auto* w = item->widget()) w->deleteLater();
+        delete item;
+    }
+    m_buttons.clear();
+
+    constexpr int COLS = 8;
+    for (int i = 0; i < m_model->colorCount(); ++i) {
+        auto* btn = new SwatchButton;
+        btn->setAutoRaise(true);
+        btn->setIconSize(QSize(36, 36));
+        btn->setIcon(paletteSwatch(m_model->color(i), i == m_selected));
+        btn->setToolTip(tr("Color %1 — double-click to edit").arg(i));
+        connect(btn, &QToolButton::clicked, this,
+                [this, i]() { selectEntry(i); });
+        connect(btn, &SwatchButton::doubleClicked, this,
+                [this, i]() { selectEntry(i); editEntry(i); });
+        m_grid->addWidget(btn, i / COLS, i % COLS);
+        m_buttons.append(btn);
+    }
+}
+
+void PaletteEditorDialog::selectEntry(int index)
+{
+    if (index < 0 || index >= m_buttons.size()) return;
+    m_selected = index;
+    m_model->setSelectedColor(static_cast<std::int8_t>(index));
+    /*  Just refresh the icons rather than rebuilding the whole
+        grid — preserves focus and keeps the click responsive.    */
+    for (int i = 0; i < m_buttons.size(); ++i) {
+        m_buttons[i]->setIcon(paletteSwatch(m_model->color(i), i == m_selected));
+    }
+}
+
+void PaletteEditorDialog::editEntry(int index)
+{
+    if (index < 0 || index >= m_model->colorCount()) return;
+    const QColor picked = QColorDialog::getColor(
+        m_model->color(index), this,
+        tr("Pick color %1").arg(index),
+        QColorDialog::ShowAlphaChannel);
+    if (!picked.isValid()) return;
+    m_model->setColor(index, picked);
+    /*  Model emits colorChanged; the colorChanged slot above
+        triggers rebuild(). No explicit refresh needed here.       */
+}
+
+void PaletteEditorDialog::restoreDefaults()
+{
+    /*  Apply each entry through Model::setColor so every change
+        is undoable (one snapshot per slot — coarse but good
+        enough for a "reset" button the user rarely hits).        */
+    const QList<QColor> defaults = DefaultColors::palette();
+    const int n = std::min<int>(defaults.size(), m_model->colorCount());
+    for (int i = 0; i < n; ++i) {
+        if (m_model->color(i) != defaults.at(i)) {
+            m_model->setColor(i, defaults.at(i));
+        }
+    }
 }
 
 } // namespace jbead

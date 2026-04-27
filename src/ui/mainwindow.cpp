@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_actions->action(Actions::Id::ViewZoomNormal), &QAction::triggered, this, &MainWindow::doViewZoomNormal);
     connect(m_actions->action(Actions::Id::PatternWidth),   &QAction::triggered, this, &MainWindow::doPatternWidth);
     connect(m_actions->action(Actions::Id::PatternHeight),  &QAction::triggered, this, &MainWindow::doPatternHeight);
+    connect(m_actions->action(Actions::Id::PatternPalette),     &QAction::triggered, this, &MainWindow::doPatternPalette);
     connect(m_actions->action(Actions::Id::PatternPreferences), &QAction::triggered, this, &MainWindow::doPatternPreferences);
     connect(m_actions->action(Actions::Id::InfoTechInfos),  &QAction::triggered, this, &MainWindow::doInfoTechInfos);
     connect(m_actions->action(Actions::Id::InfoAbout),      &QAction::triggered, this, &MainWindow::doInfoAbout);
@@ -282,6 +283,8 @@ void MainWindow::buildMenuBar()
     auto* patternMenu = mb->addMenu(tr("&Pattern"));
     patternMenu->addAction(m_actions->action(Actions::Id::PatternWidth));
     patternMenu->addAction(m_actions->action(Actions::Id::PatternHeight));
+    patternMenu->addSeparator();
+    patternMenu->addAction(m_actions->action(Actions::Id::PatternPalette));
     patternMenu->addSeparator();
     patternMenu->addAction(m_actions->action(Actions::Id::PatternPreferences));
 
@@ -704,6 +707,12 @@ void MainWindow::doPatternHeight()
         m_model->setHeight(dlg.value());
         updateScrollbar();
     }
+}
+
+void MainWindow::doPatternPalette()
+{
+    PaletteEditorDialog dlg(m_model, this);
+    dlg.exec();
 }
 
 void MainWindow::doPatternPreferences()

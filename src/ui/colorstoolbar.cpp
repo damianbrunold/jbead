@@ -1,12 +1,11 @@
 #include "colorstoolbar.h"
 
 #include "domain/model.h"
+#include "swatchbutton.h"
 
-#include <QApplication>
 #include <QColorDialog>
 #include <QPainter>
 #include <QPixmap>
-#include <QToolButton>
 
 namespace jbead {
 
@@ -40,24 +39,27 @@ void ColorsToolbar::rebuild()
 {
     clear();
     for (int i = 0; i < m_model->colorCount(); ++i) {
-        auto* btn = new QToolButton(this);
+        auto* btn = new SwatchButton(this);
         btn->setAutoRaise(true);
         btn->setIcon(swatchIcon(m_model->color(i), i == m_model->selectedColor()));
-        btn->setToolTip(QStringLiteral("Color %1").arg(i));
+        btn->setToolTip(tr("Color %1 — double-click to edit").arg(i));
         connect(btn, &QToolButton::clicked, this, [this, i]() {
             m_model->setSelectedColor(static_cast<std::int8_t>(i));
             onSelectionChanged();
         });
-        connect(btn, &QToolButton::pressed, this, [this, i, btn]() {
-            // Double-click is approximated via a simple QColorDialog
-            // launched on Shift+click — keeps the API minimal until a
-            // proper preferences dialog lands.
-            if (QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
-                const QColor picked = QColorDialog::getColor(
-                    m_model->color(i), this, tr("Pick color %1").arg(i));
-                if (picked.isValid()) m_model->setColor(i, picked);
-            }
-            (void) btn;
+        /*  Double-click opens a single-color picker for this swatch
+            (mirrors the textile editor's _onDoubleClick on the
+            palette area). Live: model.setColor emits colorChanged
+            which all panels listen to, so the change shows
+            immediately. The model snapshots before the change so
+            it's undoable.                                          */
+        connect(btn, &SwatchButton::doubleClicked, this, [this, i]() {
+            const QColor picked = QColorDialog::getColor(
+                m_model->color(i),
+                this,
+                tr("Pick color %1").arg(i),
+                QColorDialog::ShowAlphaChannel);
+            if (picked.isValid()) m_model->setColor(i, picked);
         });
         addWidget(btn);
     }

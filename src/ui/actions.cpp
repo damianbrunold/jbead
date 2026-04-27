@@ -138,6 +138,8 @@ void Actions::buildActions()
          QKeySequence(), tr("Sets the pattern width"));
     make(Id::PatternHeight, tr("&Height..."), QString(),
          QKeySequence(), tr("Sets the pattern height"));
+    make(Id::PatternPalette, tr("&Palette..."), QString(),
+         QKeySequence(), tr("Edits the colour palette"));
     make(Id::PatternPreferences, tr("&Preferences..."), QString(),
          QKeySequence(), tr("Opens the preferences dialog"));
 

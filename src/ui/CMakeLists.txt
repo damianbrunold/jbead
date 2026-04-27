@@ -12,6 +12,7 @@ qt_add_library(jbead_ui STATIC
     mrumanager.h      mrumanager.cpp
     reportpanel.h     reportpanel.cpp
     simulationpanel.h simulationpanel.cpp
+    swatchbutton.h    swatchbutton.cpp
     ${CMAKE_SOURCE_DIR}/resources/icons/icons.qrc
 )
 
