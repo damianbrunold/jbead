@@ -19,7 +19,6 @@ set_target_properties(jbead PROPERTIES
     MACOSX_BUNDLE    ON
 )
 
-add_subdirectory(compat)
 add_subdirectory(io)
 add_subdirectory(domain)
 add_subdirectory(print)
