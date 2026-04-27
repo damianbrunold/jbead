@@ -239,10 +239,16 @@ void ColorPickerDialog::buildUi()
     connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
+    /*  Set the keyboard mnemonic buddy on every labelled row so
+        Alt+H / Alt+S / Alt+V / Alt+R / Alt+G / Alt+B / Alt+X jump
+        to the corresponding control. Without setBuddy the
+        ampersand renders as an underline but does nothing on press,
+        which is what the user reported.                           */
     auto labelled = [&](const QString& text, QSlider* sl, QSpinBox* sp) {
         auto* row = new QHBoxLayout;
         auto* lbl = new QLabel(text, this);
         lbl->setMinimumWidth(70);
+        lbl->setBuddy(sl);
         row->addWidget(lbl);
         row->addWidget(sl, 1);
         row->addWidget(sp);
@@ -250,31 +256,52 @@ void ColorPickerDialog::buildUi()
     };
 
     auto* hsvBlock = new QVBoxLayout;
-    hsvBlock->addWidget(new QLabel(tr("HSV"), this));
+    auto* hsvHdr = new QLabel(tr("HSV"), this);
+    QFont hdrFont = hsvHdr->font(); hdrFont.setBold(true); hsvHdr->setFont(hdrFont);
+    hsvBlock->addWidget(hsvHdr);
     hsvBlock->addLayout(labelled(tr("&Hue:"),         m_slH, m_spnH));
     hsvBlock->addLayout(labelled(tr("&Saturation:"),  m_slS, m_spnS));
     hsvBlock->addLayout(labelled(tr("&Value:"),       m_slV, m_spnV));
 
     auto* rgbBlock = new QVBoxLayout;
-    rgbBlock->addWidget(new QLabel(tr("RGB"), this));
+    auto* rgbHdr = new QLabel(tr("RGB"), this);
+    rgbHdr->setFont(hdrFont);
+    rgbBlock->addWidget(rgbHdr);
     rgbBlock->addLayout(labelled(tr("&Red:"),    m_slR, m_spnR));
     rgbBlock->addLayout(labelled(tr("&Green:"),  m_slG, m_spnG));
     rgbBlock->addLayout(labelled(tr("&Blue:"),   m_slB, m_spnB));
 
-    auto* previewBlock = new QVBoxLayout;
-    previewBlock->addWidget(new QLabel(tr("Preview"), this), 0, Qt::AlignHCenter);
-    previewBlock->addWidget(m_preview, 1);
-    auto* hexRow = new QHBoxLayout;
-    hexRow->addWidget(new QLabel(tr("He&x:"), this));
-    hexRow->addWidget(m_hex);
-    previewBlock->addLayout(hexRow);
+    /*  Wheel, sat/val patch, and preview all sized identically and
+        laid out in a single row, with a centred caption above each
+        and the hex input under the preview swatch.                */
+    constexpr int SQUARE = 200;
+    m_wheel  ->setFixedSize(SQUARE, SQUARE);
+    m_patch  ->setFixedSize(SQUARE, SQUARE);
+    m_preview->setFixedSize(SQUARE, SQUARE);
 
-    auto* topGrid = new QGridLayout;
-    topGrid->addWidget(new QLabel(tr("Hue"),                this), 0, 0, Qt::AlignHCenter);
-    topGrid->addWidget(new QLabel(tr("Saturation / Value"), this), 0, 1, Qt::AlignHCenter);
-    topGrid->addLayout(previewBlock,                              0, 2, 2, 1);
-    topGrid->addWidget(m_wheel, 1, 0);
-    topGrid->addWidget(m_patch, 1, 1);
+    auto buildSquareCol = [&](const QString& caption, QWidget* body,
+                              QWidget* extra = nullptr) {
+        auto* col = new QVBoxLayout;
+        col->addWidget(new QLabel(caption, this), 0, Qt::AlignHCenter);
+        col->addWidget(body);
+        if (extra) col->addWidget(extra);
+        col->addStretch(1);
+        return col;
+    };
+
+    auto* hexRow = new QWidget(this);
+    auto* hexLayout = new QHBoxLayout(hexRow);
+    hexLayout->setContentsMargins(0, 4, 0, 0);
+    auto* hexLbl = new QLabel(tr("He&x:"), this);
+    hexLbl->setBuddy(m_hex);
+    hexLayout->addWidget(hexLbl);
+    hexLayout->addWidget(m_hex, 1);
+
+    auto* topRow = new QHBoxLayout;
+    topRow->addLayout(buildSquareCol(tr("Hue"),                m_wheel));
+    topRow->addLayout(buildSquareCol(tr("Saturation / Value"), m_patch));
+    topRow->addLayout(buildSquareCol(tr("Preview"),            m_preview, hexRow));
+    topRow->addStretch(1);
 
     auto* sliders = new QHBoxLayout;
     sliders->addLayout(hsvBlock);
@@ -282,10 +309,10 @@ void ColorPickerDialog::buildUi()
     sliders->addLayout(rgbBlock);
 
     auto* root = new QVBoxLayout(this);
-    root->addLayout(topGrid, 1);
+    root->addLayout(topRow, 1);
     root->addLayout(sliders);
     root->addWidget(btns);
-    resize(620, 480);
+    adjustSize();
 }
 
 void ColorPickerDialog::setColor(const QColor& c)
