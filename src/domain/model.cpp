@@ -400,6 +400,12 @@ void Model::clear()
     m_colorIndex = 1;
     defaultColors();
     m_zoomIndex = 2;
+    /*  Sync the cached pixel dimensions to the new zoom level.
+        Without this gridx/gridy keep the constructor's value
+        (m_zoomTable[ZOOM_NORMAL] == 12) while zoomIndex says 2,
+        and the next zoomIn() jumps to the same pixel size as
+        before, breaking the canvas re-layout.                    */
+    m_gridx = m_gridy = m_zoomTable[m_zoomIndex];
     m_scroll = 0;
     m_shift = 0;
     Settings settings;

@@ -112,4 +112,50 @@ couldn't translate so they're easy to add to `MANUAL_TRANSLATIONS`.
 - Phase 5 — printing pipeline (port of legacy `print/`, full QPrinter
   + QPrintPreviewDialog + QPrintDialog). **Done.**
 - Phase 6 — polish, MRU, dialogs, samples. **Done.**
-- Phase 7 — test pass.
+- Phase 7 — test pass. **Done.**
+
+## Manual smoke checklist
+
+Run before tagging a release. Headless ctest covers the domain,
+file I/O, print pipeline, and i18n; the items below need a real
+display because they exercise interactive behaviour.
+
+1. **Launch.** `./build/src/jbead`. Window appears at the
+   geometry from the previous run (or 1280x800 on first launch).
+   Title reads `unnamed - JBead`.
+2. **Open every sample.** File -> Open -> `samples/{stripes,hearts,small_hearts,green_yellow_diagonal}.jbb`.
+   Each loads without error. Repeat count appears in the report
+   panel ("Bead list:" + pills) immediately, not "(No repeat detected.)".
+3. **Edit + title asterisk.** Click a cell with the pencil tool;
+   the title gains ` *`. Save (Ctrl+S); the asterisk drops.
+4. **Undo / redo.** Edit, wait ~½ s for the idle timer, then
+   Ctrl+Z then Ctrl+Y; the bead toggles off then back on.
+5. **Tools.** Cycle pencil (P), select (S), fill (F), pipette (E)
+   from the toolbar; the status bar shows the chosen tool. Drag
+   with select; the rectangle previews live. Drag with pencil +
+   Shift; the line preview snaps to 8 directions.
+6. **Scroll.** Drag the scrollbar; the pattern stays in view —
+   never disappears past the last used row + 10 rows of headroom.
+   Initial position is at the bottom.
+7. **Zoom.** Ctrl++ / Ctrl+- / Ctrl+0; cells resize live, scrollbar
+   range updates with the new visible row count.
+8. **Recent files.** File -> Recent Files now lists the patterns
+   you opened. Selecting one re-opens it (with `maybeSave` guard).
+9. **Print preview.** File -> Print Preview... renders one page
+   per enabled section with the header `JBead - <file> - <section>
+   - page X of Y`.
+10. **PDF export.** File -> Export PDF...; the resulting file is
+    > 1 KB and opens in any PDF viewer.
+11. **Page setup + print.** File -> Page Setup; pick A4 landscape;
+    File -> Print -> the system print dialog shows the new orientation.
+12. **Preferences.** Pattern -> Preferences. Switch theme to Dark;
+    panels redraw with palette-aware chrome (markers, pill borders,
+    arrow). Switch language to Deutsch; the "restart required"
+    hint is shown.
+13. **Tech info.** Info -> Technical Information; per-colour
+    counts table populated, totals line non-zero for non-empty
+    patterns.
+14. **Save extension.** File -> Save As -> type `foo`; the file
+    on disk is named `foo.jbb`.
+15. **Close + relaunch.** Window position, size, splitter
+    proportions, and toolbar layout all restore.

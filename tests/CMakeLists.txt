@@ -6,6 +6,10 @@ qt_add_executable(test_beadfield test_beadfield.cpp)
 target_link_libraries(test_beadfield PRIVATE Qt6::Core Qt6::Gui Qt6::Test jbead_domain)
 add_test(NAME beadfield COMMAND test_beadfield)
 
+qt_add_executable(test_model test_model.cpp)
+target_link_libraries(test_model PRIVATE Qt6::Core Qt6::Gui Qt6::Test jbead_domain)
+add_test(NAME model COMMAND test_model)
+
 qt_add_executable(test_objectmodel test_objectmodel.cpp)
 target_link_libraries(test_objectmodel PRIVATE Qt6::Core Qt6::Gui Qt6::Test jbead_io)
 add_test(NAME objectmodel COMMAND test_objectmodel)
