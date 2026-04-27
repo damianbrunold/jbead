@@ -676,17 +676,20 @@ void MainWindow::onModelChanged()
 
 void MainWindow::onScrollbarMoved(int value)
 {
-    /*  Vertical scrollbar value 0 = top of pattern; convert to
-        Model.scroll which counts rows from the bottom.            */
-    const int maxScroll = qMax(0, m_model->height() - 1);
-    m_model->setScroll(maxScroll - value);
+    /*  Vertical scrollbar value 0 = top of visible range, max =
+        bottom (which corresponds to model.scroll == 0). The
+        scrollbar's own maximum() is the source of truth — it has
+        already been clamped to usedHeight+headroom by
+        updateScrollbar(). Don't recompute from model->height()
+        here; that's the full 800-row default field and would
+        scroll the viewport hundreds of rows past the data.       */
+    m_model->setScroll(m_scrollbar->maximum() - value);
 }
 
 void MainWindow::onScrollChanged(int /*scroll*/)
 {
-    const int maxScroll = qMax(0, m_model->height() - 1);
     QSignalBlocker block(m_scrollbar);
-    m_scrollbar->setValue(maxScroll - m_model->scroll());
+    m_scrollbar->setValue(m_scrollbar->maximum() - m_model->scroll());
     updateStatusBar();
 }
 

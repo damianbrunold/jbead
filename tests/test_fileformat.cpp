@@ -58,6 +58,14 @@ private slots:
         QCOMPARE(model.filePath(), path);
         QVERIFY(model.isSaved());
         QVERIFY(!model.isModified());
+        /*  Regression: loadFrom must mark the repeat dirty so the
+            first render triggers a recalc instead of leaving the
+            stale "0" set by clear(). All four sample patterns have
+            non-empty repeats.                                      */
+        QVERIFY(model.isRepeatDirty());
+        model.updateRepeat();
+        QVERIFY2(model.repeat() > 0,
+                 qPrintable(QStringLiteral("repeat == 0 for ") + path));
     }
 
     void roundTripJbeadInMemory()

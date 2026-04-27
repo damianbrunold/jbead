@@ -491,6 +491,12 @@ void Model::loadFrom(const Memento& memento)
     m_author       = memento.author();
     m_organization = memento.organization();
     m_notes        = memento.notes();
+    /*  Force a repeat recalculation on the next render. clear()
+        zeroed m_repeat before this load was kicked off, so without
+        this flag the report panel would forever show "no repeat
+        detected" until the user makes an edit that flips the dirty
+        bit through some other path.                                */
+    m_repeatDirty = true;
     emit modelChanged();
 }
 
