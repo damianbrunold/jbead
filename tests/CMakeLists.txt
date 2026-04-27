@@ -29,3 +29,11 @@ target_compile_definitions(test_mainwindow PRIVATE
 add_test(NAME mainwindow COMMAND test_mainwindow)
 set_tests_properties(mainwindow PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+qt_add_executable(test_i18n test_i18n.cpp)
+target_link_libraries(test_i18n PRIVATE
+    Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Test
+    jbead_ui jbead_io jbead_domain)
+add_test(NAME i18n COMMAND test_i18n)
+set_tests_properties(i18n PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

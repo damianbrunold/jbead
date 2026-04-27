@@ -52,14 +52,39 @@ legacy/      # original Java/Swing source (not built; for reference)
 
 Qt's native `tr()` / `.ts` / `.qm` pipeline. Source language is English;
 shipped translations are German (`i18n/jbead_de.ts`) and French
-(`i18n/jbead_fr.ts`). `qt_add_translations()` in `src/CMakeLists.txt`
-runs `lupdate` and `lrelease` automatically. The keys mirror the legacy
-`legacy/src/jbead.properties` layout 1:1; `tools/properties_to_ts.py`
-(Phase 4) seeds the initial `.ts` files from those `.properties` files.
+(`i18n/jbead_fr.ts`). `qt_add_translations()` in `src/ui/CMakeLists.txt`
+attaches the bundle to the `jbead_ui` static library so test binaries
+also pick it up; lrelease compiles the `.ts` files into `.qm` and
+embeds them at the resource path `:/i18n/jbead_<lang>.qm`.
 
 User language is picked in `src/main.cpp` from
 `QSettings("Brunold Software", "JBead")` key `Environment/Language`
 (values: `de` / `fr` / `en`); falls back to the OS locale.
+
+Translation seeding workflow (run after every change to a `tr()` string):
+
+```
+cmake --build build --target update_translations
+tools/properties_to_ts.py
+```
+
+`update_translations` runs lupdate, which scans every `tr()` call
+across the project and writes/updates `<source>` entries in the two
+`.ts` files. `tools/properties_to_ts.py` then walks each `.ts` file
+and fills `<translation>` entries by:
+
+1. Looking the source string up in `ENGLISH_TO_KEY` (mapping to a
+   legacy `legacy/src/jbead*.properties` key) and reading the
+   translated label + mnemonic from the German / French `.properties`
+   files. Mnemonics are reattached by inserting `&` before the letter
+   named in `<key>.mnemonic` (case-insensitive, falls back gracefully
+   if the letter doesn't appear in the translated label).
+2. Falling back to the per-locale `MANUAL_TRANSLATIONS` table inside
+   the script for strings the legacy bundle did not cover (dialog
+   titles, status-bar field labels, message-box copy).
+
+The script prints a `WARNING:` block listing any source string it
+couldn't translate so they're easy to add to `MANUAL_TRANSLATIONS`.
 
 ## Working on this codebase
 
@@ -82,8 +107,8 @@ User language is picked in `src/main.cpp` from
 - Phase 1 — skeleton CMake + Qt 6 build harness, packaging scripts,
   empty MainWindow that builds and launches. **Done.**
 - Phase 2 — domain model + .jbb / .dbb file I/O.
-- Phase 3 — main window, four pattern canvases, action registry.
-- Phase 4 — Qt Linguist-based i18n (de/fr seeded from `.properties`).
+- Phase 3 — main window, four pattern canvases, action registry. **Done.**
+- Phase 4 — Qt Linguist-based i18n (de/fr seeded from `.properties`). **Done.**
 - Phase 5 — printing pipeline (port of legacy `print/`, full QPrinter
   + QPrintPreviewDialog + QPrintDialog).
 - Phase 6 — polish, MRU, dialogs, samples.
