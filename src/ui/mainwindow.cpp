@@ -448,10 +448,26 @@ void MainWindow::doFileExit()    { close(); }
 // Printing
 // -----------------------------------------------------------------
 
+PrintSettings MainWindow::currentPrintSettings() const
+{
+    PrintSettings s;
+    s.load();
+    /*  View-menu visibility is the contract for "what's part of
+        the document": hiding a canvas drops it from prints and
+        exports too. Bead list rides along with the report panel
+        because that's what holds the per-pattern summary block —
+        the user has no separate toggle for it.                   */
+    s.printDraft       = m_actions->action(Actions::Id::ViewDraft)->isChecked();
+    s.printCorrected   = m_actions->action(Actions::Id::ViewCorrected)->isChecked();
+    s.printSimulation  = m_actions->action(Actions::Id::ViewSimulation)->isChecked();
+    s.printReport      = m_actions->action(Actions::Id::ViewReport)->isChecked();
+    s.printBeadList    = s.printReport;
+    return s;
+}
+
 void MainWindow::doFilePrint()
 {
-    PrintSettings settings;
-    settings.load();
+    PrintSettings settings = currentPrintSettings();
 
     QPrinter printer(QPrinter::HighResolution);
     settings.apply(&printer);
@@ -474,8 +490,7 @@ void MainWindow::doFilePrint()
 
 void MainWindow::doFilePrintPreview()
 {
-    PrintSettings settings;
-    settings.load();
+    PrintSettings settings = currentPrintSettings();
 
     QPrinter printer(QPrinter::HighResolution);
     settings.apply(&printer);
@@ -496,7 +511,7 @@ void MainWindow::doFilePrintPreview()
 void MainWindow::doFilePageSetup()
 {
     PrintSettings settings;
-    settings.load();
+    settings.load();           // page setup edits the persisted defaults
 
     QPrinter printer(QPrinter::HighResolution);
     settings.apply(&printer);
@@ -546,7 +561,7 @@ void MainWindow::doFileExportPng()
 {
     QString base = QFileInfo(m_model->filePath()).completeBaseName();
     if (base.isEmpty()) base = QStringLiteral("pattern");
-    PrintSettings settings; settings.load();
+    PrintSettings settings = currentPrintSettings();
     PrintJob job(*m_model, settings);
     runExport(this, base, lastFileDirectory(),
               {tr("Export PNG"), tr("PNG images (*.png)"), QStringLiteral(".png")},
@@ -560,7 +575,7 @@ void MainWindow::doFileExportJpeg()
 {
     QString base = QFileInfo(m_model->filePath()).completeBaseName();
     if (base.isEmpty()) base = QStringLiteral("pattern");
-    PrintSettings settings; settings.load();
+    PrintSettings settings = currentPrintSettings();
     PrintJob job(*m_model, settings);
     runExport(this, base, lastFileDirectory(),
               {tr("Export JPEG"), tr("JPEG images (*.jpg *.jpeg)"), QStringLiteral(".jpg")},
@@ -574,7 +589,7 @@ void MainWindow::doFileExportSvg()
 {
     QString base = QFileInfo(m_model->filePath()).completeBaseName();
     if (base.isEmpty()) base = QStringLiteral("pattern");
-    PrintSettings settings; settings.load();
+    PrintSettings settings = currentPrintSettings();
     PrintJob job(*m_model, settings);
     runExport(this, base, lastFileDirectory(),
               {tr("Export SVG"), tr("SVG documents (*.svg)"), QStringLiteral(".svg")},
@@ -588,7 +603,7 @@ void MainWindow::doFileExportPdf()
 {
     QString base = QFileInfo(m_model->filePath()).completeBaseName();
     if (base.isEmpty()) base = QStringLiteral("pattern");
-    PrintSettings settings; settings.load();
+    PrintSettings settings = currentPrintSettings();
     PrintJob job(*m_model, settings);
     runExport(this, base, lastFileDirectory(),
               {tr("Export PDF"), tr("PDF documents (*.pdf)"), QStringLiteral(".pdf")},

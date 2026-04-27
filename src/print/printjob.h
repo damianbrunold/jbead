@@ -11,38 +11,40 @@ namespace jbead {
 
 class Model;
 
-/*  Orchestrator wrapping StripLayout for the four entry points the
-    File menu offers:
+/*  Front door for every print and export route. Two distinct
+    pipelines live behind the same class:
 
-      run(printer)         — live print: page-fitted single page
-      paint(printer)       — print preview's paintRequested signal
-      exportPdf(path)      — single-page PDF, page-fitted
-      exportImage(path)    — PNG / JPEG raster at natural strip size
-      exportSvg(path)      — SVG at natural strip size
+    Export  (PNG / JPEG / SVG / PDF): a single-page sketch via
+            StripLayout. Grid views (Draft / Corrected / Simulation)
+            are clamped to one column each (PrintSettings::
+            singleColumnGrids = true is forced by the export
+            entry points); the bead list still wraps to multiple
+            columns when the run count overflows. Output canvas
+            is sized to fit the natural strip — no down-scaling,
+            no clipping.
 
-    All routes use the same layout (see StripLayout for the spec —
-    Report, Draft, Corrected, Simulation, Bead list, each as a
-    single column) so what the user sees in print preview matches
-    what the export files look like.                              */
+    Print + Print Preview: a multi-page render via MultiPageLayout.
+            Every visible part is rendered fully — Draft can take
+            several columns / pages for a tall pattern. Page size
+            comes from PrintSettings (paper + orientation), packed
+            left-to-right.
+
+    Both routes consume the same PrintSettings — flipping a
+    printDraft / printCorrected / etc. toggle drops that section
+    from both pipelines.                                          */
 class PrintJob
 {
 public:
     PrintJob(const Model& model, const PrintSettings& settings);
 
-    bool run(QPrinter* printer);
-    void paint(QPrinter* printer);
+    bool run(QPrinter* printer) const;
+    void paint(QPrinter* printer) const;
 
-    /*  Export entry points. Return true on success and write to
-        `path`. The image writers pick PNG vs JPEG from the file
-        extension; pass an explicit "PNG" / "JPEG" / "SVG" / "PDF"
-        format string when the extension is ambiguous.            */
     bool exportPdf(const QString& path) const;
     bool exportImage(const QString& path, const char* format = nullptr) const;
     bool exportSvg(const QString& path) const;
 
 private:
-    void paintPage(QPainter& p, QPrinter* printer) const;
-
     const Model&  m_model;
     PrintSettings m_settings;
 };

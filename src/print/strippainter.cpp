@@ -26,8 +26,6 @@ constexpr qreal BORDER    = 4.0;         // padding around each part
 constexpr qreal FONT_SIZE = 9.0;
 constexpr qreal LINE_H    = FONT_SIZE + 4.0;
 
-/*  Same contrast heuristic the on-screen BeadPainter uses, copied
-    here to keep src/print/ free of UI dependencies.               */
 QColor contrastFor(const QColor& c)
 {
     const auto dist = [&](const QColor& a, const QColor& b) {
@@ -55,6 +53,13 @@ QPoint correctYForIndex(int width, int idx)
     return QPoint(idx, y);
 }
 
+void setBodyFont(QPainter& p, qreal size = FONT_SIZE)
+{
+    QFont f = p.font();
+    f.setPointSizeF(size);
+    p.setFont(f);
+}
+
 void drawBead(QPainter& p, qreal x, qreal y, qreal w, qreal h,
               const QColor& color, const QString& symbol)
 {
@@ -63,7 +68,10 @@ void drawBead(QPainter& p, qreal x, qreal y, qreal w, qreal h,
     p.drawRect(QRectF(x, y, w, h));
     if (!symbol.isEmpty()) {
         p.setPen(contrastFor(color));
-        QFont f = p.font(); f.setPointSizeF(qMax(5.0, h * 0.55));
+        QFont f = p.font();
+        /*  Symbol size scales with the cell so it always reads
+            inside the bead.                                       */
+        f.setPointSizeF(qMax<qreal>(4.0, h * 0.55));
         p.setFont(f);
         p.drawText(QRectF(x, y, w, h), Qt::AlignCenter, symbol);
     }
@@ -78,34 +86,32 @@ void drawPill(QPainter& p, qreal x, qreal y, qreal w, qreal h,
     p.drawEllipse(QRectF(x, y, w, h));
     if (!label.isEmpty()) {
         p.setPen(contrastFor(fill));
-        QFont f = p.font(); f.setPointSizeF(FONT_SIZE);
+        QFont f = p.font();
+        f.setPointSizeF(qMax<qreal>(5.0, h * 0.55));
         p.setFont(f);
         p.drawText(QRectF(x, y, w, h), Qt::AlignCenter, label);
     }
 }
 
-// -----------------------------------------------------------------
-// Report-info part: filename, author, organisation, counts,
-// per-colour totals.
-// -----------------------------------------------------------------
+// =================================================================
+// ReportInfoPart — file metadata + per-colour totals. Single column.
+// =================================================================
 
 class ReportInfoPart : public PartPainter
 {
 public:
     explicit ReportInfoPart(const Model& m) : m_model(m) { build(); }
 
-    qreal width(qreal /*paintHeight*/) const override
+    QList<qreal> columnWidths(qreal /*h*/) const override
     {
-        return std::max<qreal>(infoBlockWidth() + 2 * BORDER, 80.0);
+        return { std::max<qreal>(infoBlockWidth() + 2 * BORDER, 100.0) };
     }
 
-    void paint(QPainter& p, qreal x, qreal y, qreal paintHeight) const override
+    void paintColumn(QPainter& p, qreal x, qreal y, qreal h, int) const override
     {
         p.setPen(Qt::black);
-        QFont f = p.font(); f.setPointSizeF(FONT_SIZE);
-        p.setFont(f);
-
-        const QFontMetricsF fm(f);
+        setBodyFont(p);
+        const QFontMetricsF fm(p.font());
         const qreal x0 = x + BORDER;
         qreal yy = y + fm.ascent();
         qreal labelW = 0;
@@ -114,7 +120,7 @@ public:
         }
         for (const auto& [lbl, val] : m_infos) {
             p.drawText(QPointF(x0, yy), lbl);
-            p.drawText(QPointF(x0 + labelW + 4, yy), val);
+            p.drawText(QPointF(x0 + labelW + 6, yy), val);
             yy += LINE_H;
         }
 
@@ -125,10 +131,11 @@ public:
             const qreal pillW = pillWidth();
             const qreal cellW = pillW + 4;
             const qreal cellH = pillH + 3;
-            const int perRow = std::max(1, int((width(paintHeight) - 2 * BORDER) / cellW));
+            const qreal colW  = columnWidths(h).first() - 2 * BORDER;
+            const int   perRow = std::max(1, int(colW / cellW));
             int col = 0;
             for (const auto& [idx, cnt] : m_counts) {
-                if (yy + pillH > y + paintHeight) break;
+                if (yy + pillH > y + h) break;
                 const qreal cx = x0 + col * cellW;
                 drawPill(p, cx, yy, pillW, pillH, m_model.color(idx),
                          QString::number(cnt));
@@ -195,29 +202,83 @@ private:
     QList<QPair<int, int>>          m_counts;
 };
 
-// -----------------------------------------------------------------
-// Draft part — full grid with a row-number margin on the left.
-// -----------------------------------------------------------------
+// =================================================================
+// _GridPart — common base for Draft / Corrected / Simulation. Each
+// emits one column per `rowsPerColumn` rows of the pattern (or
+// exactly one column when settings.singleColumnGrids is set, used
+// by the export sketch).
+// =================================================================
 
-class DraftPart : public PartPainter
+class _GridPart : public PartPainter
 {
 public:
-    explicit DraftPart(const Model& m) : m_model(m) {}
+    _GridPart(const Model& m, const PrintSettings& s)
+        : m_model(m), m_settings(s) {}
 
-    qreal width(qreal /*paintHeight*/) const override
+protected:
+    int rowsPerColumn(qreal h) const
     {
-        return m_model.width() * GX + MARKER_W + 2 * BORDER;
+        return std::max(1, int(h / GY));
     }
 
-    void paint(QPainter& p, qreal x, qreal y, qreal paintHeight) const override
+    int printableRows(qreal h) const
     {
-        const int rpc = std::max(1, int(paintHeight / GY));
-        const int rows = std::min(rpc, m_model.usedHeight());
+        const int rpc  = rowsPerColumn(h);
+        const int used = m_model.usedHeight();
+        if (used <= rpc || m_settings.fullPattern) return used;
+        if (m_model.repeat() > 0) {
+            const int repeatRows =
+                (m_model.repeat() + m_model.width() - 1) / m_model.width();
+            const int rounded = ((repeatRows + rpc - 1) / rpc) * rpc;
+            return std::min(rounded, used);
+        }
+        return used;
+    }
+
+    int gridColumnCount(qreal h) const
+    {
+        const int rows = printableRows(h);
+        const int rpc  = rowsPerColumn(h);
+        int cols = std::max(1, (rows + rpc - 1) / rpc);
+        if (m_settings.singleColumnGrids) cols = 1;
+        return cols;
+    }
+
+    const Model&         m_model;
+    const PrintSettings& m_settings;
+};
+
+// =================================================================
+// DraftPart — rectangular grid + 10-row markers on the left.
+// =================================================================
+
+class DraftPart : public _GridPart
+{
+public:
+    using _GridPart::_GridPart;
+
+    QList<qreal> columnWidths(qreal h) const override
+    {
+        const qreal w = m_model.width() * GX + MARKER_W + 2 * BORDER;
+        QList<qreal> out;
+        for (int i = 0, n = gridColumnCount(h); i < n; ++i) out.append(w);
+        return out;
+    }
+
+    void paintColumn(QPainter& p, qreal x, qreal y, qreal h, int col) const override
+    {
+        const int rpc = rowsPerColumn(h);
+        const int rowsTotal = printableRows(h);
+        const int start = col * rpc;
+        const int rowsHere = std::min(rpc, rowsTotal - start);
+        if (rowsHere <= 0) return;
         const qreal xGrid = x + BORDER + MARKER_W;
-        for (int j = 0; j < rows; ++j) {
+
+        for (int j = 0; j < rowsHere; ++j) {
+            const int row = start + j;
             const qreal yj = y + (rpc - j - 1) * GY;
             for (int i = 0; i < m_model.width(); ++i) {
-                const std::int8_t c = m_model.get(BeadPoint(i, j));
+                const std::int8_t c = m_model.get(BeadPoint(i, row));
                 drawBead(p, xGrid + i * GX, yj, GX, GY,
                          m_model.color(c), BeadSymbols::glyph(c));
             }
@@ -228,96 +289,100 @@ public:
         p.setFont(f);
         p.setPen(Qt::black);
         const QFontMetricsF fm(f);
-        for (int j = 0; j < rows; ++j) {
-            if ((j + 1) % 10 != 0) continue;
+        for (int j = 0; j < rowsHere; ++j) {
+            const int row = start + j;
+            if ((row + 1) % 10 != 0) continue;
             const qreal yj = y + (rpc - j - 1) * GY;
             p.drawLine(QPointF(x + BORDER, yj),
                        QPointF(xGrid - GX / 2, yj));
-            p.drawText(QPointF(x + BORDER,
-                               yj - 1),
-                       QString::number(j + 1));
+            p.drawText(QPointF(x + BORDER, yj - 1),
+                       QString::number(row + 1));
         }
     }
-
-private:
-    const Model& m_model;
 };
 
-// -----------------------------------------------------------------
-// Corrected part — hex-stagger grid.
-// -----------------------------------------------------------------
+// =================================================================
+// CorrectedPart — hex-stagger grid.
+// =================================================================
 
-class CorrectedPart : public PartPainter
+class CorrectedPart : public _GridPart
 {
 public:
-    explicit CorrectedPart(const Model& m) : m_model(m) {}
+    using _GridPart::_GridPart;
 
-    qreal width(qreal /*paintHeight*/) const override
+    QList<qreal> columnWidths(qreal h) const override
     {
-        return (m_model.width() + 1) * GX + 2 * BORDER;
+        const qreal w = (m_model.width() + 1) * GX + 2 * BORDER;
+        QList<qreal> out;
+        for (int i = 0, n = gridColumnCount(h); i < n; ++i) out.append(w);
+        return out;
     }
 
-    void paint(QPainter& p, qreal x, qreal y, qreal paintHeight) const override
+    void paintColumn(QPainter& p, qreal x, qreal y, qreal h, int col) const override
     {
-        const int rpc = std::max(1, int(paintHeight / GY));
-        const int n   = m_model.usedHeight() * m_model.width();
+        const int rpc = rowsPerColumn(h);
+        const int start = col * rpc;
+        const int end   = start + rpc;
+        const int n = printableRows(h) * m_model.width();
         const qreal xGrid = x + BORDER + GX / 2;
 
         for (int idx = 0; idx < n; ++idx) {
-            const QPoint h = correctYForIndex(m_model.width(), idx);
-            if (h.y() >= rpc) break;
+            const QPoint hex = correctYForIndex(m_model.width(), idx);
+            if (hex.y() < start || hex.y() >= end) continue;
             const int dataX = idx % m_model.width();
             const int dataY = idx / m_model.width();
             const std::int8_t c = m_model.get(BeadPoint(dataX, dataY));
-            const qreal xoff = (h.y() % 2 == 0) ? 0 : -GX / 2;
-            const qreal xx = xGrid + h.x() * GX + xoff;
-            const qreal yy = y + (rpc - h.y() - 1) * GY;
+            const qreal xoff = (hex.y() % 2 == 0) ? 0 : -GX / 2;
+            const qreal xx = xGrid + hex.x() * GX + xoff;
+            const qreal yy = y + (rpc - (hex.y() - start) - 1) * GY;
             drawBead(p, xx, yy, GX, GY, m_model.color(c),
                      BeadSymbols::glyph(c));
         }
     }
-
-private:
-    const Model& m_model;
 };
 
-// -----------------------------------------------------------------
-// Simulation part — half-circumference tube preview.
-// -----------------------------------------------------------------
+// =================================================================
+// SimulationPart — half-circumference tube preview, round beads.
+// =================================================================
 
-class SimulationPart : public PartPainter
+class SimulationPart : public _GridPart
 {
 public:
-    explicit SimulationPart(const Model& m) : m_model(m) {}
+    using _GridPart::_GridPart;
 
-    qreal width(qreal /*paintHeight*/) const override
+    QList<qreal> columnWidths(qreal h) const override
     {
-        return m_model.width() * GX / 2.0 + 2 * BORDER;
+        const qreal w = m_model.width() * GX / 2.0 + 2 * BORDER;
+        QList<qreal> out;
+        for (int i = 0, n = gridColumnCount(h); i < n; ++i) out.append(w);
+        return out;
     }
 
-    void paint(QPainter& p, qreal x, qreal y, qreal paintHeight) const override
+    void paintColumn(QPainter& p, qreal x, qreal y, qreal h, int col) const override
     {
-        const int rpc = std::max(1, int(paintHeight / GY));
-        const int n   = m_model.usedHeight() * m_model.width();
-        const int vw  = m_model.width() / 2;
+        p.setRenderHint(QPainter::Antialiasing, true);
+        const int rpc   = rowsPerColumn(h);
+        const int start = col * rpc;
+        const int end   = start + rpc;
+        const int n     = printableRows(h) * m_model.width();
+        const int vw    = m_model.width() / 2;
         const qreal xGrid = x + BORDER;
 
-        p.setRenderHint(QPainter::Antialiasing, true);
         for (int idx = 0; idx < n; ++idx) {
-            const QPoint h = correctYForIndex(m_model.width(), idx);
-            if (h.y() >= rpc) break;
-            if (h.y() % 2 == 0 && h.x() >= vw) continue;
-            if (h.y() % 2 == 1 && h.x() >  vw) continue;
+            const QPoint hex = correctYForIndex(m_model.width(), idx);
+            if (hex.y() < start || hex.y() >= end) continue;
+            if (hex.y() % 2 == 0 && hex.x() >= vw) continue;
+            if (hex.y() % 2 == 1 && hex.x() >  vw) continue;
             const int dataX = idx % m_model.width();
             const int dataY = idx / m_model.width();
             const std::int8_t c = m_model.get(BeadPoint(dataX, dataY));
 
             qreal xx, w;
-            if (h.y() % 2 == 0) { xx = xGrid + h.x() * GX;             w = GX; }
-            else if (h.x() == 0)         { xx = xGrid;                  w = GX / 2; }
-            else if (h.x() == vw)        { xx = xGrid + (h.x() - 1) * GX + GX / 2; w = GX / 2; }
-            else                         { xx = xGrid + (h.x() - 1) * GX + GX / 2; w = GX; }
-            const qreal yy = y + (rpc - h.y() - 1) * GY;
+            if (hex.y() % 2 == 0)        { xx = xGrid + hex.x() * GX;             w = GX; }
+            else if (hex.x() == 0)       { xx = xGrid;                            w = GX / 2; }
+            else if (hex.x() == vw)      { xx = xGrid + (hex.x() - 1) * GX + GX / 2; w = GX / 2; }
+            else                         { xx = xGrid + (hex.x() - 1) * GX + GX / 2; w = GX; }
+            const qreal yy = y + (rpc - (hex.y() - start) - 1) * GY;
 
             // Round bead — same look as the on-screen simulation.
             p.setBrush(m_model.color(c));
@@ -325,56 +390,74 @@ public:
             p.drawEllipse(QRectF(xx, yy, w, GY));
         }
     }
-
-private:
-    const Model& m_model;
 };
 
-// -----------------------------------------------------------------
-// Bead list part — run-length pills with a leading direction arrow.
-// -----------------------------------------------------------------
+// =================================================================
+// BeadListPart — run-length pills with leading direction arrow.
+// Wraps into multiple columns when there are more runs than fit
+// vertically in `paintHeight`.
+// =================================================================
 
 class BeadListPart : public PartPainter
 {
 public:
     explicit BeadListPart(const Model& m) : m_model(m), m_list(m) {}
 
-    qreal width(qreal /*paintHeight*/) const override
+    QList<qreal> columnWidths(qreal h) const override
     {
-        return ARROW_W + pillWidth() + 2 * BORDER;
+        const int n = m_list.runs().size();
+        if (n <= 0) return {};
+        const int bpc = beadsPerColumn(h);
+        const int cols = std::max(1, (n + bpc - 1) / bpc);
+        QList<qreal> out;
+        for (int i = 0; i < cols; ++i) {
+            out.append(columnPixelWidth(/*first=*/i == 0));
+        }
+        return out;
     }
 
-    void paint(QPainter& p, qreal x, qreal y, qreal paintHeight) const override
+    void paintColumn(QPainter& p, qreal x, qreal y, qreal h, int col) const override
     {
-        if (m_list.runs().isEmpty()) return;
-
+        const int bpc   = beadsPerColumn(h);
+        const int start = col * bpc;
+        if (start >= m_list.runs().size()) return;
         const qreal pillW = pillWidth();
         const qreal pillH = FONT_SIZE + 8;
         const qreal rowH  = pillH + 3;
+
         qreal x0 = x + BORDER;
+        if (col == 0) {
+            // Direction arrow drawn alongside the very first column.
+            p.setPen(QPen(Qt::black, 1));
+            const qreal ax = x0 + ARROW_W / 2;
+            const qreal ay0 = y;
+            const qreal ay1 = y + ARROW_LEN;
+            const qreal head = ARROW_W / 2;
+            p.drawLine(QPointF(ax, ay0), QPointF(ax, ay1));
+            p.drawLine(QPointF(ax, ay1), QPointF(ax - head, ay1 - head));
+            p.drawLine(QPointF(ax, ay1), QPointF(ax + head, ay1 - head));
+            x0 += ARROW_W;
+        }
 
-        // Direction arrow on the very first column.
-        p.setPen(QPen(Qt::black, 1));
-        const qreal ax = x0 + ARROW_W / 2;
-        const qreal ay0 = y;
-        const qreal ay1 = y + ARROW_LEN;
-        const qreal head = ARROW_W / 2;
-        p.drawLine(QPointF(ax, ay0), QPointF(ax, ay1));
-        p.drawLine(QPointF(ax, ay1), QPointF(ax - head, ay1 - head));
-        p.drawLine(QPointF(ax, ay1), QPointF(ax + head, ay1 - head));
-        x0 += ARROW_W;
-
-        qreal yy = y;
-        for (const BeadRun& run : m_list.runs()) {
-            if (yy + pillH > y + paintHeight) break;
+        for (int i = 0; i < bpc; ++i) {
+            const int idx = start + i;
+            if (idx >= m_list.runs().size()) break;
+            const BeadRun& run = m_list.runs().at(idx);
+            const qreal yy = y + i * rowH;
             drawPill(p, x0, yy, pillW, pillH,
                      m_model.color(run.color()),
                      QString::number(run.count()));
-            yy += rowH;
         }
     }
 
 private:
+    int beadsPerColumn(qreal h) const
+    {
+        const qreal pillH = FONT_SIZE + 8;
+        const qreal rowH  = pillH + 3;
+        return std::max(1, int(h / rowH));
+    }
+
     qreal pillWidth() const
     {
         const qreal pillH = FONT_SIZE + 8;
@@ -386,6 +469,11 @@ private:
         return std::max(pillH * 1.6, textW + 14);
     }
 
+    qreal columnPixelWidth(bool first) const
+    {
+        return pillWidth() + 4 + (first ? ARROW_W : 0) + 2 * BORDER;
+    }
+
     static constexpr qreal ARROW_W   = 12.0;
     static constexpr qreal ARROW_LEN = 30.0;
 
@@ -393,10 +481,24 @@ private:
     BeadList     m_list;
 };
 
+// -----------------------------------------------------------------
+// Part-list construction shared by both layouts.
+// -----------------------------------------------------------------
+
+void buildPartList(const Model& m, const PrintSettings& s,
+                   QList<std::shared_ptr<PartPainter>>& out)
+{
+    if (s.printReport)     out.append(std::make_shared<ReportInfoPart>(m));
+    if (s.printDraft)      out.append(std::make_shared<DraftPart>(m, s));
+    if (s.printCorrected)  out.append(std::make_shared<CorrectedPart>(m, s));
+    if (s.printSimulation) out.append(std::make_shared<SimulationPart>(m, s));
+    if (s.printBeadList)   out.append(std::make_shared<BeadListPart>(m));
+}
+
 } // namespace
 
 // -----------------------------------------------------------------
-// StripLayout
+// StripLayout — single-page strip used by Export.
 // -----------------------------------------------------------------
 
 StripLayout::StripLayout(const Model& model, const PrintSettings& settings)
@@ -407,24 +509,21 @@ StripLayout::StripLayout(const Model& model, const PrintSettings& settings)
 
 StripLayout::~StripLayout() = default;
 
-void StripLayout::buildParts()
-{
-    /*  Layout order matches the textile editor: ReportInfo, then the
-        three pattern views (each a single column), then BeadList.
-        Skips parts the user toggled off in PrintSettings.            */
-    if (m_settings.printReport)     m_parts.append(std::make_shared<ReportInfoPart>(m_model));
-    if (m_settings.printDraft)      m_parts.append(std::make_shared<DraftPart>(m_model));
-    if (m_settings.printCorrected)  m_parts.append(std::make_shared<CorrectedPart>(m_model));
-    if (m_settings.printSimulation) m_parts.append(std::make_shared<SimulationPart>(m_model));
-    if (m_settings.printBeadList)   m_parts.append(std::make_shared<BeadListPart>(m_model));
-}
+void StripLayout::buildParts() { buildPartList(m_model, m_settings, m_parts); }
 
-int StripLayout::columnCount() const { return m_parts.size(); }
+int StripLayout::columnCount(qreal h) const
+{
+    int n = 0;
+    for (const auto& part : m_parts) n += part->columnWidths(h).size();
+    return n;
+}
 
 QSizeF StripLayout::naturalSize(qreal paintHeight) const
 {
     qreal total = 0;
-    for (const auto& part : m_parts) total += part->width(paintHeight);
+    for (const auto& part : m_parts) {
+        for (qreal w : part->columnWidths(paintHeight)) total += w;
+    }
     return QSizeF(total, paintHeight);
 }
 
@@ -433,9 +532,11 @@ qreal StripLayout::paintNatural(QPainter& p, qreal offsetX, qreal offsetY,
 {
     qreal cursor = offsetX;
     for (const auto& part : m_parts) {
-        const qreal w = part->width(paintHeight);
-        part->paint(p, cursor, offsetY, paintHeight);
-        cursor += w;
+        const QList<qreal> widths = part->columnWidths(paintHeight);
+        for (int ci = 0; ci < widths.size(); ++ci) {
+            part->paintColumn(p, cursor, offsetY, paintHeight, ci);
+            cursor += widths[ci];
+        }
     }
     return cursor - offsetX;
 }
@@ -443,15 +544,10 @@ qreal StripLayout::paintNatural(QPainter& p, qreal offsetX, qreal offsetY,
 void StripLayout::paintFitted(QPainter& p, qreal x, qreal y,
                               qreal w, qreal h) const
 {
-    /*  Lay out at native paint height, then uniformly scale the
-        whole strip down (never up — small patterns sit at native
-        size on the page). Centre horizontally if narrower than w. */
     if (m_parts.isEmpty() || w <= 0 || h <= 0) return;
-
     const QSizeF natural = naturalSize(h);
     const qreal scaleX = (natural.width()  > 0) ? w / natural.width()  : 1.0;
-    const qreal scaleY = (natural.height() > 0) ? h / natural.height() : 1.0;
-    const qreal scale  = std::min<qreal>(1.0, std::min(scaleX, scaleY));
+    const qreal scale  = std::min<qreal>(1.0, scaleX);
     const qreal usedW  = natural.width() * scale;
     const qreal cx     = x + (w - usedW) / 2.0;
 
@@ -460,6 +556,69 @@ void StripLayout::paintFitted(QPainter& p, qreal x, qreal y,
     p.scale(scale, scale);
     paintNatural(p, 0, 0, h);
     p.restore();
+}
+
+// -----------------------------------------------------------------
+// MultiPageLayout — multi-page packer used by Print.
+// -----------------------------------------------------------------
+
+MultiPageLayout::MultiPageLayout(const Model& model, const PrintSettings& settings)
+    : m_model(model), m_settings(settings)
+{
+    buildParts();
+}
+
+MultiPageLayout::~MultiPageLayout() = default;
+
+void MultiPageLayout::buildParts() { buildPartList(m_model, m_settings, m_parts); }
+
+int MultiPageLayout::pageCount() const { return m_pages.size(); }
+
+void MultiPageLayout::layout(const QSizeF& pageSize)
+{
+    m_pages.clear();
+    m_pageH = pageSize.height();
+    if (m_pageH <= 0 || pageSize.width() <= 0) return;
+
+    Page current;
+    for (const auto& part : m_parts) {
+        const QList<qreal> widths = part->columnWidths(m_pageH);
+        for (int ci = 0; ci < widths.size(); ++ci) {
+            const qreal w = widths[ci];
+            /*  Start a new page when the next column would push us
+                past the page width — same packing strategy the
+                textile editor's _layout_pages uses. We always keep
+                at least one column per page, even if it overflows
+                horizontally, so a too-wide single column degrades
+                gracefully rather than emitting an empty page.    */
+            if (current.totalWidth + w > pageSize.width()
+                && !current.columns.isEmpty()) {
+                m_pages.append(current);
+                current = Page{};
+            }
+            current.columns.append({part, ci, w});
+            current.totalWidth += w;
+        }
+    }
+    if (!current.columns.isEmpty()) m_pages.append(current);
+}
+
+void MultiPageLayout::paintPage(QPainter& p, int index,
+                                qreal x, qreal y, qreal w, qreal h) const
+{
+    if (index < 0 || index >= m_pages.size()) return;
+    const Page& page = m_pages.at(index);
+
+    /*  Centre the row of columns horizontally if they don't fill
+        the page width. Single-column pages then sit nicely
+        rather than hugging the left margin.                     */
+    const qreal cx = x + std::max<qreal>(0, (w - page.totalWidth) / 2.0);
+    qreal cursor = cx;
+    for (const PageColumn& pc : page.columns) {
+        pc.part->paintColumn(p, cursor, y, h, pc.columnIndex);
+        cursor += pc.width;
+    }
+    Q_UNUSED(w);
 }
 
 } // namespace jbead

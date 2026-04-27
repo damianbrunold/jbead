@@ -14,68 +14,55 @@ namespace jbead {
 
 class Model;
 
-/*  One column in the export / print strip. Implementations cap their
-    own height to `paintHeight` and emit a fixed `width(paintHeight)`
-    column at (x, y). Coordinates are in points (1/72 inch). The
-    strip painter (StripLayout) packs all parts left-to-right.   */
+/*  One part of the print/export strip. A PartPainter can emit
+    several columns: BeadList wraps to extra columns when there are
+    more bead runs than fit a single column; grid views (Draft /
+    Corrected / Simulation) wrap when the pattern is taller than one
+    column UNLESS PrintSettings::singleColumnGrids is set (which is
+    how the export sketch keeps everything to a single column per
+    grid view). Coordinates are in points (1/72 inch).            */
 class PartPainter
 {
 public:
     virtual ~PartPainter() = default;
 
-    /*  Width of this column at the given paint height. Most parts
-        ignore the height argument; the bead list shrinks/grows
-        based on how many pills fit per column.                   */
-    virtual qreal width(qreal paintHeight) const = 0;
+    /*  Width of every column emitted at the given paint height.
+        The list length is the column count; total horizontal
+        footprint is the sum.                                      */
+    virtual QList<qreal> columnWidths(qreal paintHeight) const = 0;
 
-    /*  Paint the column into the rect (x, y, width, paintHeight)
-        of `painter`. The painter is already positioned at the page
-        origin; coordinates are absolute in the painter's coord
-        system.                                                    */
-    virtual void  paint(QPainter& painter, qreal x, qreal y,
-                        qreal paintHeight) const = 0;
+    /*  Paint column `columnIndex` into the rect (x, y, width,
+        paintHeight). Coordinates are absolute in `painter`'s
+        space.                                                     */
+    virtual void paintColumn(QPainter& painter, qreal x, qreal y,
+                             qreal paintHeight, int columnIndex) const = 0;
 };
 
-/*  Drives the layout: builds a list of PartPainters, adds them up
-    horizontally, and supports two render modes:
+/*  Single-page packer used by Export (PNG / JPEG / SVG / PDF).
+    Lays every column from every visible part out in a single
+    horizontal strip, no page wrap. Two render modes:
 
-      - exportToCanvas(): renders at natural width (no scaling) into
-        an arbitrary QPaintDevice. Used for PNG / JPEG / SVG export
-        where the canvas is sized to the strip.
-      - paintFitted(): scales the strip uniformly to fit a given
-        paint rect (page minus margins). Used for PDF, print, and
-        print preview so the output always lands on a single page.
-
-    Layout order matches the textile editor's PDF: ReportInfo,
-    Draft, Corrected, Simulation, BeadList. Each grid view is a
-    SINGLE COLUMN capped at the top of the page.                  */
+      paintNatural()  emits at native scale; the canvas is sized
+                      to fit the resulting total width.
+      paintFitted()   uniformly scales the strip to fit a target
+                      rect — kept for callers that want a "fit
+                      the strip onto this page" rendering, but
+                      not used for the standard export anymore
+                      (custom-page PDF avoids the down-scaling).
+*/
 class StripLayout
 {
 public:
     StripLayout(const Model& model, const PrintSettings& settings);
     ~StripLayout();
 
-    /*  Native dimensions of the strip given the available paint
-        height. Caller picks the height (e.g. landscape A4 minus
-        margins for export, or chooses a target like 595pt for
-        natural raster sizing).                                    */
     QSizeF naturalSize(qreal paintHeight) const;
+    qreal  paintNatural(QPainter& painter, qreal offsetX, qreal offsetY,
+                        qreal paintHeight) const;
+    void   paintFitted(QPainter& painter, qreal x, qreal y,
+                       qreal w, qreal h) const;
 
-    /*  Emit the strip into `painter` at its natural scale, with
-        origin at (offsetX, offsetY). Returns the actual width
-        consumed.                                                  */
-    qreal paintNatural(QPainter& painter, qreal offsetX, qreal offsetY,
-                       qreal paintHeight) const;
-
-    /*  Emit the strip into `painter`, fitted into the rect (x, y,
-        w, h) by uniform scaling. Centres horizontally if the
-        natural width is narrower than `w`.                       */
-    void  paintFitted(QPainter& painter, qreal x, qreal y,
-                      qreal w, qreal h) const;
-
-    /*  Number of part columns. >= 0 (zero if every section is
-        toggled off in PrintSettings).                            */
-    int   columnCount() const;
+    int    columnCount(qreal paintHeight) const;
 
 private:
     void buildParts();
@@ -83,6 +70,48 @@ private:
     const Model&         m_model;
     PrintSettings        m_settings;
     QList<std::shared_ptr<PartPainter>> m_parts;
+};
+
+/*  Multi-page packer used by Print + Print Preview. Walks the same
+    PartPainter list as StripLayout but breaks across pages: each
+    page is filled left-to-right with whatever columns fit, then a
+    new page starts. Used with singleColumnGrids = false so a tall
+    pattern's draft view spans several columns and pages.        */
+class MultiPageLayout
+{
+public:
+    MultiPageLayout(const Model& model, const PrintSettings& settings);
+    ~MultiPageLayout();
+
+    /*  Lay out all part columns onto pages of the given rect
+        (in points). Call before pageCount() / paintPage().      */
+    void layout(const QSizeF& pageSize);
+    int  pageCount() const;
+
+    /*  Paint page `index` into `painter`, with the page rect
+        positioned at (x, y, w, h) in painter coords (typically
+        the printer's pageRect).                                  */
+    void paintPage(QPainter& painter, int index,
+                   qreal x, qreal y, qreal w, qreal h) const;
+
+private:
+    struct PageColumn {
+        std::shared_ptr<PartPainter> part;
+        int   columnIndex;
+        qreal width;
+    };
+    struct Page {
+        QList<PageColumn> columns;
+        qreal totalWidth = 0;
+    };
+
+    void buildParts();
+
+    const Model&         m_model;
+    PrintSettings        m_settings;
+    QList<std::shared_ptr<PartPainter>> m_parts;
+    QList<Page>          m_pages;
+    qreal                m_pageH = 0;
 };
 
 } // namespace jbead

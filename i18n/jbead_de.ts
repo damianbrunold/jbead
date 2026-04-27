@@ -632,68 +632,68 @@
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="460" />
-        <location filename="../src/ui/mainwindow.cpp" line="470" />
+        <location filename="../src/ui/mainwindow.cpp" line="476" />
+        <location filename="../src/ui/mainwindow.cpp" line="486" />
         <source>Print</source>
         <translation>Drucken</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="471" />
+        <location filename="../src/ui/mainwindow.cpp" line="487" />
         <source>Print job produced no output.</source>
         <translation>Der Druckauftrag hat keine Ausgabe erzeugt.</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="484" />
+        <location filename="../src/ui/mainwindow.cpp" line="499" />
         <source>Print Preview</source>
         <translation>Druckvorschau</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="505" />
+        <location filename="../src/ui/mainwindow.cpp" line="520" />
         <source>Page Setup</source>
         <translation>Seite einrichten</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="539" />
+        <location filename="../src/ui/mainwindow.cpp" line="554" />
         <source>Could not write %1</source>
         <translation>%1 konnte nicht geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="552" />
+        <location filename="../src/ui/mainwindow.cpp" line="567" />
         <source>Export PNG</source>
         <translation>PNG exportieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="552" />
+        <location filename="../src/ui/mainwindow.cpp" line="567" />
         <source>PNG images (*.png)</source>
         <translation>PNG-Bilder (*.png)</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="566" />
+        <location filename="../src/ui/mainwindow.cpp" line="581" />
         <source>Export JPEG</source>
         <translation>JPEG exportieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="566" />
+        <location filename="../src/ui/mainwindow.cpp" line="581" />
         <source>JPEG images (*.jpg *.jpeg)</source>
         <translation>JPEG-Bilder (*.jpg *.jpeg)</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="580" />
+        <location filename="../src/ui/mainwindow.cpp" line="595" />
         <source>Export SVG</source>
         <translation>SVG exportieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="580" />
+        <location filename="../src/ui/mainwindow.cpp" line="595" />
         <source>SVG documents (*.svg)</source>
         <translation>SVG-Dokumente (*.svg)</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="594" />
+        <location filename="../src/ui/mainwindow.cpp" line="609" />
         <source>Export PDF</source>
         <translation>PDF exportieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="594" />
+        <location filename="../src/ui/mainwindow.cpp" line="609" />
         <source>PDF documents (*.pdf)</source>
         <translation>PDF-Dokumente (*.pdf)</translation>
     </message>
@@ -706,32 +706,32 @@
         <translation>PDF konnte nicht nach %1 geschrieben werden</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="672" />
+        <location filename="../src/ui/mainwindow.cpp" line="687" />
         <source>Pattern Width</source>
         <translation>Musterbreite</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="672" />
+        <location filename="../src/ui/mainwindow.cpp" line="687" />
         <source>&amp;Width:</source>
         <translation>&amp;Breite:</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="678" />
+        <location filename="../src/ui/mainwindow.cpp" line="693" />
         <source>Pattern Height</source>
         <translation>Musterhöhe</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="678" />
+        <location filename="../src/ui/mainwindow.cpp" line="693" />
         <source>&amp;Height:</source>
         <translation>&amp;Höhe:</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="723" />
+        <location filename="../src/ui/mainwindow.cpp" line="738" />
         <source>&lt;h3&gt;JBead %1&lt;/h3&gt;&lt;p&gt;Bead-pattern designer (Qt 6 port of the original Java/Swing app).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.&lt;/p&gt;&lt;p&gt;Built against Qt %2.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</source>
         <translation>&lt;h3&gt;JBead %1&lt;/h3&gt;&lt;p&gt;Designer für Perlenmuster (Qt 6-Portierung der Java/Swing-Originalversion).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Lizenziert unter GPL v3 oder später.&lt;/p&gt;&lt;p&gt;Erstellt mit Qt %2.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="730" />
+        <location filename="../src/ui/mainwindow.cpp" line="745" />
         <source>About JBead</source>
         <translation>Über JBead</translation>
     </message>
@@ -740,52 +740,52 @@
         <translation>&lt;h3&gt;JBead&lt;/h3&gt;&lt;p&gt;Designer für Perlenmuster (Qt 6-Portierung).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Lizenziert unter GPL v3 oder später.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="807" />
+        <location filename="../src/ui/mainwindow.cpp" line="822" />
         <source>unnamed</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="816" />
+        <location filename="../src/ui/mainwindow.cpp" line="831" />
         <source>Sel: %1 × %2</source>
         <translation>Ausw: %1 × %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="818" />
+        <location filename="../src/ui/mainwindow.cpp" line="833" />
         <source>Sel: —</source>
         <translation>Ausw: —</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="820" />
+        <location filename="../src/ui/mainwindow.cpp" line="835" />
         <source>Scroll: %1</source>
         <translation>Scroll: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="821" />
+        <location filename="../src/ui/mainwindow.cpp" line="836" />
         <source>Repeat: %1</source>
         <translation>Rapport: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="824" />
+        <location filename="../src/ui/mainwindow.cpp" line="839" />
         <source>Pencil</source>
         <translation>Stift</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="825" />
+        <location filename="../src/ui/mainwindow.cpp" line="840" />
         <source>Select</source>
         <translation>Auswahl</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="826" />
+        <location filename="../src/ui/mainwindow.cpp" line="841" />
         <source>Fill</source>
         <translation>Füllen</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="827" />
+        <location filename="../src/ui/mainwindow.cpp" line="842" />
         <source>Pipette</source>
         <translation>Pipette</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="830" />
+        <location filename="../src/ui/mainwindow.cpp" line="845" />
         <source>Tool: %1</source>
         <translation>Werkzeug: %1</translation>
     </message>

@@ -36,7 +36,15 @@ struct PrintSettings
     bool printReport      = true;
     bool printBeadList    = true;
 
-    bool fullPattern      = false;
+    /*  When true, grid views (Draft / Corrected / Simulation) emit
+        only one column even if the pattern is taller than fits;
+        used by the single-page export sketches so a 300-row
+        pattern doesn't blow up into a giant horizontal strip.    */
+    bool singleColumnGrids = false;
+
+    /*  When true, prints the entire used height; when false,
+        rounds down to the smallest repeat that fits a column.   */
+    bool fullPattern       = true;
 
     void load();
     void save() const;

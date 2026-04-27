@@ -106,6 +106,12 @@ private:
         back to the OS Documents folder on first run.            */
     QString lastFileDirectory() const;
     void    rememberFileDirectory(const QString& path);
+    /*  Build a PrintSettings for a print or export action: loads
+        the persisted defaults, then overrides the per-section
+        toggles with the current View-menu visibility so hiding
+        e.g. the Simulation panel also drops it from print and
+        export.                                                    */
+    class PrintSettings currentPrintSettings() const;
     void buildMenuBar();
     void buildToolbars();
     void buildStatusBar();
