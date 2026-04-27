@@ -1,0 +1,26 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/icons">
+    <file>edit.arrange.png</file>
+    <file>edit.redo.png</file>
+    <file>edit.undo.png</file>
+    <file>file.new.png</file>
+    <file>file.open.png</file>
+    <file>file.print.png</file>
+    <file>file.save.png</file>
+    <file>jbead-16.png</file>
+    <file>jbead-32.png</file>
+    <file>sb_cut.png</file>
+    <file>sb_empty.png</file>
+    <file>sb_empty1.png</file>
+    <file>sb_paste.png</file>
+    <file>tool.fill.png</file>
+    <file>tool.pencil.png</file>
+    <file>tool.pipette.png</file>
+    <file>tool.select.png</file>
+    <file>view.rotateleft.png</file>
+    <file>view.rotateright.png</file>
+    <file>view.zoomin.png</file>
+    <file>view.zoomout.png</file>
+  </qresource>
+</RCC>

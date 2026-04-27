@@ -1,7 +1,11 @@
 out/
 build/
+build-*/
 dist/
 testreport/
+CMakeUserPresets.json
+.cache/
+compile_commands.json
 jbead.jar
 jbead.exe
 setup/jbead_*
