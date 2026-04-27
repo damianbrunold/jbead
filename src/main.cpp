@@ -13,6 +13,7 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
+#include <QStyleHints>
 #include <QTranslator>
 
 #include "ui/mainwindow.h"
@@ -36,19 +37,35 @@ int main(int argc, char* argv[])
     }
 
     /*  Pick UI language. Saved preference under "Environment/Language"
-        wins over the OS locale. "de" / "fr" / "en" are the three
-        shipped translations; anything else falls back to English (the
-        source language, no .qm needed).                              */
+        wins over the OS locale. Stored values: "system" (= OS locale),
+        "en", "de", "fr". "en" / unmatched -> English source strings
+        (no .qm needed).                                              */
     QString lang;
     {
         QSettings settings;
-        lang = settings.value(QStringLiteral("Environment/Language")).toString();
-        if (lang.isEmpty()) {
+        lang = settings.value(QStringLiteral("Environment/Language"),
+                              QStringLiteral("system")).toString();
+        if (lang.isEmpty() || lang == QStringLiteral("system")) {
             const QString tag = QLocale::system().name().toLower();
             if (tag.startsWith(QStringLiteral("de"))) lang = QStringLiteral("de");
             else if (tag.startsWith(QStringLiteral("fr"))) lang = QStringLiteral("fr");
             else lang = QStringLiteral("en");
         }
+    }
+
+    /*  Apply the saved color scheme so dark-mode users get dark on
+        first paint instead of a flash of light. "system" leaves Qt
+        to follow the platform; "light" / "dark" override it.       */
+    {
+        QSettings settings;
+        const QString scheme = settings.value(QStringLiteral("Environment/ColorScheme"),
+                                              QStringLiteral("system")).toString();
+        if (scheme == QStringLiteral("light"))
+            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Light);
+        else if (scheme == QStringLiteral("dark"))
+            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+        else
+            QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
     }
 
     QTranslator qtTranslator;

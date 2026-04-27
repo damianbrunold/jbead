@@ -44,9 +44,17 @@ int SimulationPanel::offsetXFor(BeadPoint pt) const
 
 void SimulationPanel::paintBead(QPainter& p, int x, int y, int w, int h, const QColor& c) const
 {
-    p.fillRect(x + 1, y + 1, w - 1, h - 1, c);
-    p.setPen(QColor(64, 64, 64));
-    p.drawRect(x, y, w, h);
+    /*  Round-bead rendering, mirroring the textile editor's
+        simulation: filled ellipse with a dark stroke. The ellipse
+        fills the whole grid cell so the seam-edge half-cells (w =
+        gridx/2) look like proper bead halves, not broken
+        rectangles.                                                */
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setBrush(c);
+    /*  Stroke colour follows the active palette so it stays
+        legible in dark mode.                                     */
+    p.setPen(QPen(palette().color(QPalette::WindowText), 0.6));
+    p.drawEllipse(QRectF(x, y, w, h));
 }
 
 void SimulationPanel::paintEvent(QPaintEvent*)
@@ -108,12 +116,18 @@ void SimulationPanel::paintEvent(QPaintEvent*)
 
 bool SimulationPanel::mouseToField(QPoint pixel, BeadPoint* out) const
 {
-    const int W = m_model->width();
-    const int w = visibleWidth();
-    const int ox = panelOffsetX();
-    const int j = (height() - pixel.y()) / m_gridy;
+    /*  Hit-test must use the same x origin as the painter — that's
+        panelLeft() (clamped >=gridx/2), not the unclamped
+        panelOffsetX(). The legacy code uses the unclamped value
+        which produces an off-by-one when the panel is narrow
+        enough that the offset goes negative; we deliberately fix
+        that here.                                                 */
+    const int W  = m_model->width();
+    const int w  = visibleWidth();
+    const int ox = panelLeft();
+    const int j  = (height() - pixel.y()) / m_gridy;
     if (j < 0) return false;
-    if (pixel.x() < ox || pixel.x() > ox + w * m_gridx) return false;
+    if (pixel.x() < ox - m_gridx / 2 || pixel.x() > ox + w * m_gridx) return false;
     const int dx = ((j + m_scroll) % 2 == 0) ? 0 : m_gridx / 2;
     int i = (pixel.x() - ox + dx) / m_gridx - m_model->shift();
     int jj = j;

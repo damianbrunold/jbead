@@ -24,7 +24,14 @@ void ReportPanel::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::TextAntialiasing, true);
+    p.setRenderHint(QPainter::Antialiasing, true);
     if (m_model->isRepeatDirty()) m_model->updateRepeat();
+
+    /*  Use the active palette throughout — labels track the current
+        color scheme so the panel reads correctly under both light
+        and dark themes.                                            */
+    const QColor textColor   = palette().color(QPalette::WindowText);
+    const QColor borderColor = palette().color(QPalette::WindowText);
 
     const QFontMetrics fm(font());
     const int dy = fm.height() + 2;
@@ -33,7 +40,7 @@ void ReportPanel::paintEvent(QPaintEvent*)
 
     // ---- header info ---------------------------------------------
     auto line = [&](const QString& label, const QString& value) {
-        p.setPen(QColor(50, 50, 50));
+        p.setPen(textColor);
         p.drawText(x0, y, label);
         p.drawText(x0 + 110, y, value);
         y += dy;
@@ -42,43 +49,38 @@ void ReportPanel::paintEvent(QPaintEvent*)
     line(tr("Rows:"),          QString::number(m_model->usedHeight()));
     line(tr("Repeat:"),        QString::number(m_model->repeat()));
 
-    /*  Per-color totals across the used region. Skip the
-        background colour (index 0) — it doesn't represent beads.  */
-    BeadCounts counts(*m_model);
-    y += dy / 2;
-    p.drawText(x0, y, tr("Beads by color:"));
-    y += dy;
-    const int swatch = qMax(12, m_gridy);
-    for (int c = 1; c < m_model->colorCount(); ++c) {
-        const int n = counts.count(static_cast<std::int8_t>(c));
-        if (n <= 0) continue;
-        if (y > height() - dy) break;
-        const QColor col = m_model->color(c);
-        p.fillRect(x0, y - swatch + 2, swatch, swatch, col);
-        p.setPen(Qt::black);
-        p.drawRect(x0, y - swatch + 2, swatch, swatch);
-        p.setPen(BeadPainter::contrastingColor(col));
-        const QString sym = BeadSymbols::glyph(c);
-        p.drawText(x0 + (swatch - fm.horizontalAdvance(sym)) / 2,
-                   y - 1, sym);
-        p.setPen(Qt::black);
-        p.drawText(x0 + swatch + 6, y - 1, QString::number(n) + tr(" ×"));
-        y += swatch + 2;
+    // ---- bead-list run sequence (textile redesign) --------------
+    if (m_model->repeat() <= 0) {
+        y += dy;
+        p.setPen(textColor);
+        p.drawText(x0, y, tr("(No repeat detected.)"));
+        return;
     }
 
-    // ---- bead-list run sequence (textile redesign) --------------
-    if (m_model->repeat() <= 0) return;
-
     y += dy;
-    if (y > height() - dy) return;
+    p.setPen(textColor);
     p.drawText(x0, y, tr("Bead list:"));
-    y += dy / 2;
+    y += dy / 2 + 4;
 
     const BeadList list(*m_model);
-    const int swW = qMax(40, swatch * 3);
-    const int swH = qMax(16, swatch);
+
+    /*  Auto-size the bead so the longest count fits comfortably
+        inside it. The longest count comes from BeadList::runs;
+        width is sized to label width + 12 px padding on each side,
+        clamped between 36 and 96 px so individual short runs don't
+        produce tiny pills and a giant 9999-count pattern doesn't
+        push beads off the panel.                                  */
+    int maxLabelWidth = 0;
+    for (const BeadRun& run : list.runs()) {
+        const QString label = QString::number(run.count());
+        maxLabelWidth = qMax(maxLabelWidth, fm.horizontalAdvance(label));
+    }
+    const int swW = qBound(36, maxLabelWidth + 24, 96);
+    const int swH = qMax(22, fm.height() + 8);
+    const int gap = 4;
+
     int x = x0;
-    int colTop = y;
+    const int colTop = y;
     for (const BeadRun& run : list.runs()) {
         if (y + swH > height() - dy) {
             // Wrap into next column.
@@ -86,15 +88,24 @@ void ReportPanel::paintEvent(QPaintEvent*)
             y = colTop;
             if (x + swW > width() - x0) break;
         }
-        const QColor col = m_model->color(run.color());
-        p.fillRect(x, y, swW, swH, col);
-        p.setPen(Qt::black);
-        p.drawRect(x, y, swW, swH);
-        p.setPen(BeadPainter::contrastingColor(col));
-        const QString label =
-            QString::number(run.count()) + QStringLiteral(" × ") + BeadSymbols::glyph(run.color());
-        p.drawText(x + 4, y + (swH + fm.ascent()) / 2 - 2, label);
-        y += swH + 4;
+        const QColor fill = m_model->color(run.color());
+
+        /*  Round/oval bead rendering — same look as the textile
+            editor's bead list. Filled ellipse with a contrasting
+            stroke and the count drawn dead-centre in the
+            contrasting colour for legibility against any palette
+            colour.                                                 */
+        p.setBrush(fill);
+        p.setPen(QPen(borderColor, 0.8));
+        p.drawRoundedRect(QRectF(x + 0.5, y + 0.5, swW - 1, swH - 1),
+                          swH / 3.0, swH / 3.0);
+
+        const QString label = QString::number(run.count());
+        p.setPen(BeadPainter::contrastingColor(fill));
+        p.drawText(QRectF(x, y, swW, swH),
+                   Qt::AlignCenter, label);
+
+        y += swH + gap;
     }
 }
 

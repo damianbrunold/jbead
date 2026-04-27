@@ -231,6 +231,16 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "File:":                            "Datei:",
         "Author:":                          "Autor:",
         "Organization:":                    "Organisation:",
+
+        "Preferences":                      "Einstellungen",
+        "&Language:":                       "&Sprache:",
+        "&Color scheme:":                   "&Farbschema:",
+        "System default":                   "Systemstandard",
+        "Follow system":                    "System folgen",
+        "Light":                            "Hell",
+        "Dark":                             "Dunkel",
+        "Language changes take effect after restarting JBead.":
+            "Sprachänderungen werden erst nach einem Neustart von JBead wirksam.",
     },
     "fr": {
         "Open":         "Ouvrir",
@@ -292,6 +302,16 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "File:":                            "Fichier :",
         "Author:":                          "Auteur :",
         "Organization:":                    "Organisation :",
+
+        "Preferences":                      "Préférences",
+        "&Language:":                       "&Langue :",
+        "&Color scheme:":                   "&Thème :",
+        "System default":                   "Par défaut du système",
+        "Follow system":                    "Suivre le système",
+        "Light":                            "Clair",
+        "Dark":                             "Sombre",
+        "Language changes take effect after restarting JBead.":
+            "Les changements de langue prennent effet au prochain redémarrage de JBead.",
     },
 }
 

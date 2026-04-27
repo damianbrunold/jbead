@@ -2,6 +2,7 @@
 
 #include <QDialog>
 
+class QComboBox;
 class QSpinBox;
 
 namespace jbead {
@@ -33,6 +34,29 @@ public:
 
 private:
     QSpinBox* m_value;
+};
+
+/*  Edit / Pattern -> Preferences dialog. Two persistent settings:
+
+      - UI language: "system" (follow QLocale), "en", "de", or "fr".
+        Stored as Environment/Language. Requires an app restart since
+        QTranslator is wired up in main().
+      - Color scheme: "system", "light", or "dark". Stored as
+        Environment/ColorScheme and applied live via
+        QGuiApplication::styleHints()->setColorScheme().
+*/
+class PreferencesDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit PreferencesDialog(QWidget* parent = nullptr);
+
+    QString language()    const;   // "system" / "en" / "de" / "fr"
+    QString colorScheme() const;   // "system" / "light" / "dark"
+
+private:
+    QComboBox* m_language;
+    QComboBox* m_colorScheme;
 };
 
 } // namespace jbead

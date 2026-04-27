@@ -77,6 +77,7 @@ private slots:
     void doViewZoomNormal();
     void doPatternWidth();
     void doPatternHeight();
+    void doPatternPreferences();
     void doInfoAbout();
     void doRotateLeft();
     void doRotateRight();
@@ -89,10 +90,16 @@ private slots:
     void onSelectionUpdated();
 
 private:
-    bool maybeSave();
-    bool saveTo(const QString& path);
-    bool loadFrom(const QString& path);
-    void setCurrentFile(const QString& path);
+    bool    maybeSave();
+    bool    saveTo(const QString& path);
+    bool    loadFrom(const QString& path);
+    void    setCurrentFile(const QString& path);
+    /*  Last directory the user pointed a file dialog at; persisted
+        in QSettings ("Files/lastDirectory") and used as the default
+        location for File-> Open / Save / Export PDF dialogs. Falls
+        back to the OS Documents folder on first run.            */
+    QString lastFileDirectory() const;
+    void    rememberFileDirectory(const QString& path);
     void buildMenuBar();
     void buildToolbars();
     void buildStatusBar();

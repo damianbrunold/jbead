@@ -26,6 +26,9 @@
 #include <QPrintPreviewDialog>
 #include <QPrinter>
 #include <QScrollBar>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QStyleHints>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QToolBar>
@@ -79,6 +82,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_actions->action(Actions::Id::ViewZoomNormal), &QAction::triggered, this, &MainWindow::doViewZoomNormal);
     connect(m_actions->action(Actions::Id::PatternWidth),   &QAction::triggered, this, &MainWindow::doPatternWidth);
     connect(m_actions->action(Actions::Id::PatternHeight),  &QAction::triggered, this, &MainWindow::doPatternHeight);
+    connect(m_actions->action(Actions::Id::PatternPreferences), &QAction::triggered, this, &MainWindow::doPatternPreferences);
     connect(m_actions->action(Actions::Id::InfoAbout),      &QAction::triggered, this, &MainWindow::doInfoAbout);
     connect(m_actions->action(Actions::Id::RotateLeft),     &QAction::triggered, this, &MainWindow::doRotateLeft);
     connect(m_actions->action(Actions::Id::RotateRight),    &QAction::triggered, this, &MainWindow::doRotateRight);
@@ -95,6 +99,22 @@ MainWindow::MainWindow(QWidget* parent)
     updateScrollbar();
     updateTitle();
     updateStatusBar();
+
+    /*  Restore window geometry + dock layout from the previous run.
+        Stored under "MainWindow/" so the keys don't collide with the
+        document-level state in the .jbb file. Falls back to a sane
+        default size on first run.                                  */
+    {
+        QSettings s;
+        s.beginGroup(QStringLiteral("MainWindow"));
+        const QByteArray geom  = s.value(QStringLiteral("geometry")).toByteArray();
+        const QByteArray state = s.value(QStringLiteral("state")).toByteArray();
+        const QByteArray split = s.value(QStringLiteral("splitter")).toByteArray();
+        s.endGroup();
+        if (!geom.isEmpty())  restoreGeometry(geom);
+        if (!state.isEmpty()) restoreState(state);
+        if (!split.isEmpty()) m_centralSplitter->restoreState(split);
+    }
 }
 
 MainWindow::~MainWindow() = default;
@@ -279,17 +299,37 @@ bool MainWindow::maybeSave()
 bool MainWindow::saveTo(const QString& path)
 {
     if (path.isEmpty() || !QFileInfo(path).isAbsolute()) {
-        return saveTo(QFileDialog::getSaveFileName(this, tr("Save"), QString(),
-            FileFormat::jbeadNameFilter()));
+        const QString picked = QFileDialog::getSaveFileName(this, tr("Save"),
+            lastFileDirectory(), FileFormat::jbeadNameFilter());
+        if (picked.isEmpty()) return false;
+        rememberFileDirectory(picked);
+        return saveTo(picked);
     }
     try {
         FileFormat::save(path, *m_model);
         setCurrentFile(path);
+        rememberFileDirectory(path);
         return true;
     } catch (const std::exception& e) {
         QMessageBox::critical(this, tr("Save failed"), QString::fromStdString(e.what()));
         return false;
     }
+}
+
+QString MainWindow::lastFileDirectory() const
+{
+    QSettings s;
+    const QString stored = s.value(QStringLiteral("Files/lastDirectory")).toString();
+    if (!stored.isEmpty() && QFileInfo(stored).isDir()) return stored;
+    return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+}
+
+void MainWindow::rememberFileDirectory(const QString& path)
+{
+    const QString dir = QFileInfo(path).absolutePath();
+    if (dir.isEmpty()) return;
+    QSettings s;
+    s.setValue(QStringLiteral("Files/lastDirectory"), dir);
 }
 
 bool MainWindow::loadFrom(const QString& path)
@@ -327,8 +367,9 @@ void MainWindow::doFileOpen()
 {
     if (!maybeSave()) return;
     const QString path = QFileDialog::getOpenFileName(this, tr("Open"),
-        QString(), FileFormat::combinedNameFilter());
+        lastFileDirectory(), FileFormat::combinedNameFilter());
     if (path.isEmpty()) return;
+    rememberFileDirectory(path);
     loadFrom(path);
     updateScrollbar();
 }
@@ -406,10 +447,12 @@ void MainWindow::doFileExportPdf()
 {
     QString defaultName = QFileInfo(m_model->filePath()).completeBaseName();
     if (defaultName.isEmpty()) defaultName = QStringLiteral("pattern");
+    const QString suggested = lastFileDirectory() + QLatin1Char('/')
+                             + defaultName + QStringLiteral(".pdf");
     const QString path = QFileDialog::getSaveFileName(this,
-        tr("Export PDF"), defaultName + QStringLiteral(".pdf"),
-        tr("PDF Documents (*.pdf)"));
+        tr("Export PDF"), suggested, tr("PDF Documents (*.pdf)"));
     if (path.isEmpty()) return;
+    rememberFileDirectory(path);
 
     PrintSettings settings;
     settings.load();
@@ -511,6 +554,27 @@ void MainWindow::doPatternHeight()
     }
 }
 
+void MainWindow::doPatternPreferences()
+{
+    PreferencesDialog dlg(this);
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    QSettings s;
+    s.setValue(QStringLiteral("Environment/Language"),    dlg.language());
+    s.setValue(QStringLiteral("Environment/ColorScheme"), dlg.colorScheme());
+
+    /*  Color scheme can be applied live via the style hints API
+        (Qt 6.5+); language requires a restart since QTranslator is
+        wired up before the main window is built.                  */
+    const QString scheme = dlg.colorScheme();
+    if (scheme == QStringLiteral("light"))
+        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Light);
+    else if (scheme == QStringLiteral("dark"))
+        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+    else
+        QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Unknown);
+}
+
 // -----------------------------------------------------------------
 // Info
 // -----------------------------------------------------------------
@@ -568,9 +632,19 @@ void MainWindow::updateScrollbar()
     const int rows = m_model->height();
     const int gridy = qMax(1, m_model->gridy());
     const int visible = qMin(rows, qMax(1, m_draft->height() / gridy));
-    m_scrollbar->setRange(0, qMax(0, rows - visible));
+    const int maxScroll = qMax(0, rows - visible);
+    QSignalBlocker block(m_scrollbar);
+    m_scrollbar->setRange(0, maxScroll);
     m_scrollbar->setPageStep(visible);
     m_scrollbar->setSingleStep(1);
+    /*  Pattern grows upward (row 0 at the bottom). The thumb's
+        natural "top" position therefore corresponds to the
+        highest-row view, while the user's intuitive "I just opened
+        the file, show me the first beads" is at the BOTTOM. So the
+        scrollbar value is inverted: 0 == top of pattern, max == bottom.
+        Initial scroll == 0 (model default) maps to value == max,
+        which puts the thumb at the bottom.                          */
+    m_scrollbar->setValue(maxScroll - m_model->scroll());
 }
 
 void MainWindow::updateTitle()
@@ -606,8 +680,16 @@ void MainWindow::updateStatusBar()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (maybeSave()) event->accept();
-    else             event->ignore();
+    if (!maybeSave()) { event->ignore(); return; }
+
+    QSettings s;
+    s.beginGroup(QStringLiteral("MainWindow"));
+    s.setValue(QStringLiteral("geometry"), saveGeometry());
+    s.setValue(QStringLiteral("state"),    saveState());
+    s.setValue(QStringLiteral("splitter"), m_centralSplitter->saveState());
+    s.endGroup();
+
+    event->accept();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
