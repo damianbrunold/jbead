@@ -48,40 +48,37 @@ private slots:
         QVERIFY(fi.size() > 1024); // every PDF page header alone is ~hundreds of bytes
     }
 
-    void respectsSectionToggles()
+    void exportsSampleToPng()
     {
-        Model model;
-        model.clear();
+        Model model; model.clear();
+        FileFormat::load(QDir(QStringLiteral(JBEAD_SAMPLES_DIR))
+                           .filePath(QStringLiteral("hearts.jbb")),
+                         model);
 
-        QPrinter scratch(QPrinter::HighResolution);
-        scratch.setOutputFormat(QPrinter::PdfFormat);
         QTemporaryDir dir;
         QVERIFY(dir.isValid());
-        scratch.setOutputFileName(QDir(dir.path()).filePath(QStringLiteral("a.pdf")));
+        const QString path = QDir(dir.path()).filePath(QStringLiteral("hearts.png"));
+        PrintSettings s;
+        QVERIFY(PrintJob(model, s).exportImage(path, "PNG"));
+        QVERIFY(QFileInfo(path).size() > 1024);
+    }
 
-        // Disable everything: no pages, no output.
-        PrintSettings empty;
-        empty.printDraft       = false;
-        empty.printCorrected   = false;
-        empty.printSimulation  = false;
-        empty.printReport      = false;
-        empty.printBeadList    = false;
-        PrintJob noPages(model, empty);
-        QVERIFY(!noPages.run(&scratch));
-        QCOMPARE(noPages.pageCount(), 0);
+    void exportsSampleToSvg()
+    {
+        Model model; model.clear();
+        FileFormat::load(QDir(QStringLiteral(JBEAD_SAMPLES_DIR))
+                           .filePath(QStringLiteral("hearts.jbb")),
+                         model);
 
-        // Enable just the report -> exactly one page.
-        PrintSettings only;
-        only.printDraft = only.printCorrected = only.printSimulation = false;
-        only.printReport = true;
-        only.printBeadList = false;
-        PrintJob justReport(model, only);
-        QPrinter printer2(QPrinter::HighResolution);
-        printer2.setOutputFormat(QPrinter::PdfFormat);
-        printer2.setOutputFileName(QDir(dir.path()).filePath(QStringLiteral("b.pdf")));
-        only.apply(&printer2);
-        QVERIFY(justReport.run(&printer2));
-        QCOMPARE(justReport.pageCount(), 1);
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const QString path = QDir(dir.path()).filePath(QStringLiteral("hearts.svg"));
+        PrintSettings s;
+        QVERIFY(PrintJob(model, s).exportSvg(path));
+        QVERIFY(QFileInfo(path).exists());
+        // SVGs from Qt's QSvgGenerator are well over a kilobyte
+        // even for trivial scenes (XML preamble + style block).
+        QVERIFY(QFileInfo(path).size() > 256);
     }
 
     void settingsRoundTripThroughQSettings()

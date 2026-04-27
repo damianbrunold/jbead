@@ -53,7 +53,16 @@ void Actions::buildActions()
          QKeySequence(), tr("Previews the print output"));
     make(Id::FilePageSetup, tr("Page Set&up..."), QString(),
          QKeySequence(), tr("Configures the page format"));
-    make(Id::FileExportPdf, tr("Export &PDF..."), QString(),
+    /*  Single-page exports — all four wrap the same StripLayout
+        that drives Print and Print Preview, so the on-screen
+        preview matches every export format.                       */
+    make(Id::FileExportPng,  tr("&PNG image..."),  QString(),
+         QKeySequence(), tr("Exports the pattern as a PNG image"));
+    make(Id::FileExportJpeg, tr("&JPEG image..."), QString(),
+         QKeySequence(), tr("Exports the pattern as a JPEG image"));
+    make(Id::FileExportSvg,  tr("&SVG vector..."), QString(),
+         QKeySequence(), tr("Exports the pattern as an SVG document"));
+    make(Id::FileExportPdf,  tr("PD&F document..."), QString(),
          QKeySequence(), tr("Exports the pattern as a PDF document"));
     make(Id::FileExit,   tr("E&xit"), QString(),
          QKeySequence::Quit, tr("Exits the program"));

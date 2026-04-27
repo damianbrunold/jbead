@@ -60,6 +60,9 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_actions->action(Actions::Id::FilePrint),         &QAction::triggered, this, &MainWindow::doFilePrint);
     connect(m_actions->action(Actions::Id::FilePrintPreview),  &QAction::triggered, this, &MainWindow::doFilePrintPreview);
     connect(m_actions->action(Actions::Id::FilePageSetup),     &QAction::triggered, this, &MainWindow::doFilePageSetup);
+    connect(m_actions->action(Actions::Id::FileExportPng),     &QAction::triggered, this, &MainWindow::doFileExportPng);
+    connect(m_actions->action(Actions::Id::FileExportJpeg),    &QAction::triggered, this, &MainWindow::doFileExportJpeg);
+    connect(m_actions->action(Actions::Id::FileExportSvg),     &QAction::triggered, this, &MainWindow::doFileExportSvg);
     connect(m_actions->action(Actions::Id::FileExportPdf),     &QAction::triggered, this, &MainWindow::doFileExportPdf);
     connect(m_actions->action(Actions::Id::FileExit),   &QAction::triggered, this, &MainWindow::doFileExit);
     connect(m_actions->action(Actions::Id::EditUndo),   &QAction::triggered, this, &MainWindow::doEditUndo);
@@ -231,7 +234,15 @@ void MainWindow::buildMenuBar()
     fileMenu->addAction(m_actions->action(Actions::Id::FilePrint));
     fileMenu->addAction(m_actions->action(Actions::Id::FilePrintPreview));
     fileMenu->addAction(m_actions->action(Actions::Id::FilePageSetup));
-    fileMenu->addAction(m_actions->action(Actions::Id::FileExportPdf));
+    /*  Single-page exports cluster under one submenu (textile-style)
+        so the File menu doesn't sprawl into a column of "Export X"
+        entries. PNG / JPEG / SVG / PDF all use the same StripLayout
+        renderer that drives Print Preview.                          */
+    QMenu* exportMenu = fileMenu->addMenu(tr("&Export"));
+    exportMenu->addAction(m_actions->action(Actions::Id::FileExportPng));
+    exportMenu->addAction(m_actions->action(Actions::Id::FileExportJpeg));
+    exportMenu->addAction(m_actions->action(Actions::Id::FileExportSvg));
+    exportMenu->addAction(m_actions->action(Actions::Id::FileExportPdf));
     fileMenu->addSeparator();
     fileMenu->addAction(m_actions->action(Actions::Id::FileExit));
 
@@ -498,30 +509,93 @@ void MainWindow::doFilePageSetup()
     settings.save();
 }
 
+namespace {
+
+/*  Generic export-dialog runner. Builds a Save-As suggestion under
+    the user's last-used directory with the right extension, hands
+    the path to `writer`, and reports failures via a single
+    QMessageBox. The lambda lets us share dialog plumbing across
+    the four format-specific slots without templating PrintJob.   */
+struct ExportSpec
+{
+    QString title;          // dialog title
+    QString filter;         // QFileDialog name filter
+    QString extension;      // ".png" / ".jpg" / ".svg" / ".pdf"
+};
+
+} // namespace
+
+template <typename Writer>
+static bool runExport(MainWindow* w, const QString& fileBase,
+                      const QString& lastDir, const ExportSpec& spec,
+                      Writer&& writer)
+{
+    QString suggested = lastDir + QLatin1Char('/') + fileBase + spec.extension;
+    QString path = QFileDialog::getSaveFileName(w, spec.title, suggested, spec.filter);
+    if (path.isEmpty()) return false;
+    if (!path.endsWith(spec.extension, Qt::CaseInsensitive)) path += spec.extension;
+    if (!writer(path)) {
+        QMessageBox::warning(w, spec.title,
+            MainWindow::tr("Could not write %1").arg(path));
+        return false;
+    }
+    return true;
+}
+
+void MainWindow::doFileExportPng()
+{
+    QString base = QFileInfo(m_model->filePath()).completeBaseName();
+    if (base.isEmpty()) base = QStringLiteral("pattern");
+    PrintSettings settings; settings.load();
+    PrintJob job(*m_model, settings);
+    runExport(this, base, lastFileDirectory(),
+              {tr("Export PNG"), tr("PNG images (*.png)"), QStringLiteral(".png")},
+              [&](const QString& p) {
+                  rememberFileDirectory(p);
+                  return job.exportImage(p, "PNG");
+              });
+}
+
+void MainWindow::doFileExportJpeg()
+{
+    QString base = QFileInfo(m_model->filePath()).completeBaseName();
+    if (base.isEmpty()) base = QStringLiteral("pattern");
+    PrintSettings settings; settings.load();
+    PrintJob job(*m_model, settings);
+    runExport(this, base, lastFileDirectory(),
+              {tr("Export JPEG"), tr("JPEG images (*.jpg *.jpeg)"), QStringLiteral(".jpg")},
+              [&](const QString& p) {
+                  rememberFileDirectory(p);
+                  return job.exportImage(p, "JPEG");
+              });
+}
+
+void MainWindow::doFileExportSvg()
+{
+    QString base = QFileInfo(m_model->filePath()).completeBaseName();
+    if (base.isEmpty()) base = QStringLiteral("pattern");
+    PrintSettings settings; settings.load();
+    PrintJob job(*m_model, settings);
+    runExport(this, base, lastFileDirectory(),
+              {tr("Export SVG"), tr("SVG documents (*.svg)"), QStringLiteral(".svg")},
+              [&](const QString& p) {
+                  rememberFileDirectory(p);
+                  return job.exportSvg(p);
+              });
+}
+
 void MainWindow::doFileExportPdf()
 {
-    QString defaultName = QFileInfo(m_model->filePath()).completeBaseName();
-    if (defaultName.isEmpty()) defaultName = QStringLiteral("pattern");
-    const QString suggested = lastFileDirectory() + QLatin1Char('/')
-                             + defaultName + QStringLiteral(".pdf");
-    const QString path = QFileDialog::getSaveFileName(this,
-        tr("Export PDF"), suggested, tr("PDF Documents (*.pdf)"));
-    if (path.isEmpty()) return;
-    rememberFileDirectory(path);
-
-    PrintSettings settings;
-    settings.load();
-
-    QPrinter printer(QPrinter::HighResolution);
-    settings.apply(&printer);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(path);
-
+    QString base = QFileInfo(m_model->filePath()).completeBaseName();
+    if (base.isEmpty()) base = QStringLiteral("pattern");
+    PrintSettings settings; settings.load();
     PrintJob job(*m_model, settings);
-    if (!job.run(&printer) || !QFileInfo(path).exists()) {
-        QMessageBox::warning(this, tr("Export PDF"),
-            tr("Could not write PDF to %1").arg(path));
-    }
+    runExport(this, base, lastFileDirectory(),
+              {tr("Export PDF"), tr("PDF documents (*.pdf)"), QStringLiteral(".pdf")},
+              [&](const QString& p) {
+                  rememberFileDirectory(p);
+                  return job.exportPdf(p);
+              });
 }
 
 // -----------------------------------------------------------------

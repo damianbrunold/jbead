@@ -61,6 +61,9 @@ private slots:
     void doFilePrint();
     void doFilePrintPreview();
     void doFilePageSetup();
+    void doFileExportPng();
+    void doFileExportJpeg();
+    void doFileExportSvg();
     void doFileExportPdf();
     void doFileExit();
     void doEditUndo();

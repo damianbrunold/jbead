@@ -19,77 +19,58 @@
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="179" />
         <source>Report</source>
         <translation>Bilan</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="180" />
         <source>Draft</source>
         <translation>Patron</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="181" />
         <source>Corrected</source>
         <translation>Vue plane</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="182" />
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="183" />
         <source>Bead list</source>
         <translation>Liste des perles</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="187" />
-        <source>unnamed</source>
-        <translation type="unfinished" />
-    </message>
-    <message>
-        <location filename="../src/print/printjob.cpp" line="190" />
         <source>Page %1 of %2</source>
         <translation>Page %1 sur %2</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="212" />
         <source>File:</source>
         <translation>Fichier :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="213" />
         <source>Author:</source>
         <translation>Auteur :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="214" />
         <source>Organization:</source>
         <translation>Organisation :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="215" />
         <source>Circumference:</source>
         <translation>Circonférence :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="216" />
         <source>Rows:</source>
         <translation>Rangées :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="217" />
         <source>Repeat:</source>
         <translation>Rapport :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="220" />
         <source>Color palette:</source>
         <translation>Palette de couleurs :</translation>
     </message>
     <message>
-        <location filename="../src/print/printjob.cpp" line="246" />
         <source>(No repeat detected.)</source>
         <translation>(Aucun rapport détecté.)</translation>
     </message>
@@ -171,313 +152,347 @@
         <translation>Configurer la mise en page</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="56" />
         <source>Export &amp;PDF...</source>
         <translation>Exporter en &amp;PDF...</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="57" />
+        <location filename="../src/ui/actions.cpp" line="59" />
+        <source>&amp;PNG image...</source>
+        <translation>Image &amp;PNG...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="60" />
+        <source>Exports the pattern as a PNG image</source>
+        <translation>Exporte le patron en image PNG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="61" />
+        <source>&amp;JPEG image...</source>
+        <translation>Image &amp;JPEG...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="62" />
+        <source>Exports the pattern as a JPEG image</source>
+        <translation>Exporte le patron en image JPEG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="63" />
+        <source>&amp;SVG vector...</source>
+        <translation>Vecteur &amp;SVG...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="64" />
+        <source>Exports the pattern as an SVG document</source>
+        <translation>Exporte le patron en document SVG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="65" />
+        <source>PD&amp;F document...</source>
+        <translation>Document PD&amp;F...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/actions.cpp" line="66" />
         <source>Exports the pattern as a PDF document</source>
         <translation>Exporte le patron en PDF</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="58" />
+        <location filename="../src/ui/actions.cpp" line="67" />
         <source>E&amp;xit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="59" />
+        <location filename="../src/ui/actions.cpp" line="68" />
         <source>Exits the program</source>
         <translation>Quitter le programme</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="62" />
+        <location filename="../src/ui/actions.cpp" line="71" />
         <source>&amp;Undo</source>
         <translation>Ann&amp;uler</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="63" />
+        <location filename="../src/ui/actions.cpp" line="72" />
         <source>Undoes the last change</source>
         <translation>Annuler la dernière action</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="64" />
+        <location filename="../src/ui/actions.cpp" line="73" />
         <source>&amp;Redo</source>
         <translation>Rétablir</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="65" />
+        <location filename="../src/ui/actions.cpp" line="74" />
         <source>Redoes the last undone change</source>
         <translation>Rétablir la dernière modification</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="66" />
+        <location filename="../src/ui/actions.cpp" line="75" />
         <source>&amp;Arrange...</source>
         <translation>&amp;Arranger...</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="67" />
+        <location filename="../src/ui/actions.cpp" line="76" />
         <source>Arranges copies of the selected part</source>
         <translation>Arranger les copies de la partie sélectionnée</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="68" />
+        <location filename="../src/ui/actions.cpp" line="77" />
         <source>&amp;Insert Row</source>
         <translation>&amp;Insérer une ligne</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="69" />
+        <location filename="../src/ui/actions.cpp" line="78" />
         <source>Inserts an empty row at the bottom</source>
         <translation>Insérer une ligne vierge en bas</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="70" />
+        <location filename="../src/ui/actions.cpp" line="79" />
         <source>&amp;Delete Row</source>
         <translation>Supprimer une ligne</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="71" />
+        <location filename="../src/ui/actions.cpp" line="80" />
         <source>Deletes the row at the bottom</source>
         <translation>Supprimer la ligne en bas</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="72" />
+        <location filename="../src/ui/actions.cpp" line="81" />
         <location filename="../tests/test_i18n.cpp" line="32" />
         <source>Mirror &amp;Horizontal</source>
         <translation>Miroir &amp;horizontal</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="73" />
+        <location filename="../src/ui/actions.cpp" line="82" />
         <source>Mirrors the selection horizontally</source>
         <translation>Refléter horizontalement la sélection</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="74" />
+        <location filename="../src/ui/actions.cpp" line="83" />
         <source>Mirror &amp;Vertical</source>
         <translation>Miroir &amp;vertical</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="75" />
+        <location filename="../src/ui/actions.cpp" line="84" />
         <source>Mirrors the selection vertically</source>
         <translation>Refléter verticalement la sélection</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="76" />
+        <location filename="../src/ui/actions.cpp" line="85" />
         <source>Rotate &amp;90°</source>
         <translation>&amp;Rotation</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="77" />
+        <location filename="../src/ui/actions.cpp" line="86" />
         <source>Rotates the selection 90 degrees clockwise</source>
         <translation>Pivoter la sélection à 90 degrés</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="78" />
+        <location filename="../src/ui/actions.cpp" line="87" />
         <source>Delete Selection</source>
         <translation>Effacer</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="79" />
+        <location filename="../src/ui/actions.cpp" line="88" />
         <source>Deletes the selected region</source>
         <translation>Effacer les perles sélectionnées</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="82" />
+        <location filename="../src/ui/actions.cpp" line="91" />
         <source>&amp;Draft</source>
         <translation>Patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="83" />
+        <location filename="../src/ui/actions.cpp" line="92" />
         <source>Show the draft view</source>
         <translation>Afficher la vue patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="84" />
+        <location filename="../src/ui/actions.cpp" line="93" />
         <source>&amp;Corrected</source>
         <translation>Vue plane</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="85" />
+        <location filename="../src/ui/actions.cpp" line="94" />
         <source>Show the corrected view</source>
         <translation>Montre la vue aplanie</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="86" />
+        <location filename="../src/ui/actions.cpp" line="95" />
         <source>&amp;Simulation</source>
         <translation>&amp;Simulation</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="87" />
+        <location filename="../src/ui/actions.cpp" line="96" />
         <source>Show the simulation view</source>
         <translation>Afficher la vue simulation</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="88" />
+        <location filename="../src/ui/actions.cpp" line="97" />
         <source>&amp;Report</source>
         <translation>Bilan</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="89" />
+        <location filename="../src/ui/actions.cpp" line="98" />
         <source>Show the report view</source>
         <translation>Afficher la vue Bilan</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="90" />
+        <location filename="../src/ui/actions.cpp" line="99" />
         <source>Draw Colo&amp;rs</source>
         <translation>C&amp;ouleurs</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="91" />
+        <location filename="../src/ui/actions.cpp" line="100" />
         <source>Render bead colors</source>
         <translation>Afficher les couleurs</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="92" />
+        <location filename="../src/ui/actions.cpp" line="101" />
         <source>Draw S&amp;ymbols</source>
         <translation>S&amp;ymboles</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="93" />
+        <location filename="../src/ui/actions.cpp" line="102" />
         <source>Render bead symbols</source>
         <translation>Afficher les symboles</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="94" />
+        <location filename="../src/ui/actions.cpp" line="103" />
         <source>Zoom &amp;In</source>
         <translation>Zoomer</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="95" />
+        <location filename="../src/ui/actions.cpp" line="104" />
         <source>Zooms in</source>
         <translation>Agrandir la vue</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="96" />
+        <location filename="../src/ui/actions.cpp" line="105" />
         <source>Zoom &amp;Out</source>
         <translation>Déz&amp;oomer</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="97" />
+        <location filename="../src/ui/actions.cpp" line="106" />
         <source>Zooms out</source>
         <translation>Diminuer la vue</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="98" />
+        <location filename="../src/ui/actions.cpp" line="107" />
         <source>&amp;Normal Zoom</source>
         <translation>&amp;Normal</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="99" />
+        <location filename="../src/ui/actions.cpp" line="108" />
         <source>Resets the zoom</source>
         <translation>Taille de vue normale</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="117" />
+        <location filename="../src/ui/actions.cpp" line="126" />
         <source>&amp;Pencil</source>
         <translation>Stylo</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="118" />
+        <location filename="../src/ui/actions.cpp" line="127" />
         <source>Draws beads</source>
         <translation>Dessiner avec un stylo</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="119" />
+        <location filename="../src/ui/actions.cpp" line="128" />
         <source>&amp;Select</source>
         <translation>&amp;Sélection</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="120" />
+        <location filename="../src/ui/actions.cpp" line="129" />
         <source>Selects a region</source>
         <translation>Sélectionner une partie du patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="121" />
+        <location filename="../src/ui/actions.cpp" line="130" />
         <source>&amp;Fill</source>
         <translation>Remplir</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="122" />
+        <location filename="../src/ui/actions.cpp" line="131" />
         <source>Fills a contiguous region</source>
         <translation>Remplir une partie du patron avec la couleur courante</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="123" />
+        <location filename="../src/ui/actions.cpp" line="132" />
         <source>Pip&amp;ette</source>
         <translation>Pipe&amp;tte</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="124" />
+        <location filename="../src/ui/actions.cpp" line="133" />
         <source>Picks a color from the pattern</source>
         <translation>Utiliser la pipette</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="128" />
+        <location filename="../src/ui/actions.cpp" line="137" />
         <source>&amp;Width...</source>
         <translation>Largeur...</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="129" />
+        <location filename="../src/ui/actions.cpp" line="138" />
         <source>Sets the pattern width</source>
         <translation>Définir la largeur du patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="130" />
+        <location filename="../src/ui/actions.cpp" line="139" />
         <source>&amp;Height...</source>
         <translation>&amp;Hauteur...</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="131" />
+        <location filename="../src/ui/actions.cpp" line="140" />
         <source>Sets the pattern height</source>
         <translation>Définir la hauteur du patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="132" />
+        <location filename="../src/ui/actions.cpp" line="141" />
         <source>&amp;Preferences...</source>
         <translation>&amp;Préférences...</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="133" />
+        <location filename="../src/ui/actions.cpp" line="142" />
         <source>Opens the preferences dialog</source>
         <translation>Éditer les préférences</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="136" />
+        <location filename="../src/ui/actions.cpp" line="145" />
         <source>Technical &amp;Infos...</source>
         <translation>Informa&amp;tions techniques</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="137" />
+        <location filename="../src/ui/actions.cpp" line="146" />
         <source>Shows technical information about the pattern</source>
         <translation>Afficher les informations sur les versions de jbead et java</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="138" />
+        <location filename="../src/ui/actions.cpp" line="147" />
         <source>&amp;About JBead...</source>
         <translation>À propos de Jbe&amp;ad</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="139" />
+        <location filename="../src/ui/actions.cpp" line="148" />
         <source>Shows the about dialog</source>
         <translation>Afficher les informations à propos de Jbead</translation>
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="142" />
+        <location filename="../src/ui/actions.cpp" line="151" />
         <source>Rotate &amp;Left</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="143" />
+        <location filename="../src/ui/actions.cpp" line="152" />
         <source>Rotates the simulation tube to the left</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="144" />
+        <location filename="../src/ui/actions.cpp" line="153" />
         <source>Rotate &amp;Right</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/actions.cpp" line="145" />
+        <location filename="../src/ui/actions.cpp" line="154" />
         <source>Rotates the simulation tube to the right</source>
         <translation type="unfinished" />
     </message>
@@ -517,164 +532,206 @@
 <context>
     <name>jbead::MainWindow</name>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="192" />
+        <location filename="../src/ui/mainwindow.cpp" line="195" />
         <source>Draft</source>
         <translation>Patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="193" />
+        <location filename="../src/ui/mainwindow.cpp" line="196" />
         <source>Corrected</source>
         <translation>Vue plane</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="194" />
+        <location filename="../src/ui/mainwindow.cpp" line="197" />
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="195" />
+        <location filename="../src/ui/mainwindow.cpp" line="198" />
         <source>Report</source>
         <translation>Bilan</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="215" />
+        <location filename="../src/ui/mainwindow.cpp" line="218" />
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="223" />
+        <location filename="../src/ui/mainwindow.cpp" line="226" />
         <source>&amp;Recent Files</source>
         <translation>Fichiers &amp;récents</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="238" />
+        <location filename="../src/ui/mainwindow.cpp" line="241" />
+        <source>&amp;Export</source>
+        <translation>&amp;Exporter</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="249" />
         <source>&amp;Edit</source>
         <translation>Édition</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="247" />
+        <location filename="../src/ui/mainwindow.cpp" line="258" />
         <source>Ro&amp;w</source>
         <translation>Lignes</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="251" />
+        <location filename="../src/ui/mainwindow.cpp" line="262" />
         <source>&amp;View</source>
         <translation>Affichage</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="264" />
+        <location filename="../src/ui/mainwindow.cpp" line="275" />
         <source>&amp;Tools</source>
         <translation>Ou&amp;tils</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="270" />
+        <location filename="../src/ui/mainwindow.cpp" line="281" />
         <source>&amp;Pattern</source>
         <translation>&amp;Patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="276" />
+        <location filename="../src/ui/mainwindow.cpp" line="287" />
         <source>&amp;Info</source>
         <translation>&amp;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="283" />
+        <location filename="../src/ui/mainwindow.cpp" line="294" />
         <source>Main</source>
         <translation>Principal</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="334" />
+        <location filename="../src/ui/mainwindow.cpp" line="345" />
         <source>JBead</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="335" />
+        <location filename="../src/ui/mainwindow.cpp" line="346" />
         <source>The pattern has unsaved changes. Save before continuing?</source>
         <translation>Le patron a des modifications non sauvegardées. Sauver avant de continuer ?</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="345" />
+        <location filename="../src/ui/mainwindow.cpp" line="356" />
         <source>Save</source>
         <translation>Sauver</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="368" />
+        <location filename="../src/ui/mainwindow.cpp" line="379" />
         <source>Save failed</source>
         <translation>Échec de la sauvegarde</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="398" />
+        <location filename="../src/ui/mainwindow.cpp" line="409" />
         <source>Open failed</source>
         <translation>Échec de l'ouverture</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="424" />
+        <location filename="../src/ui/mainwindow.cpp" line="435" />
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="449" />
-        <location filename="../src/ui/mainwindow.cpp" line="459" />
+        <location filename="../src/ui/mainwindow.cpp" line="460" />
+        <location filename="../src/ui/mainwindow.cpp" line="470" />
         <source>Print</source>
         <translation>Imprimer</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="460" />
+        <location filename="../src/ui/mainwindow.cpp" line="471" />
         <source>Print job produced no output.</source>
         <translation>L'impression n'a produit aucune sortie.</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="473" />
+        <location filename="../src/ui/mainwindow.cpp" line="484" />
         <source>Print Preview</source>
         <translation>Aperçu avant impression</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="494" />
+        <location filename="../src/ui/mainwindow.cpp" line="505" />
         <source>Page Setup</source>
         <translation>Mise en page</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="508" />
-        <location filename="../src/ui/mainwindow.cpp" line="522" />
+        <location filename="../src/ui/mainwindow.cpp" line="539" />
+        <source>Could not write %1</source>
+        <translation>Impossible d'écrire %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="552" />
+        <source>Export PNG</source>
+        <translation>Exporter en PNG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="552" />
+        <source>PNG images (*.png)</source>
+        <translation>Images PNG (*.png)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="566" />
+        <source>Export JPEG</source>
+        <translation>Exporter en JPEG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="566" />
+        <source>JPEG images (*.jpg *.jpeg)</source>
+        <translation>Images JPEG (*.jpg *.jpeg)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="580" />
+        <source>Export SVG</source>
+        <translation>Exporter en SVG</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="580" />
+        <source>SVG documents (*.svg)</source>
+        <translation>Documents SVG (*.svg)</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/mainwindow.cpp" line="594" />
         <source>Export PDF</source>
         <translation>Exporter en PDF</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="508" />
+        <location filename="../src/ui/mainwindow.cpp" line="594" />
+        <source>PDF documents (*.pdf)</source>
+        <translation>Documents PDF (*.pdf)</translation>
+    </message>
+    <message>
         <source>PDF Documents (*.pdf)</source>
         <translation>Documents PDF (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="523" />
         <source>Could not write PDF to %1</source>
         <translation>Impossible d'écrire le PDF dans %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="598" />
+        <location filename="../src/ui/mainwindow.cpp" line="672" />
         <source>Pattern Width</source>
         <translation>Largeur du patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="598" />
+        <location filename="../src/ui/mainwindow.cpp" line="672" />
         <source>&amp;Width:</source>
         <translation>&amp;Largeur :</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="604" />
+        <location filename="../src/ui/mainwindow.cpp" line="678" />
         <source>Pattern Height</source>
         <translation>Hauteur du patron</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="604" />
+        <location filename="../src/ui/mainwindow.cpp" line="678" />
         <source>&amp;Height:</source>
         <translation>&amp;Hauteur :</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="649" />
+        <location filename="../src/ui/mainwindow.cpp" line="723" />
         <source>&lt;h3&gt;JBead %1&lt;/h3&gt;&lt;p&gt;Bead-pattern designer (Qt 6 port of the original Java/Swing app).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Licensed under GPL v3 or later.&lt;/p&gt;&lt;p&gt;Built against Qt %2.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</source>
         <translation>&lt;h3&gt;JBead %1&lt;/h3&gt;&lt;p&gt;Éditeur de patrons de perles (portage Qt 6 de l'application Java/Swing originale).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Sous licence GPL v3 ou ultérieure.&lt;/p&gt;&lt;p&gt;Compilé avec Qt %2.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="656" />
+        <location filename="../src/ui/mainwindow.cpp" line="730" />
         <source>About JBead</source>
         <translation>À propos de JBead</translation>
     </message>
@@ -683,52 +740,52 @@
         <translation>&lt;h3&gt;JBead&lt;/h3&gt;&lt;p&gt;Éditeur de patrons de perles (portage Qt 6).&lt;/p&gt;&lt;p&gt;© 2009–2026 Damian Brunold. Sous licence GPL v3 ou ultérieure.&lt;/p&gt;&lt;p&gt;&lt;a href="http://www.brunoldsoftware.ch"&gt;brunoldsoftware.ch&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="730" />
+        <location filename="../src/ui/mainwindow.cpp" line="807" />
         <source>unnamed</source>
         <translation type="unfinished" />
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="739" />
+        <location filename="../src/ui/mainwindow.cpp" line="816" />
         <source>Sel: %1 × %2</source>
         <translation>Sél : %1 × %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="741" />
+        <location filename="../src/ui/mainwindow.cpp" line="818" />
         <source>Sel: —</source>
         <translation>Sél : —</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="743" />
+        <location filename="../src/ui/mainwindow.cpp" line="820" />
         <source>Scroll: %1</source>
         <translation>Défil : %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="744" />
+        <location filename="../src/ui/mainwindow.cpp" line="821" />
         <source>Repeat: %1</source>
         <translation>Rapport : %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="747" />
+        <location filename="../src/ui/mainwindow.cpp" line="824" />
         <source>Pencil</source>
         <translation>Crayon</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="748" />
+        <location filename="../src/ui/mainwindow.cpp" line="825" />
         <source>Select</source>
         <translation>Sélection</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="749" />
+        <location filename="../src/ui/mainwindow.cpp" line="826" />
         <source>Fill</source>
         <translation>Remplir</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="750" />
+        <location filename="../src/ui/mainwindow.cpp" line="827" />
         <source>Pipette</source>
         <translation>Pipette</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="753" />
+        <location filename="../src/ui/mainwindow.cpp" line="830" />
         <source>Tool: %1</source>
         <translation>Outil : %1</translation>
     </message>

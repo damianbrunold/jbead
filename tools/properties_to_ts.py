@@ -264,6 +264,26 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
             "<p>© 2009–2026 Damian Brunold. Lizenziert unter GPL v3 oder später.</p>"
             "<p>Erstellt mit Qt %2.</p>"
             "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>",
+
+        "&Export":                          "&Exportieren",
+        "&PNG image...":                    "&PNG-Bild...",
+        "&JPEG image...":                   "&JPEG-Bild...",
+        "&SVG vector...":                   "&SVG-Vektor...",
+        "PD&F document...":                 "PD&F-Dokument...",
+        "Exports the pattern as a PNG image":
+            "Exportiert das Muster als PNG-Bild",
+        "Exports the pattern as a JPEG image":
+            "Exportiert das Muster als JPEG-Bild",
+        "Exports the pattern as an SVG document":
+            "Exportiert das Muster als SVG-Dokument",
+        "Export PNG":                       "PNG exportieren",
+        "Export JPEG":                      "JPEG exportieren",
+        "Export SVG":                       "SVG exportieren",
+        "PNG images (*.png)":               "PNG-Bilder (*.png)",
+        "JPEG images (*.jpg *.jpeg)":       "JPEG-Bilder (*.jpg *.jpeg)",
+        "SVG documents (*.svg)":            "SVG-Dokumente (*.svg)",
+        "PDF documents (*.pdf)":            "PDF-Dokumente (*.pdf)",
+        "Could not write %1":               "%1 konnte nicht geschrieben werden",
     },
     "fr": {
         "Open":         "Ouvrir",
@@ -358,6 +378,26 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
             "<p>© 2009–2026 Damian Brunold. Sous licence GPL v3 ou ultérieure.</p>"
             "<p>Compilé avec Qt %2.</p>"
             "<p><a href=\"http://www.brunoldsoftware.ch\">brunoldsoftware.ch</a></p>",
+
+        "&Export":                          "&Exporter",
+        "&PNG image...":                    "Image &PNG...",
+        "&JPEG image...":                   "Image &JPEG...",
+        "&SVG vector...":                   "Vecteur &SVG...",
+        "PD&F document...":                 "Document PD&F...",
+        "Exports the pattern as a PNG image":
+            "Exporte le patron en image PNG",
+        "Exports the pattern as a JPEG image":
+            "Exporte le patron en image JPEG",
+        "Exports the pattern as an SVG document":
+            "Exporte le patron en document SVG",
+        "Export PNG":                       "Exporter en PNG",
+        "Export JPEG":                      "Exporter en JPEG",
+        "Export SVG":                       "Exporter en SVG",
+        "PNG images (*.png)":               "Images PNG (*.png)",
+        "JPEG images (*.jpg *.jpeg)":       "Images JPEG (*.jpg *.jpeg)",
+        "SVG documents (*.svg)":            "Documents SVG (*.svg)",
+        "PDF documents (*.pdf)":            "Documents PDF (*.pdf)",
+        "Could not write %1":               "Impossible d'écrire %1",
     },
 }
 
