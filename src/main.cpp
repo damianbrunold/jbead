@@ -80,8 +80,10 @@ int main(int argc, char* argv[])
         QCoreApplication::installTranslator(&appTranslator);
     }
 
+    /*  Geometry is restored inside MainWindow's constructor (or the
+        constructor falls back to a default size on first run). Don't
+        resize here — that would clobber the restored window state.  */
     jbead::MainWindow win;
-    win.resize(1280, 800);
     win.show();
 
     return app.exec();

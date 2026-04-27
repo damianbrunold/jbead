@@ -111,9 +111,10 @@ MainWindow::MainWindow(QWidget* parent)
         const QByteArray state = s.value(QStringLiteral("state")).toByteArray();
         const QByteArray split = s.value(QStringLiteral("splitter")).toByteArray();
         s.endGroup();
-        if (!geom.isEmpty())  restoreGeometry(geom);
+        const bool restored = !geom.isEmpty() && restoreGeometry(geom);
         if (!state.isEmpty()) restoreState(state);
         if (!split.isEmpty()) m_centralSplitter->restoreState(split);
+        if (!restored) resize(1280, 800);
     }
 }
 
@@ -243,6 +244,10 @@ void MainWindow::buildMenuBar()
 void MainWindow::buildToolbars()
 {
     auto* main = addToolBar(tr("Main"));
+    /*  saveState/restoreState identifies dock widgets and toolbars
+        by objectName(); without it Qt warns and the layout slot
+        round-trips no info for that bar.                          */
+    main->setObjectName(QStringLiteral("MainToolBar"));
     main->setMovable(false);
     main->addAction(m_actions->action(Actions::Id::FileNew));
     main->addAction(m_actions->action(Actions::Id::FileOpen));
@@ -266,6 +271,7 @@ void MainWindow::buildToolbars()
 
     addToolBarBreak();
     m_colorsToolbar = new ColorsToolbar(m_model, this);
+    m_colorsToolbar->setObjectName(QStringLiteral("ColorsToolBar"));
     addToolBar(m_colorsToolbar);
 }
 
