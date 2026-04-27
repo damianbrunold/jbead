@@ -22,6 +22,7 @@ target_link_libraries(jbead_ui
         Qt6::Widgets
         Qt6::PrintSupport
         Qt6::Svg
+        jbead_print
         jbead_io
         jbead_domain
 )

@@ -49,8 +49,12 @@ void Actions::buildActions()
          QKeySequence::SaveAs, tr("Saves a pattern to a new file"));
     make(Id::FilePrint,  tr("&Print..."),  QStringLiteral("file.print"),
          QKeySequence::Print, tr("Prints the pattern"));
+    make(Id::FilePrintPreview, tr("Print Pre&view..."), QString(),
+         QKeySequence(), tr("Previews the print output"));
     make(Id::FilePageSetup, tr("Page Set&up..."), QString(),
          QKeySequence(), tr("Configures the page format"));
+    make(Id::FileExportPdf, tr("Export &PDF..."), QString(),
+         QKeySequence(), tr("Exports the pattern as a PDF document"));
     make(Id::FileExit,   tr("E&xit"), QString(),
          QKeySequence::Quit, tr("Exits the program"));
 

@@ -23,7 +23,7 @@ public:
     enum class Id {
         // File
         FileNew, FileOpen, FileSave, FileSaveAs,
-        FilePrint, FilePageSetup, FileExit,
+        FilePrint, FilePrintPreview, FilePageSetup, FileExportPdf, FileExit,
         // Edit
         EditUndo, EditRedo, EditArrange,
         EditMirrorHorizontal, EditMirrorVertical, EditRotate, EditDelete,

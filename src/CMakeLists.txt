@@ -9,6 +9,7 @@ target_link_libraries(jbead
         Qt6::Widgets
         Qt6::PrintSupport
         jbead_ui
+        jbead_print
         jbead_io
         jbead_domain
 )

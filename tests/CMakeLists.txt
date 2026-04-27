@@ -37,3 +37,13 @@ target_link_libraries(test_i18n PRIVATE
 add_test(NAME i18n COMMAND test_i18n)
 set_tests_properties(i18n PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+qt_add_executable(test_printjob test_printjob.cpp)
+target_link_libraries(test_printjob PRIVATE
+    Qt6::Core Qt6::Gui Qt6::PrintSupport Qt6::Test
+    jbead_print jbead_io jbead_domain)
+target_compile_definitions(test_printjob PRIVATE
+    JBEAD_SAMPLES_DIR="${CMAKE_SOURCE_DIR}/samples")
+add_test(NAME printjob COMMAND test_printjob)
+set_tests_properties(printjob PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen")

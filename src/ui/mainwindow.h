@@ -56,6 +56,10 @@ private slots:
     void doFileOpen();
     void doFileSave();
     void doFileSaveAs();
+    void doFilePrint();
+    void doFilePrintPreview();
+    void doFilePageSetup();
+    void doFileExportPdf();
     void doFileExit();
     void doEditUndo();
     void doEditRedo();

@@ -7,6 +7,8 @@
 #include "domain/selection.h"
 #include "draftpanel.h"
 #include "io/fileformat.h"
+#include "print/printjob.h"
+#include "print/printsettings.h"
 #include "reportpanel.h"
 #include "simulationpanel.h"
 
@@ -19,6 +21,10 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPageSetupDialog>
+#include <QPrintDialog>
+#include <QPrintPreviewDialog>
+#include <QPrinter>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QStatusBar>
@@ -46,6 +52,10 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_actions->action(Actions::Id::FileOpen),   &QAction::triggered, this, &MainWindow::doFileOpen);
     connect(m_actions->action(Actions::Id::FileSave),   &QAction::triggered, this, &MainWindow::doFileSave);
     connect(m_actions->action(Actions::Id::FileSaveAs), &QAction::triggered, this, &MainWindow::doFileSaveAs);
+    connect(m_actions->action(Actions::Id::FilePrint),         &QAction::triggered, this, &MainWindow::doFilePrint);
+    connect(m_actions->action(Actions::Id::FilePrintPreview),  &QAction::triggered, this, &MainWindow::doFilePrintPreview);
+    connect(m_actions->action(Actions::Id::FilePageSetup),     &QAction::triggered, this, &MainWindow::doFilePageSetup);
+    connect(m_actions->action(Actions::Id::FileExportPdf),     &QAction::triggered, this, &MainWindow::doFileExportPdf);
     connect(m_actions->action(Actions::Id::FileExit),   &QAction::triggered, this, &MainWindow::doFileExit);
     connect(m_actions->action(Actions::Id::EditUndo),   &QAction::triggered, this, &MainWindow::doEditUndo);
     connect(m_actions->action(Actions::Id::EditRedo),   &QAction::triggered, this, &MainWindow::doEditRedo);
@@ -161,7 +171,9 @@ void MainWindow::buildMenuBar()
     fileMenu->addAction(m_actions->action(Actions::Id::FileSaveAs));
     fileMenu->addSeparator();
     fileMenu->addAction(m_actions->action(Actions::Id::FilePrint));
+    fileMenu->addAction(m_actions->action(Actions::Id::FilePrintPreview));
     fileMenu->addAction(m_actions->action(Actions::Id::FilePageSetup));
+    fileMenu->addAction(m_actions->action(Actions::Id::FileExportPdf));
     fileMenu->addSeparator();
     fileMenu->addAction(m_actions->action(Actions::Id::FileExit));
 
@@ -324,6 +336,95 @@ void MainWindow::doFileOpen()
 void MainWindow::doFileSave()    { saveTo(m_model->isSaved() ? m_model->filePath() : QString()); }
 void MainWindow::doFileSaveAs()  { saveTo(QString()); }
 void MainWindow::doFileExit()    { close(); }
+
+// -----------------------------------------------------------------
+// Printing
+// -----------------------------------------------------------------
+
+void MainWindow::doFilePrint()
+{
+    PrintSettings settings;
+    settings.load();
+
+    QPrinter printer(QPrinter::HighResolution);
+    settings.apply(&printer);
+
+    QPrintDialog dlg(&printer, this);
+    dlg.setWindowTitle(tr("Print"));
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    /*  Persist whatever the user changed in the dialog so the
+        next print run starts from those values.                  */
+    settings.readFromPrinter(&printer);
+    settings.save();
+
+    PrintJob job(*m_model, settings);
+    if (!job.run(&printer)) {
+        QMessageBox::warning(this, tr("Print"),
+            tr("Print job produced no output."));
+    }
+}
+
+void MainWindow::doFilePrintPreview()
+{
+    PrintSettings settings;
+    settings.load();
+
+    QPrinter printer(QPrinter::HighResolution);
+    settings.apply(&printer);
+
+    QPrintPreviewDialog preview(&printer, this);
+    preview.setWindowTitle(tr("Print Preview"));
+    /*  paintRequested fires once initially and again on every
+        zoom / orientation change inside the dialog. The job is
+        cheap enough to recompute pagination each time.           */
+    connect(&preview, &QPrintPreviewDialog::paintRequested,
+            this, [this, &settings](QPrinter* p) {
+                PrintJob job(*m_model, settings);
+                job.paint(p);
+            });
+    preview.exec();
+}
+
+void MainWindow::doFilePageSetup()
+{
+    PrintSettings settings;
+    settings.load();
+
+    QPrinter printer(QPrinter::HighResolution);
+    settings.apply(&printer);
+
+    QPageSetupDialog dlg(&printer, this);
+    dlg.setWindowTitle(tr("Page Setup"));
+    if (dlg.exec() != QDialog::Accepted) return;
+
+    settings.readFromPrinter(&printer);
+    settings.save();
+}
+
+void MainWindow::doFileExportPdf()
+{
+    QString defaultName = QFileInfo(m_model->filePath()).completeBaseName();
+    if (defaultName.isEmpty()) defaultName = QStringLiteral("pattern");
+    const QString path = QFileDialog::getSaveFileName(this,
+        tr("Export PDF"), defaultName + QStringLiteral(".pdf"),
+        tr("PDF Documents (*.pdf)"));
+    if (path.isEmpty()) return;
+
+    PrintSettings settings;
+    settings.load();
+
+    QPrinter printer(QPrinter::HighResolution);
+    settings.apply(&printer);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(path);
+
+    PrintJob job(*m_model, settings);
+    if (!job.run(&printer) || !QFileInfo(path).exists()) {
+        QMessageBox::warning(this, tr("Export PDF"),
+            tr("Could not write PDF to %1").arg(path));
+    }
+}
 
 // -----------------------------------------------------------------
 // Edit operations
