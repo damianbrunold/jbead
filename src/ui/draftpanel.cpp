@@ -13,6 +13,44 @@
 
 namespace jbead {
 
+namespace {
+
+/*  8-direction snap matching the textile editor's _constrainTo8Dir
+    (jbead.js:1220). When the user holds Ctrl during a pencil drag,
+    the line is constrained to one of horizontal, vertical, or one
+    of the four 45-degree diagonals. The snap extends along the
+    *longer* axis so the resulting line covers the full drag
+    distance — the previous Selection::lineDestination clamped to
+    the shorter axis instead, producing a strangely-truncated line.
+    The bias `2 * |minor|` for picking H/V favours the cardinal
+    when one axis dominates, which matches user intuition.        */
+BeadPoint snapTo8Dir(BeadPoint start, BeadPoint end)
+{
+    const int dx = end.x() - start.x();
+    const int dy = end.y() - start.y();
+    const int adx = std::abs(dx), ady = std::abs(dy);
+    if (adx == 0 && ady == 0) return start;
+    if (adx > ady * 2) return BeadPoint(start.x() + dx, start.y());      // horizontal
+    if (ady > adx * 2) return BeadPoint(start.x(),       start.y() + dy); // vertical
+    const int sx = (dx > 0) ? 1 : (dx < 0 ? -1 : 0);
+    const int sy = (dy > 0) ? 1 : (dy < 0 ? -1 : 0);
+    const int len = std::max(adx, ady);
+    return BeadPoint(start.x() + sx * len, start.y() + sy * len);        // 45 degrees
+}
+
+bool snapModifierActive(Qt::KeyboardModifiers mods)
+{
+    /*  Match the textile editor's "Ctrl snaps to 8 directions"
+        binding. Accept Shift too because (a) the original feedback
+        round mentioned Shift as a candidate and (b) it's an
+        unsurprising alternative for users who associate Shift with
+        constrained drawing in other tools.                       */
+    return mods.testFlag(Qt::ControlModifier)
+        || mods.testFlag(Qt::ShiftModifier);
+}
+
+} // namespace
+
 DraftPanel::DraftPanel(Model* model, Selection* selection, MainWindow* window, QWidget* parent)
     : BasePanel(model, selection, window, parent)
 {
@@ -102,14 +140,33 @@ void DraftPanel::paintMarkers(QPainter& p)
 
 void DraftPanel::paintSelection(QPainter& p)
 {
-    /*  Phase-3 simplification vs. legacy: legacy uses XOR-mode
-        Graphics.getGraphics() to draw selection rectangles outside
-        of paintComponent(). Qt 6 doesn't support QPainter XOR cleanly,
-        so we do everything in paintEvent — selection updates trigger
-        update() and the rectangle is repainted from scratch.
-        Slightly less responsive but visually identical.            */
-    if (!m_selection->isActive()) return;
+    const Actions::Id tool = m_window->actions()->currentTool();
 
+    /*  Pencil tool: while the user is dragging, render a
+        translucent Bresenham-cell overlay between the press cell
+        and the current cursor cell (the textile editor's "preview
+        cells" — see jbead.js:_drawPencilPreview). The selection
+        rectangle is suppressed for this tool because it would
+        clutter the line preview.                                  */
+    if (tool == Actions::Id::ToolPencil && m_dragging) {
+        const BeadPoint a = m_dragOrigin;
+        const BeadPoint b = m_snapHeld ? snapTo8Dir(a, m_dragLast) : m_dragLast;
+        QColor preview = m_model->color(m_model->selectedColor());
+        preview.setAlpha(140);
+        p.setPen(QPen(palette().color(QPalette::Highlight), 0.5));
+        p.setBrush(preview);
+        SegmentIterator it(a, b);
+        while (it.hasNext()) {
+            const BeadPoint cell = it.next();
+            const int x = xFor(cell.unscrolled(m_scroll));
+            const int y = yFor(cell.unscrolled(m_scroll));
+            p.drawRect(x, y, m_gridx, m_gridy);
+        }
+        return;
+    }
+
+    /*  Other tools: keep the red selection rectangle. */
+    if (!m_selection->isActive()) return;
     const BeadRect r = m_selection->rect();
     const int x = xFor(r.begin().unscrolled(m_scroll));
     const int y = yFor(r.end().unscrolled(m_scroll));
@@ -118,22 +175,6 @@ void DraftPanel::paintSelection(QPainter& p)
     p.setPen(QPen(Qt::red, 1));
     p.setBrush(Qt::NoBrush);
     p.drawRect(x, y, w, h);
-
-    /*  Pencil-tool line preview: draw the Bresenham endpoint
-        candidate so the user sees what will be committed. With
-        Shift held we render the snapped (lineDestination) endpoint
-        — straight-line drawing from the textile editor.           */
-    if (m_window->actions()->currentTool() == Actions::Id::ToolPencil) {
-        const BeadPoint a = m_selection->origin();
-        const BeadPoint b = m_shiftHeld ? m_selection->lineDestination()
-                                        : m_selection->destination();
-        const int x0 = xFor(a.unscrolled(m_scroll)) + m_gridx / 2;
-        const int y0 = yFor(a.unscrolled(m_scroll)) + m_gridy / 2;
-        const int x1 = xFor(b.unscrolled(m_scroll)) + m_gridx / 2;
-        const int y1 = yFor(b.unscrolled(m_scroll)) + m_gridy / 2;
-        p.setPen(QPen(QColor(255, 255, 255, 200), 1));
-        p.drawLine(x0, y0, x1, y1);
-    }
 }
 
 bool DraftPanel::mouseToField(QPoint pixel, BeadPoint* out) const
@@ -153,8 +194,8 @@ void DraftPanel::mousePressEvent(QMouseEvent* e)
     if (e->button() != Qt::LeftButton) return;
     BeadPoint pt;
     if (!mouseToField(e->pos(), &pt)) return;
-    m_dragging  = true;
-    m_shiftHeld = e->modifiers().testFlag(Qt::ShiftModifier);
+    m_dragging   = true;
+    m_snapHeld   = snapModifierActive(e->modifiers());
     m_dragOrigin = pt;
     m_dragLast   = pt;
     m_selection->init(pt);
@@ -166,9 +207,11 @@ void DraftPanel::mouseMoveEvent(QMouseEvent* e)
     if (!m_dragging) return;
     BeadPoint pt;
     if (!mouseToField(e->pos(), &pt)) return;
-    m_shiftHeld = e->modifiers().testFlag(Qt::ShiftModifier);
-    m_selection->update(pt);
+    m_snapHeld = snapModifierActive(e->modifiers());
     m_dragLast = pt;
+    /*  Keep selection in sync for the select tool; pencil ignores
+        it since paintSelection draws the line preview directly.   */
+    m_selection->update(pt);
     update();
 }
 
@@ -181,31 +224,41 @@ void DraftPanel::mouseReleaseEvent(QMouseEvent* e)
         update();
         return;
     }
-    m_shiftHeld = e->modifiers().testFlag(Qt::ShiftModifier);
+    m_snapHeld = snapModifierActive(e->modifiers());
+    m_dragLast = pt;
     m_selection->update(pt);
 
     const Actions::Id tool = m_window->actions()->currentTool();
     switch (tool) {
-        case Actions::Id::ToolPencil:
-            if (!m_selection->isActive()) {
-                m_model->setPoint(m_selection->origin());
+        case Actions::Id::ToolPencil: {
+            /*  No drag (release on the same cell as press): toggle
+                the cell. With drag: commit the (possibly snapped)
+                Bresenham line. Mirrors the web editor's
+                _onMouseUp pencil branch.                          */
+            if (m_dragLast == m_dragOrigin) {
+                m_model->setPoint(m_dragOrigin);
             } else {
-                const BeadPoint dest = m_shiftHeld
-                    ? m_selection->lineDestination()
-                    : m_selection->destination();
-                m_model->drawLine(m_selection->origin(), dest);
+                const BeadPoint dest = m_snapHeld
+                    ? snapTo8Dir(m_dragOrigin, m_dragLast)
+                    : m_dragLast;
+                m_model->drawLine(m_dragOrigin, dest);
             }
+            /*  Pencil never leaves a selection rectangle behind —
+                clear it so subsequent edits don't apply to a stale
+                rect from before the drag.                         */
+            m_selection->clear();
             break;
+        }
         case Actions::Id::ToolFill:
-            m_model->fillLine(m_selection->origin());
+            m_model->fillLine(m_dragOrigin);
             break;
         case Actions::Id::ToolPipette: {
-            const std::int8_t c = m_model->get(m_selection->origin().scrolled(m_scroll));
+            const std::int8_t c = m_model->get(m_dragOrigin.scrolled(m_scroll));
             m_window->selectColor(c);
             break;
         }
         case Actions::Id::ToolSelect:
-            if (!m_selection->isActive()) m_model->setPoint(m_selection->origin());
+            if (!m_selection->isActive()) m_model->setPoint(m_dragOrigin);
             break;
         default: break;
     }

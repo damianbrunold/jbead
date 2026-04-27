@@ -48,7 +48,10 @@ private:
     void paintSelection(QPainter& p);
 
     bool m_dragging = false;
-    bool m_shiftHeld = false;
+    /*  True while a drag-modifier (Ctrl or Shift) is being held;
+        snaps the pencil-line preview to one of eight directions.
+        Renamed from m_shiftHeld since both modifiers now apply.  */
+    bool m_snapHeld  = false;
     BeadPoint m_dragOrigin;
     BeadPoint m_dragLast;
 };
