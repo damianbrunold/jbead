@@ -22,7 +22,12 @@ BasePanel::BasePanel(Model* model, Selection* selection, MainWindow* window, QWi
     connect(m_model, &Model::colorsChanged,  this, &BasePanel::onColorsChanged);
     connect(m_model, &Model::colorChanged,   this, &BasePanel::onColorChanged);
 
-    setBackgroundRole(QPalette::Light);
+    /*  QPalette::Base is the "canvas / paper" role — white in the
+        light scheme, near-black in the dark scheme. Using ::Light
+        (which is the highlight role) was always ending up as some
+        derived grey because the application palette doesn't set it
+        explicitly, leaving the panes dark in light mode too.     */
+    setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
 }
 
