@@ -92,6 +92,16 @@ void Model::setColor(int index, const QColor& color)
     emit colorChanged(index);
 }
 
+void Model::setSelectedColor(std::int8_t colorIndex)
+{
+    /*  No-op when nothing changes — keeps the toolbar /
+        palette-editor / status-bar listeners from churning
+        through identical "selection unchanged" repaints.         */
+    if (m_colorIndex == colorIndex) return;
+    m_colorIndex = colorIndex;
+    emit selectedColorChanged(int(colorIndex));
+}
+
 QSet<std::int8_t> Model::usedColors() const
 {
     QSet<std::int8_t> used;

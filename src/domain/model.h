@@ -64,7 +64,7 @@ public:
     int         colorCount() const     { return m_colors.size(); }
     void        setColor(int index, const QColor& color);
     std::int8_t selectedColor() const  { return m_colorIndex; }
-    void        setSelectedColor(std::int8_t colorIndex) { m_colorIndex = colorIndex; }
+    void        setSelectedColor(std::int8_t colorIndex);
     QList<QColor> colors() const       { return m_colors; }
 
     QSet<std::int8_t> usedColors() const;
@@ -145,6 +145,10 @@ signals:
     void modelChanged();
     void colorChanged(int colorIndex);
     void colorsChanged();
+    /*  Fired when the selected palette index changes (i.e. the
+        active drawing colour). Distinct from colorChanged, which
+        means a slot's RGB value was edited.                      */
+    void selectedColorChanged(int colorIndex);
     void scrollChanged(int scroll);
     void shiftChanged(int shift);
     void zoomChanged(int gridx, int gridy);

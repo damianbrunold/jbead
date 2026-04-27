@@ -158,11 +158,10 @@ bool MainWindow::drawSymbols() const { return m_actions->action(Actions::Id::Vie
 void MainWindow::selectColor(int colorIndex)
 {
     if (colorIndex < 0 || colorIndex >= m_model->colorCount()) return;
+    /*  setSelectedColor emits selectedColorChanged which the
+        colours toolbar (and any other listener) repaints from.
+        No manual update() needed.                                 */
     m_model->setSelectedColor(static_cast<std::int8_t>(colorIndex));
-    /*  Trigger the colors toolbar to redraw the selection border.
-        The toolbar listens to colorsChanged; emit a synthetic
-        colorChanged on the previous index to refresh both swatches. */
-    m_colorsToolbar->update();
 }
 
 // -----------------------------------------------------------------

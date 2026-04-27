@@ -33,6 +33,12 @@ ColorsToolbar::ColorsToolbar(Model* model, QWidget* parent)
     connect(m_model, &Model::colorsChanged, this, &ColorsToolbar::rebuild);
     connect(m_model, &Model::colorChanged,  this, &ColorsToolbar::onColorChanged);
     connect(m_model, &Model::modelChanged,  this, &ColorsToolbar::rebuild);
+    /*  Selection from any source (clicking a swatch here, the
+        palette editor dialog, the pipette tool) flips the model's
+        active colour. Rebuild so the red selection border moves
+        onto the new swatch.                                       */
+    connect(m_model, &Model::selectedColorChanged,
+            this, [this](int) { rebuild(); });
 }
 
 void ColorsToolbar::rebuild()
@@ -44,8 +50,10 @@ void ColorsToolbar::rebuild()
         btn->setIcon(swatchIcon(m_model->color(i), i == m_model->selectedColor()));
         btn->setToolTip(tr("Color %1 — double-click to edit").arg(i));
         connect(btn, &QToolButton::clicked, this, [this, i]() {
+            /*  Just push the change through the model — it emits
+                selectedColorChanged which we listen to and rebuild
+                from. No need to call rebuild() ourselves here.    */
             m_model->setSelectedColor(static_cast<std::int8_t>(i));
-            onSelectionChanged();
         });
         /*  Double-click opens a single-color picker for this swatch
             (mirrors the textile editor's _onDoubleClick on the
@@ -60,11 +68,6 @@ void ColorsToolbar::rebuild()
         });
         addWidget(btn);
     }
-}
-
-void ColorsToolbar::onSelectionChanged()
-{
-    rebuild();
 }
 
 void ColorsToolbar::onColorChanged(int /*idx*/)

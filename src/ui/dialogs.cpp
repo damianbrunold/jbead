@@ -263,6 +263,15 @@ PaletteEditorDialog::PaletteEditorDialog(Model* model, QWidget* parent)
     connect(m_model, &Model::colorChanged,  this, [this](int) { rebuild(); });
     connect(m_model, &Model::colorsChanged, this, &PaletteEditorDialog::rebuild);
     connect(m_model, &Model::modelChanged,  this, &PaletteEditorDialog::rebuild);
+    /*  Stay in sync with selection changes from outside — e.g.
+        user clicks a swatch in the toolbar while this dialog is
+        open, or the pipette tool fires.                          */
+    connect(m_model, &Model::selectedColorChanged, this, [this](int idx) {
+        m_selected = idx;
+        for (int i = 0; i < m_buttons.size(); ++i) {
+            m_buttons[i]->setIcon(paletteSwatch(m_model->color(i), i == m_selected));
+        }
+    });
 }
 
 void PaletteEditorDialog::rebuild()

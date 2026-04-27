@@ -19,7 +19,6 @@ public:
 
 private slots:
     void rebuild();
-    void onSelectionChanged();
     void onColorChanged(int idx);
 
 private:
