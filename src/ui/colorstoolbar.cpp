@@ -1,9 +1,9 @@
 #include "colorstoolbar.h"
 
+#include "colorpickerdialog.h"
 #include "domain/model.h"
 #include "swatchbutton.h"
 
-#include <QColorDialog>
 #include <QPainter>
 #include <QPixmap>
 
@@ -54,11 +54,8 @@ void ColorsToolbar::rebuild()
             immediately. The model snapshots before the change so
             it's undoable.                                          */
         connect(btn, &SwatchButton::doubleClicked, this, [this, i]() {
-            const QColor picked = QColorDialog::getColor(
-                m_model->color(i),
-                this,
-                tr("Pick color %1").arg(i),
-                QColorDialog::ShowAlphaChannel);
+            const QColor picked = ColorPickerDialog::getColor(
+                m_model->color(i), this, tr("Pick color %1").arg(i));
             if (picked.isValid()) m_model->setColor(i, picked);
         });
         addWidget(btn);

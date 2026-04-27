@@ -638,6 +638,74 @@
     </message>
 </context>
 <context>
+    <name>jbead::ColorPickerDialog</name>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="150" />
+        <source>Pick colour</source>
+        <translation>Choisir une couleur</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="253" />
+        <source>HSV</source>
+        <translation>TSV</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="254" />
+        <source>&amp;Hue:</source>
+        <translation>&amp;Teinte :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="255" />
+        <source>&amp;Saturation:</source>
+        <translation>&amp;Saturation :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="256" />
+        <source>&amp;Value:</source>
+        <translation>&amp;Valeur :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="259" />
+        <source>RGB</source>
+        <translation>RVB</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="260" />
+        <source>&amp;Red:</source>
+        <translation>&amp;Rouge :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="261" />
+        <source>&amp;Green:</source>
+        <translation>&amp;Vert :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="262" />
+        <source>&amp;Blue:</source>
+        <translation>&amp;Bleu :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="265" />
+        <source>Preview</source>
+        <translation>Aperçu</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="268" />
+        <source>He&amp;x:</source>
+        <translation>He&amp;x :</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="273" />
+        <source>Hue</source>
+        <translation>Teinte</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/colorpickerdialog.cpp" line="274" />
+        <source>Saturation / Value</source>
+        <translation>Saturation / Valeur</translation>
+    </message>
+</context>
+<context>
     <name>jbead::ColorsToolbar</name>
     <message>
         <location filename="../src/ui/colorstoolbar.cpp" line="28" />
@@ -650,7 +718,7 @@
         <translation>Couleur %1 — double-clic pour modifier</translation>
     </message>
     <message>
-        <location filename="../src/ui/colorstoolbar.cpp" line="60" />
+        <location filename="../src/ui/colorstoolbar.cpp" line="58" />
         <source>Pick color %1</source>
         <translation type="unfinished" />
     </message>
@@ -961,7 +1029,7 @@
         <translation>Couleur %1 — double-clic pour modifier</translation>
     </message>
     <message>
-        <location filename="../src/ui/dialogs.cpp" line="312" />
+        <location filename="../src/ui/dialogs.cpp" line="311" />
         <source>Pick color %1</source>
         <translation type="unfinished" />
     </message>

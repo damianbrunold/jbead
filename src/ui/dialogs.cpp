@@ -1,13 +1,13 @@
 #include "dialogs.h"
 
 #include "beadpainter.h"
+#include "colorpickerdialog.h"
 #include "domain/beadcounts.h"
 #include "domain/beadsymbols.h"
 #include "domain/defaultcolors.h"
 #include "domain/model.h"
 #include "swatchbutton.h"
 
-#include <QColorDialog>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QFileInfo>
@@ -307,10 +307,8 @@ void PaletteEditorDialog::selectEntry(int index)
 void PaletteEditorDialog::editEntry(int index)
 {
     if (index < 0 || index >= m_model->colorCount()) return;
-    const QColor picked = QColorDialog::getColor(
-        m_model->color(index), this,
-        tr("Pick color %1").arg(index),
-        QColorDialog::ShowAlphaChannel);
+    const QColor picked = ColorPickerDialog::getColor(
+        m_model->color(index), this, tr("Pick color %1").arg(index));
     if (!picked.isValid()) return;
     m_model->setColor(index, picked);
     /*  Model emits colorChanged; the colorChanged slot above

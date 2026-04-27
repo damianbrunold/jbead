@@ -252,6 +252,20 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Total beads (excluding background): %1":
             "Perlen insgesamt (ohne Hintergrund): %1",
 
+        "Pick colour":                      "Farbe auswählen",
+        "HSV":                              "HSV",
+        "RGB":                              "RGB",
+        "Hue":                              "Farbton",
+        "Saturation / Value":               "Sättigung / Hellwert",
+        "Preview":                          "Vorschau",
+        "He&x:":                            "He&x:",
+        "&Hue:":                            "&Farbton:",
+        "&Saturation:":                     "&Sättigung:",
+        "&Value:":                          "&Hellwert:",
+        "&Red:":                            "&Rot:",
+        "&Green:":                          "&Grün:",
+        "&Blue:":                           "&Blau:",
+
         "&Palette...":                      "&Farbpalette...",
         "Edits the colour palette":         "Bearbeitet die Farbpalette",
         "Palette":                          "Farbpalette",
@@ -374,6 +388,20 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Count":                            "Nombre",
         "Total beads (excluding background): %1":
             "Total des perles (hors arrière-plan) : %1",
+
+        "Pick colour":                      "Choisir une couleur",
+        "HSV":                              "TSV",
+        "RGB":                              "RVB",
+        "Hue":                              "Teinte",
+        "Saturation / Value":               "Saturation / Valeur",
+        "Preview":                          "Aperçu",
+        "He&x:":                            "He&x :",
+        "&Hue:":                            "&Teinte :",
+        "&Saturation:":                     "&Saturation :",
+        "&Value:":                          "&Valeur :",
+        "&Red:":                            "&Rouge :",
+        "&Green:":                          "&Vert :",
+        "&Blue:":                           "&Bleu :",
 
         "&Palette...":                      "&Palette de couleurs...",
         "Edits the colour palette":         "Édite la palette de couleurs",
