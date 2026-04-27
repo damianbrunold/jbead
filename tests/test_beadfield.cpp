@@ -120,6 +120,47 @@ private slots:
         QCOMPARE(n, 4);
     }
 
+    void segmentIteratorTerminatesForArbitraryAngles_data()
+    {
+        QTest::addColumn<int>("ex");
+        QTest::addColumn<int>("ey");
+        /*  Regression for the user-reported app freeze: the legacy
+            parametric formula diverged for inputs where dx and dy
+            had matching signs of unequal magnitude (e.g. (-2,-5)),
+            looping forever. Any direction must now terminate within
+            max(|dx|,|dy|) + a couple of guard steps.               */
+        QTest::newRow("ne")        << 5 << -3;
+        QTest::newRow("nw")        << -5 << -3;
+        QTest::newRow("se")        << 5 <<  3;
+        QTest::newRow("sw")        << -5 <<  3;
+        QTest::newRow("steep-nw")  << -2 << -5;
+        QTest::newRow("steep-sw")  << -2 <<  5;
+        QTest::newRow("shallow")   << 7 <<  1;
+        QTest::newRow("vertical")  << 0 <<  4;
+        QTest::newRow("horizontal")<< 4 <<  0;
+        QTest::newRow("zero")      << 0 <<  0;
+    }
+
+    void segmentIteratorTerminatesForArbitraryAngles()
+    {
+        QFETCH(int, ex);
+        QFETCH(int, ey);
+        SegmentIterator it(BeadPoint(0, 0), BeadPoint(ex, ey));
+        int steps = 0;
+        const int maxSteps = qMax(qAbs(ex), qAbs(ey)) + 8;
+        while (it.hasNext()) {
+            it.next();
+            if (++steps > maxSteps) break;
+        }
+        QVERIFY2(steps <= maxSteps,
+                 qPrintable(QStringLiteral("infinite loop for (0,0)->(%1,%2)").arg(ex).arg(ey)));
+        // The endpoint must have been visited.
+        SegmentIterator check(BeadPoint(0, 0), BeadPoint(ex, ey));
+        BeadPoint last;
+        while (check.hasNext()) last = check.next();
+        QCOMPARE(last, BeadPoint(ex, ey));
+    }
+
     void pointShifted()
     {
         QCOMPARE(BeadPoint(2, 0).shifted(0, 5), BeadPoint(2, 0));

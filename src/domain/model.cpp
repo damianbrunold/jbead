@@ -164,8 +164,16 @@ void Model::drawLine(BeadPoint begin, BeadPoint end)
     snapshot();
     setModified();
     SegmentIterator it(begin.scrolled(m_scroll), end.scrolled(m_scroll));
+    /*  Defensive bound check: clamp every cell to the field rect
+        before writing. Prevents an out-of-bounds set() from a
+        snap modifier or a buggy iterator from corrupting memory
+        (the previous segfault report traced back to exactly this
+        path before the SegmentIterator Bresenham fix).            */
     while (it.hasNext()) {
-        set(it.next(), m_colorIndex);
+        const BeadPoint pt = it.next();
+        if (pt.x() < 0 || pt.x() >= width()) continue;
+        if (pt.y() < 0 || pt.y() >= height()) continue;
+        set(pt, m_colorIndex);
     }
     setRepeatDirty();
 }
