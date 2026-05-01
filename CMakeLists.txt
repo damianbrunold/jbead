@@ -69,6 +69,8 @@ else()
     install(FILES resources/icons/jbead-16.png
             DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/16x16/apps
             RENAME jbead.png)
+    install(FILES resources/jbead.svg
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 endif()
 
 install(FILES LICENSE.txt README.txt

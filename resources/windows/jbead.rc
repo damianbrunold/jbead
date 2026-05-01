@@ -1,0 +1,5 @@
+// Windows resource script. The first ICON entry (lowest ordinal /
+// alphabetically first ID) is what Explorer, the taskbar and the
+// Start menu pick up for the .exe. Keep this file minimal -- the
+// VERSIONINFO block is already produced by NSIS for the installer.
+IDI_ICON1 ICON "jbead.ico"
