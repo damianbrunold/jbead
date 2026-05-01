@@ -69,9 +69,9 @@ if [[ -n "$SIGN_IDENT" ]]; then
     codesign --deep --force --options runtime --sign "$SIGN_IDENT" "$APP_BUNDLE"
 fi
 
-VERSION="$(awk -F'"' '/VERSION 0\.[0-9]/ { print $2; exit }' "$SOURCE_DIR/CMakeLists.txt" 2>/dev/null \
-           || awk '/project\(jbead/,/LANGUAGES/' "$SOURCE_DIR/CMakeLists.txt" | awk '/VERSION/ { print $2; exit }')"
-VERSION="${VERSION:-0.1.0}"
+VERSION="$(awk '/project\(jbead/,/LANGUAGES/' "$SOURCE_DIR/CMakeLists.txt" \
+           | awk '/VERSION/ { print $2; exit }')"
+VERSION="${VERSION:-2.0.0}"
 DMG_NAME="JBead-${VERSION}-${ARCH}.dmg"
 DMG_OUT="$DIST_DIR/$DMG_NAME"
 rm -f "$DMG_OUT"

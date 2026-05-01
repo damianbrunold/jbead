@@ -9,6 +9,7 @@
 */
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QLocale>
@@ -17,6 +18,7 @@
 
 #include "ui/colorscheme.h"
 #include "ui/mainwindow.h"
+#include "version.h"
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +29,16 @@ int main(int argc, char* argv[])
     QApplication::setOrganizationName("Brunold Software");
     QApplication::setOrganizationDomain("brunoldsoftware.ch");
     QApplication::setApplicationName("JBead");
-    QApplication::setApplicationVersion("0.1.0");
+    QApplication::setApplicationVersion(QStringLiteral(JBEAD_VERSION_STRING));
+
+    {
+        QCommandLineParser parser;
+        parser.setApplicationDescription(
+            QStringLiteral("JBead bead-pattern designer"));
+        parser.addHelpOption();
+        parser.addVersionOption();
+        parser.process(app);
+    }
 
     {
         QIcon appIcon;

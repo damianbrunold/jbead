@@ -8,10 +8,18 @@ if(WIN32)
         "${CMAKE_SOURCE_DIR}/resources/windows/jbead.rc")
 endif()
 
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/version.h"
+    @ONLY
+)
+
 qt_add_executable(jbead
     main.cpp
     ${_jbead_platform_sources}
 )
+
+target_include_directories(jbead PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 target_link_libraries(jbead
     PRIVATE
