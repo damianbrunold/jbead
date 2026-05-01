@@ -46,14 +46,14 @@
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME "Install_Dir"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${APP_KEY}"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "InstallMode"
+; jbead.exe is 64-bit; install per-machine into C:\Program Files,
+; not the 32-bit-installer default of C:\Program Files (x86).
+!define MULTIUSER_USE_PROGRAMFILES64
 
 ; ---- MUI2 styling -----------------------------------------------
 !define MUI_ICON                "${ICON}"
 !define MUI_UNICON              "${ICON}"
 !define MUI_ABORTWARNING
-!define MUI_FINISHPAGE_RUN      "$INSTDIR\${EXE}"
-!define MUI_FINISHPAGE_LINK     "${HOMEPAGE}"
-!define MUI_FINISHPAGE_LINK_LOCATION "${HOMEPAGE}"
 
 !include "MUI2.nsh"
 !include "MultiUser.nsh"
@@ -75,15 +75,12 @@ VIAddVersionKey "ProductVersion"  "${APPVER}"
 VIAddVersionKey "LegalCopyright"  "GPL v3 or later"
 
 ; ---- Pages -------------------------------------------------------
-!insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "..\..\LICENSE.txt"
+; Minimal flow: install-mode picker, then progress. No welcome,
+; license, components or directory page; the install path is
+; fixed by MultiUser based on the chosen mode.
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
-!insertmacro MUI_PAGE_COMPONENTS
-!insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!insertmacro MUI_PAGE_FINISH
 
-!insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
 !insertmacro MUI_LANGUAGE "English"
@@ -119,8 +116,7 @@ FunctionEnd
 
 ; ---------- install ----------------------------------------------
 
-Section "${APPNAME}" SecCore
-    SectionIn RO
+Section "-${APPNAME}"
     SetOutPath "$INSTDIR"
     ; Everything windeployqt assembled: the exe, its DLLs, the Qt
     ; plugins tree, plus docs.
@@ -165,7 +161,7 @@ Section "${APPNAME}" SecCore
     System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, i 0, i 0)'
 SectionEnd
 
-Section "Start Menu Shortcuts" SecStart
+Section "-Start Menu Shortcuts"
     CreateDirectory "$SMPROGRAMS\${APPNAME}"
     CreateShortCut  "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"  "$INSTDIR\${EXE}"
     CreateShortCut  "$SMPROGRAMS\${APPNAME}\Uninstall.lnk"   "$INSTDIR\uninstall.exe"
@@ -173,23 +169,9 @@ Section "Start Menu Shortcuts" SecStart
     CreateShortCut  "$SMPROGRAMS\${APPNAME}\License.lnk"     "$INSTDIR\LICENSE.txt"
 SectionEnd
 
-Section "Desktop Shortcut" SecDesk
+Section "-Desktop Shortcut"
     CreateShortCut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\${EXE}"
 SectionEnd
-
-; ---- Component descriptions (shown on the Components page) -------
-LangString DESC_SecCore  ${LANG_ENGLISH} "Core application files (required)."
-LangString DESC_SecStart ${LANG_ENGLISH} "Start menu shortcuts."
-LangString DESC_SecDesk  ${LANG_ENGLISH} "Desktop shortcut."
-LangString DESC_SecCore  ${LANG_GERMAN}  "Hauptanwendung (erforderlich)."
-LangString DESC_SecStart ${LANG_GERMAN}  "Startmenü-Verknüpfungen."
-LangString DESC_SecDesk  ${LANG_GERMAN}  "Verknüpfung auf dem Desktop."
-
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecCore}  $(DESC_SecCore)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecStart} $(DESC_SecStart)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecDesk}  $(DESC_SecDesk)
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; ---------- uninstall --------------------------------------------
 
