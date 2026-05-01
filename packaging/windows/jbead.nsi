@@ -12,7 +12,13 @@
 
 !define APPNAME    "JBead"
 !define COMPANY    "Brunold Software"
-!define APPVER     "0.1.0"
+; APPVER is normally injected by build_installer.ps1 via
+; `makensis /DAPPVER=<x.y.z>` (parsed from the project()
+; VERSION line in the top-level CMakeLists.txt). The fallback
+; below only kicks in when makensis is invoked by hand.
+!ifndef APPVER
+    !define APPVER "0.0.0"
+!endif
 !define EXE        "jbead.exe"
 !define SRCDIR     "..\..\dist\windeployqt"
 

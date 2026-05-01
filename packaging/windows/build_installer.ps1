@@ -41,10 +41,18 @@ Copy-Item (Join-Path $Root 'LICENSE.txt') $StageDir -Force
 if (Test-Path (Join-Path $Root 'README.txt')) { Copy-Item (Join-Path $Root 'README.txt') $StageDir -Force }
 
 Write-Host '==> makensis'
+# Pull the project VERSION out of CMakeLists.txt so the installer
+# metadata stays in sync with the single source of truth.
+$CMakeLists = Get-Content (Join-Path $Root 'CMakeLists.txt') -Raw
+$VersionMatch = [regex]::Match($CMakeLists, 'project\s*\(\s*jbead[^)]*?VERSION\s+([0-9][0-9.]*)', 'IgnoreCase, Singleline')
+if (-not $VersionMatch.Success) { throw 'Could not parse VERSION from CMakeLists.txt' }
+$AppVer = $VersionMatch.Groups[1].Value
+Write-Host "    APPVER = $AppVer"
+
 New-Item -ItemType Directory -Force -Path $DistDir | Out-Null
 Push-Location (Join-Path $Root 'packaging\windows')
 try {
-    & makensis 'jbead.nsi'
+    & makensis "/DAPPVER=$AppVer" 'jbead.nsi'
     if ($LASTEXITCODE -ne 0) { throw 'makensis failed' }
     Move-Item -Force 'jbead_setup.exe' $DistDir
 } finally {
