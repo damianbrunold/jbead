@@ -28,14 +28,17 @@
 !endif
 
 ; ---- MultiUser: pick per-user vs per-machine at launch -----------
-; "Standard" gives the installer an asInvoker manifest, so it never
-; triggers UAC at launch. MultiUser.nsh re-executes the installer
-; elevated only if the user actually picks per-machine on the
-; install-mode page (MULTIUSER_INSTALLMODE_ALLOW_ELEVATION defaults
-; to 1). The installer writes its choice under
+; "Highest" is required by stock MultiUser.nsh for mixed-mode
+; installs (Standard is rejected with "a mixed-mode installation
+; requires MULTIUSER_EXECUTIONLEVEL to be set to Admin, Power or
+; Highest"). Practical effect of highestAvailable: standard users
+; get no UAC and can install per-user; admin users see UAC at
+; launch and can pick either mode. Truly deferring UAC until the
+; per-machine choice would need the third-party NsisMultiUser
+; plugin. The installer writes its choice under
 ; HKCU\Software\Brunold Software\JBead\InstallMode so a later
 ; run defaults to the same mode.
-!define MULTIUSER_EXECUTIONLEVEL Standard
+!define MULTIUSER_EXECUTIONLEVEL Highest
 !define MULTIUSER_MUI
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_INSTALLMODE_INSTDIR "${APPNAME}"
