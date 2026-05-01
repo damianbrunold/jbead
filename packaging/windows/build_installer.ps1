@@ -1,6 +1,6 @@
 <#
     Builds JBead on Windows, assembles the redistributable tree
-    via windeployqt, and produces jbead_setup.exe with NSIS.
+    via windeployqt, and produces jbead_<version>_setup.exe with NSIS.
 
     Prerequisites:
         * Qt 6.5+ MSVC or MinGW installation on PATH (qmake, cmake,
@@ -54,9 +54,10 @@ Push-Location (Join-Path $Root 'packaging\windows')
 try {
     & makensis "/DAPPVER=$AppVer" 'jbead.nsi'
     if ($LASTEXITCODE -ne 0) { throw 'makensis failed' }
-    Move-Item -Force 'jbead_setup.exe' $DistDir
+    $InstallerName = "jbead_${AppVer}_setup.exe"
+    Move-Item -Force $InstallerName $DistDir
 } finally {
     Pop-Location
 }
 
-Write-Host "==> done. Installer in $DistDir\jbead_setup.exe"
+Write-Host "==> done. Installer in $DistDir\$InstallerName"

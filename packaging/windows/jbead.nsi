@@ -8,7 +8,7 @@
 ; upgrades don't accumulate orphan Qt plugin DLLs.
 ;
 ; Build:    makensis /DAPPVER=<x.y.z> jbead.nsi
-; Output:   jbead_setup.exe in the current directory.
+; Output:   jbead_<x.y.z>_setup.exe in the current directory.
 ;
 ; Driven by packaging/windows/build_installer.ps1 which extracts
 ; APPVER from the top-level CMakeLists.txt (single source of truth
@@ -28,11 +28,14 @@
 !endif
 
 ; ---- MultiUser: pick per-user vs per-machine at launch -----------
-; "Highest" requests elevation only if the user picks per-machine;
-; per-user installs run unelevated. The installer writes its choice
-; under HKCU\Software\Brunold Software\JBead\InstallMode so a
-; later run defaults to the same mode.
-!define MULTIUSER_EXECUTIONLEVEL Highest
+; "Standard" gives the installer an asInvoker manifest, so it never
+; triggers UAC at launch. MultiUser.nsh re-executes the installer
+; elevated only if the user actually picks per-machine on the
+; install-mode page (MULTIUSER_INSTALLMODE_ALLOW_ELEVATION defaults
+; to 1). The installer writes its choice under
+; HKCU\Software\Brunold Software\JBead\InstallMode so a later
+; run defaults to the same mode.
+!define MULTIUSER_EXECUTIONLEVEL Standard
 !define MULTIUSER_MUI
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_INSTALLMODE_INSTDIR "${APPNAME}"
@@ -56,7 +59,7 @@
 
 Unicode true
 Name        "${APPNAME} ${APPVER}"
-OutFile     "jbead_setup.exe"
+OutFile     "jbead_${APPVER}_setup.exe"
 SetCompressor /SOLID lzma
 BrandingText "${APPNAME} ${APPVER}"
 
