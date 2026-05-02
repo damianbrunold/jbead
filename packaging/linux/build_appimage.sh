@@ -43,6 +43,9 @@ if [[ -z "$QMAKE" ]]; then
 fi
 export QMAKE
 
+APPVER="$(sed -n 's/^[[:space:]]*VERSION[[:space:]]\+\([0-9.]\+\).*/\1/p' "$SOURCE_DIR/CMakeLists.txt" | head -1)"
+export VERSION="$APPVER"
+
 linuxdeploy --appdir "$APPDIR" \
             --desktop-file "$APPDIR/usr/share/applications/jbead.desktop" \
             --icon-file "$APPDIR/usr/share/icons/hicolor/32x32/apps/jbead.png" \
