@@ -6,3 +6,5 @@ testreport/
 CMakeUserPresets.json
 .cache/
 compile_commands.json
+build-sign-notarize-staple.sh
+
