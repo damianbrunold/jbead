@@ -10,9 +10,12 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QEvent>
+#include <QFileOpenEvent>
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QPointer>
 #include <QSettings>
 #include <QTranslator>
 
@@ -20,24 +23,73 @@
 #include "ui/mainwindow.h"
 #include "version.h"
 
+namespace {
+
+/*  Catches macOS QFileOpenEvent (Finder double-click on a .jbb /
+    .dbb file, drop on the Dock icon, "Open With" from another app)
+    and routes the path to the main window. Buffers until the window
+    is wired up via setMainWindow(), so a path that arrives during
+    QApplication construction (cold launch) isn't lost.            */
+class JBeadApp : public QApplication
+{
+public:
+    using QApplication::QApplication;
+
+    void setMainWindow(jbead::MainWindow* w)
+    {
+        m_win = w;
+        if (w && !m_pendingPath.isEmpty()) {
+            w->openExternalFile(m_pendingPath);
+            m_pendingPath.clear();
+        }
+    }
+
+    bool event(QEvent* e) override
+    {
+        if (e->type() == QEvent::FileOpen) {
+            const QString path =
+                static_cast<QFileOpenEvent*>(e)->file();
+            if (m_win)
+                m_win->openExternalFile(path);
+            else
+                m_pendingPath = path;
+            return true;
+        }
+        return QApplication::event(e);
+    }
+
+private:
+    QPointer<jbead::MainWindow> m_win;
+    QString m_pendingPath;
+};
+
+} // namespace
+
 int main(int argc, char* argv[])
 {
     Q_INIT_RESOURCE(icons);
 
-    QApplication app(argc, argv);
+    JBeadApp app(argc, argv);
 
     QApplication::setOrganizationName("Brunold Software");
     QApplication::setOrganizationDomain("brunoldsoftware.ch");
     QApplication::setApplicationName("JBead");
     QApplication::setApplicationVersion(QStringLiteral(JBEAD_VERSION_STRING));
 
+    QString cliFile;
     {
         QCommandLineParser parser;
         parser.setApplicationDescription(
             QStringLiteral("JBead bead-pattern designer"));
         parser.addHelpOption();
         parser.addVersionOption();
+        parser.addPositionalArgument(QStringLiteral("file"),
+            QObject::tr("Pattern file to open (.jbb / .dbb)."),
+            QStringLiteral("[file]"));
         parser.process(app);
+        const QStringList pos = parser.positionalArguments();
+        if (!pos.isEmpty())
+            cliFile = pos.first();
     }
 
     /*  Skip on macOS: setWindowIcon() there calls
@@ -100,6 +152,15 @@ int main(int argc, char* argv[])
         constructor falls back to a default size on first run). Don't
         resize here — that would clobber the restored window state.  */
     jbead::MainWindow win;
+    app.setMainWindow(&win);
+
+    /*  Argv path is for terminal launches and `open -a JBead foo.jbb`
+        invocations; Finder double-clicks arrive as QFileOpenEvent
+        during exec() instead. The two are mutually exclusive in
+        practice -- Finder doesn't pass file paths in argv.         */
+    if (!cliFile.isEmpty())
+        win.openExternalFile(cliFile);
+
     win.show();
 
     return app.exec();

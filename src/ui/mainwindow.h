@@ -49,6 +49,13 @@ public:
     /*  Convenience shortcut used by the pipette tool.            */
     void selectColor(int colorIndex);
 
+    /*  Load a path supplied externally (Finder double-click, drop on
+        the Dock icon, command-line argument). Same checked-load flow
+        as the File-> Open menu minus the file dialog: prompts about
+        unsaved changes first. No-op for an empty or non-existent
+        path.                                                        */
+    void openExternalFile(const QString& path);
+
 protected:
     void closeEvent(QCloseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;

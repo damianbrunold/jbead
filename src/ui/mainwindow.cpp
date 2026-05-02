@@ -443,6 +443,15 @@ void MainWindow::doFileOpen()
     updateScrollbar();
 }
 
+void MainWindow::openExternalFile(const QString& path)
+{
+    if (path.isEmpty() || !QFileInfo::exists(path)) return;
+    if (!maybeSave()) return;
+    rememberFileDirectory(path);
+    loadFrom(path);
+    updateScrollbar();
+}
+
 void MainWindow::doFileSave()    { saveTo(m_model->isSaved() ? m_model->filePath() : QString()); }
 void MainWindow::doFileSaveAs()  { saveTo(QString()); }
 void MainWindow::doFileExit()    { close(); }
