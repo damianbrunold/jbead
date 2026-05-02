@@ -125,9 +125,12 @@ if [[ -n "$SIGN_IDENT" ]]; then
     codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
 fi
 
-VERSION="$(awk '/project\(jbead/,/LANGUAGES/' "$SOURCE_DIR/CMakeLists.txt" \
-           | awk '/VERSION/ { print $2; exit }')"
-VERSION="${VERSION:-2.0.0}"
+VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+              "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true)"
+if [[ -z "$VERSION" ]]; then
+    echo "error: could not read CFBundleShortVersionString from $APP_BUNDLE" >&2
+    exit 1
+fi
 DMG_NAME="JBead-${VERSION}-${ARCH}.dmg"
 DMG_OUT="$DIST_DIR/$DMG_NAME"
 rm -f "$DMG_OUT"
