@@ -40,12 +40,19 @@ int main(int argc, char* argv[])
         parser.process(app);
     }
 
+    /*  Skip on macOS: setWindowIcon() there calls
+        [NSApp setApplicationIconImage:], which would override the
+        bundle's CFBundleIconFile (the squircle-clipped .icns) for
+        the Dock while the app is running. macOS window titlebars
+        don't show app icons, so there's nothing to gain.          */
+#ifndef Q_OS_MACOS
     {
         QIcon appIcon;
         appIcon.addFile(QStringLiteral(":/icons/jbead-16.png"), QSize(16, 16));
         appIcon.addFile(QStringLiteral(":/icons/jbead-32.png"), QSize(32, 32));
         QApplication::setWindowIcon(appIcon);
     }
+#endif
 
     /*  Pick UI language. Saved preference under "Environment/Language"
         wins over the OS locale. Stored values: "system" (= OS locale),
