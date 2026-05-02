@@ -3,7 +3,15 @@
 # macdeployqt + hdiutil. Runs unchanged on Apple Silicon and Intel.
 #
 # Usage:     packaging/macos/build_dmg.sh [--sign IDENTITY]
+#                                         [--notarize PROFILE]
 # Output:    dist/JBead-<version>-<arch>.dmg
+#
+# --sign:     full common name of a Developer ID Application certificate
+#             in the login keychain, e.g.
+#             "Developer ID Application: Jane Doe (TEAMID1234)".
+#             `security find-identity -v -p codesigning` lists candidates.
+# --notarize: name of a keychain profile previously stored with
+#             `xcrun notarytool store-credentials`. Requires --sign.
 #
 # Prerequisites:
 #     brew install qt cmake ninja create-dmg
@@ -12,17 +20,25 @@
 set -euo pipefail
 
 SIGN_IDENT=""
-for arg in "$@"; do
-    case "$arg" in
-        --sign)      shift; SIGN_IDENT="${1:?--sign requires an identity}"; shift ;;
-        --sign=*)    SIGN_IDENT="${arg#--sign=}" ;;
+NOTARY_PROFILE=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --sign)           SIGN_IDENT="${2:?--sign requires an identity}"; shift 2 ;;
+        --sign=*)         SIGN_IDENT="${1#--sign=}"; shift ;;
+        --notarize)       NOTARY_PROFILE="${2:?--notarize requires a keychain profile name}"; shift 2 ;;
+        --notarize=*)     NOTARY_PROFILE="${1#--notarize=}"; shift ;;
         -h|--help)
-            sed -n '2,12p' "$0"
+            sed -n '2,16p' "$0"
             exit 0
             ;;
-        *) echo "unknown arg: $arg" >&2; exit 2 ;;
+        *) echo "unknown arg: $1" >&2; exit 2 ;;
     esac
 done
+
+if [[ -n "$NOTARY_PROFILE" && -z "$SIGN_IDENT" ]]; then
+    echo "error: --notarize requires --sign IDENTITY" >&2
+    exit 2
+fi
 
 SOURCE_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 BUILD_DIR="$SOURCE_DIR/build-macos"
@@ -77,8 +93,36 @@ for f in LICENSE.txt README.txt; do
 done
 
 if [[ -n "$SIGN_IDENT" ]]; then
-    echo "==> codesign"
-    codesign --deep --force --options runtime --sign "$SIGN_IDENT" "$APP_BUNDLE"
+    echo "==> codesign bundle (inside-out, hardened runtime, secure timestamp)"
+    # Sign every nested Mach-O before sealing the bundle. Library
+    # validation under the hardened runtime accepts plugins/frameworks
+    # only when they share the team-id of the loading process, so
+    # everything inside has to carry our signature too. --deep is
+    # deprecated; explicit inside-out signing is what Apple recommends.
+    codesign_args=(--force --timestamp --options runtime
+                   --sign "$SIGN_IDENT")
+
+    # 1. Loose dylibs and bundles inside Frameworks/PlugIns.
+    while IFS= read -r -d '' f; do
+        codesign "${codesign_args[@]}" "$f"
+    done < <(find "$APP_BUNDLE/Contents" \
+                  \( -name "*.dylib" -o -name "*.so" \) \
+                  -type f -print0)
+
+    # 2. Frameworks: sign each as a unit (signs the inner versioned
+    #    binary via the bundle wrapper). Deepest first.
+    if [[ -d "$APP_BUNDLE/Contents/Frameworks" ]]; then
+        while IFS= read -r -d '' f; do
+            codesign "${codesign_args[@]}" "$f"
+        done < <(find "$APP_BUNDLE/Contents/Frameworks" \
+                      -name "*.framework" -type d -depth -print0)
+    fi
+
+    # 3. The main bundle itself (signs Contents/MacOS/jbead too).
+    codesign "${codesign_args[@]}" "$APP_BUNDLE"
+
+    echo "==> verify codesign"
+    codesign --verify --deep --strict --verbose=2 "$APP_BUNDLE"
 fi
 
 VERSION="$(awk '/project\(jbead/,/LANGUAGES/' "$SOURCE_DIR/CMakeLists.txt" \
@@ -101,6 +145,38 @@ else
     hdiutil create -volname "JBead $VERSION" \
         -srcfolder "$STAGE_DIR" \
         -ov -format UDZO "$DMG_OUT"
+fi
+
+if [[ -n "$SIGN_IDENT" ]]; then
+    echo "==> codesign DMG"
+    codesign --force --timestamp --sign "$SIGN_IDENT" "$DMG_OUT"
+fi
+
+if [[ -n "$NOTARY_PROFILE" ]]; then
+    echo "==> notarize (this can take a few minutes)"
+    notarize_exit=0
+    submission_output="$(xcrun notarytool submit "$DMG_OUT" \
+                              --keychain-profile "$NOTARY_PROFILE" \
+                              --wait 2>&1)" || notarize_exit=$?
+    echo "$submission_output"
+    if [[ $notarize_exit -ne 0 ]] || ! grep -q "status: Accepted" <<<"$submission_output"; then
+        submission_id="$(grep -E '^[[:space:]]*id: ' <<<"$submission_output" \
+                         | head -1 | awk '{print $2}')"
+        if [[ -n "$submission_id" ]]; then
+            echo "==> notarization log for $submission_id:" >&2
+            xcrun notarytool log "$submission_id" \
+                  --keychain-profile "$NOTARY_PROFILE" >&2 || true
+        fi
+        echo "==> notarization failed" >&2
+        exit 1
+    fi
+
+    echo "==> staple ticket"
+    xcrun stapler staple "$DMG_OUT"
+
+    echo "==> Gatekeeper assessment"
+    spctl --assess --type open \
+          --context context:primary-signature --verbose "$DMG_OUT"
 fi
 
 echo "==> done. DMG at $DMG_OUT"
