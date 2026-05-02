@@ -32,6 +32,7 @@ ARCH="$(uname -m)"
 
 mkdir -p "$BUILD_DIR" "$DIST_DIR"
 rm -rf "$STAGE_DIR"
+rm -f "$DIST_DIR"/JBead-*.dmg
 
 echo "==> configure"
 cmake -S "$SOURCE_DIR" -B "$BUILD_DIR" -G Ninja \
@@ -57,6 +58,17 @@ fi
 
 echo "==> macdeployqt"
 macdeployqt "$APP_BUNDLE" -always-overwrite
+
+# Strip plugins whose parent framework isn't installed by Homebrew Qt
+# (qtpdf, qtvirtualkeyboard live in separate formulae). macdeployqt
+# deploys them anyway and emits unresolvable-rpath errors during the
+# step above; the app never loads them, so they're dead weight.
+# - libqpdf.dylib is the QPdf-based image-format reader; we produce
+#   PDF via QPrinter::PdfFormat (QtPrintSupport), which doesn't
+#   depend on QtPdf.
+# - qtvirtualkeyboard is the on-screen IME for touch devices.
+rm -f "$APP_BUNDLE/Contents/PlugIns/imageformats/libqpdf.dylib"
+rm -rf "$APP_BUNDLE/Contents/PlugIns/platforminputcontexts"
 
 for f in LICENSE.txt README.txt; do
     if [[ -f "$SOURCE_DIR/$f" ]]; then

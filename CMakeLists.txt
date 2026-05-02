@@ -49,14 +49,15 @@ if(APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_ICON_FILE        "jbead.icns"
     )
-    if(EXISTS "${CMAKE_SOURCE_DIR}/resources/macos/jbead.icns")
-        target_sources(jbead PRIVATE
-            "${CMAKE_SOURCE_DIR}/resources/macos/jbead.icns")
-        set_source_files_properties(
-            "${CMAKE_SOURCE_DIR}/resources/macos/jbead.icns"
-            PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    endif()
     install(TARGETS jbead BUNDLE DESTINATION .)
+    # Install the bundle icon directly into Contents/Resources. Doing it as
+    # an install(FILES) rule (rather than target_sources +
+    # MACOSX_PACKAGE_LOCATION) is what reliably lands it inside the .app
+    # for the Ninja generator.
+    if(EXISTS "${CMAKE_SOURCE_DIR}/resources/macos/jbead.icns")
+        install(FILES "${CMAKE_SOURCE_DIR}/resources/macos/jbead.icns"
+                DESTINATION "jbead.app/Contents/Resources")
+    endif()
 elseif(WIN32)
     install(TARGETS jbead RUNTIME DESTINATION .)
 else()
