@@ -27,19 +27,24 @@
 
 namespace jbead {
 
-ArrangeDialog::ArrangeDialog(int defaultCopies, int defaultOffset, QWidget* parent)
+ArrangeDialog::ArrangeDialog(int defaultHorzOffset, int defaultVertOffset,
+                             int defaultCopies, QWidget* parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Arrange"));
     auto* form = new QFormLayout;
+    m_horz = new QSpinBox(this);
+    m_horz->setRange(0, 1000);
+    m_horz->setValue(defaultHorzOffset);
+    m_vert = new QSpinBox(this);
+    m_vert->setRange(0, 1000);
+    m_vert->setValue(defaultVertOffset);
     m_copies = new QSpinBox(this);
-    m_copies->setRange(1, 1000);
+    m_copies->setRange(0, 1000);
     m_copies->setValue(defaultCopies);
-    m_offset = new QSpinBox(this);
-    m_offset->setRange(-100000, 100000);
-    m_offset->setValue(defaultOffset);
-    form->addRow(tr("&Copies:"), m_copies);
-    form->addRow(tr("&Offset:"), m_offset);
+    form->addRow(tr("&Horizontal offset:"), m_horz);
+    form->addRow(tr("&Vertical offset:"),   m_vert);
+    form->addRow(tr("&Number of copies:"),  m_copies);
 
     auto* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(btns, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -50,8 +55,13 @@ ArrangeDialog::ArrangeDialog(int defaultCopies, int defaultOffset, QWidget* pare
     layout->addWidget(btns);
 }
 
-int ArrangeDialog::copies() const { return m_copies->value(); }
-int ArrangeDialog::offset() const { return m_offset->value(); }
+int ArrangeDialog::horzOffset() const { return m_horz->value(); }
+int ArrangeDialog::vertOffset() const { return m_vert->value(); }
+int ArrangeDialog::copies()     const { return m_copies->value(); }
+int ArrangeDialog::offset(int patternWidth) const
+{
+    return vertOffset() * patternWidth + horzOffset();
+}
 
 // -------------------------------------------------------------------
 

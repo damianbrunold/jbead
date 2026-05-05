@@ -642,9 +642,14 @@ void MainWindow::doEditRedo() { m_model->redo(); }
 void MainWindow::doEditArrange()
 {
     if (!m_selection->isActive()) return;
-    ArrangeDialog dlg(2, m_model->width(), this);
+    const int patternWidth = m_model->width();
+    const int selWidth     = m_selection->rect().width();
+    const int selHeight    = m_selection->rect().height();
+    const int defaultHorz  = (selWidth == patternWidth) ? 0 : selWidth;
+    const int defaultVert  = selHeight;
+    ArrangeDialog dlg(defaultHorz, defaultVert, 1, this);
     if (dlg.exec() != QDialog::Accepted) return;
-    m_model->arrangeSelection(*m_selection, dlg.copies(), dlg.offset());
+    m_model->arrangeSelection(*m_selection, dlg.copies(), dlg.offset(patternWidth));
 }
 
 void MainWindow::doEditMirrorH()

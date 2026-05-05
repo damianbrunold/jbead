@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(jbead
-    VERSION 2.0.0
+    VERSION 2.0.1
     DESCRIPTION "JBead bead-pattern designer (Qt 6 port)"
     LANGUAGES CXX
 )

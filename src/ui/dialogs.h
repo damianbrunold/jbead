@@ -8,19 +8,24 @@ class QSpinBox;
 
 namespace jbead {
 
-/*  Edit -> Arrange dialog. Two integer inputs (copies, offset)
-    forwarded to Model::arrangeSelection.                          */
+/*  Edit -> Arrange dialog. Three integer inputs (horizontal offset,
+    vertical offset, copies). The linear offset passed to
+    Model::arrangeSelection is vertOffset * patternWidth + horzOffset. */
 class ArrangeDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit ArrangeDialog(int defaultCopies, int defaultOffset, QWidget* parent = nullptr);
+    ArrangeDialog(int defaultHorzOffset, int defaultVertOffset,
+                  int defaultCopies, QWidget* parent = nullptr);
+    int horzOffset() const;
+    int vertOffset() const;
     int copies() const;
-    int offset() const;
+    int offset(int patternWidth) const;
 
 private:
+    QSpinBox* m_horz;
+    QSpinBox* m_vert;
     QSpinBox* m_copies;
-    QSpinBox* m_offset;
 };
 
 /*  Pattern -> Width / Height dialogs. Single spinbox each.       */
