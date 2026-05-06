@@ -4,8 +4,10 @@
 #include "domain/model.h"
 
 #include <QFontMetrics>
+#include <QGuiApplication>
 #include <QHash>
 #include <QPainter>
+#include <QPalette>
 
 #include <cmath>
 
@@ -28,14 +30,24 @@ void BeadPainter::paint(QPainter& p, BeadPoint pt, std::int8_t c) const
     const int gy = m_coord.gridY();
     const int dx = m_coord.offsetXFor(pt);
 
-    if (m_drawColors || m_forceColors) {
+    const bool filled = m_drawColors || m_forceColors;
+
+    /*  In colour-blind mode (Draw Colors off) we drop the fill and
+        let cells delineate themselves with the cell border. Symbol
+        and border colour follow the active palette so the panel stays
+        legible under both light and dark themes — hard-coding black
+        produced an unreadable dark-on-dark grid in dark mode.       */
+    const QColor outline = filled
+        ? QColor(Qt::black)
+        : QGuiApplication::palette().color(QPalette::WindowText);
+
+    if (filled) {
         p.fillRect(x - dx, y, gx, gy, color);
     }
 
     if (m_drawSymbols) {
         const QString sym = BeadSymbols::glyph(c);
-        const QColor textColor = (m_drawColors || m_forceColors)
-            ? contrastingColor(color) : QColor(Qt::black);
+        const QColor textColor = filled ? contrastingColor(color) : outline;
         p.setPen(textColor);
         p.setFont(m_symbolFont);
         const QFontMetrics fm(m_symbolFont);
@@ -44,7 +56,7 @@ void BeadPainter::paint(QPainter& p, BeadPoint pt, std::int8_t c) const
     }
 
     if (m_drawBorder) {
-        p.setPen(Qt::black);
+        p.setPen(outline);
         p.drawRect(x - dx, y, gx, gy);
     }
 }

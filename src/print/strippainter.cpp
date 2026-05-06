@@ -119,7 +119,8 @@ void drawPill(QPainter& p, qreal x, qreal y, qreal w, qreal h,
 class ReportInfoPart : public PartPainter
 {
 public:
-    explicit ReportInfoPart(const Model& m) : m_model(m) { build(); }
+    ReportInfoPart(const Model& m, const PrintSettings& s)
+        : m_model(m), m_settings(s) { build(); }
 
     QList<qreal> columnWidths(qreal /*h*/) const override
     {
@@ -156,8 +157,11 @@ public:
             for (const auto& [idx, cnt] : m_counts) {
                 if (yy + pillH > y + h) break;
                 const qreal cx = x0 + col * cellW;
-                drawPill(p, cx, yy, pillW, pillH, m_model.color(idx),
-                         QString::number(cnt));
+                QString label = QString::number(cnt);
+                if (m_settings.drawSymbols) {
+                    label += QStringLiteral(" ") + BeadSymbols::glyph(idx);
+                }
+                drawPill(p, cx, yy, pillW, pillH, m_model.color(idx), label);
                 ++col;
                 if (col >= perRow) { col = 0; yy += cellH; }
             }
@@ -200,7 +204,9 @@ private:
         if (m_counts.isEmpty()) return pillH * 1.6;
         int maxCount = 0;
         for (const auto& [idx, cnt] : m_counts) maxCount = std::max(maxCount, cnt);
-        const qreal textW = QString::number(maxCount).size() * FONT_SIZE * 0.65;
+        int chars = QString::number(maxCount).size();
+        if (m_settings.drawSymbols) chars += 2;       // " " + glyph
+        const qreal textW = chars * FONT_SIZE * 0.65;
         return std::max(pillH * 1.6, textW + 14);
     }
 
@@ -216,7 +222,8 @@ private:
         return maxLbl + charW + maxVal;
     }
 
-    const Model& m_model;
+    const Model&         m_model;
+    const PrintSettings& m_settings;
     QList<QPair<QString, QString>> m_infos;
     QList<QPair<int, int>>          m_counts;
 };
@@ -422,7 +429,8 @@ public:
 class BeadListPart : public PartPainter
 {
 public:
-    explicit BeadListPart(const Model& m) : m_model(m), m_list(m) {}
+    BeadListPart(const Model& m, const PrintSettings& s)
+        : m_model(m), m_settings(s), m_list(m) {}
 
     QList<qreal> columnWidths(qreal h) const override
     {
@@ -465,9 +473,12 @@ public:
             if (idx >= m_list.runs().size()) break;
             const BeadRun& run = m_list.runs().at(idx);
             const qreal yy = y + i * rowH;
+            QString label = QString::number(run.count());
+            if (m_settings.drawSymbols) {
+                label += QStringLiteral(" ") + BeadSymbols::glyph(run.color());
+            }
             drawPill(p, x0, yy, pillW, pillH,
-                     m_model.color(run.color()),
-                     QString::number(run.count()));
+                     m_model.color(run.color()), label);
         }
     }
 
@@ -486,7 +497,9 @@ private:
         int maxCount = 0;
         for (const BeadRun& run : m_list.runs())
             maxCount = std::max(maxCount, run.count());
-        const qreal textW = QString::number(maxCount).size() * FONT_SIZE * 0.65;
+        int chars = QString::number(maxCount).size();
+        if (m_settings.drawSymbols) chars += 2;
+        const qreal textW = chars * FONT_SIZE * 0.65;
         return std::max(pillH * 1.6, textW + 14);
     }
 
@@ -498,7 +511,8 @@ private:
     static constexpr qreal ARROW_W   = 12.0;
     static constexpr qreal ARROW_LEN = 30.0;
 
-    const Model& m_model;
+    const Model&         m_model;
+    const PrintSettings& m_settings;
     BeadList     m_list;
 };
 
@@ -509,11 +523,11 @@ private:
 void buildPartList(const Model& m, const PrintSettings& s,
                    QList<std::shared_ptr<PartPainter>>& out)
 {
-    if (s.printReport)     out.append(std::make_shared<ReportInfoPart>(m));
+    if (s.printReport)     out.append(std::make_shared<ReportInfoPart>(m, s));
     if (s.printDraft)      out.append(std::make_shared<DraftPart>(m, s));
     if (s.printCorrected)  out.append(std::make_shared<CorrectedPart>(m, s));
     if (s.printSimulation) out.append(std::make_shared<SimulationPart>(m, s));
-    if (s.printBeadList)   out.append(std::make_shared<BeadListPart>(m));
+    if (s.printBeadList)   out.append(std::make_shared<BeadListPart>(m, s));
 }
 
 } // namespace

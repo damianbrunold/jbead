@@ -19,6 +19,7 @@
 #include <QSettings>
 #include <QTranslator>
 
+#include "domain/beadsymbols.h"
 #include "ui/colorscheme.h"
 #include "ui/mainwindow.h"
 #include "version.h"
@@ -134,6 +135,16 @@ int main(int argc, char* argv[])
         jbead::applyColorScheme(
             settings.value(QStringLiteral("Environment/ColorScheme"),
                            QStringLiteral("system")).toString());
+
+        /*  Restore the user's symbol palette (legacy "view/symbols"
+            setting). BeadPainter consults BeadSymbols::glyph on every
+            paint, so applying this before any widget is built avoids
+            a flicker between the default and saved palettes.        */
+        const QString syms = settings.value(QStringLiteral("Environment/Symbols"),
+                                            jbead::BeadSymbols::DEFAULT_SYMBOLS)
+                                     .toString();
+        if (!syms.isEmpty())
+            jbead::BeadSymbols::setSymbols(syms);
     }
 
     QTranslator qtTranslator;

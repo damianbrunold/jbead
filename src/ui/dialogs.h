@@ -4,6 +4,7 @@
 
 class QComboBox;
 class QGridLayout;
+class QLineEdit;
 class QSpinBox;
 
 namespace jbead {
@@ -84,7 +85,7 @@ public:
     explicit TechInfosDialog(const Model& model, QWidget* parent = nullptr);
 };
 
-/*  Edit / Pattern -> Preferences dialog. Two persistent settings:
+/*  Edit / Pattern -> Preferences dialog. Persistent settings:
 
       - UI language: "system" (follow QLocale), "en", "de", or "fr".
         Stored as Environment/Language. Requires an app restart since
@@ -92,19 +93,24 @@ public:
       - Color scheme: "system", "light", or "dark". Stored as
         Environment/ColorScheme and applied live via
         QGuiApplication::styleHints()->setColorScheme().
+      - Symbol palette: glyph string indexed by color. Stored as
+        Environment/Symbols. Applied live via BeadSymbols::setSymbols.
 */
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PreferencesDialog(QWidget* parent = nullptr);
+    explicit PreferencesDialog(const QString& currentSymbols,
+                               QWidget* parent = nullptr);
 
     QString language()    const;   // "system" / "en" / "de" / "fr"
     QString colorScheme() const;   // "system" / "light" / "dark"
+    QString symbols()     const;   // glyph string
 
 private:
     QComboBox* m_language;
     QComboBox* m_colorScheme;
+    QLineEdit* m_symbols;
 };
 
 } // namespace jbead

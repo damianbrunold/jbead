@@ -4,6 +4,7 @@
 #include "colorstoolbar.h"
 #include "correctedpanel.h"
 #include "dialogs.h"
+#include "domain/beadsymbols.h"
 #include "domain/model.h"
 #include "domain/selection.h"
 #include "draftpanel.h"
@@ -46,6 +47,13 @@ MainWindow::MainWindow(QWidget* parent)
       m_actions(new Actions(this))
 {
     m_model->clear();
+
+    /*  Match the toolbar's Draw Colors / Draw Symbols toggles to
+        what Model::clear() seeded from the user's prefs. Without
+        this the buttons would start in the hard-coded Actions()
+        defaults until the first toggle/load.                        */
+    m_actions->action(Actions::Id::ViewDrawColors )->setChecked(m_model->drawColors());
+    m_actions->action(Actions::Id::ViewDrawSymbols)->setChecked(m_model->drawSymbols());
 
     buildCenter();
     buildMenuBar();
@@ -321,7 +329,7 @@ void MainWindow::buildToolbars()
     main->addAction(m_actions->action(Actions::Id::ViewZoomOut));
 
     addToolBarBreak();
-    m_colorsToolbar = new ColorsToolbar(m_model, this);
+    m_colorsToolbar = new ColorsToolbar(m_model, this, this);
     m_colorsToolbar->setObjectName(QStringLiteral("ColorsToolBar"));
     addToolBar(m_colorsToolbar);
 }
@@ -406,6 +414,19 @@ bool MainWindow::loadFrom(const QString& path)
         m_model->clear();
         m_selection->clear();
         FileFormat::load(path, *m_model);
+        /*  Restore per-pattern view state from the file. Block the
+            toggled signal so doViewDrawModeChanged doesn't fire and
+            overwrite the user's preference in QSettings — those
+            prefs only seed fresh patterns, not loaded ones.         */
+        for (auto [id, value] : { std::pair{Actions::Id::ViewDrawColors,  m_model->drawColors()},
+                                  std::pair{Actions::Id::ViewDrawSymbols, m_model->drawSymbols()} }) {
+            QAction* a = m_actions->action(id);
+            const QSignalBlocker blocker(a);
+            a->setChecked(value);
+        }
+        m_draft->update(); m_corrected->update();
+        m_simulation->update(); m_report->update();
+        if (m_colorsToolbar) m_colorsToolbar->rebuild();
         setCurrentFile(path);
         return true;
     } catch (const std::exception& e) {
@@ -692,10 +713,36 @@ void MainWindow::doViewToggleVisibility()
 
 void MainWindow::doViewDrawModeChanged()
 {
+    /*  Disallow "neither colors nor symbols" — that would render
+        every cell as a blank box. If the user just turned off the
+        last visible channel, force the other one back on. The
+        QSignalBlocker keeps that auto-flip from re-entering this
+        slot and looking like a user toggle.                        */
+    if (!drawColors() && !drawSymbols()) {
+        QAction* sender = qobject_cast<QAction*>(QObject::sender());
+        QAction* other = (sender == m_actions->action(Actions::Id::ViewDrawColors))
+            ? m_actions->action(Actions::Id::ViewDrawSymbols)
+            : m_actions->action(Actions::Id::ViewDrawColors);
+        const QSignalBlocker blocker(other);
+        other->setChecked(true);
+    }
+
+    /*  Mirror the action state into the model so saves capture it
+        and into QSettings so the next *new* pattern picks it up.
+        Loaded files override the prefs via Model::loadFrom; this
+        path is for fresh patterns only.                            */
+    m_model->setDrawColors(drawColors());
+    m_model->setDrawSymbols(drawSymbols());
+
+    QSettings qs;
+    qs.setValue(QStringLiteral("View/DrawColors"),  drawColors());
+    qs.setValue(QStringLiteral("View/DrawSymbols"), drawSymbols());
+
     m_draft->update();
     m_corrected->update();
     m_simulation->update();
     m_report->update();
+    if (m_colorsToolbar) m_colorsToolbar->rebuild();
 }
 
 void MainWindow::doViewZoomIn()     { m_model->zoomIn(); }
@@ -730,12 +777,13 @@ void MainWindow::doPatternPalette()
 
 void MainWindow::doPatternPreferences()
 {
-    PreferencesDialog dlg(this);
+    PreferencesDialog dlg(m_model->symbols(), this);
     if (dlg.exec() != QDialog::Accepted) return;
 
     QSettings s;
     s.setValue(QStringLiteral("Environment/Language"),    dlg.language());
     s.setValue(QStringLiteral("Environment/ColorScheme"), dlg.colorScheme());
+    s.setValue(QStringLiteral("Environment/Symbols"),     dlg.symbols());
 
     /*  Color scheme applied live via the shared helper (Fusion
         style + explicit palette). styleHints->setColorScheme alone
@@ -743,6 +791,12 @@ void MainWindow::doPatternPreferences()
         full dbweave route. Language still requires a restart since
         QTranslator is wired up before the main window is built.   */
     applyColorScheme(dlg.colorScheme());
+
+    /*  Route through the model so the new palette is recorded with
+        the next .jbb save and the document is flagged modified.
+        Model::setSymbols mirrors into the BeadSymbols singleton and
+        emits modelChanged(), which triggers every panel to repaint. */
+    m_model->setSymbols(dlg.symbols());
 }
 
 // -----------------------------------------------------------------
@@ -808,7 +862,16 @@ void MainWindow::onScrollChanged(int /*scroll*/)
     updateStatusBar();
 }
 
-void MainWindow::onZoomChanged(int /*gx*/, int /*gy*/)   { updateScrollbar(); updateStatusBar(); }
+void MainWindow::onZoomChanged(int /*gx*/, int /*gy*/)
+{
+    /*  Persist for future sessions / new patterns. Loaded files
+        re-override this in Model::loadFrom, but the saved value
+        seeds the next File -> New.                                */
+    QSettings qs;
+    qs.setValue(QStringLiteral("View/ZoomIndex"), m_model->zoomIndex());
+    updateScrollbar();
+    updateStatusBar();
+}
 void MainWindow::onRepeatChanged(int /*r*/)              { updateStatusBar(); }
 void MainWindow::onShiftChanged(int /*s*/)               { updateStatusBar(); }
 void MainWindow::onSelectionUpdated()                    { updateStatusBar(); }

@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPainter>
 #include <QPixmap>
 #include <QPushButton>
@@ -90,7 +91,7 @@ int IntPromptDialog::value() const { return m_value->value(); }
 
 // -------------------------------------------------------------------
 
-PreferencesDialog::PreferencesDialog(QWidget* parent)
+PreferencesDialog::PreferencesDialog(const QString& currentSymbols, QWidget* parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("Preferences"));
@@ -118,6 +119,20 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
     m_colorScheme->setCurrentIndex(qMax(0, m_colorScheme->findData(currentTheme)));
     form->addRow(tr("&Color scheme:"), m_colorScheme);
 
+    /*  Symbols string. Index 0 is the background glyph, 1.. map to
+        palette colors. Empty input is rejected on accept (a blank
+        palette would render every cell as a space).                 */
+    auto* symbolsRow = new QHBoxLayout;
+    m_symbols = new QLineEdit(currentSymbols, this);
+    m_symbols->setMaxLength(128);
+    auto* resetSyms = new QPushButton(tr("&Reset"), this);
+    connect(resetSyms, &QPushButton::clicked, this, [this]() {
+        m_symbols->setText(BeadSymbols::DEFAULT_SYMBOLS);
+    });
+    symbolsRow->addWidget(m_symbols, 1);
+    symbolsRow->addWidget(resetSyms);
+    form->addRow(tr("&Symbols:"), symbolsRow);
+
     auto* hint = new QLabel(tr("Language changes take effect after restarting JBead."), this);
     QFont f = hint->font(); f.setItalic(true); hint->setFont(f);
 
@@ -133,6 +148,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 QString PreferencesDialog::language()    const { return m_language->currentData().toString(); }
 QString PreferencesDialog::colorScheme() const { return m_colorScheme->currentData().toString(); }
+QString PreferencesDialog::symbols()     const
+{
+    const QString s = m_symbols->text();
+    return s.isEmpty() ? BeadSymbols::DEFAULT_SYMBOLS : s;
+}
 
 // -------------------------------------------------------------------
 
@@ -192,7 +212,7 @@ TechInfosDialog::TechInfosDialog(const Model& model, QWidget* parent)
     for (int c = 0; c < model.colorCount(); ++c) {
         const int n = counts.count(static_cast<std::int8_t>(c));
         if (n <= 0) continue;
-        if (c > 0) totalBeads += n;        // exclude background
+        totalBeads += n;
         auto* item = new QTreeWidgetItem(tree);
         item->setIcon(0, QIcon(colorSwatch(model.color(c))));
         item->setText(1, QString::number(c));
@@ -204,8 +224,7 @@ TechInfosDialog::TechInfosDialog(const Model& model, QWidget* parent)
     tree->resizeColumnToContents(2);
     tree->resizeColumnToContents(3);
 
-    auto* totals = new QLabel(tr("Total beads (excluding background): %1")
-                              .arg(totalBeads), this);
+    auto* totals = new QLabel(tr("Total beads: %1").arg(totalBeads), this);
 
     auto* btns = new QDialogButtonBox(QDialogButtonBox::Close, this);
     connect(btns, &QDialogButtonBox::rejected, this, &QDialog::accept);

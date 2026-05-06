@@ -2,6 +2,10 @@
 
 #include "beadfield.h"
 
+#include <QColor>
+#include <QList>
+#include <QString>
+
 #include <array>
 
 namespace jbead {
@@ -27,14 +31,18 @@ public:
     bool isModified() const { return m_modified[m_current]; }
 
     void clear();
-    void snapshot(const BeadField& data, bool modified);
-    void prepareSnapshot(const BeadField& data, bool modified);
-    void undo(BeadField& data);
-    void redo(BeadField& data);
+    void snapshot(const BeadField& data, const QList<QColor>& colors,
+                  const QString& symbols, bool modified);
+    void prepareSnapshot(const BeadField& data, const QList<QColor>& colors,
+                         const QString& symbols, bool modified);
+    void undo(BeadField& data, QList<QColor>& colors, QString& symbols);
+    void redo(BeadField& data, QList<QColor>& colors, QString& symbols);
 
 private:
-    std::array<BeadField, MAX_UNDO> m_data;
-    std::array<bool,      MAX_UNDO> m_modified{};
+    std::array<BeadField,      MAX_UNDO> m_data;
+    std::array<QList<QColor>,  MAX_UNDO> m_colors;
+    std::array<QString,        MAX_UNDO> m_symbols;
+    std::array<bool,           MAX_UNDO> m_modified{};
     int m_first   = 0;
     int m_last    = 0;
     int m_current = 0;

@@ -132,6 +132,25 @@ public:
     QString notes() const { return m_notes; }
     void    setNotes(const QString& notes) { m_notes = notes; }
 
+    /*  Symbol palette: glyph string indexed by color slot. Lives on
+        the model so it round-trips through the .jbb file format and
+        toggles the modified flag when the user edits it. The static
+        BeadSymbols singleton mirrors this string so that the painters
+        which don't carry a Model pointer (BeadPainter, StripPainter)
+        keep working unchanged.                                       */
+    QString symbols() const { return m_symbols; }
+    void    setSymbols(const QString& symbols);
+
+    /*  Per-pattern view state: whether the pattern was last shown
+        with Draw Colors / Draw Symbols on. Files restore these on
+        load so a colour-blind-mode pattern reopens in colour-blind
+        mode regardless of the user's current preference. New (empty)
+        patterns inherit the preference defaults set in MainWindow. */
+    bool drawColors()  const { return m_drawColors; }
+    bool drawSymbols() const { return m_drawSymbols; }
+    void setDrawColors(bool v)  { m_drawColors  = v; }
+    void setDrawSymbols(bool v) { m_drawSymbols = v; }
+
     // ---- corrected (hexagonal-offset) coordinates ---------------
     BeadPoint correct(BeadPoint pt) const;
     int       correctedIndex(BeadPoint pt) const;
@@ -183,6 +202,9 @@ private:
     QString             m_author;
     QString             m_organization;
     QString             m_notes;
+    QString             m_symbols;
+    bool                m_drawColors  = true;
+    bool                m_drawSymbols = false;
 };
 
 } // namespace jbead

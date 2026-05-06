@@ -259,8 +259,11 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Index":                            "Index",
         "Symbol":                           "Symbol",
         "Count":                            "Anzahl",
-        "Total beads (excluding background): %1":
-            "Perlen insgesamt (ohne Hintergrund): %1",
+        "Total beads: %1":
+            "Perlen insgesamt: %1",
+
+        "&Symbols:":                        "&Symbole:",
+        "&Reset":                           "&Zurücksetzen",
 
         "Pick colour":                      "Farbe auswählen",
         "HSV":                              "HSV",
@@ -396,8 +399,11 @@ MANUAL_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "Index":                            "Index",
         "Symbol":                           "Symbole",
         "Count":                            "Nombre",
-        "Total beads (excluding background): %1":
-            "Total des perles (hors arrière-plan) : %1",
+        "Total beads: %1":
+            "Total des perles : %1",
+
+        "&Symbols:":                        "&Symboles :",
+        "&Reset":                           "&Réinitialiser",
 
         "Pick colour":                      "Choisir une couleur",
         "HSV":                              "TSV",

@@ -1,5 +1,6 @@
 #include "reportpanel.h"
 
+#include "beadpainter.h"
 #include "domain/beadcounts.h"
 #include "domain/beadlist.h"
 #include "domain/beadsymbols.h"
@@ -70,12 +71,25 @@ void ReportPanel::paintEvent(QPaintEvent*)
         clamped between 36 and 96 px so individual short runs don't
         produce tiny pills and a giant 9999-count pattern doesn't
         push beads off the panel.                                  */
+    /*  When "Draw Symbols" is on, pills carry both the count and the
+        glyph (e.g. "5 A"), so we need wider beads. The label includes
+        the per-run symbol so the upper bound is honest about what
+        we'll actually paint.                                         */
+    const bool withSymbols = m_window->drawSymbols();
+    const bool withColors  = m_window->drawColors();
+    auto labelFor = [&](const BeadRun& run) {
+        const QString count = QString::number(run.count());
+        if (!withSymbols) return count;
+        const QString sym = BeadSymbols::glyph(run.color());
+        return count + QStringLiteral(" ") + sym;
+    };
     int maxLabelWidth = 0;
     for (const BeadRun& run : list.runs()) {
-        const QString label = QString::number(run.count());
-        maxLabelWidth = qMax(maxLabelWidth, fm.horizontalAdvance(label));
+        maxLabelWidth = qMax(maxLabelWidth, fm.horizontalAdvance(labelFor(run)));
     }
-    const int swW = qBound(36, maxLabelWidth + 24, 96);
+    const int padding = withSymbols ? 28 : 24;
+    const int minW    = withSymbols ? 44 : 36;
+    const int swW = qBound(minW, maxLabelWidth + padding, 120);
     const int swH = qMax(22, fm.height() + 8);
     const int gap = 4;
 
@@ -107,19 +121,18 @@ void ReportPanel::paintEvent(QPaintEvent*)
         const QColor fill = m_model->color(run.color());
 
         /*  Round/oval bead rendering — same look as the textile
-            editor's bead list. Filled ellipse with a contrasting
-            stroke and the count drawn dead-centre in the
-            contrasting colour for legibility against any palette
-            colour.                                                 */
-        p.setBrush(fill);
-        p.setPen(QPen(borderColor, 0.8));
+            editor's bead list. With Draw Colors on we fill the pill
+            and pick a contrasting label colour; with it off we drop
+            the fill and use the palette's WindowText so the panel
+            stays legible in dark mode without competing chroma.    */
+        p.setBrush(withColors ? QBrush(fill) : QBrush(Qt::NoBrush));
+        p.setPen(QPen(borderColor, withColors ? 0.8 : 1.2));
         p.drawRoundedRect(QRectF(x + 0.5, y + 0.5, swW - 1, swH - 1),
                           swH / 3.0, swH / 3.0);
 
-        const QString label = QString::number(run.count());
-        p.setPen(BeadPainter::contrastingColor(fill));
+        p.setPen(withColors ? BeadPainter::contrastingColor(fill) : textColor);
         p.drawText(QRectF(x, y, swW, swH),
-                   Qt::AlignCenter, label);
+                   Qt::AlignCenter, labelFor(run));
 
         y += swH + gap;
     }

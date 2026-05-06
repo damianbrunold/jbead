@@ -1,10 +1,14 @@
 #include "simulationpanel.h"
 
+#include "actions.h"
+#include "beadpainter.h"
+#include "domain/beadsymbols.h"
 #include "domain/model.h"
 #include "domain/rectiterator.h"
 #include "domain/selection.h"
 #include "mainwindow.h"
 
+#include <QFontMetricsF>
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -42,19 +46,37 @@ int SimulationPanel::offsetXFor(BeadPoint pt) const
     return ((pt.y() + m_scroll) % 2 == 0) ? 0 : m_gridx / 2;
 }
 
-void SimulationPanel::paintBead(QPainter& p, int x, int y, int w, int h, const QColor& c) const
+void SimulationPanel::paintBead(QPainter& p, int x, int y, int w, int h,
+                                const QColor& c, std::int8_t colorIndex) const
 {
     /*  Round-bead rendering, mirroring the textile editor's
         simulation: filled ellipse with a dark stroke. The ellipse
         fills the whole grid cell so the seam-edge half-cells (w =
         gridx/2) look like proper bead halves, not broken
-        rectangles.                                                */
+        rectangles. In colour-blind mode (Draw Colors off) we drop
+        the fill entirely so the user sees only outlines + symbols. */
     p.setRenderHint(QPainter::Antialiasing, true);
-    p.setBrush(c);
-    /*  Stroke colour follows the active palette so it stays
-        legible in dark mode.                                     */
-    p.setPen(QPen(palette().color(QPalette::WindowText), 0.6));
+    const bool drawColors = m_window->drawColors();
+    const QColor outline   = palette().color(QPalette::WindowText);
+    p.setBrush(drawColors ? QBrush(c) : QBrush(Qt::NoBrush));
+    p.setPen(QPen(outline, drawColors ? 0.6 : 1.0));
     p.drawEllipse(QRectF(x, y, w, h));
+
+    /*  Symbol overlay when "Draw Symbols" is on. Half-cells (w =
+        gridx/2) at the seam are skipped — there isn't enough room
+        for a glyph and squashing one in would just look bad.       */
+    if (m_window->drawSymbols() && w >= m_gridx) {
+        const QString sym = BeadSymbols::glyph(colorIndex);
+        if (sym.trimmed().isEmpty()) return;
+        QFont f = p.font();
+        f.setPixelSize(qMax(6, int(h * 0.6)));
+        p.setFont(f);
+        /*  Without a fill there's no contrast pivot — just track the
+            window text colour so we get black-on-light / white-on-dark
+            automatically.                                           */
+        p.setPen(drawColors ? BeadPainter::contrastingColor(c) : outline);
+        p.drawText(QRectF(x, y, w, h), Qt::AlignCenter, sym);
+    }
 }
 
 void SimulationPanel::paintEvent(QPaintEvent*)
@@ -83,31 +105,31 @@ void SimulationPanel::paintEvent(QPaintEvent*)
         if (m_scroll % 2 == 0) {
             if (pt.y() % 2 == 0) {
                 if (pt.x() == w) continue;
-                paintBead(p, xLeft, yPx, m_gridx, m_gridy, col);
+                paintBead(p, xLeft, yPx, m_gridx, m_gridy, col, c);
             } else {
                 if (pt.x() != W && pt.x() != w) {
-                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx, m_gridy, col);
+                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx, m_gridy, col, c);
                 } else if (pt.x() == W) {
                     paintBead(p, panelLeft() + 0 - m_gridx / 2,
                               height() - 1 - (pt.y() + 2) * m_gridy,
-                              m_gridx / 2, m_gridy, col);
+                              m_gridx / 2, m_gridy, col, c);
                 } else {
-                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx / 2, m_gridy, col);
+                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx / 2, m_gridy, col, c);
                 }
             }
         } else {
             if (pt.y() % 2 == 1) {
                 if (pt.x() == w) continue;
-                paintBead(p, xLeft, yPx, m_gridx, m_gridy, col);
+                paintBead(p, xLeft, yPx, m_gridx, m_gridy, col, c);
             } else {
                 if (pt.x() != W && pt.x() != w) {
-                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx, m_gridy, col);
+                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx, m_gridy, col, c);
                 } else if (pt.x() == W) {
                     paintBead(p, panelLeft() + 0 - m_gridx / 2,
                               height() - 1 - (pt.y() + 2) * m_gridy,
-                              m_gridx / 2, m_gridy, col);
+                              m_gridx / 2, m_gridy, col, c);
                 } else {
-                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx / 2, m_gridy, col);
+                    paintBead(p, xLeft - m_gridx / 2, yPx, m_gridx / 2, m_gridy, col, c);
                 }
             }
         }

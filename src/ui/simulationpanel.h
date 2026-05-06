@@ -2,6 +2,8 @@
 
 #include "basepanel.h"
 
+#include <cstdint>
+
 namespace jbead {
 
 /*  Half-circumference tube preview. Shows model.width/2 columns and
@@ -35,7 +37,8 @@ private:
     int  panelLeft() const;
     int  visibleWidth() const;
     bool mouseToField(QPoint pixel, BeadPoint* out) const;
-    void paintBead(QPainter& p, int x, int y, int w, int h, const QColor& color) const;
+    void paintBead(QPainter& p, int x, int y, int w, int h,
+                   const QColor& color, std::int8_t colorIndex) const;
 };
 
 } // namespace jbead

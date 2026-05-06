@@ -1,10 +1,13 @@
 #include "model.h"
 
+#include "beadsymbols.h"
 #include "defaultcolors.h"
 #include "rectiterator.h"
 #include "segmentiterator.h"
 #include "settings.h"
 #include "io/memento.h"
+
+#include <QSettings>
 
 #include <QFileInfo>
 #include <QStandardPaths>
@@ -14,7 +17,8 @@ namespace jbead {
 Model::Model(QObject* parent)
     : QObject(parent),
       m_unnamed(tr("unnamed")),
-      m_file(tr("unnamed"))
+      m_file(tr("unnamed")),
+      m_symbols(BeadSymbols::symbols())
 {
     m_field.clear();
     defaultColors();
@@ -377,22 +381,32 @@ int Model::calcRepeat(int usedheight) const
 
 // ---- undo/redo ----------------------------------------------------
 
-void Model::snapshot()         { m_undo.snapshot(m_field, m_modified); }
-void Model::prepareSnapshot()  { m_undo.prepareSnapshot(m_field, m_modified); }
+void Model::snapshot()
+{
+    m_undo.snapshot(m_field, m_colors, m_symbols, m_modified);
+}
+void Model::prepareSnapshot()
+{
+    m_undo.prepareSnapshot(m_field, m_colors, m_symbols, m_modified);
+}
 
 void Model::undo()
 {
-    m_undo.undo(m_field);
+    m_undo.undo(m_field, m_colors, m_symbols);
     m_modified = m_undo.isModified();
+    BeadSymbols::setSymbols(m_symbols);
     setRepeatDirty();
+    emit colorsChanged();
     emit modelChanged();
 }
 
 void Model::redo()
 {
-    m_undo.redo(m_field);
+    m_undo.redo(m_field, m_colors, m_symbols);
     m_modified = m_undo.isModified();
+    BeadSymbols::setSymbols(m_symbols);
     setRepeatDirty();
+    emit colorsChanged();
     emit modelChanged();
 }
 
@@ -417,12 +431,18 @@ void Model::clear()
     m_repeat = 0;
     m_colorIndex = 1;
     defaultColors();
-    m_zoomIndex = 2;
     /*  Sync the cached pixel dimensions to the new zoom level.
         Without this gridx/gridy keep the constructor's value
         (m_zoomTable[ZOOM_NORMAL] == 12) while zoomIndex says 2,
         and the next zoomIn() jumps to the same pixel size as
-        before, breaking the canvas re-layout.                    */
+        before, breaking the canvas re-layout. The zoom index itself
+        comes from the saved preference (View/ZoomIndex); loaded
+        patterns override it via loadFrom.                          */
+    {
+        QSettings qs;
+        const int saved = qs.value(QStringLiteral("View/ZoomIndex"), 2).toInt();
+        m_zoomIndex = qBound(0, saved, int(m_zoomTable.size()) - 1);
+    }
     m_gridx = m_gridy = m_zoomTable[m_zoomIndex];
     m_scroll = 0;
     m_shift = 0;
@@ -430,6 +450,22 @@ void Model::clear()
     settings.setCategory(QStringLiteral("user"));
     m_author       = settings.loadString(QStringLiteral("author"), QString());
     m_organization = settings.loadString(QStringLiteral("organization"), QString());
+    /*  New patterns inherit the user's saved symbol palette (legacy
+        initDefaultSymbols semantics). Falls back to DEFAULT_SYMBOLS
+        when no preference has been saved yet.                       */
+    {
+        QSettings qs;
+        m_symbols = qs.value(QStringLiteral("Environment/Symbols"),
+                             BeadSymbols::DEFAULT_SYMBOLS).toString();
+        if (m_symbols.isEmpty()) m_symbols = BeadSymbols::DEFAULT_SYMBOLS;
+        BeadSymbols::setSymbols(m_symbols);
+        /*  View toggles default to the user's last choice (View/Draw*
+            keys persisted by MainWindow::doViewDrawModeChanged).
+            Loaded files override these via loadFrom; this only
+            affects new / cleared patterns.                          */
+        m_drawColors  = qs.value(QStringLiteral("View/DrawColors"),  true).toBool();
+        m_drawSymbols = qs.value(QStringLiteral("View/DrawSymbols"), false).toBool();
+    }
     m_file = m_unnamed;
     m_saved = false;
     m_modified = false;
@@ -440,6 +476,19 @@ void Model::clear()
 
 void Model::setAuthor(const QString& a)        { m_author = a;       emit modelChanged(); }
 void Model::setOrganization(const QString& o)  { m_organization = o; emit modelChanged(); }
+
+void Model::setSymbols(const QString& s)
+{
+    if (m_symbols == s) return;
+    snapshot();
+    m_symbols = s;
+    /*  BeadPainter / StripPainter / ReportPanel etc. read symbols
+        through the BeadSymbols singleton (no Model pointer at hand),
+        so mirror the change there too.                              */
+    BeadSymbols::setSymbols(s);
+    setModified();
+    emit modelChanged();
+}
 
 // ---- corrected (hexagonal) coordinates ---------------------------
 
@@ -500,6 +549,9 @@ void Model::saveTo(Memento& memento) const
     memento.setAuthor(m_author);
     memento.setOrganization(m_organization);
     memento.setNotes(m_notes);
+    memento.setSymbols(m_symbols);
+    memento.setDrawColors(m_drawColors);
+    memento.setDrawSymbols(m_drawSymbols);
 }
 
 void Model::loadFrom(const Memento& memento)
@@ -515,6 +567,16 @@ void Model::loadFrom(const Memento& memento)
     m_author       = memento.author();
     m_organization = memento.organization();
     m_notes        = memento.notes();
+    /*  Loaded files override the in-memory palette so saved patterns
+        render with the symbols they were authored with. An empty
+        memento value (e.g. .dbb files which carry no symbol field)
+        keeps whatever the user already had configured.              */
+    if (!memento.symbols().isEmpty()) {
+        m_symbols = memento.symbols();
+        BeadSymbols::setSymbols(m_symbols);
+    }
+    m_drawColors  = memento.drawColors();
+    m_drawSymbols = memento.drawSymbols();
     /*  Force a repeat recalculation on the next render. clear()
         zeroed m_repeat before this load was kicked off, so without
         this flag the report panel would forever show "no repeat
